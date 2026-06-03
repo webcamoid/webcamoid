@@ -26,15 +26,20 @@ Item {
     implicitWidth: ListView.view?
                 ListView.view.width:
                 AkUnit.create(300 * AkTheme.controlScale, "dp").pixels
-    implicitHeight: Math.max(AkUnit.create(72 * AkTheme.controlScale, "dp").pixels,
-                             icon.height + AkUnit.create(32 * AkTheme.controlScale, "dp").pixels,
-                             title.implicitHeight + subtitle.implicitHeight + AkUnit.create(32 * AkTheme.controlScale, "dp").pixels)
+    implicitHeight: optionVisible?
+                        Math.max(AkUnit.create(72 * AkTheme.controlScale, "dp").pixels,
+                                 icon.height + AkUnit.create(32 * AkTheme.controlScale, "dp").pixels,
+                                 title.implicitHeight + subtitle.implicitHeight + AkUnit.create(32 * AkTheme.controlScale, "dp").pixels):
+                        0
+
+    visible: optionVisible
 
     property string title: ""
     property string subtitle: ""
     property string iconSource: ""
     property bool showDivider: false
     property bool highlighted: false
+    property bool optionVisible: true
 
     readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
     readonly property color activeDark: AkTheme.palette.active.dark

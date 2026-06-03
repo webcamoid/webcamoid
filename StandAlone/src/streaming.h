@@ -119,6 +119,8 @@ class Streaming: public QObject
                                      const QString &option,
                                      const QVariant &value);
         void bitrateChanged(AkCaps::CapsType type, int bitrate);
+        void streamingError(const QString &error);
+        void streamingWarning(const QString &warning);
 
     public slots:
         void setAudioCaps(const AkAudioCaps &audioCaps);

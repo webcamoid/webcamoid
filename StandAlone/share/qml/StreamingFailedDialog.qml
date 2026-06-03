@@ -1,5 +1,5 @@
 /* Webcamoid, camera capture application.
- * Copyright (C) 2024  Gonzalo Exequiel Pedone
+ * Copyright (C) 2021  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,27 +18,32 @@
  */
 
 import QtQuick
-import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
+import Webcamoid
 
 Dialog {
     standardButtons: Dialog.Ok
-    width: AkUnit.create(450 * AkTheme.controlScale, "dp").pixels
-    height: AkUnit.create(350 * AkTheme.controlScale, "dp").pixels
+    width: AkUnit.create(320 * AkTheme.controlScale, "dp").pixels
+    height: AkUnit.create(200 * AkTheme.controlScale, "dp").pixels
     modal: true
-    title: qsTr("Done")
+    title: qsTr("Streaming failed")
 
-    property real physicalWidth: wdgMainWidget.width / Screen.pixelDensity
-    property real physicalHeight: wdgMainWidget.height / Screen.pixelDensity
+    onVisibleChanged: forceActiveFocus()
+
+    function showError(error)
+    {
+        reason.text = error
+        open()
+    }
 
     ScrollView {
         id: view
         anchors.fill: parent
 
         Label {
-            text: qsTr("Log file saved")
+            id: reason
             wrapMode: Text.WordWrap
             Layout.fillWidth: true
         }

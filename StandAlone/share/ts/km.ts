@@ -1469,128 +1469,172 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="66"/>
+        <location filename="../qml/Streaming.qml" line="121"/>
+        <location filename="../qml/Streaming.qml" line="146"/>
+        <source>Streaming quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="199"/>
+        <source>Custom</source>
+        <translation type="unfinished">ផ្ទាល់ខ្លួន</translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="202"/>
+        <source>Video quality: %1×%2 %3 FPS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="203"/>
+        <source>Video bitrate: %1 Mbps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="204"/>
+        <source>Audio sample rate: %1 kHz</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="205"/>
+        <source>Audio bitrate: %1 kbps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="213"/>
+        <source>Advanced settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="228"/>
         <source>Video quality</source>
         <translation type="unfinished">គុណភាពវីដេអូ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="84"/>
+        <location filename="../qml/Streaming.qml" line="246"/>
         <source>Output width</source>
         <translation type="unfinished">ទទឹងទិន្នផល</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="105"/>
+        <location filename="../qml/Streaming.qml" line="269"/>
         <source>Output height</source>
         <translation type="unfinished">កម្ពស់ទិន្នផល</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="262"/>
-        <source>Audio quality</source>
-        <translation type="unfinished">គុណភាពសំឡេង</translation>
-    </message>
-    <message>
-        <location filename="../qml/Streaming.qml" line="280"/>
-        <source>Sample rate</source>
-        <translation type="unfinished">អត្រាសំណាក</translation>
-    </message>
-    <message>
-        <location filename="../qml/Streaming.qml" line="126"/>
+        <location filename="../qml/Streaming.qml" line="292"/>
         <source>Output frame rate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="147"/>
+        <location filename="../qml/Streaming.qml" line="315"/>
         <source>Video bitrate (kbps)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="164"/>
+        <location filename="../qml/Streaming.qml" line="335"/>
         <source>Keyframes stride (ms)</source>
         <translation type="unfinished">ជំហាន keyframes (មីលីវិនាទី)</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="181"/>
+        <location filename="../qml/Streaming.qml" line="352"/>
         <source>Video codec</source>
         <translation type="unfinished">កូដេកវីដេអូ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="301"/>
+        <location filename="../qml/Streaming.qml" line="435"/>
+        <source>Audio quality</source>
+        <translation type="unfinished">គុណភាពសំឡេង</translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="453"/>
+        <source>Sample rate</source>
+        <translation type="unfinished">អត្រាសំណាក</translation>
+    </message>
+    <message>
+        <location filename="../qml/Streaming.qml" line="476"/>
         <source>Audio bitrate (kbps)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="319"/>
+        <location filename="../qml/Streaming.qml" line="497"/>
         <source>Audio codec</source>
         <translation type="unfinished">កូដេកសំឡេង</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="341"/>
+        <location filename="../qml/Streaming.qml" line="520"/>
         <source>Streaming platform settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="352"/>
+        <location filename="../qml/Streaming.qml" line="531"/>
         <source>Platform</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="360"/>
+        <location filename="../qml/Streaming.qml" line="539"/>
         <source>Add platform</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="367"/>
+        <location filename="../qml/Streaming.qml" line="546"/>
         <source>Remove platform</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="381"/>
+        <location filename="../qml/Streaming.qml" line="560"/>
         <source>Website</source>
         <translation type="unfinished">គេហទំព័រ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="401"/>
+        <location filename="../qml/Streaming.qml" line="580"/>
         <source>Visit website</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="416"/>
+        <location filename="../qml/Streaming.qml" line="595"/>
         <source>Streaming URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="445"/>
+        <location filename="../qml/Streaming.qml" line="624"/>
         <source>Hide streaming URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="446"/>
+        <location filename="../qml/Streaming.qml" line="625"/>
         <source>Show streaming URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="463"/>
+        <location filename="../qml/Streaming.qml" line="642"/>
         <source>Streaming key</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="494"/>
+        <location filename="../qml/Streaming.qml" line="673"/>
         <source>Hide streaming key</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="495"/>
+        <location filename="../qml/Streaming.qml" line="674"/>
         <source>Show streaming key</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="512"/>
+        <location filename="../qml/Streaming.qml" line="691"/>
         <source>Streaming configuration help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="524"/>
+        <location filename="../qml/Streaming.qml" line="703"/>
         <source>Get streaming key</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>StreamingFailedDialog</name>
+    <message>
+        <location filename="../qml/StreamingFailedDialog.qml" line="31"/>
+        <source>Streaming failed</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4486,111 +4530,111 @@
         <translation>%1/រូបភាព %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="238"/>
+        <location filename="../qml/main.qml" line="247"/>
         <source>Main menu</source>
         <translation>ម៉ឺនុយចម្បង</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="244"/>
+        <location filename="../qml/main.qml" line="253"/>
         <source>Open main menu</source>
         <translation>បើកម៉ឺនុយចម្បង</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="275"/>
-        <location filename="../qml/main.qml" line="281"/>
+        <location filename="../qml/main.qml" line="284"/>
+        <location filename="../qml/main.qml" line="290"/>
         <source>Start streaming</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="306"/>
+        <location filename="../qml/main.qml" line="316"/>
         <source>Capture options</source>
         <translation>ជម្រើសចាប់យក</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="312"/>
+        <location filename="../qml/main.qml" line="322"/>
         <source>Open capture options menu</source>
         <translation>បើកម៉ឺនុយជម្រើសចាប់យក</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="343"/>
+        <location filename="../qml/main.qml" line="353"/>
         <source>Open last photo</source>
         <translation>បើករូបថតចុងក្រោយ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="354"/>
+        <location filename="../qml/main.qml" line="364"/>
         <source>Open last photo taken</source>
         <translation>បើករូបថតចុងក្រោយដែលបានថត</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="385"/>
-        <location filename="../qml/main.qml" line="388"/>
+        <location filename="../qml/main.qml" line="395"/>
+        <location filename="../qml/main.qml" line="398"/>
         <source>Take a photo</source>
         <translation>ថតរូប</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="389"/>
+        <location filename="../qml/main.qml" line="399"/>
         <source>Image capture mode</source>
         <translation>របៀបចាប់យករូបភាព</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="392"/>
+        <location filename="../qml/main.qml" line="402"/>
         <source>Make a capture and save it to an image file</source>
         <translation>ធ្វើការចាប់យក និងរក្សាទុកវាទៅក្នុងឯកសាររូបភាព</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="393"/>
+        <location filename="../qml/main.qml" line="403"/>
         <source>Put %1 in image capture mode</source>
         <translation>ដាក់ %1 ក្នុងរបៀបចាប់យករូបភាព</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="442"/>
-        <location filename="../qml/main.qml" line="448"/>
+        <location filename="../qml/main.qml" line="452"/>
+        <location filename="../qml/main.qml" line="458"/>
         <source>Record video</source>
         <translation>ថតវីដេអូ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="443"/>
-        <location filename="../qml/main.qml" line="449"/>
+        <location filename="../qml/main.qml" line="453"/>
+        <location filename="../qml/main.qml" line="459"/>
         <source>Stop video recording</source>
         <translation>បញ្ឈប់ការថតវីដេអូ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="446"/>
+        <location filename="../qml/main.qml" line="456"/>
         <source>Video capture mode</source>
         <translation>របៀបចាប់យកវីដេអូ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="452"/>
+        <location filename="../qml/main.qml" line="462"/>
         <source>Put %1 in video recording mode</source>
         <translation>ដាក់ %1 ក្នុងរបៀបថតវីដេអូ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="454"/>
+        <location filename="../qml/main.qml" line="464"/>
         <source>Start recording to a video file</source>
         <translation>ចាប់ផ្តើមថតទៅឯកសារវីដេអូ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="455"/>
+        <location filename="../qml/main.qml" line="465"/>
         <source>Stop current video recording</source>
         <translation>បញ្ឈប់ការថតវីដេអូបច្ចុប្បន្ន</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="482"/>
+        <location filename="../qml/main.qml" line="492"/>
         <source>Open last video</source>
         <translation>បើកវីដេអូចុងក្រោយ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="494"/>
+        <location filename="../qml/main.qml" line="504"/>
         <source>Open last recorded video</source>
         <translation>បើកវីដេអូចុងក្រោយដែលបានថត</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="729"/>
+        <location filename="../qml/main.qml" line="739"/>
         <source>Installing virtual camera</source>
         <translation>កំពុងដំឡើងកាមេរ៉ាមេ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="730"/>
+        <location filename="../qml/main.qml" line="740"/>
         <source>Running commands</source>
         <translation>កំពុងដំណើរការពាក្យបញ្ជា</translation>
     </message>

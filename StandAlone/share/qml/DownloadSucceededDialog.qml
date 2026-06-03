@@ -50,6 +50,7 @@ Dialog {
 
         Label {
             text: qsTr("Install the virtual camera?")
+            wrapMode: Text.WordWrap
             Layout.fillWidth: true
         }
     }

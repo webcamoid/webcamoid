@@ -49,7 +49,7 @@ Dialog {
 
         ImageCapture { }
         VideoRecording { }
-        Streaming { }
+        Streaming { optionVisible: streaming.isStreamingSupported }
         ColorSchemes { }
         GeneralConfig { }
         PluginConfig { }

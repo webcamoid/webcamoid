@@ -38,6 +38,7 @@ Dialog {
 
         Label {
             text: qsTr("Restart Webcamoid?")
+            wrapMode: Text.WordWrap
             Layout.fillWidth: true
         }
     }

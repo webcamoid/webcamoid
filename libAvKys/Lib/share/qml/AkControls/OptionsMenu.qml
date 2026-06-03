@@ -27,7 +27,7 @@ Item {
 
     property bool showDivider: false
     property variant model: {}
-     property alias currentIndex: listView.currentIndex
+    property alias currentIndex: listView.currentIndex
 
     signal selected(int option)
 
@@ -52,6 +52,7 @@ Item {
             title: model.title
             subtitle: model.subtitle
             iconSource: model.icon
+            optionVisible: model.optionVisible
             showDivider: menu.showDivider && index < menu.model.count - 1
             highlighted: ListView.isCurrentItem
 

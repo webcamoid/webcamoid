@@ -44,6 +44,7 @@ Dialog {
 
         Label {
             id: reason
+            wrapMode: Text.WordWrap
             Layout.fillWidth: true
         }
     }

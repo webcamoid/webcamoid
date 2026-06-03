@@ -36,6 +36,10 @@ Item {
     function openAtIndex(index) {
         if (index >= 0 && index < listModel.count) {
             let option = listModel.get(index)
+
+            if (!option.optionVisible)
+                return
+
             stackView.push(option.page, StackView.Animated)
 
             if (root.menuRect && root.menuRect.listView)
@@ -161,11 +165,20 @@ Item {
                     title: page.title,
                     subtitle: page.subtitle,
                     icon: page.icon,
-                    page: page
+                    page: page,
+                    optionVisible: page.optionVisible
                 })
 
                 if (page.onGoBack)
                     page.onGoBack.connect(root.goBack)
+
+                ;(function(p, idx) {
+                    p.optionVisibleChanged.connect(function() {
+                        listModel.setProperty(idx,
+                                              "optionVisible",
+                                              p.optionVisible)
+                    })
+                })(page, listModel.count - 1)
 
                 // Hide the page at the beginning
                 page.visible = false

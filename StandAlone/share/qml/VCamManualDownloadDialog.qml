@@ -38,6 +38,7 @@ Dialog {
 
         Label {
             text: qsTr("Download the virtual camera manually?")
+            wrapMode: Text.WordWrap
             Layout.fillWidth: true
         }
     }

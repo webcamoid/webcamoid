@@ -29,6 +29,7 @@ Page {
     property string subtitle: ""
     property string icon: ""
     property bool showDivider: false
+    property bool optionVisible: true
     default property alias content: contentItem.children
 
     readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft

@@ -154,6 +154,15 @@ ApplicationWindow {
         }
     }
 
+    Connections {
+        target: streaming
+
+        function onStreamingError(errorMsg)
+        {
+            streamingFailedDialog.showError(errorMsg)
+        }
+    }
+
     HoverHandler {
         id: hoverHandler
         acceptedDevices: PointerDevice.Mouse
@@ -274,12 +283,13 @@ ApplicationWindow {
                 icon.source: "image://icons/broadcast"
                 text: qsTr("Start streaming")
                 display: AbstractButton.IconOnly
-                implicitWidth: implicitHeight
+                implicitWidth: visible? implicitHeight: 0
                 ToolTip.visible: hovered
                 ToolTip.text: text
                 Accessible.name: text
                 Accessible.description: qsTr("Start streaming")
                 enabled: videoLayer.state == AkElement.ElementStatePlaying
+                visible: streaming.isStreamingSupported
 
                 property bool isActive: false
 
@@ -778,6 +788,10 @@ ApplicationWindow {
     }
     VideoOutputError {
         id: videoOutputError
+        anchors.centerIn: Overlay.overlay
+    }
+    StreamingFailedDialog {
+        id: streamingFailedDialog
         anchors.centerIn: Overlay.overlay
     }
     UpdatesDialog {

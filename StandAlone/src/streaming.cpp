@@ -47,7 +47,7 @@
 
 #define DEFAULT_AUDIO_BITRATE 128000
 #define DEFAULT_VIDEO_BITRATE 1500000
-#define DEFAULT_VIDEO_GOP 1000
+#define DEFAULT_VIDEO_GOP 2000
 
 struct StreamingSiteInfo
 {
@@ -209,7 +209,13 @@ QStringList Streaming::supportedPlatforms() const
 
 bool Streaming::isStreamingSupported() const
 {
-    return true;
+    auto plugins =
+            akPluginManager->listPlugins("^VideoStreaming([/]([0-9a-zA-Z_])+)+$",
+                                         {},
+                                         AkPluginManager::FilterEnabled
+                                         | AkPluginManager::FilterRegexp);
+
+    return !plugins.isEmpty();
 }
 
 QString Streaming::platformWebsite(const QString &platform) const
@@ -1358,6 +1364,11 @@ bool StreamingPrivate::init()
                                      AkCompressedCaps::CapsType_Video, headers);
                              });
 
+    QObject::connect(this->m_streamer.data(),
+                     &AkVideoStreamer::streamingError,
+                     self,
+                     &Streaming::streamingError);
+
     if (this->m_audioEncoder) {
         this->m_audioEncoder->setInputCaps(this->m_audioCaps);
         this->m_audioEncoder->setBitrate(this->m_audioBitrate);
@@ -1414,6 +1425,11 @@ void StreamingPrivate::uninit()
 
     if (this->m_streamer)
         this->m_streamer->setState(AkElement::ElementStateNull);
+
+    QObject::disconnect(this->m_streamer.data(),
+                        &AkVideoStreamer::streamingError,
+                        self,
+                        &Streaming::streamingError);
 
     qInfo() << "Streaming stopped";
 }
