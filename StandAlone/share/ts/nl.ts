@@ -61,12 +61,12 @@
     <message>
         <location filename="../qml/AddPlatformDialog.qml" line="33"/>
         <source>Add platform</source>
-        <translation type="unfinished"></translation>
+        <translation>Platform toevoegen</translation>
     </message>
     <message>
         <location filename="../qml/AddPlatformDialog.qml" line="42"/>
         <source>Platform</source>
-        <translation type="unfinished"></translation>
+        <translation>Platform</translation>
     </message>
 </context>
 <context>
@@ -74,42 +74,42 @@
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="28"/>
         <source>Add platform</source>
-        <translation type="unfinished"></translation>
+        <translation>Platform toevoegen</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="57"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Naam</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="63"/>
         <source>My Platform</source>
-        <translation type="unfinished"></translation>
+        <translation>Mijn platform</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="68"/>
         <source>Website</source>
-        <translation type="unfinished">Website</translation>
+        <translation>Website</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="79"/>
         <source>Streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Stream-url</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="90"/>
         <source>Key configs URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Sleutelconfiguratie-url</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="101"/>
         <source>Documentation URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Documentatie-url</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="113"/>
         <source>Needs key</source>
-        <translation type="unfinished"></translation>
+        <translation>Sleutel vereist</translation>
     </message>
 </context>
 <context>
@@ -896,7 +896,7 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="30"/>
         <source>Configure photografy quality and formats.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stel de kwaliteit en bestandsformaten van foto&apos;s in.</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="54"/>
@@ -1034,12 +1034,12 @@
     <message>
         <location filename="../qml/MainPanel.qml" line="35"/>
         <source>Virtual Camera Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuelecamera-instellingen</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="37"/>
         <source>Streaming Platform Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Streaminginstellingen</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="38"/>
@@ -1461,137 +1461,137 @@
     <message>
         <location filename="../qml/Streaming.qml" line="28"/>
         <source>Streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>Streaming</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="29"/>
         <source>Configure video streaming to many platforms.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stel videostreaming naar verschillende platforms in.</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="66"/>
         <source>Video quality</source>
-        <translation type="unfinished">Videokwaliteit</translation>
+        <translation>Videokwaliteit</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="84"/>
         <source>Output width</source>
-        <translation type="unfinished">Uitvoerbreedte</translation>
+        <translation>Uitvoerbreedte</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="105"/>
         <source>Output height</source>
-        <translation type="unfinished">Uitvoerhoogte</translation>
+        <translation>Uitvoerhoogte</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="262"/>
         <source>Audio quality</source>
-        <translation type="unfinished">Audiokwaliteit</translation>
+        <translation>Audiokwaliteit</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="280"/>
         <source>Sample rate</source>
-        <translation type="unfinished">Samplefrequentie</translation>
+        <translation>Samplefrequentie</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="126"/>
         <source>Output frame rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Uitvoerframesnelheid</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="147"/>
         <source>Video bitrate (kbps)</source>
-        <translation type="unfinished"></translation>
+        <translation>Videobitsnelheid (in kbps)</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="164"/>
         <source>Keyframes stride (ms)</source>
-        <translation type="unfinished">Keyframe-interval (ms)</translation>
+        <translation>Keyframe-interval (in ms)</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="181"/>
         <source>Video codec</source>
-        <translation type="unfinished">Videocodec</translation>
+        <translation>Videocodec</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="301"/>
         <source>Audio bitrate (kbps)</source>
-        <translation type="unfinished"></translation>
+        <translation>Audiobitsnelheid (in kbps)</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="319"/>
         <source>Audio codec</source>
-        <translation type="unfinished">Audiocodec</translation>
+        <translation>Audiocodec</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="341"/>
         <source>Streaming platform settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Streamingplatforminstellingen</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="352"/>
         <source>Platform</source>
-        <translation type="unfinished"></translation>
+        <translation>Platform</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="360"/>
         <source>Add platform</source>
-        <translation type="unfinished"></translation>
+        <translation>Platform toevoegen</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="367"/>
         <source>Remove platform</source>
-        <translation type="unfinished"></translation>
+        <translation>Platform verwijderen</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="381"/>
         <source>Website</source>
-        <translation type="unfinished">Website</translation>
+        <translation>Website</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="401"/>
         <source>Visit website</source>
-        <translation type="unfinished"></translation>
+        <translation>Website openen</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="416"/>
         <source>Streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Stream-url</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="445"/>
         <source>Hide streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Stream-url verbergen</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="446"/>
         <source>Show streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Stream-url tonen</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="463"/>
         <source>Streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>Streamsleutel</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="494"/>
         <source>Hide streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>Streamsleutel verbergen</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="495"/>
         <source>Show streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>Streamsleutel tonen</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="512"/>
         <source>Streaming configuration help</source>
-        <translation type="unfinished"></translation>
+        <translation>Hulp omtrent streaminginstellingen</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="524"/>
         <source>Get streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>Streamingsleutel verkrijgen</translation>
     </message>
 </context>
 <context>
@@ -1599,7 +1599,7 @@
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="60"/>
         <source>Remove</source>
-        <translation type="unfinished">Verwijderen</translation>
+        <translation>Verwijderen</translation>
     </message>
 </context>
 <context>
@@ -1607,22 +1607,22 @@
     <message>
         <location filename="../qml/StreamingStartStopDialog.qml" line="33"/>
         <source>Start streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>Stream starten</translation>
     </message>
     <message>
         <location filename="../qml/StreamingStartStopDialog.qml" line="34"/>
         <source>Stop streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>Stream stoppen</translation>
     </message>
     <message>
         <location filename="../qml/StreamingStartStopDialog.qml" line="50"/>
         <source>Thousands of people will start watching you around the world on internet.&lt;br/&gt;Are you sure that you want to start streaming?</source>
-        <translation type="unfinished"></translation>
+        <translation>Let op: hierdoor kunnen duizenden mensen wereldwijd meekijken met wat je doet.&lt;br/&gt;Weet je zeker dat je de stream wilt starten?</translation>
     </message>
     <message>
         <location filename="../qml/StreamingStartStopDialog.qml" line="51"/>
         <source>Are you sure that you want to stop streaming?</source>
-        <translation type="unfinished"></translation>
+        <translation>Weet je zeker dat je de stream wilt stoppen?</translation>
     </message>
 </context>
 <context>
@@ -2196,7 +2196,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="92"/>
         <source>Add virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuele camera toevoegen</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="105"/>
@@ -2206,7 +2206,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="113"/>
         <source>Add streaming platform</source>
-        <translation type="unfinished"></translation>
+        <translation>Streamingplatform toevoegen</translation>
     </message>
 </context>
 <context>
@@ -2322,17 +2322,17 @@
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="32"/>
         <source>Virtual camera install</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuele camera installeren</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="52"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
-        <translation type="unfinished">De virtuele camera is niet geïnstalleerd. Wil je deze nu installeren?</translation>
+        <translation>De virtuele camera is niet geïnstalleerd. Wil je deze nu installeren?</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="53"/>
         <source>The virtual camera is not installed. Please, install &lt;b&gt;v4l2loopback&lt;/b&gt;.</source>
-        <translation type="unfinished">De virtuele camera is niet geïnstalleerd. Installeer &lt;b&gt;v4l2loopback&lt;/b&gt;.</translation>
+        <translation>De virtuele camera is niet geïnstalleerd. Installeer &lt;b&gt;v4l2loopback&lt;/b&gt;.</translation>
     </message>
 </context>
 <context>
@@ -2340,32 +2340,32 @@
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="65"/>
         <source>Edit</source>
-        <translation type="unfinished">Bewerken</translation>
+        <translation>Bewerken</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="77"/>
         <source>Can&apos;t Edit The Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>De virtuele camera kan niet worden bewerkt</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="84"/>
         <source>Set output picture</source>
-        <translation type="unfinished">Uitvoerafbeelding instellen</translation>
+        <translation>Uitvoerafbeelding instellen</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="95"/>
         <source>Remove</source>
-        <translation type="unfinished">Verwijderen</translation>
+        <translation>Verwijderen</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="110"/>
         <source>Error removing the virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>De virtuele camera kan niet worden verwijderd</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="114"/>
         <source>Can&apos;t Remove The Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>De virtuele camera kan niet worden verwijderd</translation>
     </message>
 </context>
 <context>
@@ -2373,17 +2373,17 @@
     <message>
         <location filename="../qml/VirtualCameraUpdateDialog.qml" line="33"/>
         <source>Virtual camera update</source>
-        <translation type="unfinished"></translation>
+        <translation>Virtuele camera bijwerken</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraUpdateDialog.qml" line="54"/>
         <source>The virtual camera is outdated (%1), install the latest version (%2)?</source>
-        <translation type="unfinished">De virtuele camera is verouderd (%1). Wil je de nieuwste versie (%2) installeren?</translation>
+        <translation>De virtuele camera is verouderd (%1). Wil je de nieuwste versie (%2) installeren?</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraUpdateDialog.qml" line="62"/>
         <source>Show this dialog next time</source>
-        <translation type="unfinished">Toon dit venster volgende keer weer</translation>
+        <translation>Venster volgende keer opnieuw tonen</translation>
     </message>
 </context>
 <context>
@@ -2391,7 +2391,7 @@
     <message>
         <location filename="../../src/virtualcameras.cpp" line="571"/>
         <source>Virtual Camera</source>
-        <translation type="unfinished">Virtuele camera</translation>
+        <translation>Virtuele camera</translation>
     </message>
 </context>
 <context>
@@ -4155,7 +4155,7 @@
         <location filename="../qml/main.qml" line="275"/>
         <location filename="../qml/main.qml" line="281"/>
         <source>Start streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>Stream starten</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="343"/>
