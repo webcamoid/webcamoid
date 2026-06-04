@@ -983,8 +983,8 @@ void AudioDevJNIAudioPrivate::updateDevices()
     this->initAudioManager();
 
     static const QList<AkAudioCaps::SampleFormat> preferredFormats {
-        AkAudioCaps::SampleFormat_s16,
         AkAudioCaps::SampleFormat_s32,
+        AkAudioCaps::SampleFormat_s16,
         AkAudioCaps::SampleFormat_flt,
         AkAudioCaps::SampleFormat_u8,
     };
@@ -1137,7 +1137,7 @@ void AudioDevJNIAudioPrivate::updateDevices()
                             AkAudioCaps::Layout_stereo:
                             AkAudioCaps::Layout_mono;
 
-                static const int wantedSampleRate = 44100;
+                static const int wantedSampleRate = 48000;
                 int preferredSampleRate = 0;
                 int k = std::numeric_limits<int>::max();
 

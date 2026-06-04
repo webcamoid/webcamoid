@@ -157,15 +157,17 @@ QString AudioDevAlsa::description(const QString &device)
 
 AkAudioCaps AudioDevAlsa::preferredFormat(const QString &device)
 {
+    Q_UNUSED(device)
+
     return this->d->m_sinks.contains(device)?
-                AkAudioCaps(AkAudioCaps::SampleFormat_s32,
+                AkAudioCaps(AkAudioCaps::SampleFormat_s16,
                             AkAudioCaps::Layout_stereo,
                             false,
                             44100):
-                AkAudioCaps(AkAudioCaps::SampleFormat_u8,
+                AkAudioCaps(AkAudioCaps::SampleFormat_s16,
                             AkAudioCaps::Layout_mono,
                             false,
-                            8000);
+                            44100);
 }
 
 QList<AkAudioCaps::SampleFormat> AudioDevAlsa::supportedFormats(const QString &device)

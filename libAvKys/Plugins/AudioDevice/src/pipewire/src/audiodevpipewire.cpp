@@ -755,7 +755,7 @@ AkAudioCaps AudioDevPipeWire::preferredFormat(const QString &device)
         auto layout = channelLayouts.contains(AkAudioCaps::Layout_mono)?
                           AkAudioCaps::Layout_mono:
                           channelLayouts.first();
-        caps = {format, layout, false, 8000};
+        caps = {format, layout, false, 48000};
     }
 
     this->d->m_mutex.unlock();

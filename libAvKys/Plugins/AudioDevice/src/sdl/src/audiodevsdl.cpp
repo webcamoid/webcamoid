@@ -602,7 +602,7 @@ void AudioDevSDLPrivate::updateDevices()
         preferredFormats[deviceID] = {AkAudioCaps::SampleFormat_s16,
                                       AkAudioCaps::Layout_mono,
                                       false,
-                                      8000};
+                                      44100};
 #endif
     }
 

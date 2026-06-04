@@ -780,10 +780,10 @@ AkAudioCaps AudioDevWasapiPrivate::preferredCaps(const QString &device,
     }
 
     AkAudioCaps caps = dataFlow == eCapture?
-                AkAudioCaps(AkAudioCaps::SampleFormat_u8,
+                AkAudioCaps(AkAudioCaps::SampleFormat_s16,
                             AkAudioCaps::Layout_mono,
                             false,
-                            8000):
+                            44100):
                 AkAudioCaps(AkAudioCaps::SampleFormat_s16,
                             AkAudioCaps::Layout_stereo,
                             false,
