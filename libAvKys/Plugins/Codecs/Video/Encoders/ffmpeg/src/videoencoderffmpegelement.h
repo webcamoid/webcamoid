@@ -45,6 +45,7 @@ class VideoEncoderFFmpegElement: public AkVideoEncoder
         Q_INVOKABLE qint64 encodedTimePts() const override;
         Q_INVOKABLE bool globalHeaders() const;
         Q_INVOKABLE AkPropertyOptions options() const override;
+        Q_INVOKABLE bool hasHardwareSupport(const QString &codec) const override;
 
     private:
         VideoEncoderFFmpegElementPrivate *d;

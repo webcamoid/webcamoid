@@ -156,6 +156,7 @@ struct CodecInfo
     AkVideoEncoderCodecID codecID;
     QString mimeType;
     QVector<int32_t> formats;
+    bool isHardware {false};
 };
 
 #define COLOR_FormatMonochrome                1
@@ -501,6 +502,20 @@ qint64 VideoEncoderNDKMediaElement::encodedTimePts() const
     return this->d->m_encodedTimePts;
 }
 
+bool VideoEncoderNDKMediaElement::hasHardwareSupport(const QString &codec) const
+{
+    auto it = std::find_if(this->d->m_codecs.constBegin(),
+                           this->d->m_codecs.constEnd(),
+                           [&codec] (const CodecInfo &codecInfo) -> bool {
+        return codecInfo.name == codec;
+    });
+
+    if (it == this->d->m_codecs.constEnd())
+        return false;
+
+    return it->isHardware;
+}
+
 AkPacket VideoEncoderNDKMediaElement::iVideoStream(const AkVideoPacket &packet)
 {
     QMutexLocker mutexLocker(&this->d->m_mutex);
@@ -784,6 +799,20 @@ void VideoEncoderNDKMediaElementPrivate::listCodecs()
             if (!capabilities.isValid())
                 continue;
 
+            // Detectar si el codec es hardware-accelerated
+            bool isHardware = false;
+
+#if __ANDROID_API__ >= 29
+            isHardware = codecInfo.callMethod<jboolean>("isHardwareAccelerated", "()Z");
+#else
+            {
+                auto ndkNameStr = codecName.toString();
+                isHardware = !ndkNameStr.startsWith("OMX.google.", Qt::CaseInsensitive)
+                             && !ndkNameStr.startsWith("c2.android.", Qt::CaseInsensitive)
+                             && !ndkNameStr.startsWith("OMX.SEC.avc.", Qt::CaseInsensitive); // Samsung SW
+            }
+#endif
+
             QVector<int32_t> formats;
             auto colorFormatsArray =
                     capabilities.getObjectField("colorFormats", "[I");
@@ -815,13 +844,15 @@ void VideoEncoderNDKMediaElementPrivate::listCodecs()
                                          cname,
                                          codec->codecID,
                                          mimeTypeStr,
-                                         formats};
+                                         formats,
+                                         isHardware};
 
             qInfo() << "Codec name:" << this->m_codecs.last().name;
             qInfo() << "Codec description:" << this->m_codecs.last().description;
             qInfo() << "Native codec name:" << this->m_codecs.last().ndkName;
             qInfo() << "Codec ID:" << this->m_codecs.last().codecID;
             qInfo() << "Mime type:" << this->m_codecs.last().mimeType;
+            qInfo() << "Hardware accelerated:" << (this->m_codecs.last().isHardware? "yes": "no");
 
             qInfo() << "Supported pixel formats:";
 

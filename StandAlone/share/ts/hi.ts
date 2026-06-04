@@ -1237,7 +1237,7 @@
         <translation>%1 का एक नया उदाहरण खोलें।</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1496"/>
+        <location filename="../../src/recording.cpp" line="1516"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/वीडियो %2.%3</translation>
     </message>
@@ -2266,97 +2266,133 @@
         <translation>वीडियो रिकॉर्डिंग प्रारूप और कोडेक कॉन्फ़िगर करें।</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="58"/>
+        <location filename="../qml/VideoRecording.qml" line="114"/>
         <source>Videos directory</source>
         <translation>वीडियो निर्देशिका</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="70"/>
+        <location filename="../qml/VideoRecording.qml" line="126"/>
         <source>Select the save directory</source>
         <translation>सहेजने की निर्देशिका चुनें</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="84"/>
+        <location filename="../qml/VideoRecording.qml" line="140"/>
         <source>Record audio</source>
         <translation>ऑडियो रिकॉर्ड करें</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="95"/>
+        <location filename="../qml/VideoRecording.qml" line="151"/>
         <source>Use flash</source>
         <translation type="unfinished">फ़्लैश प्रयोग करें</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="98"/>
+        <location filename="../qml/VideoRecording.qml" line="154"/>
         <source>Use flash when recording a video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="113"/>
+        <location filename="../qml/VideoRecording.qml" line="165"/>
+        <location filename="../qml/VideoRecording.qml" line="190"/>
+        <source>Recording quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="240"/>
+        <source>Custom</source>
+        <translation type="unfinished">कस्टम</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="244"/>
+        <source>Video quality: %1×%2 %3 FPS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="245"/>
+        <source>Video bitrate: %1 Mbps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="246"/>
+        <source>Audio sample rate: %1 kHz</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="247"/>
+        <source>Audio bitrate: %1 kbps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="255"/>
+        <source>Advanced settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="268"/>
         <source>Video quality</source>
         <translation>वीडियो गुणवत्ता</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="122"/>
+        <location filename="../qml/VideoRecording.qml" line="286"/>
         <source>Output width</source>
         <translation>आउटपुट चौड़ाई</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="142"/>
+        <location filename="../qml/VideoRecording.qml" line="309"/>
         <source>Output height</source>
         <translation>आउटपुट ऊंचाई</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="162"/>
+        <location filename="../qml/VideoRecording.qml" line="332"/>
         <source>Output Frame rate</source>
         <translation>आउटपुट फ़्रेम दर</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="181"/>
+        <location filename="../qml/VideoRecording.qml" line="357"/>
         <source>Audio quality</source>
         <translation>ऑडियो गुणवत्ता</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="190"/>
+        <location filename="../qml/VideoRecording.qml" line="375"/>
         <source>Sample rate</source>
         <translation>सैंपल दर</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="210"/>
+        <location filename="../qml/VideoRecording.qml" line="400"/>
         <source>File format and codecs</source>
         <translation>फ़ाइल प्रारूप और कोडेक</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="220"/>
+        <location filename="../qml/VideoRecording.qml" line="411"/>
         <source>Configure the file format</source>
         <translation>फ़ाइल प्रारूप कॉन्फ़िगर करें</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="222"/>
+        <location filename="../qml/VideoRecording.qml" line="413"/>
         <source>Configure the file format for recording</source>
         <translation>रिकॉर्डिंग के लिए फ़ाइल प्रारूप कॉन्फ़िगर करें</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="230"/>
+        <location filename="../qml/VideoRecording.qml" line="421"/>
         <source>Configure the video codec</source>
         <translation>वीडियो कोडेक कॉन्फ़िगर करें</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="232"/>
+        <location filename="../qml/VideoRecording.qml" line="423"/>
         <source>Configure the video codec for recording</source>
         <translation>रिकॉर्डिंग के लिए वीडियो कोडेक कॉन्फ़िगर करें</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="240"/>
+        <location filename="../qml/VideoRecording.qml" line="431"/>
         <source>Configure the audio codec</source>
         <translation>ऑडियो कोडेक कॉन्फ़िगर करें</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="243"/>
+        <location filename="../qml/VideoRecording.qml" line="434"/>
         <source>Configure the audio codec for recording</source>
         <translation>रिकॉर्डिंग के लिए ऑडियो कोडेक कॉन्फ़िगर करें</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="276"/>
+        <location filename="../qml/VideoRecording.qml" line="468"/>
         <source>Select the folder to save your videos</source>
         <translation>अपने वीडियो सहेजने के लिए फ़ोल्डर चुनें</translation>
     </message>

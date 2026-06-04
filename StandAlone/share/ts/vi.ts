@@ -1399,7 +1399,7 @@
         <translation>Pixmap X11</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1496"/>
+        <location filename="../../src/recording.cpp" line="1516"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/Video %2.%3</translation>
     </message>
@@ -2265,97 +2265,133 @@
         <translation>Cấu hình định dạng và bộ mã hóa ghi video.</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="58"/>
+        <location filename="../qml/VideoRecording.qml" line="114"/>
         <source>Videos directory</source>
         <translation>Thư mục video</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="70"/>
+        <location filename="../qml/VideoRecording.qml" line="126"/>
         <source>Select the save directory</source>
         <translation>Chọn thư mục lưu</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="84"/>
+        <location filename="../qml/VideoRecording.qml" line="140"/>
         <source>Record audio</source>
         <translation>Ghi âm thanh</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="95"/>
+        <location filename="../qml/VideoRecording.qml" line="151"/>
         <source>Use flash</source>
         <translation type="unfinished">Sử dụng đèn flash</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="98"/>
+        <location filename="../qml/VideoRecording.qml" line="154"/>
         <source>Use flash when recording a video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="113"/>
+        <location filename="../qml/VideoRecording.qml" line="165"/>
+        <location filename="../qml/VideoRecording.qml" line="190"/>
+        <source>Recording quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="240"/>
+        <source>Custom</source>
+        <translation type="unfinished">Tùy chỉnh</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="244"/>
+        <source>Video quality: %1×%2 %3 FPS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="245"/>
+        <source>Video bitrate: %1 Mbps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="246"/>
+        <source>Audio sample rate: %1 kHz</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="247"/>
+        <source>Audio bitrate: %1 kbps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="255"/>
+        <source>Advanced settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="268"/>
         <source>Video quality</source>
         <translation>Chất lượng video</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="122"/>
+        <location filename="../qml/VideoRecording.qml" line="286"/>
         <source>Output width</source>
         <translation>Chiều rộng đầu ra</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="142"/>
+        <location filename="../qml/VideoRecording.qml" line="309"/>
         <source>Output height</source>
         <translation>Chiều cao đầu ra</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="162"/>
+        <location filename="../qml/VideoRecording.qml" line="332"/>
         <source>Output Frame rate</source>
         <translation>Tốc độ khung hình đầu ra</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="181"/>
+        <location filename="../qml/VideoRecording.qml" line="357"/>
         <source>Audio quality</source>
         <translation>Chất lượng âm thanh</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="190"/>
+        <location filename="../qml/VideoRecording.qml" line="375"/>
         <source>Sample rate</source>
         <translation>Tần số mẫu</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="210"/>
+        <location filename="../qml/VideoRecording.qml" line="400"/>
         <source>File format and codecs</source>
         <translation>Định dạng tệp và bộ mã hóa</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="220"/>
+        <location filename="../qml/VideoRecording.qml" line="411"/>
         <source>Configure the file format</source>
         <translation>Cấu hình định dạng tệp</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="222"/>
+        <location filename="../qml/VideoRecording.qml" line="413"/>
         <source>Configure the file format for recording</source>
         <translation>Cấu hình định dạng tệp để ghi</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="230"/>
+        <location filename="../qml/VideoRecording.qml" line="421"/>
         <source>Configure the video codec</source>
         <translation>Cấu hình bộ mã hóa video</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="232"/>
+        <location filename="../qml/VideoRecording.qml" line="423"/>
         <source>Configure the video codec for recording</source>
         <translation>Cấu hình bộ mã hóa video để ghi</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="240"/>
+        <location filename="../qml/VideoRecording.qml" line="431"/>
         <source>Configure the audio codec</source>
         <translation>Cấu hình bộ mã hóa âm thanh</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="243"/>
+        <location filename="../qml/VideoRecording.qml" line="434"/>
         <source>Configure the audio codec for recording</source>
         <translation>Cấu hình bộ mã hóa âm thanh để ghi</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="276"/>
+        <location filename="../qml/VideoRecording.qml" line="468"/>
         <source>Select the folder to save your videos</source>
         <translation>Chọn thư mục để lưu video của bạn</translation>
     </message>

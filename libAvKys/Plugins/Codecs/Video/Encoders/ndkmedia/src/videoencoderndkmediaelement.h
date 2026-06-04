@@ -38,6 +38,7 @@ class VideoEncoderNDKMediaElement: public AkVideoEncoder
         Q_INVOKABLE AkCompressedVideoCaps outputCaps() const override;
         Q_INVOKABLE QByteArray headers() const override;
         Q_INVOKABLE qint64 encodedTimePts() const override;
+        Q_INVOKABLE bool hasHardwareSupport(const QString &codec) const override;
 
     private:
         VideoEncoderNDKMediaElementPrivate *d;

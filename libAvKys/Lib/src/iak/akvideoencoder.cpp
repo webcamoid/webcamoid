@@ -115,6 +115,13 @@ bool AkVideoEncoder::isOptionSet(const QString &option) const
     return it != options.constEnd();
 }
 
+bool AkVideoEncoder::hasHardwareSupport(const QString &codec) const
+{
+    Q_UNUSED(codec)
+
+    return false;
+}
+
 AkVideoEncoder::BitrateMode AkVideoEncoder::bitrateMode() const
 {
     return this->d->m_bitrateMode;

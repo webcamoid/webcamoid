@@ -108,6 +108,7 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
         Q_INVOKABLE QVariant optionValue(const QString &option) const;
         Q_INVOKABLE bool isOptionSet(const QString &option) const;
         Q_INVOKABLE BitrateMode bitrateMode() const;
+        Q_INVOKABLE virtual bool hasHardwareSupport(const QString &codec) const;
 
     private:
         AkVideoEncoderPrivate *d;

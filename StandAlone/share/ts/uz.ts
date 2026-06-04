@@ -1237,7 +1237,7 @@
         <translation>%1 ning yangi instantsiyasini ochish.</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1496"/>
+        <location filename="../../src/recording.cpp" line="1516"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/Video %2.%3</translation>
     </message>
@@ -2266,97 +2266,133 @@
         <translation>Video yozish formati va kodeklarini sozlash.</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="58"/>
+        <location filename="../qml/VideoRecording.qml" line="114"/>
         <source>Videos directory</source>
         <translation>Videolar katalogi</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="70"/>
+        <location filename="../qml/VideoRecording.qml" line="126"/>
         <source>Select the save directory</source>
         <translation>Saqlash katalogini tanlang</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="84"/>
+        <location filename="../qml/VideoRecording.qml" line="140"/>
         <source>Record audio</source>
         <translation>Audioni yozish</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="95"/>
+        <location filename="../qml/VideoRecording.qml" line="151"/>
         <source>Use flash</source>
         <translation type="unfinished">Chiroqdan foydalanish</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="98"/>
+        <location filename="../qml/VideoRecording.qml" line="154"/>
         <source>Use flash when recording a video</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="113"/>
+        <location filename="../qml/VideoRecording.qml" line="165"/>
+        <location filename="../qml/VideoRecording.qml" line="190"/>
+        <source>Recording quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="240"/>
+        <source>Custom</source>
+        <translation type="unfinished">Maxsus</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="244"/>
+        <source>Video quality: %1×%2 %3 FPS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="245"/>
+        <source>Video bitrate: %1 Mbps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="246"/>
+        <source>Audio sample rate: %1 kHz</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="247"/>
+        <source>Audio bitrate: %1 kbps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="255"/>
+        <source>Advanced settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoRecording.qml" line="268"/>
         <source>Video quality</source>
         <translation>Video sifat</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="122"/>
+        <location filename="../qml/VideoRecording.qml" line="286"/>
         <source>Output width</source>
         <translation>Chiqish kengligi</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="142"/>
+        <location filename="../qml/VideoRecording.qml" line="309"/>
         <source>Output height</source>
         <translation>Chiqish balandligi</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="162"/>
+        <location filename="../qml/VideoRecording.qml" line="332"/>
         <source>Output Frame rate</source>
         <translation>Chiqish kadr tezligi</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="181"/>
+        <location filename="../qml/VideoRecording.qml" line="357"/>
         <source>Audio quality</source>
         <translation>Audio sifat</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="190"/>
+        <location filename="../qml/VideoRecording.qml" line="375"/>
         <source>Sample rate</source>
         <translation>Namuna tezligi</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="210"/>
+        <location filename="../qml/VideoRecording.qml" line="400"/>
         <source>File format and codecs</source>
         <translation>Fayl formati va kodeklar</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="220"/>
+        <location filename="../qml/VideoRecording.qml" line="411"/>
         <source>Configure the file format</source>
         <translation>Fayl formatini sozlash</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="222"/>
+        <location filename="../qml/VideoRecording.qml" line="413"/>
         <source>Configure the file format for recording</source>
         <translation>Yozish uchun fayl formatini sozlash</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="230"/>
+        <location filename="../qml/VideoRecording.qml" line="421"/>
         <source>Configure the video codec</source>
         <translation>Video kodekni sozlash</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="232"/>
+        <location filename="../qml/VideoRecording.qml" line="423"/>
         <source>Configure the video codec for recording</source>
         <translation>Yozish uchun video kodekni sozlash</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="240"/>
+        <location filename="../qml/VideoRecording.qml" line="431"/>
         <source>Configure the audio codec</source>
         <translation>Audio kodekni sozlash</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="243"/>
+        <location filename="../qml/VideoRecording.qml" line="434"/>
         <source>Configure the audio codec for recording</source>
         <translation>Yozish uchun audio kodekni sozlash</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="276"/>
+        <location filename="../qml/VideoRecording.qml" line="468"/>
         <source>Select the folder to save your videos</source>
         <translation>Videolaringizni saqlash uchun papkani tanlang</translation>
     </message>

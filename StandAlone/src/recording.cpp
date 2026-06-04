@@ -86,6 +86,7 @@ struct PluginPriority
 {
     QString pluginID;
     int priority;
+    bool hasHwCodec {false};
 };
 
 using ObjectPtr = QSharedPointer<QObject>;
@@ -816,9 +817,6 @@ void Recording::setBitrate(AkCaps::CapsType type, int bitrate)
         break;
 
     case AkCaps::CapsVideo:
-        if (!this->d->m_videoEncoder)
-            return;
-
         if (this->d->m_videoBitrate == bitrate)
             return;
 
@@ -1384,8 +1382,26 @@ void RecordingPrivate::initSupportedFormats()
                 defaultVideoPluginID
             };
 
+            bool formatHasHwCodec = false;
+
+            for (auto &videoPluginID: videoPluginsID) {
+                auto parts = videoPluginID.split(':');
+
+                if (parts.size() < 2)
+                    continue;
+
+                auto encoderPlugin = akPluginManager->create<AkVideoEncoder>(parts[0]);
+
+                if (encoderPlugin && encoderPlugin->hasHardwareSupport(parts[1])) {
+                    formatHasHwCodec = true;
+
+                    break;
+                }
+            }
+
             formatsPriority << PluginPriority {muxerPluginId + ':' + muxer,
-                                               muxerInfo.priority()};
+                                               muxerInfo.priority(),
+                                               formatHasHwCodec};
         }
     }
 
@@ -1405,6 +1421,10 @@ void RecordingPrivate::initSupportedFormats()
               formatsPriority.end(),
               [] (const PluginPriority &plugin1,
                   const PluginPriority &plugin2) -> bool {
+#if 0
+        if (plugin1.hasHwCodec != plugin2.hasHwCodec)
+            return plugin1.hasHwCodec > plugin2.hasHwCodec;
+#endif
         return plugin1.priority > plugin2.priority;
     });
     this->m_defaultFormat = formatsPriority.first().pluginID;

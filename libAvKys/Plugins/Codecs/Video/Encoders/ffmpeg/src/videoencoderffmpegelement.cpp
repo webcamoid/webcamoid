@@ -133,6 +133,7 @@ struct CodecInfo
     AkVideoEncoderCodecID codecID;
     AkVideoCaps::PixelFormatList formats;
     AkPropertyOptions options;
+    bool isHardware {false};
 };
 
 struct PixelFormatsTable
@@ -363,6 +364,20 @@ AkPropertyOptions VideoEncoderFFmpegElement::options() const
         return {};
 
     return it->options;
+}
+
+bool VideoEncoderFFmpegElement::hasHardwareSupport(const QString &codec) const
+{
+    auto it = std::find_if(this->d->m_codecs.constBegin(),
+                           this->d->m_codecs.constEnd(),
+                           [&codec] (const CodecInfo &codecInfo) -> bool {
+        return codecInfo.name == codec;
+    });
+
+    if (it == this->d->m_codecs.constEnd())
+        return false;
+
+    return it->isHardware;
 }
 
 AkPacket VideoEncoderFFmpegElement::iVideoStream(const AkVideoPacket &packet)
@@ -789,18 +804,20 @@ void VideoEncoderFFmpegElementPrivate::listCodecs()
                                 QString(codec->name):
                                 QString(codec->long_name);
 
-        if (codec->capabilities & AV_CODEC_CAP_HARDWARE) {
+        if (codec->capabilities & (AV_CODEC_CAP_HARDWARE | AV_CODEC_CAP_HYBRID)) {
             hwCodecs << CodecInfo {QString(codec->name),
                                    description,
                                    FFmpegCodecs::byFFCodecID(codec->id)->codecID,
                                    formats,
-                                   options};
+                                   options,
+                                   true};
         } else {
             swCodecs << CodecInfo {QString(codec->name),
                                    description,
                                    FFmpegCodecs::byFFCodecID(codec->id)->codecID,
                                    formats,
-                                   options};
+                                   options,
+                                   false};
         }
     }
 
