@@ -46,6 +46,7 @@ class AudioDevNDKAudioPrivate
         QMap<QString, QList<AkAudioCaps::ChannelLayout>> m_supportedLayouts;
         QMap<QString, QList<int>> m_supportedSampleRates;
         QMap<QString, AkAudioCaps> m_preferredCaps;
+        AkAudioCaps m_deviceCaps;
         QMutex m_mutex;
         AAudioStreamBuilder *m_streamBuilder {nullptr};
         AAudioStream *m_stream {nullptr};
@@ -174,6 +175,11 @@ bool AudioDevNDKAudio::init(const QString &device, const AkAudioCaps &caps)
     if (AAudio_createStreamBuilder(&this->d->m_streamBuilder) != AAUDIO_OK)
         return false;
 
+    if (this->d->m_deviceCaps != caps) {
+        this->d->m_deviceCaps = caps;
+        emit this->negotiatedCapsChanged(this->d->m_deviceCaps);
+    }
+
     this->d->m_stream = this->d->createStream(this->d->m_streamBuilder,
                                               direction,
                                               caps);
@@ -196,6 +202,11 @@ bool AudioDevNDKAudio::init(const QString &device, const AkAudioCaps &caps)
     }
 
     return true;
+}
+
+AkAudioCaps AudioDevNDKAudio::negotiatedCaps() const
+{
+    return this->d->m_deviceCaps;
 }
 
 QByteArray AudioDevNDKAudio::read()
@@ -273,6 +284,11 @@ bool AudioDevNDKAudio::uninit()
     }
 
     return true;
+}
+
+void AudioDevNDKAudio::updateDevices()
+{
+    this->d->updateDevices();
 }
 
 AudioDevNDKAudioPrivate::AudioDevNDKAudioPrivate(AudioDevNDKAudio *self):

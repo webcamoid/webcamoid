@@ -87,7 +87,6 @@ fi
 
 dnf -y upgrade-minimal --exclude=systemd,systemd-libs
 dnf -y install \
-    SDL2-devel \
     alsa-lib-devel \
     ccache \
     clang \
@@ -99,7 +98,6 @@ dnf -y install \
     file \
     gcc-c++ \
     git \
-    jack-audio-connection-kit-devel \
     kmod-devel \
     libusb1-devel \
     libuvc-devel \

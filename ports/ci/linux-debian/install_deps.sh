@@ -178,14 +178,12 @@ apt-get -y install \
     libavformat-dev \
     libavutil-dev \
     libgl1-mesa-dev \
-    libjack-dev \
     libkmod-dev \
     libpipewire-0.3-dev \
     libpipewire-0.3-modules \
     libpulse-dev \
     libqt6opengl6-dev \
     libqt6svg6-dev \
-    libsdl2-dev \
     libswresample-dev \
     libswscale-dev \
     libusb-dev \

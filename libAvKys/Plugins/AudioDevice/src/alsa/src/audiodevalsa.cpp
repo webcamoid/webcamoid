@@ -18,7 +18,6 @@
  */
 
 #include <cstdarg>
-#include <QFileSystemWatcher>
 #include <QMap>
 #include <QMutex>
 #include <QRegularExpression>
@@ -67,9 +66,8 @@ class AudioDevAlsaPrivate
         QMap<QString, QList<AkAudioCaps::SampleFormat>> m_supportedFormats;
         QMap<QString, QList<AkAudioCaps::ChannelLayout>> m_supportedLayouts;
         QMap<QString, QList<int>> m_supportedSampleRates;
+        AkAudioCaps m_deviceCaps;
         snd_pcm_t *m_pcmHnd {nullptr};
-        QFileSystemWatcher *m_fsWatcher {nullptr};
-        QTimer m_timer;
         QMutex m_mutex;
         int m_samples {0};
 
@@ -89,39 +87,12 @@ AudioDevAlsa::AudioDevAlsa(QObject *parent):
     AudioDev(parent)
 {
     this->d = new AudioDevAlsaPrivate(this);
-    this->d->m_timer.setInterval(3000);
-
-    QObject::connect(&this->d->m_timer,
-                     &QTimer::timeout,
-                     this,
-                     [this] () {
-                        this->d->updateDevices();
-                     });
-
-#if 1
-    this->d->m_fsWatcher = new QFileSystemWatcher({"/dev/snd"}, this);
-
-    QObject::connect(this->d->m_fsWatcher,
-                     &QFileSystemWatcher::directoryChanged,
-                     this,
-                     [this] () {
-                        this->d->updateDevices();
-                     });
-
     this->d->updateDevices();
-#else
-    this->d->updateDevices();
-    this->d->m_timer.start();
-#endif
 }
 
 AudioDevAlsa::~AudioDevAlsa()
 {
     this->uninit();
-
-    if (this->d->m_fsWatcher)
-        delete this->d->m_fsWatcher;
-
     delete this->d;
 }
 
@@ -189,6 +160,13 @@ bool AudioDevAlsa::init(const QString &device, const AkAudioCaps &caps)
 {
     this->d->m_mutex.lock();
 
+    if (this->d->m_deviceCaps != caps) {
+        this->d->m_deviceCaps = caps;
+        this->d->m_mutex.unlock();
+        emit this->negotiatedCapsChanged(this->d->m_deviceCaps);
+        this->d->m_mutex.lock();
+    }
+
     this->d->m_pcmHnd = nullptr;
     int error =
             snd_pcm_open(&this->d->m_pcmHnd,
@@ -234,6 +212,11 @@ bool AudioDevAlsa::init(const QString &device, const AkAudioCaps &caps)
     this->d->m_samples = qMax(this->latency() * caps.rate() / 1000, 1);
 
     return true;
+}
+
+AkAudioCaps AudioDevAlsa::negotiatedCaps() const
+{
+    return this->d->m_deviceCaps;
 }
 
 QByteArray AudioDevAlsa::read()
@@ -320,6 +303,11 @@ bool AudioDevAlsa::uninit()
     }
 
     return true;
+}
+
+void AudioDevAlsa::updateDevices()
+{
+    this->d->updateDevices();
 }
 
 AudioDevAlsaPrivate::AudioDevAlsaPrivate(AudioDevAlsa *self):

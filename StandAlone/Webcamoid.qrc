@@ -14,9 +14,12 @@
         <file>share/qml/AddVideoFormat.qml</file>
         <file>share/qml/AudioCodecOptions.qml</file>
         <file>share/qml/AudioDeviceItem.qml</file>
-        <file>share/qml/AudioDeviceOptions.qml</file>
+        <file>share/qml/AudioInputAdd.qml</file>
+        <file>share/qml/AudioInputDeviceOptions.qml</file>
+        <file>share/qml/AudioInputSourceItem.qml</file>
         <file>share/qml/AudioInputs.qml</file>
         <file>share/qml/AudioOptions.qml</file>
+        <file>share/qml/AudioOutputDeviceOptions.qml</file>
         <file>share/qml/AudioOutputs.qml</file>
         <file>share/qml/ColorSchemeAddEdit.qml</file>
         <file>share/qml/ColorSchemes.qml</file>

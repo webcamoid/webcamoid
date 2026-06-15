@@ -36,24 +36,25 @@ Dialog {
 
     property real physicalWidth: wdgMainWidget.width / Screen.pixelDensity
     property real physicalHeight: wdgMainWidget.height / Screen.pixelDensity
-    property string device: ""
 
-    onVisibleChanged: cbxSampleFormats.forceActiveFocus()
+    onVisibleChanged: {
+        if (visible) {
+            cbxAudioOutput.forceActiveFocus()
+            updateParameters()
+        }
+    }
 
     function bound(min, value, max)
     {
         return Math.max(min, Math.min(value, max))
     }
 
-    function openOptions(device)
+    function updateParameters()
     {
-        deviceOptions.device = device
-        deviceInfo.text =
-                "<b>" + audioLayer.description(device) + "</b>"
-                + "<br/><i>" + device + "</i>"
+        cbxAudioOutput.update()
 
         var audioCaps = AkAudioCaps.create()
-        var supportedFormats = audioLayer.supportedFormatsVariant(device)
+        var supportedFormats = audioOutputs.supportedFormatsVariant
         cbxSampleFormats.model.clear()
 
         for (let i in supportedFormats) {
@@ -64,7 +65,7 @@ Dialog {
         }
 
         var supportedChannelLayouts =
-                audioLayer.supportedChannelLayoutsVariant(device)
+                audioOutputs.supportedChannelLayoutsVariant
         cbxChannelLayouts.model.clear()
 
         for (let i in supportedChannelLayouts) {
@@ -74,7 +75,7 @@ Dialog {
                                             description: description})
         }
 
-        var supportedSampleRates = audioLayer.supportedSampleRates(device)
+        var supportedSampleRates = audioOutputs.supportedSampleRates
         cbxSampleRates.model.clear()
 
         for (let i in supportedSampleRates) {
@@ -83,10 +84,7 @@ Dialog {
                                          description: sampleRate})
         }
 
-        let isInputDevice = audioLayer.outputs.indexOf(device) < 0
-        let caps = isInputDevice?
-                AkAudioCaps.create(audioLayer.inputDeviceCaps):
-                AkAudioCaps.create(audioLayer.outputDeviceCaps)
+        let caps = AkAudioCaps.create(audioOutputs.deviceCaps)
 
         cbxSampleFormats.currentIndex =
                 bound(0,
@@ -101,9 +99,7 @@ Dialog {
                       supportedSampleRates.indexOf(caps.rate),
                       cbxSampleRates.model.count - 1)
 
-        sldLatency.value = isInputDevice?
-                    audioLayer.inputLatency:
-                    audioLayer.outputLatency
+        sldLatency.value = audioOutputs.latency
 
         open()
     }
@@ -119,13 +115,60 @@ Dialog {
             columns: 2
             width: view.width
 
-            Label {
-                id: deviceInfo
-                elide: Label.ElideRight
+            AK.LabeledComboBox {
+                id: cbxAudioOutput
+                label: qsTr("Audio input")
+                textRole: "description"
+                model: ListModel {
+                }
+                Accessible.description: currentText
                 Layout.columnSpan: 2
                 Layout.fillWidth: true
-                Layout.bottomMargin:
-                    AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+
+                function update() {
+                    model.clear()
+                    audioOutputs.updateDevices()
+                    let outputs = audioOutputs.outputs
+
+                    for (let output in outputs) {
+                        let description = audioOutputs.description(outputs[output])
+
+                        if (description.length < 1)
+                            description = outputs[output]
+
+                        model.append({
+                            sinkId: outputs[output],
+                            description: description
+                        })
+                    }
+
+                    let idx = -1
+
+                    for (let i = 0; i < model.count; ++i) {
+                        if (model.get(i).sinkId === audioOutputs.audioOutnput) {
+                            idx = i
+
+                            break
+                        }
+                    }
+
+                    currentIndex = idx !== -1? idx: 0
+                }
+
+                function reset()
+                {
+                    let idx = -1
+
+                    for (let i = 0; i < model.count; ++i) {
+                        if (model.get(i).sinkId === audioOutputs.audioOutnput) {
+                            idx = i
+
+                            break
+                        }
+                    }
+
+                    currentIndex = idx !== -1? idx: 0
+                }
             }
             AK.LabeledComboBox {
                 id: cbxSampleFormats
@@ -150,9 +193,9 @@ Dialog {
                 function reset()
                 {
                     var supportedFormats =
-                            audioLayer.supportedFormatsVariant(deviceOptions.device)
+                            audioOutputs.supportedFormatsVariant
                     let caps =
-                        AkAudioCaps.create(audioLayer.preferredFormat(deviceOptions.device))
+                        AkAudioCaps.create(audioOutputs.preferredFormat)
                     currentIndex =
                             bound(0,
                                   supportedFormats.indexOf(caps.format),
@@ -171,9 +214,9 @@ Dialog {
                 function reset()
                 {
                     var supportedChannelLayouts =
-                            audioLayer.supportedChannelLayoutsVariant(deviceOptions.device)
+                            audioOutputs.supportedChannelLayoutsVariant
                     let caps =
-                        AkAudioCaps.create(audioLayer.preferredFormat(deviceOptions.device))
+                        AkAudioCaps.create(audioOutputs.preferredFormat)
                     currentIndex =
                             bound(0,
                                   supportedChannelLayouts.indexOf(caps.layout),
@@ -193,9 +236,9 @@ Dialog {
                 function reset()
                 {
                     var supportedSampleRates =
-                            audioLayer.supportedSampleRates(deviceOptions.device)
+                            audioOutputs.supportedSampleRates
                     let caps =
-                        AkAudioCaps.create(audioLayer.preferredFormat(deviceOptions.device))
+                        AkAudioCaps.create(audioOutputs.preferredFormat)
                     currentIndex =
                             bound(0,
                                   supportedSampleRates.indexOf(caps.rate),
@@ -248,6 +291,11 @@ Dialog {
     }
 
     onAccepted: {
+        if (cbxAudioOutput.currentIndex >= 0) {
+            let output = cbxAudioOutput.model.get(cbxAudioOutput.currentIndex)
+            audioOutputs.audioOutnput = output.sinkId
+        }
+
         let audioCaps = AkAudioCaps.create()
 
         if (cbxSampleFormats.model.count > 0
@@ -272,21 +320,14 @@ Dialog {
                                        cbxSampleRates.model.get(sampleRatesCI).sampleRate)
         }
 
-        if (audioLayer.outputs.indexOf(deviceOptions.device) < 0) {
-            let state = audioLayer.inputState
-            audioLayer.inputState = AkElement.ElementStateNull
-            audioLayer.inputDeviceCaps = audioCaps.toVariant()
-            audioLayer.inputLatency = sldLatency.value
-            audioLayer.inputState = state
-        } else {
-            let state = audioLayer.outputState
-            audioLayer.outputState = AkElement.ElementStateNull
-            audioLayer.outputDeviceCaps = audioCaps.toVariant()
-            audioLayer.outputLatency = sldLatency.value
-            audioLayer.outputState = state
-        }
+        let state = audioOutputs.state
+        audioOutputs.state = AkElement.ElementStateNull
+        audioOutputs.deviceCaps = audioCaps.toVariant()
+        audioOutputs.latency = sldLatency.value
+        audioOutputs.state = state
     }
     onReset: {
+        cbxAudioOutput.reset()
         cbxSampleFormats.reset()
         cbxChannelLayouts.reset()
         cbxSampleRates.reset()

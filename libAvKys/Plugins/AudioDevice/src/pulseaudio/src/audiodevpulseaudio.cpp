@@ -18,17 +18,15 @@
  */
 
 #include <QCoreApplication>
+#include <QLibrary>
 #include <QMap>
 #include <QMutex>
 #include <QVector>
 #include <QtDebug>
 #include <akaudiopacket.h>
 #include <pulse/simple.h>
-#include <pulse/context.h>
-#include <pulse/introspect.h>
-#include <pulse/subscribe.h>
-#include <pulse/thread-mainloop.h>
 #include <pulse/error.h>
+#include <pulse/pulseaudio.h>
 
 #include "audiodevpulseaudio.h"
 
@@ -51,203 +49,435 @@ inline SampleFormatMap initSampleFormatMap()
 
 Q_GLOBAL_STATIC_WITH_ARGS(SampleFormatMap, sampleFormats, (initSampleFormatMap()))
 
+class DevicesInfo
+{
+    public:
+        QString defaultSink;
+        QString defaultSource;
+        QStringList sinks;
+        QStringList sources;
+        QMap<QString, QString> devicesDescriptions;
+        QMap<QString, AkAudioCaps> devicesCaps;
+        bool waitingForSinks {true};
+        bool waitingForSources {true};
+        bool waitingForServer {true};
+
+        void clear()
+        {
+            this->defaultSink = {};
+            this->defaultSource = {};
+            this->sinks = {};
+            this->sources = {};
+            this->devicesDescriptions = {};
+            this->devicesCaps = {};
+            this->waitingForSinks = true;
+            this->waitingForSources = true;
+            this->waitingForServer = true;
+        }
+};
+
+// Dynamic load type definitions
+
+#ifdef USE_PULSEAUDIO_DYNLOAD
+
+using PaContextConnectType = int (*)(pa_context *c,
+                                     const char *server,
+                                     pa_context_flags_t flags,
+                                     const pa_spawn_api *api);
+using PaContextDisconnectType = void (*)(pa_context *c);
+using PaContextGetSinkInfoListType = pa_operation *(*)(pa_context *c,
+                                                       pa_sink_info_cb_t cb,
+                                                       void *userdata);
+using PaContextGetSourceInfoListType = pa_operation *(*)(pa_context *c,
+                                                         pa_source_info_cb_t cb,
+                                                         void *userdata);
+using PaContextGetServerInfoType = pa_operation *(*)(pa_context *c,
+                                                     pa_server_info_cb_t cb,
+                                                     void *userdata);
+using PaContextGetStateType = pa_context_state_t (*)(const pa_context *c);
+using PaContextNewType = pa_context *(*)(pa_mainloop_api *mainloop,
+                                         const char *name);
+using PaContextSetStateCallbackType = void (*)(pa_context *c,
+                                               pa_context_notify_cb_t cb,
+                                               void *userdata);
+using PaContextUnrefType = void (*)(pa_context *c);
+using PaMainloopFreeType = void (*)(pa_mainloop *m);
+using PaMainloopGetApiType = pa_mainloop_api *(*)(pa_mainloop *m);
+using PaMainloopIterateType = int (*)(pa_mainloop *m,
+                                      int block,
+                                      int *retval);
+using PaMainloopNewType = pa_mainloop *(*)();
+using PaSimpleDrainType = int (*)(pa_simple *s, int *error);
+using PaSimpleFreeType = void (*)(pa_simple *s);
+using PaSimpleGetLatencyType = pa_usec_t (*)(pa_simple *s, int *error);
+using PaSimpleNewType = pa_simple *(*)(const char *server,
+                                       const char *name,
+                                       pa_stream_direction_t dir,
+                                       const char *dev,
+                                       const char *stream_name,
+                                       const pa_sample_spec *ss,
+                                       const pa_channel_map *map,
+                                       const pa_buffer_attr *attr,
+                                       int *error);
+using PaSimpleReadType = int (*)(pa_simple *s,
+                                  void *data,
+                                  size_t bytes,
+                                  int *error);
+using PaSimpleWriteType = int (*)(pa_simple *s,
+                                   const void *data,
+                                   size_t bytes,
+                                   int *error);
+using PaStrerrorType = const char *(*)(int error);
+
+#endif // USE_PULSEAUDIO_DYNLOAD
+
 class AudioDevPulseAudioPrivate
 {
     public:
         AudioDevPulseAudio *self;
         QString m_error;
         pa_simple *m_paSimple {nullptr};
-        pa_threaded_mainloop *m_mainLoop {nullptr};
-        pa_context *m_context {nullptr};
         QString m_defaultSink;
         QString m_defaultSource;
-        QMap<uint32_t, QString> m_sinks;
-        QMap<uint32_t, QString> m_sources;
-        QMap<QString, AkAudioCaps> m_pinCapsMap;
-        QMap<QString, QString> m_pinDescriptionMap;
+        QStringList m_sinks;
+        QStringList m_sources;
+        QMap<QString, QString> m_devicesDescriptions;
+        QMap<QString, AkAudioCaps> m_devicesCaps;
         QMutex m_mutex;
         QMutex m_streamMutex;
-        int m_samples {0};
-        int m_curBps {0};
-        int m_curChannels {0};
+        AkAudioCaps m_curCaps;
+        QByteArray m_readBuffer;
+        DevicesInfo m_devicesInfo;
+
+#ifdef USE_PULSEAUDIO_DYNLOAD
+        QLibrary m_pulseAudioLib {"pulse"};
+        QLibrary m_pulseAudioSimpleLib {"pulse-simple"};
+
+        PaContextConnectType           m_paContextConnect           {nullptr};
+        PaContextDisconnectType        m_paContextDisconnect        {nullptr};
+        PaContextGetSinkInfoListType   m_paContextGetSinkInfoList   {nullptr};
+        PaContextGetSourceInfoListType m_paContextGetSourceInfoList {nullptr};
+        PaContextGetServerInfoType     m_paContextGetServerInfo     {nullptr};
+        PaContextGetStateType          m_paContextGetState          {nullptr};
+        PaContextNewType               m_paContextNew               {nullptr};
+        PaContextSetStateCallbackType  m_paContextSetStateCallback  {nullptr};
+        PaContextUnrefType             m_paContextUnref             {nullptr};
+        PaMainloopFreeType             m_paMainloopFree             {nullptr};
+        PaMainloopGetApiType           m_paMainloopGetApi           {nullptr};
+        PaMainloopIterateType          m_paMainloopIterate          {nullptr};
+        PaMainloopNewType              m_paMainloopNew              {nullptr};
+        PaSimpleDrainType              m_paSimpleDrain              {nullptr};
+        PaSimpleFreeType               m_paSimpleFree               {nullptr};
+        PaSimpleGetLatencyType         m_paSimpleGetLatency         {nullptr};
+        PaSimpleNewType                m_paSimpleNew                {nullptr};
+        PaSimpleReadType               m_paSimpleRead               {nullptr};
+        PaSimpleWriteType              m_paSimpleWrite              {nullptr};
+        PaStrerrorType                 m_paStrerror                 {nullptr};
+#endif
 
         explicit AudioDevPulseAudioPrivate(AudioDevPulseAudio *self);
-        static void deviceUpdateCallback(pa_context *context,
-                                         pa_subscription_event_type_t eventType,
-                                         uint32_t index,
+        void updateDevices();
+        static void contextStateCallback(pa_context *context,
                                          void *userData);
-        static void contextStateCallbackInit(pa_context *context,
-                                             void *userdata);
         static void serverInfoCallback(pa_context *context,
                                        const pa_server_info *info,
-                                       void *userdata);
+                                       void *userData);
         static void sourceInfoCallback(pa_context *context,
                                        const pa_source_info *info,
                                        int isLast,
-                                       void *userdata);
+                                       void *userData);
         static void sinkInfoCallback(pa_context *context,
                                      const pa_sink_info *info,
                                      int isLast,
-                                     void *userdata);
+                                     void *userData);
+
+        // PulseAudio function wrappers
+
+        inline int paContextConnect(pa_context *c,
+                                    const char *server,
+                                    pa_context_flags_t flags,
+                                    const pa_spawn_api *api) const
+        {
+#ifdef USE_PULSEAUDIO_DYNLOAD
+            if (this->m_paContextConnect)
+                return this->m_paContextConnect(c, server, flags, api);
+
+            return -1;
+#else
+            return pa_context_connect(c, server, flags, api);
+#endif
+        }
+
+        inline void paContextDisconnect(pa_context *c) const
+        {
+#ifdef USE_PULSEAUDIO_DYNLOAD
+            if (this->m_paContextDisconnect)
+                this->m_paContextDisconnect(c);
+#else
+            pa_context_disconnect(c);
+#endif
+        }
+
+        inline pa_operation *paContextGetSinkInfoList(pa_context *c,
+                                                      pa_sink_info_cb_t cb,
+                                                      void *userdata) const
+        {
+#ifdef USE_PULSEAUDIO_DYNLOAD
+            if (this->m_paContextGetSinkInfoList)
+                return this->m_paContextGetSinkInfoList(c, cb, userdata);
+
+            return nullptr;
+#else
+            return pa_context_get_sink_info_list(c, cb, userdata);
+#endif
+        }
+
+        inline pa_operation *paContextGetSourceInfoList(pa_context *c,
+                                                        pa_source_info_cb_t cb,
+                                                        void *userdata) const
+        {
+#ifdef USE_PULSEAUDIO_DYNLOAD
+            if (this->m_paContextGetSourceInfoList)
+                return this->m_paContextGetSourceInfoList(c, cb, userdata);
+
+            return nullptr;
+#else
+            return pa_context_get_source_info_list(c, cb, userdata);
+#endif
+        }
+
+        inline pa_operation *paContextGetServerInfo(pa_context *c,
+                                                    pa_server_info_cb_t cb,
+                                                    void *userdata) const
+        {
+#ifdef USE_PULSEAUDIO_DYNLOAD
+            if (this->m_paContextGetServerInfo)
+                return this->m_paContextGetServerInfo(c, cb, userdata);
+
+            return nullptr;
+#else
+            return pa_context_get_server_info(c, cb, userdata);
+#endif
+        }
+
+        inline pa_context_state_t paContextGetState(const pa_context *c) const
+        {
+#ifdef USE_PULSEAUDIO_DYNLOAD
+            if (this->m_paContextGetState)
+                return this->m_paContextGetState(c);
+
+            return PA_CONTEXT_FAILED;
+#else
+            return pa_context_get_state(c);
+#endif
+        }
+
+        inline pa_context *paContextNew(pa_mainloop_api *mainloop,
+                                        const char *name) const
+        {
+#ifdef USE_PULSEAUDIO_DYNLOAD
+            if (this->m_paContextNew)
+                return this->m_paContextNew(mainloop, name);
+
+            return nullptr;
+#else
+            return pa_context_new(mainloop, name);
+#endif
+        }
+
+        inline void paContextSetStateCallback(pa_context *c,
+                                              pa_context_notify_cb_t cb,
+                                              void *userdata) const
+        {
+#ifdef USE_PULSEAUDIO_DYNLOAD
+            if (this->m_paContextSetStateCallback)
+                this->m_paContextSetStateCallback(c, cb, userdata);
+#else
+            pa_context_set_state_callback(c, cb, userdata);
+#endif
+        }
+
+        inline void paContextUnref(pa_context *c) const
+        {
+#ifdef USE_PULSEAUDIO_DYNLOAD
+            if (this->m_paContextUnref)
+                this->m_paContextUnref(c);
+#else
+            pa_context_unref(c);
+#endif
+        }
+
+        inline void paMainloopFree(pa_mainloop *m) const
+        {
+#ifdef USE_PULSEAUDIO_DYNLOAD
+            if (this->m_paMainloopFree)
+                this->m_paMainloopFree(m);
+#else
+            pa_mainloop_free(m);
+#endif
+        }
+
+        inline pa_mainloop_api *paMainloopGetApi(pa_mainloop *m) const
+        {
+#ifdef USE_PULSEAUDIO_DYNLOAD
+            if (this->m_paMainloopGetApi)
+                return this->m_paMainloopGetApi(m);
+
+            return nullptr;
+#else
+            return pa_mainloop_get_api(m);
+#endif
+        }
+
+        inline int paMainloopIterate(pa_mainloop *m,
+                                     int block,
+                                     int *retval) const
+        {
+#ifdef USE_PULSEAUDIO_DYNLOAD
+            if (this->m_paMainloopIterate)
+                return this->m_paMainloopIterate(m, block, retval);
+
+            return -1;
+#else
+            return pa_mainloop_iterate(m, block, retval);
+#endif
+        }
+
+        inline pa_mainloop *paMainloopNew() const
+        {
+#ifdef USE_PULSEAUDIO_DYNLOAD
+            if (this->m_paMainloopNew)
+                return this->m_paMainloopNew();
+
+            return nullptr;
+#else
+            return pa_mainloop_new();
+#endif
+        }
+
+        inline int paSimpleDrain(pa_simple *s, int *error) const
+        {
+#ifdef USE_PULSEAUDIO_DYNLOAD
+            if (this->m_paSimpleDrain)
+                return this->m_paSimpleDrain(s, error);
+
+            return -1;
+#else
+            return pa_simple_drain(s, error);
+#endif
+        }
+
+        inline void paSimpleFree(pa_simple *s) const
+        {
+#ifdef USE_PULSEAUDIO_DYNLOAD
+            if (this->m_paSimpleFree)
+                this->m_paSimpleFree(s);
+#else
+            pa_simple_free(s);
+#endif
+        }
+
+        inline pa_usec_t paSimpleGetLatency(pa_simple *s, int *error) const
+        {
+#ifdef USE_PULSEAUDIO_DYNLOAD
+            if (this->m_paSimpleGetLatency)
+                return this->m_paSimpleGetLatency(s, error);
+
+            return 0;
+#else
+            return pa_simple_get_latency(s, error);
+#endif
+        }
+
+        inline pa_simple *paSimpleNew(const char *server,
+                                      const char *name,
+                                      pa_stream_direction_t dir,
+                                      const char *dev,
+                                      const char *stream_name,
+                                      const pa_sample_spec *ss,
+                                      const pa_channel_map *map,
+                                      const pa_buffer_attr *attr,
+                                      int *error) const
+        {
+#ifdef USE_PULSEAUDIO_DYNLOAD
+            if (this->m_paSimpleNew)
+                return this->m_paSimpleNew(server,
+                                           name,
+                                           dir,
+                                           dev,
+                                           stream_name,
+                                           ss,
+                                           map,
+                                           attr,
+                                           error);
+
+            return nullptr;
+#else
+            return pa_simple_new(server,
+                                 name,
+                                 dir,
+                                 dev,
+                                 stream_name,
+                                 ss,
+                                 map,
+                                 attr,
+                                 error);
+#endif
+        }
+
+        inline int paSimpleRead(pa_simple *s,
+                                void *data,
+                                size_t bytes,
+                                int *error) const
+        {
+#ifdef USE_PULSEAUDIO_DYNLOAD
+            if (this->m_paSimpleRead)
+                return this->m_paSimpleRead(s, data, bytes, error);
+
+            return -1;
+#else
+            return pa_simple_read(s, data, bytes, error);
+#endif
+        }
+
+        inline int paSimpleWrite(pa_simple *s,
+                                 const void *data,
+                                 size_t bytes,
+                                 int *error) const
+        {
+#ifdef USE_PULSEAUDIO_DYNLOAD
+            if (this->m_paSimpleWrite)
+                return this->m_paSimpleWrite(s, data, bytes, error);
+
+            return -1;
+#else
+            return pa_simple_write(s, data, bytes, error);
+#endif
+        }
+
+        inline const char *paStrerror(int error) const
+        {
+#ifdef USE_PULSEAUDIO_DYNLOAD
+            if (this->m_paStrerror)
+                return this->m_paStrerror(error);
+
+            return "";
+#else
+            return pa_strerror(error);
+#endif
+        }
 };
 
 AudioDevPulseAudio::AudioDevPulseAudio(QObject *parent):
     AudioDev(parent)
 {
     this->d = new AudioDevPulseAudioPrivate(this);
-
-    // Create a threaded main loop for PulseAudio
-    this->d->m_mainLoop = pa_threaded_mainloop_new();
-
-    if (!this->d->m_mainLoop)
-        return;
-
-    // Start main loop.
-    if (pa_threaded_mainloop_start(this->d->m_mainLoop) != 0) {
-        pa_threaded_mainloop_free(this->d->m_mainLoop);
-        this->d->m_mainLoop = nullptr;
-
-        return;
-    }
-
-    pa_threaded_mainloop_lock(this->d->m_mainLoop);
-
-    // Get main loop abstration layer.
-    auto mainLoopApi = pa_threaded_mainloop_get_api(this->d->m_mainLoop);
-
-    if (!mainLoopApi) {
-        pa_threaded_mainloop_unlock(this->d->m_mainLoop);
-        pa_threaded_mainloop_stop(this->d->m_mainLoop);
-        pa_threaded_mainloop_free(this->d->m_mainLoop);
-        this->d->m_mainLoop = nullptr;
-
-        return;
-    }
-
-    // Get a PulseAudio context.
-    this->d->m_context = pa_context_new(mainLoopApi,
-                                        QCoreApplication::applicationName()
-                                           .toStdString()
-                                           .c_str());
-
-    if (!this->d->m_context) {
-        pa_threaded_mainloop_unlock(this->d->m_mainLoop);
-        pa_threaded_mainloop_stop(this->d->m_mainLoop);
-        pa_threaded_mainloop_free(this->d->m_mainLoop);
-        this->d->m_mainLoop = nullptr;
-
-        return;
-    }
-
-    // We need to set a state callback in order to connect to the server.
-    pa_context_set_state_callback(this->d->m_context,
-                                  AudioDevPulseAudioPrivate::contextStateCallbackInit,
-                                  this);
-
-    // Connect to PulseAudio server.
-    if (pa_context_connect(this->d->m_context,
-                           nullptr,
-                           PA_CONTEXT_NOFLAGS,
-                           nullptr) < 0) {
-        pa_context_unref(this->d->m_context);
-        this->d->m_context = nullptr;
-        pa_threaded_mainloop_unlock(this->d->m_mainLoop);
-        pa_threaded_mainloop_stop(this->d->m_mainLoop);
-        pa_threaded_mainloop_free(this->d->m_mainLoop);
-        this->d->m_mainLoop = nullptr;
-
-        return;
-    }
-
-    static const QList<pa_context_state_t> expectedStates {
-        PA_CONTEXT_READY,
-        PA_CONTEXT_FAILED,
-        PA_CONTEXT_TERMINATED
-    };
-
-    pa_context_state_t state;
-
-    // Wait until the connection to the server is stablished.
-    forever {
-        state = pa_context_get_state(this->d->m_context);
-
-        if (expectedStates.contains(state))
-            break;
-
-        pa_threaded_mainloop_wait(this->d->m_mainLoop);
-    }
-
-    if (state != PA_CONTEXT_READY) {
-        pa_context_disconnect(this->d->m_context);
-        pa_context_unref(this->d->m_context);
-        this->d->m_context = nullptr;
-        pa_threaded_mainloop_unlock(this->d->m_mainLoop);
-        pa_threaded_mainloop_stop(this->d->m_mainLoop);
-        pa_threaded_mainloop_free(this->d->m_mainLoop);
-        this->d->m_mainLoop = nullptr;
-
-        return;
-    }
-
-    // Get server information.
-    auto operation =
-            pa_context_get_server_info(this->d->m_context,
-                                       AudioDevPulseAudioPrivate::serverInfoCallback,
-                                       this);
-
-    while (pa_operation_get_state(operation) == PA_OPERATION_RUNNING)
-        pa_threaded_mainloop_wait(this->d->m_mainLoop);
-
-    pa_operation_unref(operation);
-
-    // Get sources information.
-    operation = pa_context_get_source_info_list(this->d->m_context,
-                                                AudioDevPulseAudioPrivate::sourceInfoCallback,
-                                                this);
-
-    while (pa_operation_get_state(operation) == PA_OPERATION_RUNNING)
-        pa_threaded_mainloop_wait(this->d->m_mainLoop);
-
-    pa_operation_unref(operation);
-
-    // Get sinks information.
-    operation = pa_context_get_sink_info_list(this->d->m_context,
-                                              AudioDevPulseAudioPrivate::sinkInfoCallback,
-                                              this);
-
-    while (pa_operation_get_state(operation) == PA_OPERATION_RUNNING)
-        pa_threaded_mainloop_wait(this->d->m_mainLoop);
-
-    pa_operation_unref(operation);
-
-    pa_context_set_subscribe_callback(this->d->m_context,
-                                      AudioDevPulseAudioPrivate::deviceUpdateCallback,
-                                      this);
-
-    pa_operation_unref(pa_context_subscribe(this->d->m_context,
-                                            pa_subscription_mask_t(PA_SUBSCRIPTION_MASK_SINK
-                                                                   | PA_SUBSCRIPTION_MASK_SOURCE
-                                                                   | PA_SUBSCRIPTION_MASK_SERVER),
-                                            nullptr,
-                                            this));
-
-    pa_threaded_mainloop_unlock(this->d->m_mainLoop);
+    this->d->updateDevices();
 }
 
 AudioDevPulseAudio::~AudioDevPulseAudio()
 {
     this->uninit();
-
-    if (this->d->m_context) {
-        pa_context_disconnect(this->d->m_context);
-        pa_context_unref(this->d->m_context);
-    }
-
-    if (this->d->m_mainLoop) {
-        pa_threaded_mainloop_stop(this->d->m_mainLoop);
-        pa_threaded_mainloop_free(this->d->m_mainLoop);
-    }
-
     delete this->d;
 }
 
@@ -277,7 +507,7 @@ QString AudioDevPulseAudio::defaultOutput()
 QStringList AudioDevPulseAudio::inputs()
 {
     this->d->m_mutex.lock();
-    auto inputs = this->d->m_sources.values();
+    auto inputs = this->d->m_sources;
     this->d->m_mutex.unlock();
 
     return inputs;
@@ -286,7 +516,7 @@ QStringList AudioDevPulseAudio::inputs()
 QStringList AudioDevPulseAudio::outputs()
 {
     this->d->m_mutex.lock();
-    auto outputs = this->d->m_sinks.values();
+    auto outputs = this->d->m_sinks;
     this->d->m_mutex.unlock();
 
     return outputs;
@@ -295,7 +525,7 @@ QStringList AudioDevPulseAudio::outputs()
 QString AudioDevPulseAudio::description(const QString &device)
 {
     this->d->m_mutex.lock();
-    auto description = this->d->m_pinDescriptionMap.value(device);
+    auto description = this->d->m_devicesDescriptions.value(device);
     this->d->m_mutex.unlock();
 
     return description;
@@ -304,7 +534,7 @@ QString AudioDevPulseAudio::description(const QString &device)
 AkAudioCaps AudioDevPulseAudio::preferredFormat(const QString &device)
 {
     this->d->m_mutex.lock();
-    auto caps = this->d->m_pinCapsMap.value(device);
+    auto caps = this->d->m_devicesCaps.value(device);
     this->d->m_mutex.unlock();
 
     return caps;
@@ -333,45 +563,65 @@ QList<int> AudioDevPulseAudio::supportedSampleRates(const QString &device)
 
 bool AudioDevPulseAudio::init(const QString &device, const AkAudioCaps &caps)
 {
+    qDebug() << "Initializing PulseAudio device" << device << caps;
+
+    if (!this->d->m_sources.contains(device)
+        && !this->d->m_sinks.contains(device))
+        return false;
+
     this->d->m_streamMutex.lock();
 
     pa_sample_spec ss;
     ss.format = sampleFormats->key(caps.format());
     ss.channels = uint8_t(caps.channels());
     ss.rate = uint32_t(caps.rate());
-    this->d->m_curBps = AkAudioCaps::bitsPerSample(caps.format()) / 8;
-    this->d->m_curChannels = caps.channels();
 
-    this->d->m_mutex.lock();
-    bool isInput = std::find(this->d->m_sources.cbegin(),
-                             this->d->m_sources.cend(),
-                             device) != this->d->m_sources.cend();
-    this->d->m_mutex.unlock();
+    if (this->d->m_curCaps != caps) {
+        this->d->m_curCaps = caps;
+        this->d->m_streamMutex.unlock();
+        emit this->negotiatedCapsChanged(this->d->m_curCaps);
+        this->d->m_streamMutex.lock();
+    }
+
+    bool isInput = this->d->m_sources.contains(device);
 
     int error;
     this->d->m_paSimple =
-            pa_simple_new(nullptr,
-                          QCoreApplication::applicationName().toStdString().c_str(),
-                          isInput? PA_STREAM_RECORD: PA_STREAM_PLAYBACK,
-                          device.toStdString().c_str(),
-                          QCoreApplication::organizationName().toStdString().c_str(),
-                          &ss,
-                          nullptr,
-                          nullptr,
-                          &error);
+            this->d->paSimpleNew(nullptr,
+                                 QCoreApplication::applicationName().toStdString().c_str(),
+                                 isInput? PA_STREAM_RECORD: PA_STREAM_PLAYBACK,
+                                 device.isEmpty()? nullptr: device.toStdString().c_str(),
+                                 QCoreApplication::organizationName().toStdString().c_str(),
+                                 &ss,
+                                 nullptr,
+                                 nullptr,
+                                 &error);
 
     if (!this->d->m_paSimple) {
-        this->d->m_error = QString(pa_strerror(error));
+        this->d->m_error = QString(this->d->paStrerror(error));
         this->d->m_streamMutex.unlock();
         emit this->errorChanged(this->d->m_error);
 
         return false;
     }
 
-    this->d->m_samples = qMax(this->latency() * caps.rate() / 1000, 1);
+    auto paLatency = this->d->paSimpleGetLatency(this->d->m_paSimple, nullptr);
+    int samples = qMax(qMax<int>(1000 * this->latency(), paLatency) * caps.rate() / 1000000, 1);
+    this->d->m_readBuffer.resize(samples
+                                 * this->d->m_curCaps.bps()
+                                 * this->d->m_curCaps.channels()
+                                 / 8);
+
     this->d->m_streamMutex.unlock();
 
+    qDebug() << "PulseAudio device initialized";
+
     return true;
+}
+
+AkAudioCaps AudioDevPulseAudio::negotiatedCaps() const
+{
+    return this->d->m_curCaps;
 }
 
 QByteArray AudioDevPulseAudio::read()
@@ -386,17 +636,13 @@ QByteArray AudioDevPulseAudio::read()
 
     int error;
 
-    QByteArray buffer(this->d->m_samples
-                      * this->d->m_curBps
-                      * this->d->m_curChannels,
-                      Qt::Uninitialized);
-
-    if (pa_simple_read(this->d->m_paSimple,
-                       buffer.data(),
-                       size_t(buffer.size()),
-                       &error) < 0) {
-        this->d->m_error = QString(pa_strerror(error));
+    if (this->d->paSimpleRead(this->d->m_paSimple,
+                              this->d->m_readBuffer.data(),
+                              size_t(this->d->m_readBuffer.size()),
+                              &error) < 0) {
+        this->d->m_error = QString(this->d->paStrerror(error));
         this->d->m_streamMutex.unlock();
+        qCritical() << this->d->m_error;
         emit this->errorChanged(this->d->m_error);
 
         return {};
@@ -404,7 +650,7 @@ QByteArray AudioDevPulseAudio::read()
 
     this->d->m_streamMutex.unlock();
 
-    return buffer;
+    return this->d->m_readBuffer;
 }
 
 bool AudioDevPulseAudio::write(const AkAudioPacket &packet)
@@ -419,13 +665,13 @@ bool AudioDevPulseAudio::write(const AkAudioPacket &packet)
 
     int error;
 
-    if (pa_simple_write(this->d->m_paSimple,
-                        packet.constData(),
-                        packet.size(),
-                        &error) < 0) {
-        this->d->m_error = QString(pa_strerror(error));
+    if (this->d->paSimpleWrite(this->d->m_paSimple,
+                               packet.constData(),
+                               packet.size(),
+                               &error) < 0) {
+        this->d->m_error = QString(this->d->paStrerror(error));
         this->d->m_streamMutex.unlock();
-        qDebug() << this->d->m_error;
+        qCritical() << this->d->m_error;
         emit this->errorChanged(this->d->m_error);
 
         return false;
@@ -438,6 +684,8 @@ bool AudioDevPulseAudio::write(const AkAudioPacket &packet)
 
 bool AudioDevPulseAudio::uninit()
 {
+    qDebug() << "Uninitializing PulseAudio device";
+
     QString errorStr;
     bool ok = true;
 
@@ -446,19 +694,18 @@ bool AudioDevPulseAudio::uninit()
     if (this->d->m_paSimple) {
         int error;
 
-        if (pa_simple_drain(this->d->m_paSimple, &error) < 0) {
-            errorStr = QString(pa_strerror(error));
+        if (this->d->paSimpleDrain(this->d->m_paSimple, &error) < 0) {
+            errorStr = QString(this->d->paStrerror(error));
             ok = false;
         }
 
-        pa_simple_free(this->d->m_paSimple);
+        this->d->paSimpleFree(this->d->m_paSimple);
     } else {
         ok = false;
     }
 
     this->d->m_paSimple = nullptr;
-    this->d->m_curBps = 0;
-    this->d->m_curChannels = 0;
+    this->d->m_curCaps = {};
     this->d->m_streamMutex.unlock();
 
     if (!errorStr.isEmpty()) {
@@ -466,255 +713,270 @@ bool AudioDevPulseAudio::uninit()
         emit this->errorChanged(this->d->m_error);
     }
 
+    this->d->m_readBuffer.clear();
+
+    qDebug() << "PulseAudio device Uninitialized";
+
     return ok;
+}
+
+void AudioDevPulseAudio::updateDevices()
+{
+    this->d->updateDevices();
 }
 
 AudioDevPulseAudioPrivate::AudioDevPulseAudioPrivate(AudioDevPulseAudio *self):
     self(self)
 {
-}
+#ifdef USE_PULSEAUDIO_DYNLOAD
+    // libpulse-simple.so may be a separate library in some distributions
+    // We attempt to load both; the symbols for simple can be in either one..
+    bool pulseLoaded = this->m_pulseAudioLib.load();
+    bool simpleLoaded = this->m_pulseAudioSimpleLib.load();
 
-void AudioDevPulseAudioPrivate::deviceUpdateCallback(pa_context *context,
-                                                     pa_subscription_event_type_t eventType,
-                                                     uint32_t index,
-                                                     void *userData)
-{
-    auto audioDevice = static_cast<AudioDevPulseAudio *>(userData);
-
-    int type = eventType & PA_SUBSCRIPTION_EVENT_TYPE_MASK;
-    int facility = eventType & PA_SUBSCRIPTION_EVENT_FACILITY_MASK;
-
-    switch (type) {
-    case PA_SUBSCRIPTION_EVENT_NEW:
-    case PA_SUBSCRIPTION_EVENT_CHANGE:
-        switch (facility) {
-        case PA_SUBSCRIPTION_EVENT_SERVER:
-            pa_operation_unref(pa_context_get_server_info(context,
-                                                          serverInfoCallback,
-                                                          userData));
-
-            break;
-        case PA_SUBSCRIPTION_EVENT_SINK:
-            pa_operation_unref(pa_context_get_sink_info_by_index(context,
-                                                                 index,
-                                                                 sinkInfoCallback,
-                                                                 userData));
-
-            break;
-        case PA_SUBSCRIPTION_EVENT_SOURCE:
-            pa_operation_unref(pa_context_get_source_info_by_index(context,
-                                                                   index,
-                                                                   sourceInfoCallback,
-                                                                   userData));
-
-            break;
-        default:
-            break;
-        }
-        break;
-    case PA_SUBSCRIPTION_EVENT_REMOVE:
-        switch (facility) {
-        case PA_SUBSCRIPTION_EVENT_SINK: {
-            audioDevice->d->m_mutex.lock();
-
-            auto device = audioDevice->d->m_sinks.value(index);
-            audioDevice->d->m_pinCapsMap.remove(device);
-            audioDevice->d->m_pinDescriptionMap.remove(device);
-            audioDevice->d->m_sinks.remove(index);
-            auto outputs = audioDevice->d->m_sinks.values();
-
-            audioDevice->d->m_mutex.unlock();
-
-            emit audioDevice->outputsChanged(outputs);
-
-            break;
-        }
-        case PA_SUBSCRIPTION_EVENT_SOURCE: {
-            audioDevice->d->m_mutex.lock();
-
-            auto device = audioDevice->d->m_sources.value(index);
-            audioDevice->d->m_pinCapsMap.remove(device);
-            audioDevice->d->m_pinDescriptionMap.remove(device);
-            audioDevice->d->m_sources.remove(index);
-            auto sources = audioDevice->d->m_sources.values();
-
-            audioDevice->d->m_mutex.unlock();
-
-            if (audioDevice->inputs() != sources)
-                emit audioDevice->inputsChanged(sources);
-
-            break;
-        }
-        default:
-            break;
-        }
-        break;
-    default:
-        break;
-    }
-}
-
-void AudioDevPulseAudioPrivate::contextStateCallbackInit(pa_context *context,
-                                                         void *userdata)
-{
-    Q_UNUSED(context)
-
-    auto audioDevice = reinterpret_cast<AudioDevPulseAudio *>(userdata);
-
-    // Return as soon as possible.
-    pa_threaded_mainloop_signal(audioDevice->d->m_mainLoop, 0);
-}
-
-void AudioDevPulseAudioPrivate::serverInfoCallback(pa_context *context,
-                                                   const pa_server_info *info,
-                                                   void *userdata)
-{
-    Q_UNUSED(context)
-
-    auto audioDevice = static_cast<AudioDevPulseAudio *>(userdata);
-
-    if (!info) {
-        pa_threaded_mainloop_signal(audioDevice->d->m_mainLoop, 0);
+    if (!pulseLoaded && !simpleLoaded) {
+        qWarning() << "Could not load libpulse or libpulse-simple";
 
         return;
     }
 
-    // Get default input and output devices.
-    bool defaultInputChanged = false;
-    bool defaultOutputChanged = false;
+    // Helper: look for the symbol in pulse-simple first, then in pulse
+    auto resolve = [&](const char *symbol) -> QFunctionPointer {
+        QFunctionPointer ptr = nullptr;
 
-    audioDevice->d->m_mutex.lock();
+        if (simpleLoaded)
+            ptr = this->m_pulseAudioSimpleLib.resolve(symbol);
 
-    if (audioDevice->d->m_defaultSink != info->default_sink_name) {
-        audioDevice->d->m_defaultSink = info->default_sink_name;
-        defaultInputChanged = true;
+        if (!ptr && pulseLoaded)
+            ptr = this->m_pulseAudioLib.resolve(symbol);
+
+        if (!ptr)
+            qWarning() << "PulseAudio: could not resolve" << symbol;
+
+        return ptr;
+    };
+
+    this->m_paContextConnect =
+        reinterpret_cast<PaContextConnectType>(resolve("pa_context_connect"));
+    this->m_paContextDisconnect =
+        reinterpret_cast<PaContextDisconnectType>(resolve("pa_context_disconnect"));
+    this->m_paContextGetSinkInfoList =
+        reinterpret_cast<PaContextGetSinkInfoListType>(resolve("pa_context_get_sink_info_list"));
+    this->m_paContextGetSourceInfoList =
+        reinterpret_cast<PaContextGetSourceInfoListType>(resolve("pa_context_get_source_info_list"));
+    this->m_paContextGetServerInfo =
+        reinterpret_cast<PaContextGetServerInfoType>(resolve("pa_context_get_server_info"));
+    this->m_paContextGetState =
+        reinterpret_cast<PaContextGetStateType>(resolve("pa_context_get_state"));
+    this->m_paContextNew =
+        reinterpret_cast<PaContextNewType>(resolve("pa_context_new"));
+    this->m_paContextSetStateCallback =
+        reinterpret_cast<PaContextSetStateCallbackType>(resolve("pa_context_set_state_callback"));
+    this->m_paContextUnref =
+        reinterpret_cast<PaContextUnrefType>(resolve("pa_context_unref"));
+    this->m_paMainloopFree =
+        reinterpret_cast<PaMainloopFreeType>(resolve("pa_mainloop_free"));
+    this->m_paMainloopGetApi =
+        reinterpret_cast<PaMainloopGetApiType>(resolve("pa_mainloop_get_api"));
+    this->m_paMainloopIterate =
+        reinterpret_cast<PaMainloopIterateType>(resolve("pa_mainloop_iterate"));
+    this->m_paMainloopNew =
+        reinterpret_cast<PaMainloopNewType>(resolve("pa_mainloop_new"));
+    this->m_paSimpleDrain =
+        reinterpret_cast<PaSimpleDrainType>(resolve("pa_simple_drain"));
+    this->m_paSimpleFree =
+        reinterpret_cast<PaSimpleFreeType>(resolve("pa_simple_free"));
+    this->m_paSimpleGetLatency =
+        reinterpret_cast<PaSimpleGetLatencyType>(resolve("pa_simple_get_latency"));
+    this->m_paSimpleNew =
+        reinterpret_cast<PaSimpleNewType>(resolve("pa_simple_new"));
+    this->m_paSimpleRead =
+        reinterpret_cast<PaSimpleReadType>(resolve("pa_simple_read"));
+    this->m_paSimpleWrite =
+        reinterpret_cast<PaSimpleWriteType>(resolve("pa_simple_write"));
+    this->m_paStrerror =
+        reinterpret_cast<PaStrerrorType>(resolve("pa_strerror"));
+#endif
+}
+
+void AudioDevPulseAudioPrivate::updateDevices()
+{
+    this->m_devicesInfo.clear();
+    auto mainloop = this->paMainloopNew();
+
+    if (!mainloop) {
+        qWarning() << "PulseAudio: failed to create mainloop";
+
+        return;
     }
 
-    if (audioDevice->d->m_defaultSource != info->default_source_name) {
-        audioDevice->d->m_defaultSource = info->default_source_name;
-        defaultOutputChanged = true;
+    auto context = this->paContextNew(this->paMainloopGetApi(mainloop),
+                                      "audio-device-monitor");
+
+    if (!context) {
+        qWarning() << "PulseAudio: failed to create context";
+        this->paMainloopFree(mainloop);
+
+        return;
     }
 
-    audioDevice->d->m_mutex.unlock();
+    this->paContextSetStateCallback(context, contextStateCallback, this);
+    this->paContextConnect(context, nullptr, PA_CONTEXT_NOFLAGS, nullptr);
 
-    if (defaultInputChanged)
-        emit audioDevice->defaultInputChanged(audioDevice->d->m_defaultSource);
+    while (this->m_devicesInfo.waitingForSinks
+           || this->m_devicesInfo.waitingForSources
+           || this->m_devicesInfo.waitingForServer) {
+        this->paMainloopIterate(mainloop, 1, nullptr);
+    }
 
-    if (defaultOutputChanged)
-        emit audioDevice->defaultOutputChanged(audioDevice->d->m_defaultSink);
+    this->paContextDisconnect(context);
+    this->paContextUnref(context);
+    this->paMainloopFree(mainloop);
 
-    // Return as soon as possible.
-    pa_threaded_mainloop_signal(audioDevice->d->m_mainLoop, 0);
+    QMutexLocker locker(&this->m_mutex);
+
+    this->m_devicesDescriptions = this->m_devicesInfo.devicesDescriptions;
+    this->m_devicesCaps = this->m_devicesInfo.devicesCaps;
+
+    if (this->m_devicesInfo.sources != this->m_sources) {
+        this->m_sources = this->m_devicesInfo.sources;
+        this->m_mutex.unlock();
+        emit self->inputsChanged(this->m_sources);
+        this->m_mutex.lock();
+    }
+
+    if (this->m_devicesInfo.sinks != this->m_sinks) {
+        this->m_sinks = this->m_devicesInfo.sinks;
+        this->m_mutex.unlock();
+        emit self->outputsChanged(this->m_sinks);
+        this->m_mutex.lock();
+    }
+
+    if (this->m_devicesInfo.defaultSource != this->m_defaultSource) {
+        this->m_defaultSource = this->m_devicesInfo.defaultSource;
+        this->m_mutex.unlock();
+        emit self->defaultInputChanged(this->m_defaultSource);
+        this->m_mutex.lock();
+    }
+
+    if (this->m_devicesInfo.defaultSink != this->m_defaultSink) {
+        this->m_defaultSink = this->m_devicesInfo.defaultSink;
+        this->m_mutex.unlock();
+        emit self->defaultOutputChanged(this->m_defaultSink);
+        this->m_mutex.lock();
+    }
+}
+
+void AudioDevPulseAudioPrivate::contextStateCallback(pa_context *context,
+                                                     void *userData)
+{
+    auto self = static_cast<AudioDevPulseAudioPrivate *>(userData);
+
+    switch (self->paContextGetState(context)) {
+        case PA_CONTEXT_READY:
+            // Request information
+            self->paContextGetServerInfo(context, serverInfoCallback, userData);
+            self->paContextGetSourceInfoList(context, sourceInfoCallback, userData);
+            self->paContextGetSinkInfoList(context, sinkInfoCallback, userData);
+
+            break;
+
+        case PA_CONTEXT_FAILED:
+        case PA_CONTEXT_TERMINATED:
+            qWarning() << "PulseAudio context failed or terminated";
+            self->m_devicesInfo.waitingForSinks = false;
+            self->m_devicesInfo.waitingForSources = false;
+            self->m_devicesInfo.waitingForServer = false;
+
+            break;
+
+        default:
+            break;
+    }
+}
+
+void AudioDevPulseAudioPrivate::serverInfoCallback(pa_context *context,
+                                                   const pa_server_info *info,
+                                                   void *userData)
+{
+    Q_UNUSED(context)
+    auto self = static_cast<AudioDevPulseAudioPrivate *>(userData);
+
+    if (info) {
+        if (info->default_sink_name)
+            self->m_devicesInfo.defaultSink =
+                    QString::fromUtf8(info->default_sink_name);
+
+        if (info->default_source_name)
+            self->m_devicesInfo.defaultSource =
+                    QString::fromUtf8(info->default_source_name);
+    }
+
+    self->m_devicesInfo.waitingForServer = false;
 }
 
 void AudioDevPulseAudioPrivate::sourceInfoCallback(pa_context *context,
                                                    const pa_source_info *info,
                                                    int isLast,
-                                                   void *userdata)
+                                                   void *userData)
 {
-    auto audioDevice = reinterpret_cast<AudioDevPulseAudio *>(userdata);
+    Q_UNUSED(context)
+    auto self = static_cast<AudioDevPulseAudioPrivate *>(userData);
 
-    if (!info) {
-        pa_threaded_mainloop_signal(audioDevice->d->m_mainLoop, 0);
-
-        return;
-    }
-
-    if (isLast < 0) {
-        audioDevice->d->m_error =
-                QString(pa_strerror(pa_context_errno(context)));
-        emit audioDevice->errorChanged(audioDevice->d->m_error);
+    if (isLast > 0) {
+        self->m_devicesInfo.waitingForSources = false;
 
         return;
     }
 
-    // Finish info querying.
-    if (isLast) {
-        // Return as soon as possible.
-        pa_threaded_mainloop_signal(audioDevice->d->m_mainLoop, 0);
-
+    if (!info)
         return;
-    }
 
-    // Get info for the pin.
-    audioDevice->d->m_mutex.lock();
+    auto name = QString::fromUtf8(info->name);
+    auto description = QString::fromUtf8(info->description);
 
-    auto sources = audioDevice->d->m_sources;
-    auto pinCapsMap = audioDevice->d->m_pinCapsMap;
-    auto pinDescriptionMap = audioDevice->d->m_pinDescriptionMap;
+    if (description.isEmpty())
+        description = name;
 
-    audioDevice->d->m_sources[info->index] = info->name;
-    audioDevice->d->m_pinDescriptionMap[info->name] =
-            QString(info->description).isEmpty()?
-                  info->name: info->description;
-    audioDevice->d->m_pinCapsMap[info->name] =
+    self->m_devicesInfo.sources << name;
+    self->m_devicesInfo.devicesDescriptions[name] = description;
+    self->m_devicesInfo.devicesCaps[name] =
             AkAudioCaps(sampleFormats->value(info->sample_spec.format),
                         AkAudioCaps::defaultChannelLayout(info->sample_spec.channels),
                         false,
                         int(info->sample_spec.rate));
-
-    audioDevice->d->m_mutex.unlock();
-
-    if (sources != audioDevice->d->m_sources
-        || pinCapsMap != audioDevice->d->m_pinCapsMap
-        || pinDescriptionMap != audioDevice->d->m_pinDescriptionMap) {
-        emit audioDevice->inputsChanged(audioDevice->d->m_sources.values());
-    }
 }
 
 void AudioDevPulseAudioPrivate::sinkInfoCallback(pa_context *context,
                                                  const pa_sink_info *info,
                                                  int isLast,
-                                                 void *userdata)
+                                                 void *userData)
 {
-    auto audioDevice = reinterpret_cast<AudioDevPulseAudio *>(userdata);
+    Q_UNUSED(context)
+    auto self = static_cast<AudioDevPulseAudioPrivate *>(userData);
 
-    if (!info) {
-        pa_threaded_mainloop_signal(audioDevice->d->m_mainLoop, 0);
-
-        return;
-    }
-
-    if (isLast < 0) {
-        audioDevice->d->m_error =
-                QString(pa_strerror(pa_context_errno(context)));
-        emit audioDevice->errorChanged(audioDevice->d->m_error);
+    if (isLast > 0) {
+        self->m_devicesInfo.waitingForSinks = false;
 
         return;
     }
 
-    // Finish info querying.
-    if (isLast) {
-        // Return as soon as possible.
-        pa_threaded_mainloop_signal(audioDevice->d->m_mainLoop, 0);
-
+    if (!info)
         return;
-    }
 
-    // Get info for the pin.
-    audioDevice->d->m_mutex.lock();
+    auto name = QString::fromUtf8(info->name);
+    auto description = QString::fromUtf8(info->description);
 
-    auto sinks = audioDevice->d->m_sinks;
-    auto pinCapsMap = audioDevice->d->m_pinCapsMap;
-    auto pinDescriptionMap = audioDevice->d->m_pinDescriptionMap;
+    if (description.isEmpty())
+        description = name;
 
-    audioDevice->d->m_sinks[info->index] = info->name;
-    audioDevice->d->m_pinDescriptionMap[info->name] =
-            QString(info->description).isEmpty()?
-                  info->name: info->description;
-    audioDevice->d->m_pinCapsMap[info->name] =
+    self->m_devicesInfo.sinks << name;
+    self->m_devicesInfo.devicesDescriptions[name] = description;
+    self->m_devicesInfo.devicesCaps[name] =
             AkAudioCaps(sampleFormats->value(info->sample_spec.format),
                         AkAudioCaps::defaultChannelLayout(info->sample_spec.channels),
                         false,
                         int(info->sample_spec.rate));
-
-    audioDevice->d->m_mutex.unlock();
-
-    if (sinks != audioDevice->d->m_sinks
-        || pinCapsMap != audioDevice->d->m_pinCapsMap
-        || pinDescriptionMap != audioDevice->d->m_pinDescriptionMap) {
-        emit audioDevice->outputsChanged(audioDevice->d->m_sinks.values());
-    }
 }
 
 #include "moc_audiodevpulseaudio.cpp"

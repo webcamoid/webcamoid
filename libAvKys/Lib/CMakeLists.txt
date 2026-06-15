@@ -54,6 +54,8 @@ qt_add_library(avkys
                src/akaudiocaps.h
                src/akaudioconverter.cpp
                src/akaudioconverter.h
+               src/akaudiomixer.cpp
+               src/akaudiomixer.h
                src/akaudiopacket.cpp
                src/akaudiopacket.h
                src/akcaps.cpp
@@ -95,6 +97,7 @@ qt_add_library(avkys
                src/akpluginmanager.h
                src/akpropertyoption.cpp
                src/akpropertyoption.h
+               src/akringbuffer.h
                src/aksimd.cpp
                src/aksimd.h
                src/akstreamingstats.cpp

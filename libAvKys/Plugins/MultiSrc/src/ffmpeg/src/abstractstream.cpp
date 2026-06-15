@@ -17,14 +17,14 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QQueue>
 #include <QAbstractEventDispatcher>
 #include <QEventLoop>
-#include <QtConcurrent>
 #include <QFuture>
+#include <QQueue>
 #include <QThread>
 #include <QThreadPool>
 #include <QWaitCondition>
+#include <QtConcurrent>
 #include <akfrac.h>
 #include <akcaps.h>
 

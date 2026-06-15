@@ -135,6 +135,11 @@ bool AudioDev::init(const QString &device, const AkAudioCaps &caps)
     return false;
 }
 
+AkAudioCaps AudioDev::negotiatedCaps() const
+{
+    return {};
+}
+
 QByteArray AudioDev::read()
 {
     return {};
@@ -158,12 +163,16 @@ void AudioDev::setLatency(int latency)
         return;
 
     this->d->m_latency = latency;
-    Q_EMIT this->latencyChanged(latency);
+    emit this->latencyChanged(latency);
 }
 
 void AudioDev::resetLatency()
 {
     this->setLatency(25);
+}
+
+void AudioDev::updateDevices()
+{
 }
 
 #include "moc_audiodev.cpp"

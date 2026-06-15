@@ -31,6 +31,7 @@
 #include "ak.h"
 #include "akaudiocaps.h"
 #include "akaudioconverter.h"
+#include "akaudiomixer.h"
 #include "akaudiopacket.h"
 #include "akcaps.h"
 #include "akcolorcomponent.h"
@@ -112,6 +113,7 @@ void Ak::registerTypes()
     });
     AkAudioCaps::registerTypes();
     AkAudioConverter::registerTypes();
+    AkAudioMixer::registerTypes();
     AkAudioPacket::registerTypes();
     AkCaps::registerTypes();
     AkColorComponent::registerTypes();

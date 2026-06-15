@@ -22,6 +22,10 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 ColumnLayout {
+    id: audioOptions
+
+    signal openAudioInputAddDialog()
+
     TabBar {
         id: tabBar
         Layout.fillWidth: true
@@ -43,6 +47,7 @@ ColumnLayout {
         AudioOutputs {
         }
         AudioInputs {
+            onOpenAudioInputAddDialog: audioOptions.openAudioInputAddDialog()
         }
     }
 }

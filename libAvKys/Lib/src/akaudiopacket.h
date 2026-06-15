@@ -78,6 +78,9 @@ class AKCOMMONS_EXPORT AkAudioPacket: public AkPacketBase
         Q_INVOKABLE AkAudioPacket pop(int samples);
         Q_INVOKABLE AkAudioPacket pop();
         Q_INVOKABLE qreal volume() const;
+        Q_INVOKABLE AkAudioPacket adjustVolume(qreal volume,
+                                               bool clip=true,
+                                               bool logarithmic=true) const;
 
     private:
         AkAudioPacketPrivate *d;

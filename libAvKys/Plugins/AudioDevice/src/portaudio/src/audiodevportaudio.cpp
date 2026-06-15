@@ -104,19 +104,6 @@ AudioDevPortAudio::AudioDevPortAudio(QObject *parent):
         return;
     }
 
-#if 0
-    /* NOTE: PortAudio does not support HotPlug API yet, so disabling for now.
-     *
-     * https://github.com/PortAudio/portaudio/wiki/HotPlug
-     */
-    Pa_SetDevicesChangedCallback(this->d,
-                                 [] (void *userData) {
-        auto self = reinterpret_cast<AudioDevPortAudioPrivate *>(userData);
-
-        if (Pa_RefreshDeviceList() == paNoError)
-            self->updateDevices();
-    });
-#endif
     this->d->updateDevices();
 }
 
@@ -239,7 +226,12 @@ bool AudioDevPortAudio::init(const QString &device, const AkAudioCaps &caps)
                  * AkAudioCaps::bitsPerSample(caps.format())
                  * caps.channels() / 8;
     this->d->m_maxBufferSize = 4 * bufferSize;
-    this->d->m_curCaps = caps;
+
+    if (this->d->m_curCaps != caps) {
+        this->d->m_curCaps = caps;
+        emit this->negotiatedCapsChanged(this->d->m_curCaps);
+    }
+
     result = Pa_StartStream(this->d->m_stream);
 
     if (result != paNoError) {
@@ -251,6 +243,11 @@ bool AudioDevPortAudio::init(const QString &device, const AkAudioCaps &caps)
     }
 
     return true;
+}
+
+AkAudioCaps AudioDevPortAudio::negotiatedCaps() const
+{
+    return this->d->m_curCaps;
 }
 
 QByteArray AudioDevPortAudio::read()
@@ -300,6 +297,11 @@ bool AudioDevPortAudio::uninit()
     this->d->m_buffers.clear();
 
     return true;
+}
+
+void AudioDevPortAudio::updateDevices()
+{
+    this->d->updateDevices();
 }
 
 AudioDevPortAudioPrivate::AudioDevPortAudioPrivate(AudioDevPortAudio *self):

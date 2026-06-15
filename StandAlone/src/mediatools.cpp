@@ -35,10 +35,11 @@
 #include <QThread>
 #include <QtConcurrent>
 #include <ak.h>
-#include <akcaps.h>
 #include <akaudiocaps.h>
-#include <akvideocaps.h>
+#include <akcaps.h>
+#include <akpacket.h>
 #include <akpluginmanager.h>
+#include <akvideocaps.h>
 
 #ifdef Q_OS_ANDROID
 #include <QJniEnvironment>
@@ -50,7 +51,8 @@
 #endif
 
 #include "mediatools.h"
-#include "audiolayer.h"
+#include "audioinputs.h"
+#include "audiooutputs.h"
 #include "clioptions.h"
 #include "downloadmanager.h"
 #include "iconsprovider.h"
@@ -120,7 +122,8 @@ class MediaToolsPrivate
         };
 #endif
         QQmlApplicationEngine *m_engine {nullptr};
-        AudioLayerPtr m_audioLayer;
+        AudioInputsPtr m_audioInputs;
+        AudioOutputsPtr m_audioOutputs;
         PluginConfigsPtr m_pluginConfigs;
         RecordingPtr m_recording;
         StreamingPtr m_streaming;
@@ -135,6 +138,8 @@ class MediaToolsPrivate
         int m_adBannerHeight {0};
         QTime m_lastTimeAdShow;
         bool m_hideControlsOnPointerOut {false};
+        QString m_videoSourceDevice;
+        qint64 m_videoSourceStreamId {-1};
 
         // Show interstitial ads every 1 minute
         int m_adTimeDiff {1 * 60};
@@ -795,7 +800,8 @@ bool MediaTools::init(const CliOptions &cliOptions)
             PluginConfigsPtr(new PluginConfigs(cliOptions, this->d->m_engine));
     this->d->m_videoLayer =
             VideoLayerPtr(new VideoLayer(this->d->m_engine));
-    this->d->m_audioLayer = AudioLayerPtr(new AudioLayer(this->d->m_engine));
+    this->d->m_audioInputs = AudioInputsPtr(new AudioInputs(this->d->m_engine));
+    this->d->m_audioOutputs = AudioOutputsPtr(new AudioOutputs(this->d->m_engine));
     this->d->m_videoEffects =
             VideoEffectsPtr(new VideoEffects(this->d->m_engine));
     this->d->m_recording = RecordingPtr(new Recording(this->d->m_engine));
@@ -826,8 +832,21 @@ bool MediaTools::init(const CliOptions &cliOptions)
     AkElement::link(this->d->m_videoLayer.data(),
                     this->d->m_videoEffects.data(),
                     Qt::DirectConnection);
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::oStream,
+                     this->d->m_audioInputs.data(),
+                     [this] (const AkPacket &packet) {
+                         if (packet.type() != AkPacket::PacketAudio
+                             || this->d->m_videoSourceStreamId < 0)
+                             return;
+
+                         auto pkt = packet;
+                         pkt.setId(this->d->m_videoSourceStreamId);
+                         this->d->m_audioInputs->iStream(pkt);
+                     },
+                     Qt::DirectConnection);
     AkElement::link(this->d->m_videoLayer.data(),
-                    this->d->m_audioLayer.data(),
+                    this->d->m_audioOutputs.data(),
                     Qt::DirectConnection);
     AkElement::link(this->d->m_videoEffects.data(),
                     this->d->m_recording.data(),
@@ -838,10 +857,10 @@ bool MediaTools::init(const CliOptions &cliOptions)
     AkElement::link(this->d->m_videoEffects.data(),
                     this->d->m_streaming.data(),
                     Qt::DirectConnection);
-    AkElement::link(this->d->m_audioLayer.data(),
+    AkElement::link(this->d->m_audioInputs.data(),
                     this->d->m_recording.data(),
                     Qt::DirectConnection);
-    AkElement::link(this->d->m_audioLayer.data(),
+    AkElement::link(this->d->m_audioInputs.data(),
                     this->d->m_streaming.data(),
                     Qt::DirectConnection);
     QObject::connect(this->d->m_videoLayer.data(),
@@ -854,12 +873,16 @@ bool MediaTools::init(const CliOptions &cliOptions)
                      &VirtualCameras::setState);
     QObject::connect(this->d->m_videoLayer.data(),
                      &VideoLayer::stateChanged,
-                     this->d->m_audioLayer.data(),
-                     &AudioLayer::setOutputState);
+                     this->d->m_audioOutputs.data(),
+                     &AudioOutputs::setState);
     QObject::connect(this->d->m_recording.data(),
                      &Recording::stateChanged,
-                     this->d->m_audioLayer.data(),
-                     &AudioLayer::setInputState);
+                     this->d->m_audioInputs.data(),
+                     &AudioInputs::setOutputState);
+    QObject::connect(this->d->m_streaming.data(),
+                     &Streaming::stateChanged,
+                     this->d->m_audioInputs.data(),
+                     &AudioInputs::setOutputState);
     QObject::connect(this->d->m_virtualCameras.data(),
                      &VirtualCameras::startVCamDownload,
                      this,
@@ -871,29 +894,42 @@ bool MediaTools::init(const CliOptions &cliOptions)
     });
     QObject::connect(this->d->m_videoLayer.data(),
                      &VideoLayer::inputAudioCapsChanged,
-                     this->d->m_audioLayer.data(),
+                     this->d->m_audioInputs.data(),
                      [this] (const AkAudioCaps &audioCaps)
                      {
+                        Q_UNUSED(audioCaps)
                         auto stream = this->d->m_videoLayer->videoInput();
 
-                        if (stream.isEmpty())
-                            this->d->m_audioLayer->resetInput();
-                        else
-                            this->d->m_audioLayer->setInput(stream,
-                                                            this->d->m_videoLayer->description(stream),
-                                                            audioCaps);
+                        if (stream.isEmpty()) {
+                            if (!this->d->m_videoSourceDevice.isEmpty()) {
+                                this->d->m_audioInputs->removeInput(this->d->m_videoSourceDevice);
+                                this->d->m_videoSourceDevice.clear();
+                                this->d->m_videoSourceStreamId = -1;
+                            }
+                        } else {
+                            this->d->m_videoSourceStreamId =
+                                this->d->m_audioInputs->addInput(stream,
+                                                                 this->d->m_videoLayer->description(stream));
+                            this->d->m_videoSourceDevice = stream;
+                        }
                      });
     QObject::connect(this->d->m_videoLayer.data(),
                      &VideoLayer::videoInputChanged,
-                     this->d->m_audioLayer.data(),
+                     this->d->m_audioInputs.data(),
                      [this] (const QString &stream)
                      {
-                        if (stream.isEmpty())
-                            this->d->m_audioLayer->resetInput();
-                        else
-                            this->d->m_audioLayer->setInput(stream,
-                                                            this->d->m_videoLayer->description(stream),
-                                                            this->d->m_videoLayer->inputAudioCaps());
+                        if (stream.isEmpty()) {
+                            if (!this->d->m_videoSourceDevice.isEmpty()) {
+                                this->d->m_audioInputs->removeInput(this->d->m_videoSourceDevice);
+                                this->d->m_videoSourceDevice.clear();
+                                this->d->m_videoSourceStreamId = -1;
+                            }
+                        } else {
+                            this->d->m_videoSourceStreamId =
+                                this->d->m_audioInputs->addInput(stream,
+                                                                 this->d->m_videoLayer->description(stream));
+                            this->d->m_videoSourceDevice = stream;
+                        }
                      });
     QObject::connect(akPluginManager,
                      &AkPluginManager::pluginsChanged,
@@ -927,12 +963,12 @@ bool MediaTools::init(const CliOptions &cliOptions)
     this->loadConfigs();
     auto stream = this->d->m_videoLayer->videoInput();
 
-    if (stream.isEmpty())
-        this->d->m_audioLayer->resetInput();
-    else
-        this->d->m_audioLayer->setInput(stream,
-                                        this->d->m_videoLayer->description(stream),
-                                        this->d->m_videoLayer->inputAudioCaps());
+    if (!stream.isEmpty()) {
+        this->d->m_videoSourceStreamId =
+            this->d->m_audioInputs->addInput(stream,
+                                             this->d->m_videoLayer->description(stream));
+        this->d->m_videoSourceDevice = stream;
+    }
 
     this->d->m_virtualCameras->setLatestVCamVersion(this->d->m_updates->latestVersion("VirtualCamera"));
     this->d->m_updates->start();

@@ -613,8 +613,20 @@ void AkGLPipelinePrivate::renderGL()
 {
     this->m_surface = new QOffscreenSurface;
     QSurfaceFormat fmt;
+
+#if defined(Q_OS_ANDROID)
+    fmt.setRenderableType(QSurfaceFormat::OpenGLES);
     fmt.setVersion(2, 0);
+#elif defined(Q_OS_MAC)
+    fmt.setRenderableType(QSurfaceFormat::OpenGL);
     fmt.setProfile(QSurfaceFormat::CoreProfile);
+    fmt.setVersion(4, 1);
+#else
+    fmt.setRenderableType(QSurfaceFormat::OpenGL);
+    fmt.setProfile(QSurfaceFormat::CompatibilityProfile);
+    fmt.setVersion(2, 1);
+#endif
+
     this->m_surface->setFormat(fmt);
     this->m_surface->create();
 

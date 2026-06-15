@@ -104,6 +104,7 @@ OptionsPanel {
         clip: true
 
         AudioOptions {
+            onOpenAudioInputAddDialog: audioInputAdd.open()
         }
         VideoOptions {
             onOpenErrorDialog: (title, message) =>
@@ -201,6 +202,10 @@ OptionsPanel {
         }
     }
 
+    AudioInputAdd {
+        id: audioInputAdd
+        anchors.centerIn: Overlay.overlay
+    }
     VideoInputAddScreen {
         id: videoInputAddScreen
         anchors.centerIn: Overlay.overlay

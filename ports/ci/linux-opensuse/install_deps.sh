@@ -98,7 +98,6 @@ zypper -n in \
     cmake \
     ffmpeg-devel \
     git \
-    libjack-devel \
     libkmod-devel \
     libpulse-devel \
     libusb-1_0-devel \
@@ -121,5 +120,4 @@ zypper -n in \
     qt6-xml-devel \
     which \
     xauth \
-    xvfb-run \
-    SDL2-devel
+    xvfb-run

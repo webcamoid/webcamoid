@@ -289,7 +289,12 @@ bool AudioDevWasapi::init(const QString &device,
     if (closestWfx)
         ptrWfx = closestWfx;
 
-    this->d->m_curCaps = this->d->capsFromWaveFormat(ptrWfx);
+    auto curCaps = this->d->capsFromWaveFormat(ptrWfx);
+
+    if (this->d->m_curCaps != curCaps) {
+        this->d->m_curCaps = curCaps;
+        emit this->negotiatedCapsChanged(this->d->m_curCaps);
+    }
 
     if (FAILED(hr = this->d->m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED,
                                                         AUDCLNT_STREAMFLAGS_EVENTCALLBACK,
@@ -361,6 +366,11 @@ bool AudioDevWasapi::init(const QString &device,
     this->d->m_samples = qMax(this->latency() * caps.rate() / 1000, 1);
 
     return true;
+}
+
+AkAudioCaps AudioDevWasapi::negotiatedCaps() const
+{
+    return this->d->m_curCaps;
 }
 
 QByteArray AudioDevWasapi::read()
@@ -863,7 +873,7 @@ HRESULT AudioDevWasapi::OnPropertyValueChanged(LPCWSTR pwstrDeviceId,
     Q_UNUSED(pwstrDeviceId)
     Q_UNUSED(key)
 
-    this->updateDevices();
+    //this->updateDevices();
 
     return S_OK;
 }

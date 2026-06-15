@@ -81,8 +81,14 @@ target_link_directories(AudioDevice_pulseaudio
                         ${PULSEAUDIO_LIBRARY_DIRS})
 target_link_libraries(AudioDevice_pulseaudio
                       ${QT_LIBS}
-                      ${PULSEAUDIO_LIBRARIES}
                       avkys)
+
+if (PULSEAUDIO_DYNLOAD)
+    add_definitions(-DUSE_PULSEAUDIO_DYNLOAD)
+else ()
+    target_link_libraries(AudioDevice_pulseaudio
+                          ${PULSEAUDIO_LIBRARIES})
+endif ()
 
 if (NOT NOPULSEAUDIO AND PULSEAUDIO_FOUND AND NOT ANDROID)
     install(TARGETS AudioDevice_pulseaudio

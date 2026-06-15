@@ -64,7 +64,6 @@ jobs:
           pkgconf
           python3
           unzip
-          mingw-w64-${{ matrix.target_arch }}-SDL2
           mingw-w64-${{ matrix.target_arch }}-binutils
           mingw-w64-${{ matrix.target_arch }}-ccache
           mingw-w64-${{ matrix.target_arch }}-clang
@@ -179,7 +178,6 @@ jobs:
 #          pkgconf
 #          python3
 #          unzip
-#          mingw-w64-${{ matrix.target_arch }}-SDL2
 #          mingw-w64-${{ matrix.target_arch }}-binutils
 #          mingw-w64-${{ matrix.target_arch }}-ccache
 #          mingw-w64-${{ matrix.target_arch }}-clang

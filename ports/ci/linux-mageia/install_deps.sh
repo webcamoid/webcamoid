@@ -92,7 +92,6 @@ dnf -y install \
     git \
     lib64alsa2-devel \
     lib64ffmpeg-devel \
-    lib64jack-devel \
     lib64kmod-devel \
     lib64pipewire-devel \
     lib64portaudio-devel \

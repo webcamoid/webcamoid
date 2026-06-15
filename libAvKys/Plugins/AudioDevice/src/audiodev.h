@@ -36,6 +36,9 @@ class AudioDev: public QObject
     Q_PROPERTY(QString error
                READ error
                NOTIFY errorChanged)
+    Q_PROPERTY(AkAudioCaps negotiatedCaps
+               READ negotiatedCaps
+               NOTIFY negotiatedCapsChanged)
 
     public:
         AudioDev(QObject *parent=nullptr);
@@ -54,6 +57,7 @@ class AudioDev: public QObject
         Q_INVOKABLE virtual QList<AkAudioCaps::ChannelLayout> supportedChannelLayouts(const QString &device);
         Q_INVOKABLE virtual QList<int> supportedSampleRates(const QString &device);
         Q_INVOKABLE virtual bool init(const QString &device, const AkAudioCaps &caps);
+        Q_INVOKABLE virtual AkAudioCaps negotiatedCaps() const;
         Q_INVOKABLE virtual QByteArray read();
         Q_INVOKABLE virtual bool write(const AkAudioPacket &packet);
         Q_INVOKABLE virtual bool uninit();
@@ -68,10 +72,12 @@ class AudioDev: public QObject
         void defaultOutputChanged(const QString &defaultOutput);
         void inputsChanged(const QStringList &inputs);
         void outputsChanged(const QStringList &outputs);
+        void negotiatedCapsChanged(const AkAudioCaps &negotiatedCaps);
 
     public Q_SLOTS:
         void setLatency(int latency);
         void resetLatency();
+        virtual void updateDevices();
 };
 
 #endif // AUDIODEV_H

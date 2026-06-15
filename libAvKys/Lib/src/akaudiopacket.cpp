@@ -83,15 +83,23 @@ class AkAudioPacketPrivate
                 for (int plane = 0; plane < this->m_nPlanes; ++plane) {
                     auto samples = reinterpret_cast<SampleType *>(this->m_planes[plane]);
 
-                    for (int sample = 0; sample < this->m_samples; ++sample)
-                        amplitude = qMax(qAbs(transformFrom(samples[sample])), amplitude);
+                    for (int sample = 0; sample < this->m_samples; ++sample) {
+                        auto value = qAbs(transformFrom(samples[sample]));
+
+                        if (value > amplitude)
+                            amplitude = value;
+                    }
                 }
             } else {
                 auto samples = reinterpret_cast<SampleType *>(this->m_data);
                 auto totalSamples = this->m_samples * this->m_caps.channels();
 
-                for (int sample = 0; sample < totalSamples; ++sample)
-                    amplitude = qMax(qAbs(transformFrom(samples[sample])), amplitude);
+                for (int sample = 0; sample < totalSamples; ++sample) {
+                    auto value = qAbs(transformFrom(samples[sample]));
+
+                    if (value > amplitude)
+                        amplitude = value;
+                }
             }
 
             SampleType max;
@@ -104,6 +112,49 @@ class AkAudioPacketPrivate
                 max = std::numeric_limits<SampleType>::max();
 
             return qreal(amplitude) / max;
+        }
+
+        inline static qreal linearToLogarithmic(qreal linear)
+        {
+            if (linear <= 0.0)
+                return 0.0;
+
+            return linear * linear;
+        }
+
+        template<typename SampleType, typename TransformFuncType>
+        inline void adjustVolume(const char *src,
+                                 char *dst,
+                                 size_t totalSamples,
+                                 qreal gain,
+                                 bool clip,
+                                 TransformFuncType transformFrom,
+                                 TransformFuncType transformTo) const
+        {
+            auto srcSamples = reinterpret_cast<const SampleType *>(src);
+            auto dstSamples = reinterpret_cast<SampleType *>(dst);
+
+            if (clip) {
+                qreal maxValue = 0.0;
+
+                for (size_t i = 0; i < totalSamples; ++i) {
+                    auto v = qAbs(gain * transformFrom(srcSamples[i]));
+
+                    if (v > maxValue)
+                        maxValue = v;
+                }
+
+                qreal max = typeid(SampleType) == typeid(float)
+                            || typeid(SampleType) == typeid(qreal)?
+                                1.0:
+                                qreal(std::numeric_limits<SampleType>::max());
+
+                if (maxValue > max)
+                    gain *= max / maxValue;
+            }
+
+            for (size_t i = 0; i < totalSamples; ++i)
+                dstSamples[i] = transformTo(SampleType(gain * transformFrom(srcSamples[i])));
         }
 };
 
@@ -531,6 +582,71 @@ qreal AkAudioPacket::volume() const
     }
 
     return 0.0;
+}
+
+#define HANDLE_CASE_ADJUST_VOLUME(format, sampleType, endian) \
+        case AkAudioCaps::SampleFormat_##format: \
+            this->d->adjustVolume<sampleType>(this->constData(), \
+                                              dst.data(), \
+                                              totalSamples, \
+                                              gain, \
+                                              clip, \
+                                              AkAudioPacketPrivate::from##endian<sampleType>, \
+                                              AkAudioPacketPrivate::to##endian<sampleType>); \
+            break;
+
+AkAudioPacket AkAudioPacket::adjustVolume(qreal volume,
+                                          bool clip,
+                                          bool logarithmic) const
+{
+    // If the volume is 1.0, return an unchanged copy
+    if (qFuzzyCompare(volume, 1.0))
+        return *this;
+
+    // If the volume is 0.0, return a silent packet
+    if (volume <= 0.0) {
+        AkAudioPacket silent(this->d->m_caps, this->d->m_samples, true);
+        silent.copyMetadata(*this);
+
+        return silent;
+    }
+
+    // Convert to logarithmic scale for natural perception
+    qreal gain = logarithmic?
+                     AkAudioPacketPrivate::linearToLogarithmic(volume):
+                     volume;
+
+    // Create a copy of the current package
+    AkAudioPacket dst(this->d->m_caps, this->d->m_samples);
+    dst.copyMetadata(*this);
+    size_t totalSamples = 8 * this->d->m_dataSize / this->d->m_caps.bps();
+
+    // Apply gain according to the format
+
+    switch (this->d->m_caps.format()) {
+    HANDLE_CASE_ADJUST_VOLUME(s8   , qint8  ,  _)
+    HANDLE_CASE_ADJUST_VOLUME(u8   , quint8 ,  _)
+    HANDLE_CASE_ADJUST_VOLUME(s16le, qint16 , LE)
+    HANDLE_CASE_ADJUST_VOLUME(s16be, qint16 , BE)
+    HANDLE_CASE_ADJUST_VOLUME(u16le, quint16, LE)
+    HANDLE_CASE_ADJUST_VOLUME(u16be, quint16, BE)
+    HANDLE_CASE_ADJUST_VOLUME(s32le, qint32 , LE)
+    HANDLE_CASE_ADJUST_VOLUME(s32be, qint32 , BE)
+    HANDLE_CASE_ADJUST_VOLUME(u32le, quint32, LE)
+    HANDLE_CASE_ADJUST_VOLUME(u32be, quint32, BE)
+    HANDLE_CASE_ADJUST_VOLUME(s64le, qint64 , LE)
+    HANDLE_CASE_ADJUST_VOLUME(s64be, qint64 , BE)
+    HANDLE_CASE_ADJUST_VOLUME(u64le, quint64, LE)
+    HANDLE_CASE_ADJUST_VOLUME(u64be, quint64, BE)
+    HANDLE_CASE_ADJUST_VOLUME(fltle, float  , LE)
+    HANDLE_CASE_ADJUST_VOLUME(fltbe, float  , BE)
+    HANDLE_CASE_ADJUST_VOLUME(dblle, qreal  , LE)
+    HANDLE_CASE_ADJUST_VOLUME(dblbe, qreal  , BE)
+    default:
+        return *this;
+    }
+
+    return dst;
 }
 
 void AkAudioPacket::registerTypes()

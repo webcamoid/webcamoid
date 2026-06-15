@@ -27,7 +27,6 @@ pkg install -y \
     cmake \
     ffmpeg \
     git \
-    jackit \
     libuvc \
     libXext \
     libXfixes \
@@ -44,5 +43,4 @@ pkg install -y \
     qt6-svg \
     qt6-tools \
     qt6-wayland \
-    sdl2 \
     v4l_compat

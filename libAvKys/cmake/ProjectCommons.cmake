@@ -49,7 +49,6 @@ set(NOALSA OFF CACHE BOOL "Disable ALSA support")
 set(NODSHOW OFF CACHE BOOL "Disable DirectShow support")
 set(NOFFMPEG OFF CACHE BOOL "Disable FFmpeg support")
 set(NOFFMPEGSCREENCAP OFF CACHE BOOL "Disable FFmpeg screen capture support")
-set(NOJACK OFF CACHE BOOL "Disable JACK support")
 set(NOLIBAVDEVICE OFF CACHE BOOL "Disable libavdevice support in FFmpeg")
 set(NOLIBUSB OFF CACHE BOOL "Disable libusb  support")
 set(NOLIBUVC OFF CACHE BOOL "Disable libuvc  support")
@@ -58,11 +57,9 @@ set(NONDKMEDIA OFF CACHE BOOL "Disable Android NDK Media support")
 set(NOPIPEWIRE OFF CACHE BOOL "Disable Pipewire support")
 set(NOPORTAUDIO OFF CACHE BOOL "Disable PortAudio support")
 set(NOPULSEAUDIO OFF CACHE BOOL "Disable PulseAudio support")
-set(NOQTAUDIO OFF CACHE BOOL "Disable QtMultimedia support for audio capture/playback")
 set(NOQTCAMERA OFF CACHE BOOL "Disable video capture using QCamera support")
 set(NOQTSCREENCAPTURE OFF CACHE BOOL "Disable screen capture using QScreenCapture")
 set(NOSCREENCAPTURE OFF CACHE BOOL "Disable screen capture")
-set(NOSDL OFF CACHE BOOL "Disable SDL support")
 set(NOV4L2 OFF CACHE BOOL "Disable V4L2 support")
 set(NOV4LUTILS OFF CACHE BOOL "Disable V4l-utils support")
 set(NOVIDEOEFFECTS OFF CACHE BOOL "No build video effects")
@@ -84,6 +81,7 @@ set(NOSIMDRVV OFF CACHE BOOL "Disable RVV SIMD optimizations")
 # Dynamic libraries load
 
 set(PIPEWIRE_DYNLOAD OFF CACHE BOOL "Load PipeWire libraries on runtime instead of linking")
+set(PULSEAUDIO_DYNLOAD OFF CACHE BOOL "Load PulseAudio libraries on runtime instead of linking")
 
 # Ads configurations
 

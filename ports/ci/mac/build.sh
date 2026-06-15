@@ -99,25 +99,9 @@ cmake \
     -DCMAKE_OBJCXX_COMPILER_LAUNCHER=ccache \
     -DDAILY_BUILD=${DAILY_BUILD} \
     -DNOALSA=ON \
-    -DNOJACK=ON \
     -DNOLIBUSB=ON \
     -DNOLIBUVC=ON \
-    -DNOPULSEAUDIO=ON \
-    -DNOSDL=ON \
-    -DNOLSMASH=ON \
-    -DNOLIBMP4V2=ON \
-    -DNOLIBWEBM=ON \
-    -DNOLIBVPX=ON \
-    -DNOSVTVP9=ON \
-    -DNOAOMAV1=ON \
-    -DNOSVTAV1=ON \
-    -DNORAVIE=ON \
-    -DNOLIBX264=ON \
-    -DNOLIBOPUS=ON \
-    -DNOLIBVORBIS=ON \
-    -DNOFDKAAC=ON \
-    -DNOFAAC=ON \
-    -DNOLAME=ON
+    -DNOPULSEAUDIO=ON
 cmake --build "\${BUILD_PATH}" --parallel \$(sysctl -n hw.ncpu)
 cmake --install "\${BUILD_PATH}"
 

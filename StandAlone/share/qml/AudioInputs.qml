@@ -20,92 +20,139 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Ak
+import Webcamoid
 
 ScrollView {
     id: view
 
     readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
 
-    Component.onCompleted: devicesList.update()
-    onVisibleChanged: devicesList.forceActiveFocus()
+    signal openAudioInputAddDialog()
 
     Connections {
-        target: audioLayer
+        target: audioInputs
 
-        function onInputsChanged()
-        {
-            devicesList.update()
+        function onActiveInputsChanged() {
+            activeSourcesList.update()
+        }
+
+        function onVumeter(input, level) {
+            activeSourcesList.updateVuLevel(input, level)
         }
     }
 
+    Component.onCompleted: activeSourcesList.update()
+
+    onVisibleChanged: audioInputs.inputState = visible?
+                            AkElement.ElementStatePlaying:
+                            AkElement.ElementStateNull
+
+    ListModel {
+        id: addInputModel
+    }
+
     ColumnLayout {
-        layoutDirection: view.rtl? Qt.RightToLeft: Qt.LeftToRight
+        layoutDirection: view.rtl ? Qt.RightToLeft : Qt.LeftToRight
         width: view.width
         clip: true
 
         Button {
-            text: qsTr("Configure input")
+            id: btnAddInput
+            text: qsTr("Add audio input")
+            icon.source: "image://icons/add"
+            flat: true
+
+            onClicked: addInput.popup()
+
+            Menu {
+                id: addInput
+                width: AkUnit.create(250 * AkTheme.controlScale, "dp").pixels
+                margins: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+
+                MenuItem {
+                    text: qsTr("Add device input")
+                    icon.source: "image://icons/mic"
+
+                    onClicked: view.openAudioInputAddDialog()
+                }
+                MenuItem {
+                    text: qsTr("Add video source")
+                    icon.source: "image://icons/video"
+                    height: visible? undefined: 0
+                    visible: videoLayer.deviceType(videoLayer.videoInput) == VideoLayer.InputStream
+
+                    onClicked: {
+                        audioInputs.addInput(videoLayer.videoInput,
+                                             videoLayer.description(videoLayer.videoInput))
+                    }
+                }
+            }
+        }
+        Button {
+            text: qsTr("Configure audio input settings")
             icon.source: "image://icons/settings"
             flat: true
-            visible: devicesList.count > 0
 
-            onClicked: deviceOptions.openOptions(audioLayer.audioInput[0])
+            onClicked: deviceOptions.open()
         }
-        OptionList {
-            id: devicesList
-            Layout.fillWidth: true
-            Layout.minimumHeight: minHeight
 
-            property bool updating: false
-            property int minHeight: 0
+        ColumnLayout {
+            id: activeSourcesList
+
+            Layout.fillWidth: true
+            layoutDirection: view.rtl? Qt.RightToLeft: Qt.LeftToRight
 
             function update() {
-                devicesList.minHeight = 0
-                let devices = audioLayer.inputs
+                for (let i = children.length - 1; i >= 0; i--) {
+                    let child = children[i]
 
-                for (let i = count - 1; i >= 0; i--)
-                    removeItem(itemAt(i))
-
-                let input = audioLayer.audioInput.length < 1?
-                                "":
-                                audioLayer.audioInput[0]
-                let index = devices.indexOf(input)
-
-                if (index < 0) {
-                    if (devices.length == 1)
-                        index = 0
-                    else if (devices.length >= 2)
-                        index = 1
+                    if (child.isSourceItem)
+                        child.destroy()
                 }
 
-                updating = true
+                let active = audioInputs.activeInputs
 
-                for (let i in devices) {
-                    let component = Qt.createComponent("AudioDeviceItem.qml")
-
-                    if (component.status !== Component.Ready)
-                        continue
-
-                    let obj = component.createObject(devicesList)
-                    obj.text = audioLayer.description(devices[i])
-                    obj.device = devices[i]
-                    obj.highlighted = i == index
-                    devicesList.minHeight += obj.height
-
-                    obj.Keys.onSpacePressed.connect(() => deviceOptions.openOptions(audioLayer.audioInput[0]))
+                for (let i = 0; i < active.length; i++) {
+                    let device = active[i]
+                    sourceItemComponent.createObject(activeSourcesList, {
+                        "device": device,
+                        "label": audioInputs.description(device),
+                        "volume": audioInputs.volume(device)
+                    })
                 }
-
-                updating = false
-                setCurrentIndex(index)
             }
 
-            onCurrentIndexChanged:
-                if (!updating && itemAt(currentIndex))
-                    audioLayer.audioInput = [itemAt(currentIndex).device]
+            function updateVuLevel(input, level) {
+                for (let i = 0; i < children.length; i++) {
+                    let child = children[i]
+
+                    if (child.isSourceItem && child.device === input) {
+                        child.vuLevel = level
+
+                        break
+                    }
+                }
+            }
+
+            Component.onCompleted: update()
         }
     }
 
-    AudioDeviceOptions {
+    Component {
+        id: sourceItemComponent
+
+        AudioInputSourceItem {
+            readonly property bool isSourceItem: true
+
+            Layout.fillWidth: true
+
+            onRemoveClicked: audioInputs.removeInput(device)
+            onAudioVolumeChanged: (v) => audioInputs.setVolume(device, v)
+        }
+    }
+
+    AudioInputDeviceOptions {
         id: deviceOptions
         anchors.centerIn: Overlay.overlay
     }

@@ -105,7 +105,6 @@ pacman --noconfirm --needed -S \
     ffmpeg \
     file \
     git \
-    jack \
     libpulse \
     libusb \
     libxext \

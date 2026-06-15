@@ -90,7 +90,6 @@ pacman --noconfirm --needed -S \
     mingw-w64-qt6-multimedia \
     mingw-w64-qt6-svg \
     mingw-w64-qt6-tools \
-    mingw-w64-sdl2 \
     mingw-w64-vulkan-headers
 
 # Install NSIS

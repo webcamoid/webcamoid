@@ -51,6 +51,11 @@ class AudioDeviceElement: public AkElement
                WRITE setLatency
                RESET resetLatency
                NOTIFY latencyChanged)
+    Q_PROPERTY(qreal volume
+               READ volume
+               WRITE setVolume
+               RESET resetVolume
+               NOTIFY volumeChanged)
     Q_PROPERTY(AkAudioCaps caps
                READ caps
                WRITE setCaps
@@ -68,6 +73,7 @@ class AudioDeviceElement: public AkElement
         Q_INVOKABLE QString description(const QString &device);
         Q_INVOKABLE QString device() const;
         Q_INVOKABLE int latency() const;
+        Q_INVOKABLE qreal volume() const;
         Q_INVOKABLE AkAudioCaps caps() const;
         Q_INVOKABLE AkAudioCaps preferredFormat(const QString &device);
         Q_INVOKABLE QList<AkAudioCaps::SampleFormat> supportedFormats(const QString &device);
@@ -87,15 +93,19 @@ class AudioDeviceElement: public AkElement
         void outputsChanged(const QStringList &outputs);
         void deviceChanged(const QString &device);
         void latencyChanged(int latency);
+        void volumeChanged(qreal volume);
         void capsChanged(const AkAudioCaps &caps);
 
     public slots:
         void setDevice(const QString &device);
         void setLatency(int latency);
+        void setVolume(qreal volume);
         void setCaps(const AkAudioCaps &caps);
         void resetDevice();
         void resetLatency();
+        void resetVolume();
         void resetCaps();
+        void updateDevices();
         bool setState(AkElement::ElementState state) override;
 };
 

@@ -46,8 +46,10 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 set(PROJECT_SOURCES
-    audiolayer.cpp
-    audiolayer.h
+    audioinputs.cpp
+    audioinputs.h
+    audiooutputs.cpp
+    audiooutputs.h
     clioptions.cpp
     clioptions.h
     downloadmanager.cpp

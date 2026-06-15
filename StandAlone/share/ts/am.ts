@@ -212,69 +212,133 @@
     </message>
 </context>
 <context>
-    <name>AudioDeviceOptions</name>
+    <name>AudioInputAdd</name>
     <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="29"/>
-        <source>Audio Device Options</source>
-        <translation>የኦዲዮ መሳሪያ አማራጮች</translation>
+        <location filename="../qml/AudioInputAdd.qml" line="30"/>
+        <source>Select the audio source to add</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="143"/>
+        <location filename="../qml/AudioInputAdd.qml" line="55"/>
+        <source>Audio input</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>AudioInputDeviceOptions</name>
+    <message>
+        <location filename="../qml/AudioInputDeviceOptions.qml" line="29"/>
+        <source>Audio Input Settings</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AudioInputDeviceOptions.qml" line="124"/>
         <source>Sample Format</source>
-        <extracomment>An sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
-        <translation>የናሙና ቅርጸት</translation>
+        <extracomment>A sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
+        <translation type="unfinished">የናሙና ቅርጸት</translation>
     </message>
     <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="164"/>
+        <location filename="../qml/AudioInputDeviceOptions.qml" line="142"/>
         <source>Channels</source>
-        <translation>ሰርጦች</translation>
+        <translation type="unfinished">ሰርጦች</translation>
     </message>
     <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="186"/>
+        <location filename="../qml/AudioInputDeviceOptions.qml" line="161"/>
         <source>Sample Rate</source>
         <extracomment>Number of audio samples per channel to be played per second.</extracomment>
-        <translation>የናሙና ፍጥነት</translation>
+        <translation type="unfinished">የናሙና ፍጥነት</translation>
     </message>
     <message>
-        <location filename="../qml/AudioDeviceOptions.qml" line="216"/>
+        <location filename="../qml/AudioInputDeviceOptions.qml" line="188"/>
         <source>Latency (ms)</source>
         <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio synchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
-        <translation>ዘገየ (ሚሊሰከንድ)</translation>
+        <translation type="unfinished">ዘገየ (ሚሊሰከንድ)</translation>
+    </message>
+</context>
+<context>
+    <name>AudioInputSourceItem</name>
+    <message>
+        <location filename="../qml/AudioInputSourceItem.qml" line="72"/>
+        <source>Remove</source>
+        <translation type="unfinished">አስወግድ</translation>
     </message>
 </context>
 <context>
     <name>AudioInputs</name>
     <message>
-        <location filename="../qml/AudioInputs.qml" line="47"/>
-        <source>Configure input</source>
-        <translation>ግብዓት ያዋቅሩ</translation>
+        <location filename="../qml/AudioInputs.qml" line="62"/>
+        <source>Add audio input</source>
+        <translation type="unfinished"></translation>
     </message>
-</context>
-<context>
-    <name>AudioLayer</name>
     <message>
-        <location filename="../../src/audiolayer.cpp" line="244"/>
-        <source>Silence</source>
-        <translation>ምስጢር</translation>
+        <location filename="../qml/AudioInputs.qml" line="74"/>
+        <source>Add device input</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AudioInputs.qml" line="80"/>
+        <source>Add video source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AudioInputs.qml" line="93"/>
+        <source>Configure audio input settings</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>AudioOptions</name>
     <message>
-        <location filename="../qml/AudioOptions.qml" line="30"/>
+        <location filename="../qml/AudioOptions.qml" line="34"/>
         <source>Outputs</source>
         <translation>ውጤቶች</translation>
     </message>
     <message>
-        <location filename="../qml/AudioOptions.qml" line="33"/>
+        <location filename="../qml/AudioOptions.qml" line="37"/>
         <source>Sources</source>
         <translation>ምንጮች</translation>
     </message>
 </context>
 <context>
+    <name>AudioOutputDeviceOptions</name>
+    <message>
+        <location filename="../qml/AudioOutputDeviceOptions.qml" line="29"/>
+        <source>Audio Device Options</source>
+        <translation type="unfinished">የኦዲዮ መሳሪያ አማራጮች</translation>
+    </message>
+    <message>
+        <location filename="../qml/AudioOutputDeviceOptions.qml" line="120"/>
+        <source>Audio input</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/AudioOutputDeviceOptions.qml" line="186"/>
+        <source>Sample Format</source>
+        <extracomment>An sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
+        <translation type="unfinished">የናሙና ቅርጸት</translation>
+    </message>
+    <message>
+        <location filename="../qml/AudioOutputDeviceOptions.qml" line="207"/>
+        <source>Channels</source>
+        <translation type="unfinished">ሰርጦች</translation>
+    </message>
+    <message>
+        <location filename="../qml/AudioOutputDeviceOptions.qml" line="229"/>
+        <source>Sample Rate</source>
+        <extracomment>Number of audio samples per channel to be played per second.</extracomment>
+        <translation type="unfinished">የናሙና ፍጥነት</translation>
+    </message>
+    <message>
+        <location filename="../qml/AudioOutputDeviceOptions.qml" line="259"/>
+        <source>Latency (ms)</source>
+        <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio synchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
+        <translation type="unfinished">ዘገየ (ሚሊሰከንድ)</translation>
+    </message>
+</context>
+<context>
     <name>AudioOutputs</name>
     <message>
-        <location filename="../qml/AudioOutputs.qml" line="47"/>
+        <location filename="../qml/AudioOutputs.qml" line="39"/>
         <source>Configure output</source>
         <translation>ውጤት ያዋቅሩ</translation>
     </message>
@@ -1091,7 +1155,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1157"/>
+        <location filename="../../src/mediatools.cpp" line="1193"/>
         <source>%1/log %2.txt</source>
         <translation>%1/log %2.txt</translation>
     </message>

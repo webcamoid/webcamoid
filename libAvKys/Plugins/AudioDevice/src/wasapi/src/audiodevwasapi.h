@@ -49,6 +49,7 @@ class AudioDevWasapi: public AudioDev, public IMMNotificationClient
         Q_INVOKABLE bool init(const QString &device,
                               const AkAudioCaps &caps,
                               bool justActivate);
+        Q_INVOKABLE AkAudioCaps negotiatedCaps() const override;
         Q_INVOKABLE QByteArray read() override;
         Q_INVOKABLE bool write(const AkAudioPacket &packet) override;
         Q_INVOKABLE bool uninit() override;
@@ -71,7 +72,7 @@ class AudioDevWasapi: public AudioDev, public IMMNotificationClient
                                                          const PROPERTYKEY key) override;
 
     private slots:
-        void updateDevices();
+        void updateDevices() override;
 };
 
 #endif // AUDIODEVWASAPI_H
