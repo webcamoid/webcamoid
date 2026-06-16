@@ -237,7 +237,10 @@ if [[ "${DOCKERIMG}" != */ubuntu:rolling &&
         libqt6multimediaquick6
 fi
 
-if [[ "${DOCKERIMG}" != *"/ubuntu:devel" ]]; then
+if [[ "${DOCKERIMG}" != *"/ubuntu:devel" &&
+      "${architecture}" != arm64v8 &&
+      "${architecture}" != arm32v7 &&
+      "${architecture}" != riscv64 ]]; then
     apt-get -y install \
         qml6-module-qtquick-nativestyle
 fi
