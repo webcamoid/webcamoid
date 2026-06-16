@@ -42,23 +42,12 @@ else
     esac
 fi
 
-# Fix keyboard layout bug when running apt
-
-cat << EOF > keyboard_config
-XKBMODEL="pc105"
-XKBLAYOUT="us"
-XKBVARIANT=""
-XKBOPTIONS=""
-BACKSPACE="guess"
-EOF
+if [ -z "${GCC_VERSION}" ]; then
+    GCC_VERSION=12
+fi
 
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
-
-# sudo apt-get -qq -y update
-# sudo apt-get install -qq -y keyboard-configuration
-# cp -vf keyboard_config /etc/default/keyboard
-# sudo dpkg-reconfigure --frontend noninteractive keyboard-configuration
 
 # Install missing dependencies
 
@@ -174,6 +163,7 @@ brew install \
     ccache \
     cmake \
     ffmpeg \
+    gcc@${GCC_VERSION} \
     git \
     libuvc \
     libxext \

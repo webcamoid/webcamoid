@@ -17,7 +17,7 @@ jobs:
        include:
          - dockerimg: linuxmintd/mint22.2-amd64:latest
            compiler: gcc
-           upload: 1
+           upload: 0
          - dockerimg: linuxmintd/mint22.2-amd64:latest
            compiler: clang
            upload: 0
@@ -109,6 +109,13 @@ jobs:
           echo
           chmod +x ports/ci/linux-mint/deploy.sh
           ./ports/ci/linux-mint/deploy.sh
+    - name: VirusTotal Scan
+      uses: crazy-max/ghaction-virustotal@v4
+      if: ${{ matrix.upload }}
+      with:
+        vt_api_key: ${{ secrets.VT_API_KEY }}
+        files: |
+          webcamoid-packages/linux-latest-gcc/*
     - name: Release Upload
       uses: softprops/action-gh-release@v3
       if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.upload }}

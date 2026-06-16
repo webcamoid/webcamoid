@@ -24,12 +24,14 @@ if [ -n "${GITHUB_SHA}" ]; then
     export GIT_COMMIT_HASH="${GITHUB_SHA}"
 fi
 
+BREW_PREFIX=/home/linuxbrew/.linuxbrew
+
 if [ "${COMPILER}" = clang ]; then
-    COMPILER_C=clang
-    COMPILER_CXX=clang++
+    COMPILER_C=${BREW_PREFIX}/bin/clang
+    COMPILER_CXX=${BREW_PREFIX}/bin/clang++
 else
-    COMPILER_C=gcc
-    COMPILER_CXX=g++
+    COMPILER_C=${BREW_PREFIX}/bin/gcc-${GCC_VERSION}
+    COMPILER_CXX=${BREW_PREFIX}/bin/g++-${GCC_VERSION}
 fi
 
 if [ -z "${DISABLE_CCACHE}" ]; then
@@ -83,7 +85,6 @@ if [[ "${architecture}" = arm32v7 ]]; then
     EXTRA_PARAMS="${EXTRA_PARAMS} -DNOSIMDNEON=ON"
 fi
 
-BREW_PREFIX=/home/linuxbrew/.linuxbrew
 export PATH="${BREW_PREFIX}/bin:${PATH}"
 export LDFLAGS="${LDFLAGS} -L${BREW_PREFIX}/lib"
 export CPPFLAGS="${CPPFLAGS} -I${BREW_PREFIX}/include"
