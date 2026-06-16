@@ -30,8 +30,8 @@ if [ "${COMPILER}" = clang ]; then
     COMPILER_C=${BREW_PREFIX}/bin/clang
     COMPILER_CXX=${BREW_PREFIX}/bin/clang++
 else
-    COMPILER_C=${BREW_PREFIX}/bin/gcc-${GCC_VERSION}
-    COMPILER_CXX=${BREW_PREFIX}/bin/g++-${GCC_VERSION}
+    COMPILER_C=${BREW_PREFIX}/bin/gcc
+    COMPILER_CXX=${BREW_PREFIX}/bin/g++
 fi
 
 if [ -z "${DISABLE_CCACHE}" ]; then
