@@ -228,7 +228,11 @@ apt-get -y install \
     qt6-wayland \
     xvfb
 
-if [[ "${DOCKERIMG}" != */ubuntu:rolling && "${DISTRO}" != ubuntu_devel ]]; then
+if [[ "${DOCKERIMG}" != */ubuntu:rolling &&
+      "${DISTRO}" != ubuntu_devel &&
+      "${architecture}" != arm64v8 &&
+      "${architecture}" != arm32v7 &&
+      "${architecture}" != riscv64 ]]; then
     apt-get -y install \
         libqt6multimediaquick6
 fi

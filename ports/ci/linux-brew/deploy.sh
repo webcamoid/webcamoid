@@ -54,9 +54,11 @@ cat << EOF > force_plugins_copy.conf
 extraPlugins = egldeviceintegrations, multimedia, xcbglintegrations, wayland-decoration-client, wayland-graphics-integration-client, wayland-graphics-integration-server, wayland-shell-integration
 EOF
 
+SISTEMD_LIB_PATH=$(dirname $(ls ${BREW_PREFIX}/Cellar/systemd/*/lib/* | head -1))
+
 cat << EOF > "overwrite_syslibdir.conf"
 [System]
-libDir = ${BREW_PREFIX}/lib
+libDir = ${BREW_PREFIX}/lib, ${SISTEMD_LIB_PATH}
 EOF
 
 xvfb-run --auto-servernum python3 DeployTools/deploy.py \
