@@ -85,10 +85,10 @@ fi
 
 BREW_PREFIX=/home/linuxbrew/.linuxbrew
 QT_PREFIX=$(brew --prefix qt)
-export PATH="${QT_PREFIX}/bin:${PATH}"
-export LDFLAGS="${LDFLAGS} -L${QT_PREFIX}/lib"
-export CPPFLAGS="${CPPFLAGS} -I${QT_PREFIX}/include"
-export PKG_CONFIG_PATH="${QT_PREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH}"
+export PATH="${QT_PREFIX}/bin:${BREW_PREFIX}/bin:${PATH}"
+export LDFLAGS="${LDFLAGS} -L${QT_PREFIX}/lib -L${BREW_PREFIX}/lib"
+export CPPFLAGS="${CPPFLAGS} -I${QT_PREFIX}/include -I${BREW_PREFIX}/include"
+export PKG_CONFIG_PATH="${BREW_PREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH}"
 
 INSTALL_PREFIX=${PWD}/webcamoid-data-${distro}-${COMPILER}
 buildDir=build-${distro}-${COMPILER}
@@ -102,7 +102,7 @@ cmake \
     -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" \
     -DCMAKE_C_COMPILER="${COMPILER_C}" \
     -DCMAKE_CXX_COMPILER="${COMPILER_CXX}" \
-    -DCMAKE_PREFIX_PATH="${QT_PREFIX}" \
+    -DCMAKE_PREFIX_PATH="${BREW_PREFIX}" \
     -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}" \
     -DDAILY_BUILD="${DAILY_BUILD}" \
     ${EXTRA_PARAMS}
