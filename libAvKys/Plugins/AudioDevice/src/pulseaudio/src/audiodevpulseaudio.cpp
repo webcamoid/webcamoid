@@ -705,7 +705,7 @@ bool AudioDevPulseAudio::uninit()
     }
 
     this->d->m_paSimple = nullptr;
-    this->d->m_curCaps = {};
+    this->d->m_curCaps = AkAudioCaps();
     this->d->m_streamMutex.unlock();
 
     if (!errorStr.isEmpty()) {
