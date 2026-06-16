@@ -84,10 +84,9 @@ if [[ "${architecture}" = arm32v7 ]]; then
 fi
 
 BREW_PREFIX=/home/linuxbrew/.linuxbrew
-QT_PREFIX=$(brew --prefix qt)
-export PATH="${QT_PREFIX}/bin:${BREW_PREFIX}/bin:${PATH}"
-export LDFLAGS="${LDFLAGS} -L${QT_PREFIX}/lib -L${BREW_PREFIX}/lib"
-export CPPFLAGS="${CPPFLAGS} -I${QT_PREFIX}/include -I${BREW_PREFIX}/include"
+export PATH="${BREW_PREFIX}/bin:${PATH}"
+export LDFLAGS="${LDFLAGS} -L${BREW_PREFIX}/lib"
+export CPPFLAGS="${CPPFLAGS} -I${BREW_PREFIX}/include"
 export PKG_CONFIG_PATH="${BREW_PREFIX}/lib/pkgconfig:${PKG_CONFIG_PATH}"
 
 INSTALL_PREFIX=${PWD}/webcamoid-data-${distro}-${COMPILER}

@@ -42,10 +42,11 @@ else
     distro=${DISTRO}
 fi
 
-export PATH="${PWD}/.local/bin:${PATH}"
-export INSTALL_PREFIX=${PWD}/webcamoid-data-${distro}-${COMPILER}
-export PACKAGES_DIR=${PWD}/webcamoid-packages/linux-${distro}-${COMPILER}
-export BUILD_PATH=${PWD}/build-${distro}-${COMPILER}
+BREW_PREFIX="/home/linuxbrew/.linuxbrew"
+export PATH="${PWD}/.local/bin:${BREW_PREFIX}/bin:${PATH}"
+export INSTALL_PREFIX="${PWD}/webcamoid-data-${distro}-${COMPILER}"
+export PACKAGES_DIR="${PWD}/webcamoid-packages/linux-${distro}-${COMPILER}"
+export BUILD_PATH="${PWD}/build-${distro}-${COMPILER}"
 export PYTHONPATH="${PWD}/DeployTools"
 
 cat << EOF > force_plugins_copy.conf
@@ -53,8 +54,14 @@ cat << EOF > force_plugins_copy.conf
 extraPlugins = egldeviceintegrations, multimedia, xcbglintegrations, wayland-decoration-client, wayland-graphics-integration-client, wayland-graphics-integration-server, wayland-shell-integration
 EOF
 
+cat << EOF > "overwrite_syslibdir.conf"
+[System]
+libDir = ${BREW_PREFIX}/lib
+EOF
+
 xvfb-run --auto-servernum python3 DeployTools/deploy.py \
     -d "${INSTALL_PREFIX}" \
     -c "${BUILD_PATH}/package_info.conf" \
     -c "${PWD}/force_plugins_copy.conf" \
+    -c "${PWD}/overwrite_syslibdir.conf" \
     -o "${PACKAGES_DIR}"
