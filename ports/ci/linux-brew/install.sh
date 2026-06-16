@@ -55,16 +55,16 @@ EOF
 export LC_ALL=C
 export DEBIAN_FRONTEND=noninteractive
 
-apt-get -qq -y update
-apt-get install -qq -y keyboard-configuration
-cp -vf keyboard_config /etc/default/keyboard
-dpkg-reconfigure --frontend noninteractive keyboard-configuration
+# sudo apt-get -qq -y update
+# sudo apt-get install -qq -y keyboard-configuration
+# cp -vf keyboard_config /etc/default/keyboard
+# sudo dpkg-reconfigure --frontend noninteractive keyboard-configuration
 
 # Install missing dependencies
 
-apt-get -qq -y update
-apt-get -qq -y upgrade
-apt-get -qq -y install \
+sudo apt-get -qq -y update
+sudo apt-get -qq -y upgrade
+sudo apt-get -qq -y install \
     curl \
     file \
     libdbus-1-3 \
@@ -87,11 +87,11 @@ apt-get -qq -y install \
     wget
 
 if apt-cache show libgpgme11 2>/dev/null | grep -q "^Package:"; then
-    apt-get -qq -y install libgpgme11
+    sudo apt-get -qq -y install libgpgme11
 elif apt-cache show libgpgme11t64 2>/dev/null | grep -q "^Package:"; then
-    apt-get -qq -y install libgpgme11t64
+    sudo apt-get -qq -y install libgpgme11t64
 else
-    apt-get -qq -y install libgpgme45
+    sudo apt-get -qq -y install libgpgme45
 fi
 
 mkdir -p .local/bin
