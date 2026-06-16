@@ -1,0 +1,44 @@
+name: Linux Homebrew
+
+on: [push, pull_request]
+
+env:
+  QTIFWVER: 4.8.1
+  APPIMAGEVER: continuous
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    env:
+      COMPILER: gcc
+      DISTRO: homebrew
+      ARCHITECTURE: amd64
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+          token: ${{ secrets.UPLOAD_TOKEN }}
+      - name: Install Homebrew
+        run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+          echo "/home/linuxbrew/.linuxbrew/bin" >> $GITHUB_PATH
+          echo "/home/linuxbrew/.linuxbrew/sbin" >> $GITHUB_PATH
+      - name: Install dependencies
+        run: |
+          chmod +x ports/ci/linux-brew/install.sh
+          ./ports/ci/linux-brew/install.sh
+      - name: Build
+        run: |
+          chmod +x ports/ci/linux-brew/build.sh
+          ./ports/ci/linux-brew/build.sh
+      - name: Deploy
+        run: |
+          chmod +x ports/ci/linux-brew/deploy.sh
+          ./ports/ci/linux-brew/deploy.sh
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: build-output
+          path: build/
+          retention-days: 7
