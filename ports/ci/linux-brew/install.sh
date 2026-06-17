@@ -163,6 +163,7 @@ brew install \
     ccache \
     cmake \
     ffmpeg \
+    gcc \
     git \
     libuvc \
     libxext \
