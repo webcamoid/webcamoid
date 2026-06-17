@@ -161,7 +161,7 @@ if
 
 if [ "${USE_SYSTEM_GCC}" != 1 ]
     USE_GCC=gcc${BREW_GCC_VERSION}
-if
+fi
 
 brew update || true
 brew upgrade || true
