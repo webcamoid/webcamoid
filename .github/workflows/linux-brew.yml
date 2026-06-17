@@ -9,7 +9,8 @@ env:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+#    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     strategy:
       max-parallel: 10
       fail-fast: false

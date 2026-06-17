@@ -26,12 +26,19 @@ fi
 
 BREW_PREFIX=/home/linuxbrew/.linuxbrew
 
+BREW_GCC_VERSION=$(ls ${BREW_PREFIX}/lib/gcc 2>/dev/null | grep '[0-9]' | sort -V | tail -1)
+
 if [ "${COMPILER}" = clang ]; then
     COMPILER_C=${BREW_PREFIX}/bin/clang
     COMPILER_CXX=${BREW_PREFIX}/bin/clang++
 else
-    COMPILER_C=${BREW_PREFIX}/bin/gcc
-    COMPILER_CXX=${BREW_PREFIX}/bin/g++
+    if [ -z "${BREW_GCC_VERSION}" ]; then
+        COMPILER_C=${BREW_PREFIX}/bin/gcc-${BREW_GCC_VERSION}
+        COMPILER_CXX=${BREW_PREFIX}/bin/g++-${BREW_GCC_VERSION}
+    else
+        COMPILER_C=gcc
+        COMPILER_CXX=g++
+    fi
 fi
 
 if [ -z "${DISABLE_CCACHE}" ]; then
