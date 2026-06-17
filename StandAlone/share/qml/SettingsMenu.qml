@@ -109,6 +109,7 @@ Menu {
                 videoLayer.state = AkElement.ElementStatePlaying;
             } else {
                 recording.state = AkElement.ElementStateNull;
+                streaming.state = AkElement.ElementStateNull;
                 videoLayer.state = AkElement.ElementStateNull;
             }
         }

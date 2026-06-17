@@ -132,6 +132,12 @@ ApplicationWindow {
                 videoLayer.torchMode = VideoLayer.Torch_On
             }
         }
+
+        function onStateChanged(state)
+        {
+            if (state == AkElement.ElementStateNull)
+                btnStreaming.checked = AkElement.ElementStateNull
+        }
     }
 
     Connections {
@@ -160,6 +166,11 @@ ApplicationWindow {
         function onStreamingError(errorMsg)
         {
             streamingFailedDialog.showError(errorMsg)
+        }
+
+        function onStateChanged(state)
+        {
+            btnStreaming.checked = state == AkElement.ElementStatePlaying
         }
     }
 
@@ -281,32 +292,41 @@ ApplicationWindow {
             DelayButton {
                 id: btnStreaming
                 icon.source: "image://icons/broadcast"
-                text: qsTr("Start streaming")
+                text: checked? qsTr("Stop streaming"): qsTr("Start streaming")
                 display: AbstractButton.IconOnly
                 implicitWidth: visible? implicitHeight: 0
-                ToolTip.visible: hovered
-                ToolTip.text: text
+                ToolTip.visible: hovered && videoLayer.state == AkElement.ElementStatePlaying
+                ToolTip.text: streaming.platforms.length < 1?
+                                qsTr("You must add at least one streaming platform to the video outputs"):
+                              streaming.unconfiguredPlatforms.length > 0?
+                                qsTr("The following platforms are not configured:<br/><br/>%1").arg(streaming.unconfiguredPlatforms.join("<br/>")):
+                                text
                 Accessible.name: text
-                Accessible.description: qsTr("Start streaming")
+                Accessible.description: text
                 enabled: videoLayer.state == AkElement.ElementStatePlaying
+                         && streaming.platforms.length > 0
                 visible: streaming.isStreamingSupported
-
-                property bool isActive: false
 
                 function reset() {
                     checked = false
-                    isActive = false
                 }
 
-                onActivated: isActive = true
-                onReleased: {
-                    if (checked || isActive) {
-                        let stopStreaming = !checked && isActive
-                        streamingStartStopDialog.stopStreaming = stopStreaming
-                        streamingStartStopDialog.open()
+                Timer {
+                    id: delayStreamingTimer
+                    interval: 500
+                    repeat: false
 
-                        if (stopStreaming)
-                            isActive = false
+                    onTriggered: {
+                        streamingStartStopDialog.stopStreaming = false
+                        streamingStartStopDialog.open()
+                    }
+                }
+
+                onActivated: delayStreamingTimer.start()
+                onCheckedChanged: {
+                    if (!checked && videoLayer.state == AkElement.ElementStatePlaying) {
+                        streamingStartStopDialog.stopStreaming = true
+                        streamingStartStopDialog.open()
                     }
                 }
             }
@@ -316,7 +336,7 @@ ApplicationWindow {
                 text: qsTr("Capture options")
                 display: AbstractButton.IconOnly
                 implicitWidth: implicitHeight
-                ToolTip.visible: hovered
+                ToolTip.visible: enabled && hovered
                 ToolTip.text: text
                 Accessible.name: text
                 Accessible.description: qsTr("Open capture options menu")
@@ -775,6 +795,8 @@ ApplicationWindow {
     StreamingStartStopDialog {
         id: streamingStartStopDialog
         anchors.centerIn: Overlay.overlay
+
+        onRejected: btnStreaming.checked = !btnStreaming.checked
     }
     VideoEffectsDialog {
         id: videoEffectsDialog

@@ -188,13 +188,13 @@ ScrollView {
 
             onActiveFocusChanged:
                 if (activeFocus && count > 0)
-                    itemAt(currentIndex).forceActiveFocus()
+                    itemAt(currentIndex >= 0? currentIndex: 0).forceActiveFocus()
             Keys.onUpPressed:
                 if (count > 0)
-                    itemAt(currentIndex).forceActiveFocus()
+                    itemAt(currentIndex >= 0? currentIndex: 0).forceActiveFocus()
             Keys.onDownPressed:
                 if (count > 0)
-                    itemAt(currentIndex).forceActiveFocus()
+                    itemAt(currentIndex >= 0? currentIndex: 0).forceActiveFocus()
         }
     }
 

@@ -42,12 +42,16 @@ T.DelayButton {
     readonly property color activeButtonText: AkTheme.palette.active.buttonText
     readonly property color activeDark: AkTheme.palette.active.dark
     readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color activeHighlightedText: AkTheme.palette.active.highlightedText
     readonly property color activeLight: AkTheme.palette.active.light
     readonly property color activeMid: AkTheme.palette.active.mid
     readonly property color activeWindow: AkTheme.palette.active.window
     readonly property color disabledButton: AkTheme.palette.disabled.button
     readonly property color disabledButtonText: AkTheme.palette.disabled.buttonText
     readonly property color disabledDark: AkTheme.palette.disabled.dark
+    readonly property color disabledHighlight: AkTheme.palette.disabled.highlight
+    readonly property color disabledHighlightedText: AkTheme.palette.disabled.highlightedText
+    readonly property color disabledWindow: AkTheme.palette.disabled.window
 
     transition: Transition {
         NumberAnimation {
@@ -73,10 +77,20 @@ T.DelayButton {
             iconSource: control.icon.source
             iconWidth: control.icon.width
             iconHeight: control.icon.height
-            iconColor: control.icon.color
+            iconColor:
+                control.highlighted?
+                    control.activeHighlightedText:
+                control.flat?
+                    control.activeHighlight:
+                    control.icon.color
             text: control.text
             font: control.font
-            color: control.activeButtonText
+            color:
+                control.highlighted?
+                    control.activeHighlightedText:
+                control.flat?
+                    control.activeHighlight:
+                    control.activeButtonText
             enabled: control.enabled
             anchors.verticalCenter: buttonContent.verticalCenter
             anchors.horizontalCenter: buttonContent.horizontalCenter
@@ -140,16 +154,37 @@ T.DelayButton {
 
             PropertyChanges {
                 target: iconLabel
-                color: control.disabledButtonText
+                color: control.highlighted?
+                           control.disabledHighlightedText:
+                           control.disabledButtonText
+                iconColor: control.highlighted?
+                               control.disabledHighlightedText:
+                               control.disabledButtonText
             }
             PropertyChanges {
                 target: buttonCheckableIndicator
-                color: control.disabledDark
+                color:
+                    control.checkable && control.checked && control.highlighted?
+                        control.disabledHighlightedText:
+                    control.checkable && control.checked?
+                        control.disabledHighlight:
+                    control.checkable?
+                        control.disabledDark:
+                    control.highlighted || control.flat?
+                        AkTheme.shade(control.disabledWindow, 0, 0):
+                        control.disabledDark
             }
             PropertyChanges {
                 target: buttonRectangle
-                border.color: control.disabledDark
-                color: control.disabledButton
+                border.color:
+                    control.highlighted || control.flat?
+                        AkTheme.shade(control.disabledWindow, 0, 0):
+                        control.disabledDark
+                color: control.highlighted?
+                           control.disabledHighlight:
+                       control.flat?
+                           AkTheme.shade(control.disabledWindow, 0, 0):
+                           control.disabledButton
             }
         },
         State {

@@ -236,7 +236,7 @@ AK.MenuOption {
 
                 GridLayout {
                     columns: 2
-                    layoutDirection: root.rtl ? Qt.RightToLeft : Qt.LeftToRight
+                    layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
                     Layout.leftMargin: root.leftMargin
                     Layout.rightMargin: root.rightMargin
                     Layout.fillWidth: true
@@ -443,7 +443,7 @@ AK.MenuOption {
 
                 GridLayout {
                     columns: 2
-                    layoutDirection: root.rtl ? Qt.RightToLeft : Qt.LeftToRight
+                    layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
                     Layout.leftMargin: root.leftMargin
                     Layout.rightMargin: root.rightMargin
                     Layout.fillWidth: true
@@ -564,7 +564,7 @@ AK.MenuOption {
                 Layout.fillWidth: true
             }
             RowLayout {
-                layoutDirection: root.rtl ? Qt.RightToLeft : Qt.LeftToRight
+                layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
                 Layout.leftMargin: root.leftMargin
                 Layout.rightMargin: root.rightMargin
                 Layout.fillWidth: true
@@ -600,7 +600,7 @@ AK.MenuOption {
             }
             RowLayout {
                 id: streaminhUrlLayout
-                layoutDirection: root.rtl ? Qt.RightToLeft : Qt.LeftToRight
+                layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
                 Layout.leftMargin: root.leftMargin
                 Layout.rightMargin: root.rightMargin
                 Layout.fillWidth: true
@@ -612,7 +612,9 @@ AK.MenuOption {
                     text: streaming.platformStreamingUrl(layout.currentPlatform)
                     placeholderText: "rtmp://streaming.website.com/${KEY}"
                     readOnly: streaming.platformNeedsKey(layout.currentPlatform)
-                    echoMode: streaminhUrlLayout.isStreaminhUrlVisible?
+                    echoMode: streaminhUrlLayout.isStreaminhUrlVisible
+                              && (streaming.state != AkElement.ElementStatePlaying
+                                  || videoLayer.deviceType(videoLayer.videoInput) != VideoLayer.InputScreen)?
                                 TextInput.Normal:
                                 TextInput.Password
                     Layout.fillWidth: true
@@ -628,6 +630,8 @@ AK.MenuOption {
                                     "image://icons/open-eye"
                     flat: true
                     display: AbstractButton.IconOnly
+                    enabled: streaming.state != AkElement.ElementStatePlaying
+                             || videoLayer.deviceType(videoLayer.videoInput) != VideoLayer.InputScreen
                     implicitWidth: implicitHeight
                     ToolTip.visible: hovered
                     ToolTip.text: text
@@ -648,7 +652,7 @@ AK.MenuOption {
             }
             RowLayout {
                 id: keyLayout
-                layoutDirection: root.rtl ? Qt.RightToLeft : Qt.LeftToRight
+                layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
                 Layout.leftMargin: root.leftMargin
                 Layout.rightMargin: root.rightMargin
                 Layout.fillWidth: true
@@ -661,7 +665,9 @@ AK.MenuOption {
                     text: streaming.platformStreamingKey(layout.currentPlatform)
                     placeholderText: "********************"
                     Layout.fillWidth: true
-                    echoMode: keyLayout.isKeyVisible?
+                    echoMode: keyLayout.isKeyVisible
+                              && (streaming.state != AkElement.ElementStatePlaying
+                                  || videoLayer.deviceType(videoLayer.videoInput) != VideoLayer.InputScreen)?
                                 TextInput.Normal:
                                 TextInput.Password
 
@@ -677,6 +683,8 @@ AK.MenuOption {
                                     "image://icons/open-eye"
                     flat: true
                     display: AbstractButton.IconOnly
+                    enabled: streaming.state != AkElement.ElementStatePlaying
+                             || videoLayer.deviceType(videoLayer.videoInput) != VideoLayer.InputScreen
                     implicitWidth: implicitHeight
                     ToolTip.visible: hovered
                     ToolTip.text: text

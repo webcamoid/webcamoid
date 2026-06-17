@@ -67,6 +67,9 @@ class Streaming: public QObject
     Q_PROPERTY(QStringList supportedPlatforms
                READ supportedPlatforms
                NOTIFY supportedPlatformsChanged)
+    Q_PROPERTY(QStringList unconfiguredPlatforms
+               READ unconfiguredPlatforms
+               NOTIFY unconfiguredPlatformsChanged)
     Q_PROPERTY(bool isStreamingSupported
                READ isStreamingSupported
                CONSTANT)
@@ -83,6 +86,7 @@ class Streaming: public QObject
         Q_INVOKABLE AkElement::ElementState state() const;
         Q_INVOKABLE QStringList platforms() const;
         Q_INVOKABLE QStringList supportedPlatforms() const;
+        Q_INVOKABLE QStringList unconfiguredPlatforms() const;
         Q_INVOKABLE bool isStreamingSupported() const;
         Q_INVOKABLE QString platformWebsite(const QString &platform) const;
         Q_INVOKABLE QString platformStreamingUrl(const QString &platform) const;
@@ -112,6 +116,7 @@ class Streaming: public QObject
         void stateChanged(AkElement::ElementState state);
         void platformsChanged(const QStringList &platforms);
         void supportedPlatformsChanged(const QStringList &supportedPlatforms);
+        void unconfiguredPlatformsChanged(const QStringList &unconfiguredPlatforms);
         void codecChanged(AkCaps::CapsType type, const QString &codec);
         void codecOptionsChanged(AkCaps::CapsType type,
                                  const AkPropertyOptions &options);

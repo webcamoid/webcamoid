@@ -99,8 +99,9 @@ class StreamingPrivate
         int m_videoGOP {DEFAULT_VIDEO_GOP};
 
         // Platforms
-        QVector<StreamingSiteInfo> m_sites;   // built-in + custom
-        QStringList                m_platforms;
+        QVector<StreamingSiteInfo> m_sites; // built-in + custom
+        QStringList m_platforms;
+        QStringList m_unconfiguredPlatforms;
 
         // Codecs
         QVector<CodecInfo> m_supportedCodecs;
@@ -126,6 +127,7 @@ class StreamingPrivate
         void loadConfigs();
         void loadCodecOptions(AkCaps::CapsType type);
         void initSupportedCodecs();
+        void updateUnconfiguredPlatforms();
         static QString streamerPluginForUrl(const QString &url);
         QString streamerPluginForPlatform(const QString &platform) const;
         StreamingSiteInfo *findSite(const QString &name);
@@ -205,6 +207,11 @@ QStringList Streaming::supportedPlatforms() const
         names << site.name;
 
     return names;
+}
+
+QStringList Streaming::unconfiguredPlatforms() const
+{
+    return this->d->m_unconfiguredPlatforms;
 }
 
 bool Streaming::isStreamingSupported() const
@@ -492,6 +499,7 @@ void Streaming::setPlatforms(const QStringList &platforms)
     this->d->m_platforms = platforms;
     emit this->platformsChanged(platforms);
     this->d->savePlatforms(platforms);
+    this->d->updateUnconfiguredPlatforms();
 }
 
 void Streaming::addSupportedPlatform(const QString &platform)
@@ -973,6 +981,32 @@ void StreamingPrivate::initSupportedCodecs()
               });
 }
 
+void StreamingPrivate::updateUnconfiguredPlatforms()
+{
+    QStringList unconfiguredPlatforms;
+
+    for (auto &platform: this->m_platforms) {
+        auto it = std::find_if(this->m_sites.constBegin(),
+                               this->m_sites.constEnd(),
+                               [&platform] (const StreamingSiteInfo &info) {
+            return info.name == platform;
+        });
+
+        if (it == this->m_sites.constEnd())
+            continue;
+
+        if (it->streamingUrl.isEmpty()
+            || (it->needsKey && it->streamingKey.isEmpty())) {
+            unconfiguredPlatforms << platform;
+        }
+    }
+
+    if (unconfiguredPlatforms != this->m_unconfiguredPlatforms) {
+        this->m_unconfiguredPlatforms = unconfiguredPlatforms;
+        emit self->unconfiguredPlatformsChanged(unconfiguredPlatforms);
+    }
+}
+
 // Returns the streamer plugin ID that best handles a given URL/protocol.
 // Simple heuristic: use the first enabled VideoStreaming plugin that declares
 // support for the URL via supportsUrl().
@@ -1257,6 +1291,8 @@ void StreamingPrivate::loadConfigs()
 
     tryLoadEncoder(savedAudio, AkCaps::CapsAudio);
     tryLoadEncoder(savedVideo, AkCaps::CapsVideo);
+
+    this->updateUnconfiguredPlatforms();
 }
 
 QString StreamingPrivate::normalizePluginID(const QString &pluginID)

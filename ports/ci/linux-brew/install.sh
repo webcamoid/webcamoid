@@ -159,7 +159,7 @@ if [ -n "${BREW_GCC_VERSION}" ]; then
     BREW_GCC_VERSION=@${BREW_GCC_VERSION}
 fi
 
-if [ "${USE_SYSTEM_GCC}" != 1 ]
+if [ "${USE_SYSTEM_GCC}" != 1 ]; then
     USE_GCC=gcc${BREW_GCC_VERSION}
 fi
 
