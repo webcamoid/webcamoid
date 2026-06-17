@@ -33,11 +33,11 @@ if [ "${COMPILER}" = clang ]; then
     COMPILER_CXX=${BREW_PREFIX}/bin/clang++
 else
     if [ -z "${BREW_GCC_VERSION}" ]; then
-        COMPILER_C=${BREW_PREFIX}/bin/gcc-${BREW_GCC_VERSION}
-        COMPILER_CXX=${BREW_PREFIX}/bin/g++-${BREW_GCC_VERSION}
-    else
         COMPILER_C=gcc
         COMPILER_CXX=g++
+    else
+        COMPILER_C=${BREW_PREFIX}/bin/gcc-${BREW_GCC_VERSION}
+        COMPILER_CXX=${BREW_PREFIX}/bin/g++-${BREW_GCC_VERSION}
     fi
 fi
 

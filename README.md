@@ -54,6 +54,7 @@ Do you want to use Webcamoid in MacOs X, you can colabore in the donations campa
 [![Mageia](https://github.com/webcamoid/webcamoid/actions/workflows/linux-mageia.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-mageia.yml)
 [![OpenSUSE](https://github.com/webcamoid/webcamoid/actions/workflows/linux-opensuse.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-opensuse.yml)
 [![Ubuntu](https://github.com/webcamoid/webcamoid/actions/workflows/linux-ubuntu.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-ubuntu.yml)
+[![Linux Homebrew](https://github.com/webcamoid/webcamoid/actions/workflows/linux-homebrew.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-homebrew.yml)
 [![Flatpak](https://github.com/webcamoid/webcamoid/actions/workflows/flatpak.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/flatpak.yml)
 [![FreeBSD](https://github.com/webcamoid/webcamoid/actions/workflows/freebsd.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/freebsd.yml)
 [![Mac](https://github.com/webcamoid/webcamoid/actions/workflows/mac.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/mac.yml)
