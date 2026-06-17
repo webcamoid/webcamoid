@@ -155,6 +155,14 @@ fi
 
 # Install build dependecies
 
+if [ -n "${BREW_GCC_VERSION}" ]; then
+    BREW_GCC_VERSION=@${BREW_GCC_VERSION}
+if
+
+if [ "${USE_SYSTEM_GCC}" != 1 ]
+    USE_GCC=gcc${BREW_GCC_VERSION}
+if
+
 brew update || true
 brew upgrade || true
 
@@ -163,7 +171,7 @@ brew install \
     ccache \
     cmake \
     ffmpeg \
-    gcc \
+    ${USE_GCC} \
     git \
     libuvc \
     libxext \

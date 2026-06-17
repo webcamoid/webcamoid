@@ -17,7 +17,7 @@ jobs:
        include:
          - dockerimg: linuxmintd/mint22.2-amd64:latest
            compiler: gcc
-           upload: 1
+           upload: 0
          - dockerimg: linuxmintd/mint22.2-amd64:latest
            compiler: clang
            upload: 0

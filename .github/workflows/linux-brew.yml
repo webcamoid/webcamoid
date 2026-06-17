@@ -9,19 +9,22 @@ env:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       max-parallel: 10
       fail-fast: false
       matrix:
        include:
          - compiler: gcc
-           upload: 0
+           use_system_gcc: 1
+           upload: 1
          - compiler: clang
            upload: 0
     env:
       DISTRO: homebrew
       COMPILER: ${{ matrix.compiler }}
+      USE_SYSTEM_GCC: ${{ matrix.use_system_gcc }}
+      BREW_GCC_VERSION: ${{ matrix.gcc_version }}
       ARCHITECTURE: amd64
       UPLOAD: ${{ matrix.upload }}
       DAILY_BUILD: ${{ !startsWith(github.ref, 'refs/tags/') && 1 || 0 }}
