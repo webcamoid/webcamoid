@@ -25,5 +25,59 @@
         "keyConfigsUrl": "https://dashboard.kick.com/channel/stream",
         "docsUrl": "https://help.kick.com/en/articles/7066931-how-to-stream-on-kick-com",
         "needsKey": false
+    },
+    {
+        "name": "X",
+        "website": "https://x.com/",
+        "protocol": "rtmp",
+        "streamingUrl": "",
+        "keyConfigsUrl": "https://studio.x.com/producer",
+        "docsUrl": "https://help.x.com/en/using-x/how-to-use-live-producer",
+        "needsKey": false
+    },
+    {
+        "name": "Facebook Live",
+        "website": "https://www.facebook.com/",
+        "protocol": "rtmp",
+        "streamingUrl": "",
+        "keyConfigsUrl": "https://www.facebook.com/live/producer",
+        "docsUrl": "https://www.facebook.com/help/587160588142067",
+        "needsKey": false
+    },
+    {
+        "name": "Instagram",
+        "website": "https://www.instagram.com/",
+        "protocol": "rtmp",
+        "streamingUrl": "",
+        "keyConfigsUrl": "https://www.instagram.com/live/producer/",
+        "docsUrl": "https://help.instagram.com/",
+        "needsKey": false
+    },
+    {
+        "name": "LinkedIn",
+        "website": "https://www.linkedin.com/",
+        "protocol": "rtmp",
+        "streamingUrl": "",
+        "keyConfigsUrl": "https://www.linkedin.com/video/golive/",
+        "docsUrl": "https://www.linkedin.com/help/linkedin/answer/a567506",
+        "needsKey": false
+    },
+    {
+        "name": "Rumble",
+        "website": "https://rumble.com/",
+        "protocol": "rtmp",
+        "streamingUrl": "",
+        "keyConfigsUrl": "https://studio.rumble.com/",
+        "docsUrl": "https://rumble.support/help/livestream-settings",
+        "needsKey": false
+    },
+    {
+        "name": "Vimeo",
+        "website": "https://vimeo.com/",
+        "protocol": "rtmp",
+        "streamingUrl": "",
+        "keyConfigsUrl": "https://vimeo.com/manage/live/",
+        "docsUrl": "https://vimeo.com/blog/post/rtmp-stream",
+        "needsKey": false
     }
 ]
