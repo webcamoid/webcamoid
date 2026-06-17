@@ -16,7 +16,7 @@ jobs:
       matrix:
        include:
          - compiler: gcc
-           upload: 1
+           upload: 0
          - compiler: clang
            upload: 0
     env:
