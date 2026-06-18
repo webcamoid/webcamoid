@@ -1159,7 +1159,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1201"/>
+        <location filename="../../src/mediatools.cpp" line="1205"/>
         <source>%1/log %2.txt</source>
         <translation>%1/سجل %2.txt</translation>
     </message>

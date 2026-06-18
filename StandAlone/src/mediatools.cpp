@@ -915,10 +915,12 @@ bool MediaTools::init(const CliOptions &cliOptions)
                                 this->d->m_videoSourceStreamId = -1;
                             }
                         } else {
-                            this->d->m_videoSourceStreamId =
+                            if (this->d->m_videoLayer->deviceType(stream) == VideoLayer::InputStream) {
+                                this->d->m_videoSourceStreamId =
                                 this->d->m_audioInputs->addInput(stream,
                                                                  this->d->m_videoLayer->description(stream));
-                            this->d->m_videoSourceDevice = stream;
+                                this->d->m_videoSourceDevice = stream;
+                            }
                         }
                      });
     QObject::connect(this->d->m_videoLayer.data(),
@@ -933,10 +935,12 @@ bool MediaTools::init(const CliOptions &cliOptions)
                                 this->d->m_videoSourceStreamId = -1;
                             }
                         } else {
-                            this->d->m_videoSourceStreamId =
+                            if (this->d->m_videoLayer->deviceType(stream) == VideoLayer::InputStream) {
+                                this->d->m_videoSourceStreamId =
                                 this->d->m_audioInputs->addInput(stream,
                                                                  this->d->m_videoLayer->description(stream));
-                            this->d->m_videoSourceDevice = stream;
+                                this->d->m_videoSourceDevice = stream;
+                            }
                         }
                      });
     QObject::connect(akPluginManager,
