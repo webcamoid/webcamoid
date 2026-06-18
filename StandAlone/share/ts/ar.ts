@@ -1663,37 +1663,37 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="624"/>
+        <location filename="../qml/Streaming.qml" line="626"/>
         <source>Hide streaming URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="625"/>
+        <location filename="../qml/Streaming.qml" line="627"/>
         <source>Show streaming URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="642"/>
+        <location filename="../qml/Streaming.qml" line="646"/>
         <source>Streaming key</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="673"/>
+        <location filename="../qml/Streaming.qml" line="679"/>
         <source>Hide streaming key</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="674"/>
+        <location filename="../qml/Streaming.qml" line="680"/>
         <source>Show streaming key</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="691"/>
+        <location filename="../qml/Streaming.qml" line="699"/>
         <source>Streaming configuration help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="703"/>
+        <location filename="../qml/Streaming.qml" line="711"/>
         <source>Get streaming key</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1712,6 +1712,56 @@
         <location filename="../qml/StreamingPlatformOptions.qml" line="60"/>
         <source>Remove</source>
         <translation type="unfinished">إزالة</translation>
+    </message>
+    <message>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="72"/>
+        <source>Website</source>
+        <translation type="unfinished">الموقع الإلكتروني</translation>
+    </message>
+    <message>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="92"/>
+        <source>Visit website</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="107"/>
+        <source>Streaming URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="138"/>
+        <source>Hide streaming URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="139"/>
+        <source>Show streaming URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="158"/>
+        <source>Streaming key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="191"/>
+        <source>Hide streaming key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="192"/>
+        <source>Show streaming key</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="211"/>
+        <source>Streaming configuration help</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="223"/>
+        <source>Get streaming key</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4628,111 +4678,125 @@
         <translation>%1/صورة %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="247"/>
+        <location filename="../qml/main.qml" line="258"/>
         <source>Main menu</source>
         <translation>القائمة الرئيسية</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="253"/>
+        <location filename="../qml/main.qml" line="264"/>
         <source>Open main menu</source>
         <translation>فتح القائمة الرئيسية</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="284"/>
-        <location filename="../qml/main.qml" line="290"/>
+        <location filename="../qml/main.qml" line="295"/>
         <source>Start streaming</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="316"/>
+        <location filename="../qml/main.qml" line="295"/>
+        <source>Stop streaming</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="300"/>
+        <source>You must add at least one streaming platform to the video outputs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="302"/>
+        <source>The following platforms are not configured:&lt;br/&gt;&lt;br/&gt;%1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="336"/>
         <source>Capture options</source>
         <translation>خيارات الالتقاط</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="322"/>
+        <location filename="../qml/main.qml" line="342"/>
         <source>Open capture options menu</source>
         <translation>فتح قائمة خيارات الالتقاط</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="353"/>
+        <location filename="../qml/main.qml" line="373"/>
         <source>Open last photo</source>
         <translation>فتح آخر صورة</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="364"/>
+        <location filename="../qml/main.qml" line="384"/>
         <source>Open last photo taken</source>
         <translation>فتح آخر صورة تم التقاطها</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="395"/>
-        <location filename="../qml/main.qml" line="398"/>
+        <location filename="../qml/main.qml" line="415"/>
+        <location filename="../qml/main.qml" line="418"/>
         <source>Take a photo</source>
         <translation>التقاط صورة</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="399"/>
+        <location filename="../qml/main.qml" line="419"/>
         <source>Image capture mode</source>
         <translation>وضع التقاط الصور</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="402"/>
+        <location filename="../qml/main.qml" line="422"/>
         <source>Make a capture and save it to an image file</source>
         <translation>قم بالتقاط صورة وحفظها في ملف صورة</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="403"/>
+        <location filename="../qml/main.qml" line="423"/>
         <source>Put %1 in image capture mode</source>
         <translation>وضع %1 في وضع التقاط الصور</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="452"/>
-        <location filename="../qml/main.qml" line="458"/>
+        <location filename="../qml/main.qml" line="472"/>
+        <location filename="../qml/main.qml" line="478"/>
         <source>Record video</source>
         <translation>تسجيل فيديو</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="453"/>
-        <location filename="../qml/main.qml" line="459"/>
+        <location filename="../qml/main.qml" line="473"/>
+        <location filename="../qml/main.qml" line="479"/>
         <source>Stop video recording</source>
         <translation>إيقاف تسجيل الفيديو</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="456"/>
+        <location filename="../qml/main.qml" line="476"/>
         <source>Video capture mode</source>
         <translation>وضع التقاط الفيديو</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="462"/>
+        <location filename="../qml/main.qml" line="482"/>
         <source>Put %1 in video recording mode</source>
         <translation>وضع %1 في وضع تسجيل الفيديو</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="464"/>
+        <location filename="../qml/main.qml" line="484"/>
         <source>Start recording to a video file</source>
         <translation>بدء التسجيل إلى ملف فيديو</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="465"/>
+        <location filename="../qml/main.qml" line="485"/>
         <source>Stop current video recording</source>
         <translation>إيقاف تسجيل الفيديو الحالي</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="492"/>
+        <location filename="../qml/main.qml" line="512"/>
         <source>Open last video</source>
         <translation>فتح آخر فيديو</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="504"/>
+        <location filename="../qml/main.qml" line="524"/>
         <source>Open last recorded video</source>
         <translation>فتح آخر فيديو مسجل</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="739"/>
+        <location filename="../qml/main.qml" line="759"/>
         <source>Installing virtual camera</source>
         <translation>جاري تثبيت الكاميرا الافتراضية</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="740"/>
+        <location filename="../qml/main.qml" line="760"/>
         <source>Running commands</source>
         <translation>جاري تشغيل الأوامر</translation>
     </message>
