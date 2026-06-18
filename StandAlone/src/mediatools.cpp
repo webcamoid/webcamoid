@@ -878,6 +878,14 @@ bool MediaTools::init(const CliOptions &cliOptions)
     QObject::connect(this->d->m_recording.data(),
                      &Recording::stateChanged,
                      this->d->m_audioInputs.data(),
+                     &AudioInputs::setInputState);
+    QObject::connect(this->d->m_streaming.data(),
+                     &Streaming::stateChanged,
+                     this->d->m_audioInputs.data(),
+                     &AudioInputs::setInputState);
+    QObject::connect(this->d->m_recording.data(),
+                     &Recording::stateChanged,
+                     this->d->m_audioInputs.data(),
                      &AudioInputs::setOutputState);
     QObject::connect(this->d->m_streaming.data(),
                      &Streaming::stateChanged,

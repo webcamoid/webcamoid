@@ -63,6 +63,8 @@ class AudioInputsPrivate
         QMutex m_mutex;
         AkElement::ElementState m_inputState  {AkElement::ElementStateNull};
         AkElement::ElementState m_outputState {AkElement::ElementStateNull};
+        int m_inputRefs {0};
+        int m_outputRefs {0};
         AkAudioCaps m_deviceCaps {AkAudioCaps::SampleFormat_s16,
                                   AkAudioCaps::Layout_stereo,
                                   false,
@@ -366,46 +368,59 @@ void AudioInputs::resetDeviceCaps()
 
 void AudioInputs::setInputState(AkElement::ElementState state)
 {
-    if (this->d->m_inputState == state)
-        return;
-
     if (state == AkElement::ElementStatePlaying) {
+        ++this->d->m_inputRefs;
+
+        // Already running, only refcount changed.
+        if (this->d->m_inputRefs > 1)
+            return;
+
         // Start all hardware capture elements.
         for (auto &src: this->d->m_audioSources) {
+            if (!src.element)
+                continue;
+
             src.element->setProperty("caps", this->d->closestCaps(src.device).toVariant());
             src.element->setProperty("latency", this->d->m_latency);
             src.element->setState(AkElement::ElementStatePlaying);
         }
 
+        this->d->m_inputState = AkElement::ElementStatePlaying;
+        emit this->inputStateChanged(this->d->m_inputState);
         qDebug() << "Audio inputs started";
     } else {
-        // Stop mixer output first .
-        if (this->d->m_outputState == AkElement::ElementStatePlaying) {
-            this->d->m_mixer.setState(AkElement::ElementStateNull);
-            this->d->m_outputState = AkElement::ElementStateNull;
-            emit this->outputStateChanged(AkElement::ElementStateNull);
+        // Treat non-Playing as release.
+        if (this->d->m_inputRefs <= 0) {
+            this->d->m_inputRefs = 0;
+
+            return;
         }
+
+        --this->d->m_inputRefs;
+
+        // Still in use.
+        if (this->d->m_inputRefs > 0)
+            return;
 
         // Stop all hardware source elements.
         for (auto &src: this->d->m_audioSources)
-            src.element->setState(AkElement::ElementStateNull);
+            if (src.element)
+                src.element->setState(AkElement::ElementStateNull);
 
+        this->d->m_inputState = AkElement::ElementStateNull;
+        emit this->inputStateChanged(this->d->m_inputState);
         qDebug() << "Audio inputs stopped";
     }
-
-    this->d->m_inputState = state;
-    emit this->inputStateChanged(state);
 }
 
 void AudioInputs::setOutputState(AkElement::ElementState state)
 {
-    if (this->d->m_outputState == state)
-        return;
-
     if (state == AkElement::ElementStatePlaying) {
-        // Ensure hardware inputs are running before opening the mixer output.
-        if (this->d->m_inputState != AkElement::ElementStatePlaying)
-            this->setInputState(AkElement::ElementStatePlaying);
+        ++this->d->m_outputRefs;
+
+        // Already running, only refcount changed.
+        if (this->d->m_outputRefs > 1)
+            return;
 
         // Start mixer output.
         if (this->d->m_mixer.inputs() > 0) {
@@ -414,16 +429,29 @@ void AudioInputs::setOutputState(AkElement::ElementState state)
             this->d->m_mixer.setState(AkElement::ElementStatePlaying);
         }
 
+        this->d->m_outputState = AkElement::ElementStatePlaying;
+        emit this->outputStateChanged(this->d->m_outputState);
         qDebug() << "Audio output started";
     } else {
-        // Stop only the mixer output; leave hardware elements running.
+        // Treat non-Playing as release.
+        if (this->d->m_outputRefs <= 0) {
+            this->d->m_outputRefs = 0;
+            return;
+        }
+
+        --this->d->m_outputRefs;
+
+        // Still in use.
+        if (this->d->m_outputRefs > 0)
+            return;
+
+        // Stop mixer output.
         this->d->m_mixer.setState(AkElement::ElementStateNull);
+        this->d->m_outputState = AkElement::ElementStateNull;
+        emit this->outputStateChanged(this->d->m_outputState);
 
         qDebug() << "Audio output stopped";
     }
-
-    this->d->m_outputState = state;
-    emit this->outputStateChanged(state);
 }
 
 void AudioInputs::setLatency(int latency)
