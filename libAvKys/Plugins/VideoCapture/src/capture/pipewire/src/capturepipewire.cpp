@@ -33,6 +33,7 @@
 #include <akcompressedvideopacket.h>
 #include <pipewire/pipewire.h>
 #include <spa/debug/types.h>
+#include <spa/param/buffers.h>
 #include <spa/param/video/format-utils.h>
 #include <spa/param/video/type-info.h>
 #include <spa/utils/result.h>
@@ -240,6 +241,9 @@ using PwStreamConnectType = int (*)(pw_stream *stream,
 using PwStreamDequeueBufferType = pw_buffer *(*)(pw_stream *stream);
 using PwStreamDestroyType = void (*)(pw_stream *stream);
 using PwStreamDisconnectType = int (*)(pw_stream *stream);
+using PwStreamUpdateParamsType = int (*)(pw_stream *stream,
+                                         const spa_pod **params,
+                                         uint32_t nParams);
 using PwStreamNewType = pw_stream *(*)(pw_core *core,
                                        const char *name,
                                        pw_properties *props);
@@ -283,11 +287,9 @@ class CapturePipeWirePrivate
         QReadWriteLock m_mutex;
         AkPacket m_curPacket;
         QWaitCondition m_waitCondition;
-        pw_main_loop *m_pwDevicesLoop {nullptr};
-        pw_thread_loop *m_pwStreamLoop {nullptr};
-        pw_context *m_pwStreamContext {nullptr};
-        pw_core *m_pwDeviceCore {nullptr};
-        pw_core *m_pwStreamCore {nullptr};
+        pw_thread_loop *m_pwLoop {nullptr};
+        pw_context *m_pwContext {nullptr};
+        pw_core *m_pwCore {nullptr};
         pw_registry *m_pwRegistry {nullptr};
         pw_stream *m_pwStream {nullptr};
         spa_hook m_coreHook;
@@ -324,6 +326,7 @@ class CapturePipeWirePrivate
         PwStreamDisconnectType m_pwStreamDisconnect {nullptr};
         PwStreamNewType m_pwStreamNew {nullptr};
         PwStreamQueueBufferType m_pwStreamQueueBuffer {nullptr};
+        PwStreamUpdateParamsType m_pwStreamUpdateParams {nullptr};
         PwThreadLoopDestroyType m_pwThreadLoopDestroy {nullptr};
         PwThreadLoopGetLoopType m_pwThreadLoopGetLoop {nullptr};
         PwThreadLoopLockType m_pwThreadLoopLock {nullptr};
@@ -363,11 +366,14 @@ class CapturePipeWirePrivate
                                 uint32_t version,
                                 const struct spa_dict *props);
         static void deviceRemoved(void *userData, uint32_t id);
+        static void onStreamStateChanged(void *userData,
+                                         enum pw_stream_state old,
+                                         enum pw_stream_state state,
+                                         const char *error);
         static void onParamChanged(void *userData,
                                    uint32_t id,
                                    const struct spa_pod *param);
         static void onProcess(void *userData);
-        void pipewireDevicesLoop();
         QVariantMap controlStatus(const QVariantList &controls) const;
         QVariantMap mapDiff(const QVariantMap &map1,
                             const QVariantMap &map2) const;
@@ -656,6 +662,20 @@ class CapturePipeWirePrivate
 #endif
         }
 
+        inline int pwStreamUpdateParams(pw_stream *stream,
+                                        const spa_pod **params,
+                                        uint32_t nParams) const
+        {
+#ifdef USE_PIPEWIRE_DYNLOAD
+            if (this->m_pwStreamUpdateParams)
+                return this->m_pwStreamUpdateParams(stream, params, nParams);
+
+            return 0;
+#else
+            return pw_stream_update_params(stream, params, nParams);
+#endif
+        }
+
         inline void pwThreadLoopDestroy(pw_thread_loop *loop) const
         {
 #ifdef USE_PIPEWIRE_DYNLOAD
@@ -752,34 +772,104 @@ static const struct pw_registry_events pipewireCameraDeviceEvents = {
 };
 
 static const struct pw_stream_events pipewireCameraStreamEvents = {
-    .version       = PW_VERSION_STREAM_EVENTS              ,
-    .param_changed = CapturePipeWirePrivate::onParamChanged,
-    .process       = CapturePipeWirePrivate::onProcess     ,
+    .version       = PW_VERSION_STREAM_EVENTS                    ,
+    .state_changed = CapturePipeWirePrivate::onStreamStateChanged,
+    .param_changed = CapturePipeWirePrivate::onParamChanged      ,
+    .process       = CapturePipeWirePrivate::onProcess           ,
 };
 
 CapturePipeWire::CapturePipeWire(QObject *parent):
     Capture(parent)
 {
     this->d = new CapturePipeWirePrivate(this);
-
     this->d->pwInit(nullptr, nullptr);
-    auto result =
-        QtConcurrent::run(&this->d->m_threadPool,
-                          &CapturePipeWirePrivate::pipewireDevicesLoop,
-                          this->d);
-    Q_UNUSED(result)
+
+    this->d->m_pwLoop = this->d->pwThreadLoopNew("PipeWire", nullptr);
+
+    if (!this->d->m_pwLoop) {
+        qCritical() << "Failed to create PipeWire thread loop";
+        this->d->pwDeinit();
+
+        return;
+    }
+
+    if (this->d->pwThreadLoopStart(this->d->m_pwLoop) < 0) {
+        qCritical() << "Failed to start PipeWire thread loop";
+        this->d->pwThreadLoopDestroy(this->d->m_pwLoop);
+        this->d->m_pwLoop = nullptr;
+        this->d->pwDeinit();
+
+        return;
+    }
+
+    this->d->pwThreadLoopLock(this->d->m_pwLoop);
+
+    this->d->m_pwContext =
+        this->d->pwContextNew(this->d->pwThreadLoopGetLoop(this->d->m_pwLoop),
+                              nullptr,
+                              0);
+
+    if (this->d->m_pwContext) {
+        this->d->m_pwCore = this->d->pwContextConnect(this->d->m_pwContext,
+                                                      nullptr,
+                                                      0);
+
+        if (this->d->m_pwCore) {
+            memset(&this->d->m_coreHook, 0, sizeof(spa_hook));
+            pw_core_add_listener(this->d->m_pwCore,
+                                 &this->d->m_coreHook,
+                                 &pipewireCameraCoreEvents,
+                                 this->d);
+
+            this->d->m_pwRegistry = pw_core_get_registry(this->d->m_pwCore,
+                                                         PW_VERSION_REGISTRY,
+                                                         0);
+
+            if (this->d->m_pwRegistry) {
+                memset(&this->d->m_deviceHook, 0, sizeof(spa_hook));
+                pw_registry_add_listener(this->d->m_pwRegistry,
+                                         &this->d->m_deviceHook,
+                                         &pipewireCameraDeviceEvents,
+                                         this->d);
+            }
+        }
+    }
+
+    this->d->pwThreadLoopUnlock(this->d->m_pwLoop);
 }
 
 CapturePipeWire::~CapturePipeWire()
 {
     this->uninit();
 
-    if (this->d->m_pwDevicesLoop) {
-        this->d->pwMainLoopQuit(this->d->m_pwDevicesLoop);
-        this->d->m_threadPool.waitForDone();
-        this->d->pwDeinit();
+    if (this->d->m_pwLoop) {
+        this->d->pwThreadLoopStop(this->d->m_pwLoop);
+
+        this->d->pwThreadLoopLock(this->d->m_pwLoop);
+
+        if (this->d->m_pwRegistry) {
+            this->d->pwProxyDestroy(reinterpret_cast<pw_proxy *>(this->d->m_pwRegistry));
+            this->d->m_pwRegistry = nullptr;
+        }
+
+        if (this->d->m_pwCore) {
+            this->d->pwCoreDisconnect(this->d->m_pwCore);
+            this->d->m_pwCore = nullptr;
+        }
+
+        if (this->d->m_pwContext) {
+            this->d->pwContextDestroy(this->d->m_pwContext);
+            this->d->m_pwContext = nullptr;
+        }
+
+        auto loop = this->d->m_pwLoop;
+        this->d->m_pwLoop = nullptr;
+
+        this->d->pwThreadLoopUnlock(loop);
+        this->d->pwThreadLoopDestroy(loop);
     }
 
+    this->d->pwDeinit();
     delete this->d;
 }
 
@@ -985,6 +1075,14 @@ bool CapturePipeWire::init()
     this->d->m_localCameraControls.clear();
     this->uninit();
 
+    if (!this->d->m_pwLoop || !this->d->m_pwCore) {
+        qCritical() << "PipeWire not initialized";
+
+        return false;
+    }
+
+    qDebug() << "Initializing PipeWire for camera capture";
+
     spa_media_subtype subType;
     spa_video_format format;
     int width = 0;
@@ -1019,47 +1117,7 @@ bool CapturePipeWire::init()
         fps = videoCaps.rawCaps().fps();
     }
 
-    this->d->m_pwStreamLoop =
-        this->d->pwThreadLoopNew("PipeWire camera capture thread loop", nullptr);
-
-    if (!this->d->m_pwStreamLoop) {
-        this->uninit();
-        qCritical() << "Error creating PipeWire desktop capture thread loop";
-
-        return false;
-    }
-
-    this->d->m_pwStreamContext =
-        this->d->pwContextNew(this->d->pwThreadLoopGetLoop(this->d->m_pwStreamLoop),
-                              nullptr,
-                              0);
-
-    if (!this->d->m_pwStreamContext) {
-        this->uninit();
-        qCritical() << "Error creating PipeWire context";
-
-        return false;
-    }
-
-    if (this->d->pwThreadLoopStart(this->d->m_pwStreamLoop) < 0) {
-        this->uninit();
-        qCritical() << "Error starting PipeWire main loop";
-
-        return false;
-    }
-
-    this->d->pwThreadLoopLock(this->d->m_pwStreamLoop);
-
-    this->d->m_pwStreamCore =
-        this->d->pwContextConnect(this->d->m_pwStreamContext, nullptr, 0);
-
-    if (!this->d->m_pwStreamCore) {
-        this->d->pwThreadLoopUnlock(this->d->m_pwStreamLoop);
-        this->uninit();
-        qCritical() << "Error connecting to the PipeWire file descriptor:" << strerror(errno);
-
-        return false;
-    }
+    this->d->pwThreadLoopLock(this->d->m_pwLoop);
 
 #if PW_CHECK_VERSION(0, 3, 44)
     char cCurDev[2048];
@@ -1080,15 +1138,16 @@ bool CapturePipeWire::init()
                      items};
 
     this->d->m_pwStream =
-            this->d->pwStreamNew(this->d->m_pwStreamCore,
+            this->d->pwStreamNew(this->d->m_pwCore,
                                  "Webcamoid Camera Capture",
                                  this->d->pwPropertiesNewDict(&dict));
+
     this->d->pwStreamAddListener(this->d->m_pwStream,
                                   &this->d->m_streamHook,
                                   &pipewireCameraStreamEvents,
                                   this->d);
 
-    QVector<const spa_pod *>params;
+    QVector<const spa_pod *> params;
     static const size_t bufferSize = 4096;
     uint8_t buffer[bufferSize];
     auto podBuilder = SPA_POD_BUILDER_INIT(buffer, bufferSize);
@@ -1144,16 +1203,24 @@ bool CapturePipeWire::init()
                                              | PW_STREAM_FLAG_MAP_BUFFERS),
                              params.data(),
                              params.size());
-    this->d->pwThreadLoopUnlock(this->d->m_pwStreamLoop);
+
+    this->d->pwThreadLoopUnlock(this->d->m_pwLoop);
+
     this->d->m_id = Ak::id();
+
+    qDebug() << "PipeWire initialized for camera capture";
 
     return true;
 }
 
 void CapturePipeWire::uninit()
 {
-    if (this->d->m_pwStreamLoop)
-        this->d->pwThreadLoopStop(this->d->m_pwStreamLoop);
+    qDebug() << "Uninitializing PipeWire for camera capture";
+
+    if (!this->d->m_pwLoop)
+        return;
+
+    this->d->pwThreadLoopLock(this->d->m_pwLoop);
 
     if (this->d->m_pwStream) {
         this->d->pwStreamDisconnect(this->d->m_pwStream);
@@ -1161,15 +1228,9 @@ void CapturePipeWire::uninit()
         this->d->m_pwStream = nullptr;
     }
 
-    if (this->d->m_pwStreamContext) {
-        this->d->pwContextDestroy(this->d->m_pwStreamContext);
-        this->d->m_pwStreamContext = nullptr;
-    }
+    this->d->pwThreadLoopUnlock(this->d->m_pwLoop);
 
-    if (this->d->m_pwStreamLoop) {
-        this->d->pwThreadLoopDestroy(this->d->m_pwStreamLoop);
-        this->d->m_pwStreamLoop = nullptr;
-    }
+    qDebug() << "PipeWire uninitialized for camera capture";
 }
 
 void CapturePipeWire::setDevice(const QString &device)
@@ -1315,6 +1376,7 @@ CapturePipeWirePrivate::CapturePipeWirePrivate(CapturePipeWire *self):
             this->m_pwStreamDisconnect = reinterpret_cast<PwStreamDisconnectType>(this->m_pipeWireLib.resolve("pw_stream_disconnect"));
             this->m_pwStreamNew = reinterpret_cast<PwStreamNewType>(this->m_pipeWireLib.resolve("pw_stream_new"));
             this->m_pwStreamQueueBuffer = reinterpret_cast<PwStreamQueueBufferType>(this->m_pipeWireLib.resolve("pw_stream_queue_buffer"));
+            this->m_pwStreamUpdateParams = reinterpret_cast<PwStreamUpdateParamsType>(this->m_pipeWireLib.resolve("pw_stream_update_params"));
             this->m_pwThreadLoopDestroy = reinterpret_cast<PwThreadLoopDestroyType>(this->m_pipeWireLib.resolve("pw_thread_loop_destroy"));
             this->m_pwThreadLoopGetLoop = reinterpret_cast<PwThreadLoopGetLoopType>(this->m_pipeWireLib.resolve("pw_thread_loop_get_loop"));
             this->m_pwThreadLoopLock = reinterpret_cast<PwThreadLoopLockType>(this->m_pipeWireLib.resolve("pw_thread_loop_lock"));
@@ -1789,7 +1851,7 @@ void CapturePipeWirePrivate::nodeInfoChanged(void *userData,
                                            -1,
                                            nullptr);
             self->m_sequenceParams[seq] = {info->id, id};
-            pw_core_sync(self->m_pwDeviceCore, PW_ID_CORE, seq);
+            pw_core_sync(self->m_pwCore, PW_ID_CORE, seq);
 
             break;
         }
@@ -1812,7 +1874,7 @@ void CapturePipeWirePrivate::nodeInfoChanged(void *userData,
                                            -1,
                                            nullptr);
             self->m_sequenceParams[seq] = {info->id, id};
-            pw_core_sync(self->m_pwDeviceCore, PW_ID_CORE, seq);
+            pw_core_sync(self->m_pwCore, PW_ID_CORE, seq);
 
             break;
         }
@@ -1854,7 +1916,7 @@ void CapturePipeWirePrivate::nodeInfoChanged(void *userData,
                                            -1,
                                            nullptr);
             self->m_sequenceParams[seq] = {info->id, id};
-            pw_core_sync(self->m_pwDeviceCore, PW_ID_CORE, seq);
+            pw_core_sync(self->m_pwCore, PW_ID_CORE, seq);
 
             break;
         }
@@ -1978,6 +2040,34 @@ void CapturePipeWirePrivate::deviceRemoved(void *userData, uint32_t id)
     emit self->self->webcamsChanged(self->m_devices);
 }
 
+void CapturePipeWirePrivate::onStreamStateChanged(void *userData,
+                                                  enum pw_stream_state old,
+                                                  enum pw_stream_state state,
+                                                  const char *error)
+{
+    Q_UNUSED(old)
+    Q_UNUSED(userData)
+
+    qDebug() << "PipeWire stream state:" << pw_stream_state_as_string(state);
+
+    if (error && *error)
+        qWarning() << "PipeWire stream error:" << error;
+
+    switch (state) {
+    case PW_STREAM_STATE_ERROR:
+        qCritical() << "Stream entered error state";
+        break;
+    case PW_STREAM_STATE_PAUSED:
+        qDebug() << "Stream paused, waiting for buffers...";
+        break;
+    case PW_STREAM_STATE_STREAMING:
+        qDebug() << "Stream streaming";
+        break;
+    default:
+        break;
+    }
+}
+
 void CapturePipeWirePrivate::onParamChanged(void *userData,
                                             uint32_t id,
                                             const spa_pod *param)
@@ -2013,6 +2103,29 @@ void CapturePipeWirePrivate::onParamChanged(void *userData,
              int(info.size.height),
              fps};
 
+        // Tell the server how we want the buffers to be allocated.
+        // Without this, the server may pick a buffer size/stride
+        // that doesn't match what we expect.
+        AkVideoPacket packet(self->m_curCaps);
+        auto stride = quint32(packet.lineSize(0));
+        auto size = quint32(packet.size());
+
+        uint8_t buffer[1024];
+        auto podBuilder = SPA_POD_BUILDER_INIT(buffer, sizeof(buffer));
+        const spa_pod *params[1];
+        params[0] =
+            reinterpret_cast<const spa_pod *>(
+                spa_pod_builder_add_object(
+                    &podBuilder,
+                    SPA_TYPE_OBJECT_ParamBuffers, SPA_PARAM_Buffers,
+                    SPA_PARAM_BUFFERS_buffers, SPA_POD_CHOICE_RANGE_Int(8, 2, 32),
+                    SPA_PARAM_BUFFERS_blocks, SPA_POD_Int(1),
+                    SPA_PARAM_BUFFERS_size, SPA_POD_Int(size),
+                    SPA_PARAM_BUFFERS_stride, SPA_POD_Int(stride),
+                    SPA_PARAM_BUFFERS_dataType, SPA_POD_CHOICE_FLAGS_Int(1 << SPA_DATA_MemPtr)));
+
+        self->pwStreamUpdateParams(self->m_pwStream, params, 1);
+
         break;
     }
 
@@ -2029,18 +2142,45 @@ void CapturePipeWirePrivate::onProcess(void *userData)
     if (!buffer)
        return;
 
-    if (!buffer->buffer->datas[0].data)
+    if (!buffer->buffer || !buffer->buffer->datas || buffer->buffer->n_datas < 1) {
+        self->pwStreamQueueBuffer(self->m_pwStream, buffer);
+
         return;
+    }
+
+    if (!buffer->buffer->datas[0].data) {
+        self->pwStreamQueueBuffer(self->m_pwStream, buffer);
+
+        return;
+    }
 
     AkVideoPacket packet(self->m_curCaps);
-    auto iLineSize = buffer->buffer->datas[0].chunk->stride;
-    auto oLineSize = packet.lineSize(0);
-    auto lineSize = qMin<size_t>(iLineSize, oLineSize);
+    auto nPlanes = qMin<size_t>(packet.planes(), buffer->buffer->n_datas);
+    auto height = packet.caps().height();
 
-    for (int y = 0; y < packet.caps().height(); y++)
-        memcpy(packet.line(0, y),
-               reinterpret_cast<quint8 *>(buffer->buffer->datas[0].data) + y * iLineSize,
-               lineSize);
+    for (size_t plane = 0; plane < nPlanes; ++plane) {
+        auto &srcData = buffer->buffer->datas[plane];
+
+        if (!srcData.data || !srcData.chunk)
+            continue;
+
+        auto iLineSize = srcData.chunk->stride;
+        auto oLineSize = packet.lineSize(plane);
+        auto copyLineSize = qMin<size_t>(size_t(iLineSize), size_t(oLineSize));
+
+        if (copyLineSize < 1)
+            continue;
+
+        auto srcBase = reinterpret_cast<quint8 *>(srcData.data);
+        auto heightDiv = packet.heightDiv(plane);
+
+        for (int y = 0; y < height; ++y) {
+            auto yp = y >> heightDiv;
+            memcpy(packet.line(plane, y),
+                   srcBase + yp * iLineSize,
+                   copyLineSize);
+        }
+    }
 
     auto fps = self->m_curCaps.fps();
     auto pts = qRound64(QTime::currentTime().msecsSinceStartOfDay()
@@ -2057,62 +2197,6 @@ void CapturePipeWirePrivate::onProcess(void *userData)
     self->m_mutex.unlock();
 
     self->pwStreamQueueBuffer(self->m_pwStream, buffer);
-}
-
-void CapturePipeWirePrivate::pipewireDevicesLoop()
-{
-    this->m_pwDevicesLoop = this->pwMainLoopNew(nullptr);
-
-    if (!this->m_pwDevicesLoop)
-        return;
-
-    auto pwContext =
-        this->pwContextNew(this->pwMainLoopGetLoop(this->m_pwDevicesLoop),
-                           nullptr,
-                           0);
-
-    if (!pwContext) {
-        this->pwMainLoopDestroy(this->m_pwDevicesLoop);
-
-        return;
-    }
-
-    this->m_pwDeviceCore = this->pwContextConnect(pwContext, nullptr, 0);
-
-    if (!this->m_pwDeviceCore) {
-        this->pwContextDestroy(pwContext);
-        this->pwMainLoopDestroy(this->m_pwDevicesLoop);
-
-        return;
-    }
-
-    memset(&this->m_coreHook, 0, sizeof(spa_hook));
-    pw_core_add_listener(this->m_pwDeviceCore,
-                         &this->m_coreHook,
-                         &pipewireCameraCoreEvents,
-                         this);
-    this->m_pwRegistry = pw_core_get_registry(this->m_pwDeviceCore,
-                                              PW_VERSION_REGISTRY,
-                                              0);
-
-    if (!this->m_pwRegistry) {
-        this->pwCoreDisconnect(this->m_pwDeviceCore);
-        this->pwContextDestroy(pwContext);
-        this->pwMainLoopDestroy(this->m_pwDevicesLoop);
-
-        return;
-    }
-
-    memset(&this->m_deviceHook, 0, sizeof(spa_hook));
-    pw_registry_add_listener(this->m_pwRegistry,
-                             &this->m_deviceHook,
-                             &pipewireCameraDeviceEvents,
-                             this);
-    this->pwMainLoopRun(this->m_pwDevicesLoop);
-    this->pwProxyDestroy((struct pw_proxy *) this->m_pwRegistry);
-    this->pwCoreDisconnect(this->m_pwDeviceCore);
-    this->pwContextDestroy(pwContext);
-    this->pwMainLoopDestroy(this->m_pwDevicesLoop);
 }
 
 QVariantMap CapturePipeWirePrivate::controlStatus(const QVariantList &controls) const
@@ -2144,12 +2228,20 @@ QVariantMap CapturePipeWirePrivate::mapDiff(const QVariantMap &map1,
 
 void CapturePipeWirePrivate::setControls(const QVariantMap &controls)
 {
+    if (!this->m_pwLoop)
+        return;
+
     if (!this->m_devicesControls.contains(this->m_curDevice))
         return;
 
     auto &controlsTable = this->m_devicesControls[this->m_curDevice];
     auto node =
         this->m_deviceNodes.value(this->m_deviceIds.key(this->m_curDevice));
+
+    if (!node)
+        return;
+
+    this->pwThreadLoopLock(this->m_pwLoop);
 
     for (auto it = controls.cbegin(); it != controls.cend(); it++)
         for (auto &control: controlsTable)
@@ -2186,6 +2278,8 @@ void CapturePipeWirePrivate::setControls(const QVariantMap &controls)
                                                                     &podFrame));
                 pw_node_set_param(node, SPA_PARAM_Props, 0, param);
             }
+
+    this->pwThreadLoopUnlock(this->m_pwLoop);
 }
 
 const spa_pod *CapturePipeWirePrivate::buildFormat(spa_pod_builder *podBuilder,
