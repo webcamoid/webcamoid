@@ -26,7 +26,6 @@ include(../cmake/ProjectCommons.cmake)
 
 add_subdirectory(SimdCore)
 add_subdirectory(AudioDevice)
-add_subdirectory(AudioGen)
 add_subdirectory(Codecs)
 add_subdirectory(DesktopCapture)
 add_subdirectory(FillAudioGaps)
