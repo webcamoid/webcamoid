@@ -22,6 +22,7 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
 import AkControls as AK
+import Webcamoid
 
 AK.MenuOption {
     id: root

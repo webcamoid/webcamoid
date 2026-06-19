@@ -1523,173 +1523,173 @@
 <context>
     <name>Streaming</name>
     <message>
-        <location filename="../qml/Streaming.qml" line="28"/>
+        <location filename="../qml/Streaming.qml" line="29"/>
         <source>Streaming</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="29"/>
+        <location filename="../qml/Streaming.qml" line="30"/>
         <source>Configure video streaming to many platforms.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="121"/>
-        <location filename="../qml/Streaming.qml" line="146"/>
+        <location filename="../qml/Streaming.qml" line="122"/>
+        <location filename="../qml/Streaming.qml" line="147"/>
         <source>Streaming quality</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="199"/>
+        <location filename="../qml/Streaming.qml" line="200"/>
         <source>Custom</source>
         <translation type="unfinished">Custom</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="202"/>
+        <location filename="../qml/Streaming.qml" line="203"/>
         <source>Video quality: %1×%2 %3 FPS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="203"/>
+        <location filename="../qml/Streaming.qml" line="204"/>
         <source>Video bitrate: %1 Mbps</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="204"/>
+        <location filename="../qml/Streaming.qml" line="205"/>
         <source>Audio sample rate: %1 kHz</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="205"/>
+        <location filename="../qml/Streaming.qml" line="206"/>
         <source>Audio bitrate: %1 kbps</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="213"/>
+        <location filename="../qml/Streaming.qml" line="214"/>
         <source>Advanced settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="228"/>
+        <location filename="../qml/Streaming.qml" line="229"/>
         <source>Video quality</source>
         <translation type="unfinished">Kalidad ng bidyo</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="246"/>
+        <location filename="../qml/Streaming.qml" line="247"/>
         <source>Output width</source>
         <translation type="unfinished">Lapad ng output</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="269"/>
+        <location filename="../qml/Streaming.qml" line="270"/>
         <source>Output height</source>
         <translation type="unfinished">Taas ng output</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="292"/>
+        <location filename="../qml/Streaming.qml" line="293"/>
         <source>Output frame rate</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="315"/>
+        <location filename="../qml/Streaming.qml" line="316"/>
         <source>Video bitrate (kbps)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="335"/>
+        <location filename="../qml/Streaming.qml" line="336"/>
         <source>Keyframes stride (ms)</source>
         <translation type="unfinished">Keyframes stride (ms)</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="352"/>
+        <location filename="../qml/Streaming.qml" line="353"/>
         <source>Video codec</source>
         <translation type="unfinished">Video codec</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="435"/>
+        <location filename="../qml/Streaming.qml" line="436"/>
         <source>Audio quality</source>
         <translation type="unfinished">Kalidad ng audio</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="453"/>
+        <location filename="../qml/Streaming.qml" line="454"/>
         <source>Sample rate</source>
         <translation type="unfinished">Sample rate</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="476"/>
+        <location filename="../qml/Streaming.qml" line="477"/>
         <source>Audio bitrate (kbps)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="497"/>
+        <location filename="../qml/Streaming.qml" line="498"/>
         <source>Audio codec</source>
         <translation type="unfinished">Audio codec</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="520"/>
+        <location filename="../qml/Streaming.qml" line="521"/>
         <source>Streaming platform settings</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="531"/>
+        <location filename="../qml/Streaming.qml" line="532"/>
         <source>Platform</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="539"/>
+        <location filename="../qml/Streaming.qml" line="540"/>
         <source>Add platform</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="546"/>
+        <location filename="../qml/Streaming.qml" line="547"/>
         <source>Remove platform</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="560"/>
+        <location filename="../qml/Streaming.qml" line="561"/>
         <source>Website</source>
         <translation type="unfinished">Website</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="580"/>
+        <location filename="../qml/Streaming.qml" line="581"/>
         <source>Visit website</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="595"/>
+        <location filename="../qml/Streaming.qml" line="596"/>
         <source>Streaming URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="626"/>
+        <location filename="../qml/Streaming.qml" line="627"/>
         <source>Hide streaming URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="627"/>
+        <location filename="../qml/Streaming.qml" line="628"/>
         <source>Show streaming URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="646"/>
+        <location filename="../qml/Streaming.qml" line="647"/>
         <source>Streaming key</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="679"/>
+        <location filename="../qml/Streaming.qml" line="680"/>
         <source>Hide streaming key</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="680"/>
+        <location filename="../qml/Streaming.qml" line="681"/>
         <source>Show streaming key</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="699"/>
+        <location filename="../qml/Streaming.qml" line="700"/>
         <source>Streaming configuration help</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="711"/>
+        <location filename="../qml/Streaming.qml" line="712"/>
         <source>Get streaming key</source>
         <translation type="unfinished"></translation>
     </message>
