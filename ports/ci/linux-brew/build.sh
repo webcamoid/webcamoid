@@ -46,7 +46,7 @@ if [ -z "${DISABLE_CCACHE}" ]; then
 fi
 
 if [ "${UPLOAD}" = 1 ]; then
-    EXTRA_PARAMS="${EXTRA_PARAMS} -DNOLIBAVDEVICE=ON -DNOLIBUVC=ON -DPIPEWIRE_DYNLOAD=ON -DPULSEAUDIO_DYNLOAD=ON"
+    EXTRA_PARAMS="${EXTRA_PARAMS} -DNOLIBAVDEVICE=ON -DNOLIBUVC=ON"
 fi
 
 # Apparently this codec is causing Webcamoid to hang in old versions of FFmpeg

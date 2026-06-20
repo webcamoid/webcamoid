@@ -20,6 +20,18 @@
 #include "plugin.h"
 #include "audiodevpulseaudio.h"
 
+bool Plugin::canLoad()
+{
+#ifdef USE_PIPEWIRE_DYNLOAD
+    if (!QLibrary("pulse").load())
+        return false;
+
+    return QLibrary("pulse-simple").load();
+#else
+    return true;
+#endif
+}
+
 QObject *Plugin::create()
 {
     return new AudioDevPulseAudio();

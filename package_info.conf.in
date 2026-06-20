@@ -11,13 +11,17 @@ buildInfoFile = @BUILD_INFO_FILE@
 targetArch = @TARGET_ARCH@
 version = @VERSION@
 outputFormats = @OUTPUT_FORMATS@
-modules = Qt, OpenSSL, PipeWire
+modules = Qt, OpenSSL, PulseAudio, PipeWire
 extraLibs = @EXTRA_LIBS@
 dailyBuild = @DAILY_BUILD@
 buildType = @CMAKE_BUILD_TYPE@
 
 [Git]
 hideCommitCount = true
+
+[PulseAudio]
+modulesDir = @PULSEAUDIO_MODULES_DIR@
+outputModulesDir = @PULSEAUDIO_MODULES_PATH@
 
 [PipeWire]
 modulesDir = @PIPEWIRE_MODULES_DIR@

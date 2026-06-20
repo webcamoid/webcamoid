@@ -123,6 +123,15 @@ endif ()
 
 find_package(PkgConfig)
 
+# Try detecting PulseAudio plugins install path.
+
+pkg_check_modules(PULSEAUDIO_MODULES libpulse)
+
+if (PIPEWIRE_MODULES_FOUND)
+    pkg_get_variable(PULSEAUDIO_MODULES_DIR libpulse modlibexecdir)
+    get_filename_component(PULSEAUDIO_MODULES_DIR ${PULSEAUDIO_MODULES_DIR} DIRECTORY)
+endif ()
+
 # Try detecting PipeWire plugins install path.
 
 pkg_check_modules(PIPEWIRE_MODULES libpipewire-0.3)
