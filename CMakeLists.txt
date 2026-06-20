@@ -127,7 +127,7 @@ find_package(PkgConfig)
 
 pkg_check_modules(PULSEAUDIO_MODULES libpulse)
 
-if (PIPEWIRE_MODULES_FOUND)
+if (PULSEAUDIO_MODULES_FOUND)
     pkg_get_variable(PULSEAUDIO_MODULES_DIR libpulse modlibexecdir)
     get_filename_component(PULSEAUDIO_MODULES_DIR ${PULSEAUDIO_MODULES_DIR} DIRECTORY)
 endif ()
