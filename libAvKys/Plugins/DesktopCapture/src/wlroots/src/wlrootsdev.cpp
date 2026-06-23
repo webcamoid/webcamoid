@@ -1059,6 +1059,8 @@ void WlrootsDevPrivate::captureLoop()
                 this->m_deviceToOutputId.value(this->m_device, 0);
 
         if (this->m_currentOutputId == 0) {
+            qCritical() << "A valid session ID was not found for" << this->m_device;
+            qCritical() << "Valid devices ID are:" << this->m_deviceToOutputId.keys();
             this->disconnectWayland();
 
             return;
@@ -1070,6 +1072,7 @@ void WlrootsDevPrivate::captureLoop()
                     qWarning() << "ext-image-copy-capture failed, falling back to wlr-screencopy";
                     this->m_protocol = CaptureProtocol::WlrScreencopy;
                 } else {
+                    qCritical() << "Failed to initialize the screen capture session for" << this->m_device;
                     this->cleanupExtSessionResources(this->m_currentOutputId);
                     this->m_currentOutputId = 0;
                     this->disconnectWayland();
@@ -1080,6 +1083,7 @@ void WlrootsDevPrivate::captureLoop()
         }
     } else {
         if (this->m_protocol != CaptureProtocol::ExtImageCopyCapture) {
+            qCritical() << "ExtImageCopyCapture protocol is required for capturing windows";
             this->disconnectWayland();
 
             return;
@@ -1089,12 +1093,15 @@ void WlrootsDevPrivate::captureLoop()
                 this->m_deviceToToplevelId.value(this->m_device);
 
         if (this->m_currentToplevelId.isEmpty()) {
+            qCritical() << "A valid session ID was not found for" << this->m_device;
+            qCritical() << "Valid devices ID are:" << this->m_deviceToOutputId.keys();
             this->disconnectWayland();
 
             return;
         }
 
         if (!this->initExtToplevelSession(this->m_currentToplevelId)) {
+            qCritical() << "Failed to initialize the window capture session for" << this->m_device;
             this->cleanupExtToplevelSessionResources(this->m_currentToplevelId);
             this->m_currentToplevelId.clear();
             this->disconnectWayland();
@@ -1102,6 +1109,8 @@ void WlrootsDevPrivate::captureLoop()
             return;
         }
     }
+
+    qInfo() << "Wayland screen capture started";
 
     this->m_id = Ak::id();
     this->m_consecutiveFailures = 0;
@@ -1153,6 +1162,8 @@ void WlrootsDevPrivate::captureLoop()
     }
 
     this->disconnectWayland();
+
+    qInfo() << "Wayland screen capture finished";
 }
 
 bool WlrootsDevPrivate::connectWayland()
