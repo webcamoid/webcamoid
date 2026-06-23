@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<protocol name="xdg_output_unstable_v1">
+  <copyright>
+    Copyright © 2017 Red Hat Inc.
+
+    Permission is hereby granted, free of charge, to any person obtaining a
+    copy of this software and associated documentation files (the "Software"),
+    to deal in the Software without restriction, including without limitation
+    the rights to use, copy, modify, merge, publish, distribute, sublicense,
+    and/or sell copies of the Software, and to permit persons to whom the
+    Software is furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice (including the next
+    paragraph) shall be included in all copies or substantial portions of the
+    Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+    OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
+    THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+    FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+    DEALINGS IN THE SOFTWARE.
+  </copyright>
+
+  <interface name="zxdg_output_manager_v1" version="3">
+    <description summary="manage xdg_output objects">
+      A global factory interface for xdg_output objects.
+    </description>
+
+    <request name="destroy" type="destructor">
+      <description summary="destroy the xdg_output_manager object">
+        Using this request a client can tell the server that it is not going
+        to use the xdg_output_manager object anymore.
+      </description>
+    </request>
+
+    <request name="get_xdg_output">
+      <description summary="create an xdg output from a wl_output">
+        Create an xdg_output object for the given wl_output.
+      </description>
+      <arg name="id" type="new_id" interface="zxdg_output_v1"/>
+      <arg name="output" type="object" interface="wl_output"/>
+    </request>
+  </interface>
+
+  <interface name="zxdg_output_v1" version="3">
+    <description summary="compositor output representation">
+      An xdg_output object describes an output from the compositor's perspective.
+      It provides desktop-oriented information like the output's position and size
+      in the compositor's global coordinate space.
+    </description>
+
+    <request name="destroy" type="destructor">
+      <description summary="destroy the xdg_output object">
+        Using this request a client can tell the server that it is not going
+        to use the xdg_output object anymore.
+      </description>
+    </request>
+
+    <event name="logical_position">
+      <description summary="position of the output within the desktop">
+        The position event describes the location of the wl_output within
+        the overall desktop layout.
+      </description>
+      <arg name="x" type="int"/>
+      <arg name="y" type="int"/>
+    </event>
+
+    <event name="logical_size">
+      <description summary="size of the output in the desktop layout">
+        The size event describes the size of the wl_output in the
+        overall desktop layout.
+      </description>
+      <arg name="width" type="int"/>
+      <arg name="height" type="int"/>
+    </event>
+
+    <event name="done" deprecated-since="3">
+      <description summary="all information about the output has been sent">
+        This event is deprecated. In version 3, all properties are sent
+        immediately after the xdg_output is created, and the wl_output.done
+        event is sent after all xdg_output properties have been sent.
+      </description>
+    </event>
+
+    <event name="name" since="2">
+      <description summary="name of this output">
+        Many compositors can assign names to outputs that correspond to
+        the connector name (e.g. "HDMI-A-1").
+      </description>
+      <arg name="name" type="string"/>
+    </event>
+
+    <event name="description" since="2">
+      <description summary="description of this output">
+        Many compositors can produce human-readable descriptions of their
+        outputs (e.g. "Acme 27" 4K UHD Display (DP-1)").
+      </description>
+      <arg name="description" type="string"/>
+    </event>
+  </interface>
+</protocol>

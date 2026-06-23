@@ -111,12 +111,9 @@ class PipewireScreenDev: public ScreenDev
         void resetCursorSize() override;
         bool init() override;
         bool uninit() override;
-        void updateWindows() override;
+        void updateDevices() override;
 
     private slots:
-        void screenAdded(QScreen *screen);
-        void screenRemoved(QScreen *screen);
-        void srceenResized(int screen);
         void responseReceived(quint32 response, const QVariantMap &results);
 };
 

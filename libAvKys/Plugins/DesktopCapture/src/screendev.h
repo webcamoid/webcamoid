@@ -72,7 +72,7 @@ class ScreenDev: public QObject
         virtual void resetCursorSize() = 0;
         virtual bool init() = 0;
         virtual bool uninit() = 0;
-        virtual void updateWindows() = 0;
+        virtual void updateDevices() = 0;
 
     friend class DesktopCaptureElement;
 };

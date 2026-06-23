@@ -53,6 +53,9 @@ set(SOURCES
     pspec.json)
 
 pkg_check_modules(PIPEWIRE libpipewire-0.3)
+add_definitions(-DBINDIR="${BINDIR}"
+                -DPIPEWIRE_MODULES_PATH="${PIPEWIRE_MODULES_PATH}"
+                -DPIPEWIRE_SPA_PLUGINS_PATH="${PIPEWIRE_SPA_PLUGINS_PATH}")
 
 if (PIPEWIRE_FOUND AND NOT ANDROID AND NOT (APPLE OR FAKE_APPLE) AND NOT WIN32 AND NOT NOPIPEWIRE AND NOT NOSCREENCAPTURE)
     qt_add_plugin(DesktopCapture_pipewire

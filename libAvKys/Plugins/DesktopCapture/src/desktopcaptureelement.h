@@ -120,7 +120,7 @@ class DesktopCaptureElement: public AkMultimediaSourceElement
         void resetShowCursor();
         void resetCursorSize();
         bool setState(AkElement::ElementState state) override;
-        void updateWindows();
+        void updateDevices();
 };
 
 #endif // DESKTOPCAPTUREELEMENT_H

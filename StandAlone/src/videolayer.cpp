@@ -592,7 +592,7 @@ void VideoLayer::updateInputs()
 
     if (this->d->m_screenCapture)
         QMetaObject::invokeMethod(this->d->m_screenCapture.data(),
-                                  "updateWindows");
+                                  "updateDevices");
 
     // List the virtual camera outputs
     QStringList videoOutputs;

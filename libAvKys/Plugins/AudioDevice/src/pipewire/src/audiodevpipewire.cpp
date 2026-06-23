@@ -647,6 +647,32 @@ AudioDevPipeWire::AudioDevPipeWire(QObject *parent):
 {
     this->d = new AudioDevPipeWirePrivate(this);
 
+    auto binDir = QDir(BINDIR).absolutePath();
+    QDir appDir = QCoreApplication::applicationDirPath();
+    auto pwModulesDir = QDir(PIPEWIRE_MODULES_PATH).absolutePath();
+    auto relPwModulesDir = QDir(binDir).relativeFilePath(pwModulesDir);
+
+    if (appDir.cd(relPwModulesDir)) {
+        auto path = appDir.absolutePath();
+        path.replace("/", QDir::separator());
+
+        if (QFileInfo::exists(path)
+            && qEnvironmentVariableIsEmpty("PIPEWIRE_MODULE_DIR"))
+            qputenv("PIPEWIRE_MODULE_DIR", path.toLocal8Bit());
+    }
+
+    auto spaPluginsDir = QDir(PIPEWIRE_SPA_PLUGINS_PATH).absolutePath();
+    auto relSpaPluginsDir = QDir(binDir).relativeFilePath(spaPluginsDir);
+
+    if (appDir.cd(relSpaPluginsDir)) {
+        auto path = appDir.absolutePath();
+        path.replace("/", QDir::separator());
+
+        if (QFileInfo::exists(path)
+            && qEnvironmentVariableIsEmpty("SPA_PLUGIN_DIR"))
+            qputenv("SPA_PLUGIN_DIR", path.toLocal8Bit());
+    }
+
     this->d->pwInit(nullptr, nullptr);
     this->d->updateDevices();
 }

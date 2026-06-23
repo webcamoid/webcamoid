@@ -110,7 +110,7 @@ class FFmpegDev: public ScreenDev
         void resetCursorSize() override;
         bool init() override;
         bool uninit() override;
-        void updateWindows() override;
+        void updateDevices() override;
 };
 
 #endif // FFMPEGDEV_H

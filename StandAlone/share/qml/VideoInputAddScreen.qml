@@ -61,6 +61,7 @@ Dialog {
 
                 function update() {
                     model.clear()
+                    videoLayer.updateInputs()
                     let screens = videoLayer.screens
 
                     for (let screen in screens) {

@@ -64,6 +64,7 @@ set(NOV4L2 OFF CACHE BOOL "Disable V4L2 support")
 set(NOV4LUTILS OFF CACHE BOOL "Disable V4l-utils support")
 set(NOVIDEOEFFECTS OFF CACHE BOOL "No build video effects")
 set(NOWASAPI OFF CACHE BOOL "Disable WASAPI support")
+set(NOWLROOTS OFF CACHE BOOL "Disable Wayland capture support using wlroots protocol")
 set(NOXLIBSCREENCAP OFF CACHE BOOL "Disable screen capture using Xlib")
 
 # SIMD optimizations

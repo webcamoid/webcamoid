@@ -442,14 +442,14 @@ bool DesktopCaptureElement::setState(AkElement::ElementState state)
     return false;
 }
 
-void DesktopCaptureElement::updateWindows()
+void DesktopCaptureElement::updateDevices()
 {
     this->d->m_mutex.lock();
     auto screenCapture = this->d->m_screenCapture;
     this->d->m_mutex.unlock();
 
     if (screenCapture)
-        screenCapture->updateWindows();
+        screenCapture->updateDevices();
 }
 
 DesktopCaptureElementPrivate::DesktopCaptureElementPrivate(DesktopCaptureElement *self):

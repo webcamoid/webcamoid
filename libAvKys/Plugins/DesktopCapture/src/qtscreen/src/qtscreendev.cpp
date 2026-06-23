@@ -88,7 +88,6 @@ class QtScreenDevPrivate
                           const QSize &requestedSize) const;
         QImage cursorImage(const QSize &requestedSize) const;
         QImage cursorImage(QSize *size, const QSize &requestedSize) const;
-        void setupGeometrySignals();
         QStringList windows() const;
         qreal screenRotation() const;
         void frameReady(const QVideoFrame &frame);
@@ -103,21 +102,6 @@ QtScreenDev::QtScreenDev():
     this->d = new QtScreenDevPrivate(this);
     this->d->m_availableSizes =
         this->d->availableSizes(this->d->m_iconsPath, this->d->m_themeName);
-    this->d->setupGeometrySignals();
-    QObject::connect(qApp,
-                     &QGuiApplication::screenAdded,
-                     this,
-                     [=]() {
-                         this->d->setupGeometrySignals();
-                         this->d->updateDevices();
-                     });
-    QObject::connect(qApp,
-                     &QGuiApplication::screenRemoved,
-                     this,
-                     [=]() {
-                         this->d->setupGeometrySignals();
-                         this->d->updateDevices();
-                     });
     QObject::connect(&this->d->m_videoSink,
                      &QVideoSink::videoFrameChanged,
                      this,
@@ -384,7 +368,7 @@ bool QtScreenDev::uninit()
     return true;
 }
 
-void QtScreenDev::updateWindows()
+void QtScreenDev::updateDevices()
 {
     this->d->updateDevices();
 }
@@ -484,18 +468,6 @@ QImage QtScreenDevPrivate::cursorImage(QSize *size,
     QImage icon(path);
 
     return icon.convertToFormat(QImage::Format_ARGB32);
-}
-
-void QtScreenDevPrivate::setupGeometrySignals()
-{
-    size_t i = 0;
-
-    for (auto &screen: QGuiApplication::screens()) {
-        QObject::connect(screen,
-                         &QScreen::geometryChanged,
-                         [=]() { this->updateDevices(); });
-        i++;
-    }
 }
 
 QStringList QtScreenDevPrivate::windows() const

@@ -440,7 +440,7 @@ bool XlibDev::uninit()
     return true;
 }
 
-void XlibDev::updateWindows()
+void XlibDev::updateDevices()
 {
     this->d->updateDevices();
 }
