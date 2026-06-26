@@ -131,6 +131,10 @@ class MediaSourceFFmpegPrivate
         void unlockQueue();
         int roundDown(int value, int multiply);
         static int interruptCallback(void *userData);
+        static void ffmpegLogCallback(void *ptr,
+                                      int level,
+                                      const char *fmt,
+                                      va_list vl);
 };
 
 MediaSourceFFmpeg::MediaSourceFFmpeg(QObject *parent):
@@ -839,6 +843,12 @@ void MediaSourceFFmpegGlobal::init()
 MediaSourceFFmpegPrivate::MediaSourceFFmpegPrivate(MediaSourceFFmpeg *self):
     self(self)
 {
+#ifdef Q_OS_ANDROID
+    static std::once_flag mediaSourceFFmpegCallOnce;
+    std::call_once(mediaSourceFFmpegCallOnce, [] {
+        av_log_set_callback(ffmpegLogCallback);
+    });
+#endif
 }
 
 qint64 MediaSourceFFmpegPrivate::packetQueueSize() const
@@ -972,6 +982,44 @@ int MediaSourceFFmpegPrivate::interruptCallback(void *userData)
     Q_UNUSED(userData)
 
     return 1;
+}
+
+void MediaSourceFFmpegPrivate::ffmpegLogCallback(void *ptr,
+                                                 int level,
+                                                 const char *fmt,
+                                                 va_list vl)
+{
+    if (level > av_log_get_level())
+        return;
+
+    char line[4096];
+    int printPrefix = 1;
+    av_log_format_line(ptr, level, fmt, vl, line, sizeof(line), &printPrefix);
+
+    auto message = QString::fromUtf8(line).trimmed();
+
+    if (message.isEmpty())
+        return;
+
+    switch (level) {
+        case AV_LOG_PANIC:
+        case AV_LOG_FATAL:
+        case AV_LOG_ERROR:
+            qCritical() << "FFmpeg:" << message;
+            break;
+
+        case AV_LOG_WARNING:
+            qWarning() << "FFmpeg:" << message;
+            break;
+
+        case AV_LOG_INFO:
+            qInfo() << "FFmpeg:" << message;
+            break;
+
+        default: // AV_LOG_VERBOSE, AV_LOG_DEBUG, AV_LOG_TRACE
+            qDebug() << "FFmpeg:" << message;
+            break;
+    }
 }
 
 #include "moc_mediasourceffmpeg.cpp"

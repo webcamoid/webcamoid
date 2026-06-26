@@ -3136,8 +3136,8 @@
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="174"/>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="142"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="860"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="870"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="832"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="842"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="222"/>
         <source>Please choose an image file</source>
         <translation>براہ کرم ایک تصویری فائل منتخب کریں</translation>
@@ -3217,8 +3217,8 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="96"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="491"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="555"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="463"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="527"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="104"/>
         <source>Custom</source>
         <translation>اپنی مرضی کے مطابق</translation>
@@ -3693,253 +3693,218 @@
         <translation>کتا</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="375"/>
-        <source>Dalmatian dog</source>
-        <translation>ڈالمیشن کتا</translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="379"/>
-        <source>Happy dog</source>
-        <translation>خوش کتا</translation>
+        <source>Elephant</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="383"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="423"/>
+        <source>Mouse</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="435"/>
+        <source>Pumpkin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="451"/>
+        <source>Skull</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="375"/>
         <source>Dragon</source>
         <translation>اژدہا</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="387"/>
-        <source>Elephant 1</source>
-        <translation>ہاتھی 1</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="391"/>
-        <source>Elephant 2</source>
-        <translation>ہاتھی 2</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="395"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="383"/>
         <source>Elk</source>
         <translation>ایلک</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="399"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="387"/>
         <source>Frog</source>
         <translation>مینڈک</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="403"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="391"/>
         <source>Ghost</source>
         <translation>بھوت</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="407"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="395"/>
         <source>Giraffe</source>
         <translation>جراف</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="411"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="399"/>
         <source>Gnu</source>
         <translation>نیو</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="415"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="403"/>
         <source>Goat</source>
         <translation>بکری</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="419"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="407"/>
         <source>Hippo</source>
         <translation>دریائی گھوڑا</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="423"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="411"/>
         <source>Horse</source>
         <translation>گھوڑا</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="427"/>
-        <source>Gray horse</source>
-        <translation>سرمئی گھوڑا</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="431"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="415"/>
         <source>Koala</source>
         <translation>کوآلا</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="435"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="419"/>
         <source>Monkey</source>
         <translation>بندر</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="439"/>
-        <source>Gray mouse</source>
-        <translation>سرمئی چوہا</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="443"/>
-        <source>White mouse</source>
-        <translation>سفید چوہا</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="447"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="427"/>
         <source>Panda</source>
         <translation>پانڈا</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="451"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="431"/>
         <source>Penguin</source>
         <translation>پینگوئن</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="455"/>
-        <source>Pumpkin 1</source>
-        <translation>کدو 1</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="459"/>
-        <source>Pumpkin 2</source>
-        <translation>کدو 2</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="463"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="439"/>
         <source>Raccoon</source>
         <translation>ریکون</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="467"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="443"/>
         <source>Rhino</source>
         <translation>گینڈا</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="471"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="447"/>
         <source>Sheep</source>
         <translation>بھیڑ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="475"/>
-        <source>Skull 1</source>
-        <translation>کھوپڑی 1</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="479"/>
-        <source>Skull 2</source>
-        <translation>کھوپڑی 2</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="483"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="455"/>
         <source>Triceratops</source>
         <translation>ٹرائسیراٹوپس</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="487"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="459"/>
         <source>Zebra</source>
         <translation>زیبرا</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="501"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="473"/>
         <source>Marker picture</source>
         <translation>مارکر تصویر</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="519"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="491"/>
         <source>Replace face with this picture</source>
         <translation>چہرہ اس تصویر سے تبدیل کریں</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="520"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="492"/>
         <source>Search the image to put into the detected rectangle</source>
         <translation>ڈیٹیکٹ مستطیل میں ڈالنے کے لیے تصویر تلاش کریں</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="544"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="516"/>
         <source>Background</source>
         <translation>بیک گراؤنڈ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="551"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="523"/>
         <source>Black Square</source>
         <translation>کالا مربع</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="565"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="537"/>
         <source>Background picture</source>
         <translation>بیک گراؤنڈ تصویر</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="583"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="555"/>
         <source>Replace background with this picture</source>
         <translation>بیک گراؤنڈ اس تصویر سے تبدیل کریں</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="584"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="556"/>
         <source>Search the image to use as background</source>
         <translation>بیک گراؤنڈ کے طور پر استعمال کرنے کے لیے تصویر تلاش کریں</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="608"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="614"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="580"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="586"/>
         <source>Pixel grid size</source>
         <translation>پکسل گرڈ سائز</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="628"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="634"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="600"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="606"/>
         <source>Blur radius</source>
         <translation>دھندلاہٹ رداس</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="646"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="618"/>
         <source>Face Area Settings</source>
         <translation>چہرہ ایریا ترتیبات</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="651"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="623"/>
         <source>Advanced face area settings for background blur or image below.</source>
         <translation>بیک گراؤنڈ دھندلاہٹ یا نیچے کی تصویر کے لیے اعلی درجے کے چہرہ ایریا ترتیبات۔</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Vignette/share/qml/main.qml" line="63"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="660"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="769"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="632"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="741"/>
         <source>Scale</source>
         <translation>پیمانہ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="680"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="652"/>
         <source>Horizontal Offset</source>
         <translation>افقی آفسیٹ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="699"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="671"/>
         <source>Vertical Offset</source>
         <translation>عمودی آفسیٹ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="719"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="789"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="691"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="761"/>
         <source>Width Adjust %</source>
         <translation>چوڑائی ایڈجسٹ %</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="738"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="807"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="710"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="779"/>
         <source>Height Adjust %</source>
         <translation>اونچائی ایڈجسٹ %</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="758"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="730"/>
         <source>Round Area</source>
         <translation>گول ایریا</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="826"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="798"/>
         <source>Horizontal Radius %</source>
         <translation>افقی رداس %</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="843"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="815"/>
         <source>Vertical Radius %</source>
         <translation>عمودی رداس %</translation>
     </message>

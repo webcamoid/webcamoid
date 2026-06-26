@@ -195,6 +195,10 @@ class VideoMuxerFFmpegElementPrivate
         bool init();
         void uninit();
         void packetReady(const AkPacket &packet);
+        static void ffmpegLogCallback(void *ptr,
+                                      int level,
+                                      const char *fmt,
+                                      va_list vl);
 };
 
 VideoMuxerFFmpegElement::VideoMuxerFFmpegElement():
@@ -408,6 +412,13 @@ bool VideoMuxerFFmpegElement::setState(ElementState state)
 VideoMuxerFFmpegElementPrivate::VideoMuxerFFmpegElementPrivate(VideoMuxerFFmpegElement *self):
     self(self)
 {
+#ifdef Q_OS_ANDROID
+    static std::once_flag videoMuxerFFmpegElementCallOnce;
+    std::call_once(videoMuxerFFmpegElementCallOnce, [] {
+        av_log_set_callback(ffmpegLogCallback);
+    });
+#endif
+
     if (this->m_packetSync)
         QObject::connect(this->m_packetSync.data(),
                          &AkElement::oStream,
@@ -841,6 +852,44 @@ void VideoMuxerFFmpegElementPrivate::packetReady(const AkPacket &packet)
 
     av_packet_free(&avPacket);
     this->m_packetPos++;
+}
+
+void VideoMuxerFFmpegElementPrivate::ffmpegLogCallback(void *ptr,
+                                                       int level,
+                                                       const char *fmt,
+                                                       va_list vl)
+{
+    if (level > av_log_get_level())
+        return;
+
+    char line[4096];
+    int printPrefix = 1;
+    av_log_format_line(ptr, level, fmt, vl, line, sizeof(line), &printPrefix);
+
+    auto message = QString::fromUtf8(line).trimmed();
+
+    if (message.isEmpty())
+        return;
+
+    switch (level) {
+        case AV_LOG_PANIC:
+        case AV_LOG_FATAL:
+        case AV_LOG_ERROR:
+            qCritical() << "FFmpeg:" << message;
+            break;
+
+        case AV_LOG_WARNING:
+            qWarning() << "FFmpeg:" << message;
+            break;
+
+        case AV_LOG_INFO:
+            qInfo() << "FFmpeg:" << message;
+            break;
+
+        default: // AV_LOG_VERBOSE, AV_LOG_DEBUG, AV_LOG_TRACE
+            qDebug() << "FFmpeg:" << message;
+            break;
+    }
 }
 
 #include "moc_videomuxerffmpegelement.cpp"

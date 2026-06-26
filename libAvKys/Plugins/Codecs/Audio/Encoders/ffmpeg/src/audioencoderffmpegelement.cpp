@@ -214,6 +214,10 @@ class AudioEncoderFFmpegElementPrivate
         void updateOutputCaps();
         void encodeFrame(const AkAudioPacket &src);
         void sendFrame(const AVPacket *avPacket) const;
+        static void ffmpegLogCallback(void *ptr,
+                                      int level,
+                                      const char *fmt,
+                                      va_list vl);
 };
 
 AudioEncoderFFmpegElement::AudioEncoderFFmpegElement():
@@ -404,6 +408,13 @@ bool AudioEncoderFFmpegElement::setState(ElementState state)
 AudioEncoderFFmpegElementPrivate::AudioEncoderFFmpegElementPrivate(AudioEncoderFFmpegElement *self):
     self(self)
 {
+#ifdef Q_OS_ANDROID
+    static std::once_flag audioEncoderFFmpegElementCallOnce;
+    std::call_once(audioEncoderFFmpegElementCallOnce, [] {
+        av_log_set_callback(ffmpegLogCallback);
+    });
+#endif
+
     if (this->m_fillAudioGaps)
         QObject::connect(this->m_fillAudioGaps.data(),
                          &AkElement::oStream,
@@ -1078,6 +1089,44 @@ void AudioEncoderFFmpegElementPrivate::sendFrame(const AVPacket *avPacket) const
     packet.setIndex(this->m_index);
 
     emit self->oStream(packet);
+}
+
+void AudioEncoderFFmpegElementPrivate::ffmpegLogCallback(void *ptr,
+                                                         int level,
+                                                         const char *fmt,
+                                                         va_list vl)
+{
+    if (level > av_log_get_level())
+        return;
+
+    char line[4096];
+    int printPrefix = 1;
+    av_log_format_line(ptr, level, fmt, vl, line, sizeof(line), &printPrefix);
+
+    auto message = QString::fromUtf8(line).trimmed();
+
+    if (message.isEmpty())
+        return;
+
+    switch (level) {
+        case AV_LOG_PANIC:
+        case AV_LOG_FATAL:
+        case AV_LOG_ERROR:
+            qCritical() << "FFmpeg:" << message;
+            break;
+
+        case AV_LOG_WARNING:
+            qWarning() << "FFmpeg:" << message;
+            break;
+
+        case AV_LOG_INFO:
+            qInfo() << "FFmpeg:" << message;
+            break;
+
+        default: // AV_LOG_VERBOSE, AV_LOG_DEBUG, AV_LOG_TRACE
+            qDebug() << "FFmpeg:" << message;
+            break;
+    }
 }
 
 #include "moc_audioencoderffmpegelement.cpp"
