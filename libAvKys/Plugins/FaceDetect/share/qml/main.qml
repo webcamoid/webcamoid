@@ -372,24 +372,12 @@ ColumnLayout {
                 mask: ":/FaceDetect/share/masks/dog.png"
             }
             ListElement {
-                text: qsTr("Dalmatian dog")
-                mask: ":/FaceDetect/share/masks/dog-dalmatian.png"
-            }
-            ListElement {
-                text: qsTr("Happy dog")
-                mask: ":/FaceDetect/share/masks/dog-happy.png"
-            }
-            ListElement {
                 text: qsTr("Dragon")
                 mask: ":/FaceDetect/share/masks/dragon.png"
             }
             ListElement {
-                text: qsTr("Elephant 1")
-                mask: ":/FaceDetect/share/masks/elephant1.png"
-            }
-            ListElement {
-                text: qsTr("Elephant 2")
-                mask: ":/FaceDetect/share/masks/elephant2.png"
+                text: qsTr("Elephant")
+                mask: ":/FaceDetect/share/masks/elephant.png"
             }
             ListElement {
                 text: qsTr("Elk")
@@ -424,10 +412,6 @@ ColumnLayout {
                 mask: ":/FaceDetect/share/masks/horse.png"
             }
             ListElement {
-                text: qsTr("Gray horse")
-                mask: ":/FaceDetect/share/masks/horse-gray.png"
-            }
-            ListElement {
                 text: qsTr("Koala")
                 mask: ":/FaceDetect/share/masks/koala.png"
             }
@@ -436,12 +420,8 @@ ColumnLayout {
                 mask: ":/FaceDetect/share/masks/monkey.png"
             }
             ListElement {
-                text: qsTr("Gray mouse")
-                mask: ":/FaceDetect/share/masks/mouse-gray.png"
-            }
-            ListElement {
-                text: qsTr("White mouse")
-                mask: ":/FaceDetect/share/masks/mouse-white.png"
+                text: qsTr("Mouse")
+                mask: ":/FaceDetect/share/masks/mouse.png"
             }
             ListElement {
                 text: qsTr("Panda")
@@ -452,12 +432,8 @@ ColumnLayout {
                 mask: ":/FaceDetect/share/masks/penguin.png"
             }
             ListElement {
-                text: qsTr("Pumpkin 1")
-                mask: ":/FaceDetect/share/masks/pumpkin1.png"
-            }
-            ListElement {
-                text: qsTr("Pumpkin 2")
-                mask: ":/FaceDetect/share/masks/pumpkin2.png"
+                text: qsTr("Pumpkin")
+                mask: ":/FaceDetect/share/masks/pumpkin.png"
             }
             ListElement {
                 text: qsTr("Raccoon")
@@ -472,12 +448,8 @@ ColumnLayout {
                 mask: ":/FaceDetect/share/masks/sheep.png"
             }
             ListElement {
-                text: qsTr("Skull 1")
-                mask: ":/FaceDetect/share/masks/skull1.png"
-            }
-            ListElement {
-                text: qsTr("Skull 2")
-                mask: ":/FaceDetect/share/masks/skull2.png"
+                text: qsTr("Skull")
+                mask: ":/FaceDetect/share/masks/skull.png"
             }
             ListElement {
                 text: qsTr("Triceratops")
