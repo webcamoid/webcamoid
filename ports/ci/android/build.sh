@@ -50,6 +50,8 @@ if [ "${ENABLE_ADS}" == 1 ]; then
     else
         echo "Setting test ads"
     fi
+
+    rm -rf libAvKys/ExtraPlugins/*
 fi
 
 export JAVA_HOME=$(readlink -f /usr/bin/java | sed 's:bin/java::')
