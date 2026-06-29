@@ -33,6 +33,7 @@ ScrollView {
     signal openVideoOutputAddEditDialog(string videoOutput)
     signal openVirtualCameraOptions(string videoOutput)
     signal openStreamingPlatformOptions(string videoOutput)
+    signal openLocalStreamingOptions()
     signal openVCamDownloadDialog()
     signal openVCamManualDownloadDialog()
 
@@ -67,6 +68,15 @@ ScrollView {
         target: streaming
 
         function onPlatformsChanged() {
+            devicesList.update()
+        }
+    }
+
+    // Update list when local streaming location changes
+    Connections {
+        target: localStreaming
+
+        function onLocationChanged() {
             devicesList.update()
         }
     }
@@ -117,6 +127,17 @@ ScrollView {
 
                     onClicked: addStreamingPlatformDialog.open()
                 }
+                MenuItem {
+                    text: qsTr("Add local streaming")
+                    icon.source: "image://icons/broadcast"
+                    height: localStreaming.isLocalStreamingSupported? undefined: 0
+                    visible: localStreaming.isLocalStreamingSupported
+
+                    onClicked: {
+                        localStreaming.location = localStreaming.defaultURL
+                        devicesList.update()
+                    }
+                }
             }
         }
         OptionList {
@@ -149,6 +170,7 @@ ScrollView {
 
                 updating = true
 
+                // Add virtual camera outputs
                 for (let i in devices) {
                     let component = Qt.createComponent("VideoDeviceItem.qml")
 
@@ -165,6 +187,23 @@ ScrollView {
                     })(i))
                 }
 
+                // Add local streaming if location is set
+                if (localStreaming.location.length > 0) {
+                    let component = Qt.createComponent("LocalStreamingItem.qml")
+
+                    if (component.status === Component.Ready) {
+                        let obj = component.createObject(devicesList)
+                        obj.text = qsTr("Local Streaming")
+                        obj.location = localStreaming.location
+                        devicesList.minHeight += obj.height
+
+                        obj.onClicked.connect(function () {
+                            view.openLocalStreamingOptions()
+                        })
+                    }
+                }
+
+                // Add streaming platforms
                 for (let i in streaming.platforms) {
                     let platform = streaming.platforms[i]
                     let component = Qt.createComponent("StreamingPlatformItem.qml")

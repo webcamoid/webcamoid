@@ -35,6 +35,9 @@
         <file>share/qml/CaptureSettingsDialog.qml</file>
         <file>share/qml/License.qml</file>
         <file>share/qml/LocalSettingsMenu.qml</file>
+        <file>share/qml/LocalStreamingAdvanced.qml</file>
+        <file>share/qml/LocalStreamingItem.qml</file>
+        <file>share/qml/LocalStreamingOptions.qml</file>
         <file>share/qml/LogSavedDialog.qml</file>
         <file>share/qml/MainPanel.qml</file>
         <file>share/qml/OptionList.qml</file>

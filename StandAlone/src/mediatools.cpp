@@ -56,6 +56,7 @@
 #include "clioptions.h"
 #include "downloadmanager.h"
 #include "iconsprovider.h"
+#include "localstreaming.h"
 #include "pluginconfigs.h"
 #include "recording.h"
 #include "streaming.h"
@@ -127,6 +128,7 @@ class MediaToolsPrivate
         PluginConfigsPtr m_pluginConfigs;
         RecordingPtr m_recording;
         StreamingPtr m_streaming;
+        LocalStreamingPtr m_localStreaming;
         UpdatesPtr m_updates;
         VideoEffectsPtr m_videoEffects;
         VideoLayerPtr m_videoLayer;
@@ -806,6 +808,7 @@ bool MediaTools::init(const CliOptions &cliOptions)
             VideoEffectsPtr(new VideoEffects(this->d->m_engine));
     this->d->m_recording = RecordingPtr(new Recording(this->d->m_engine));
     this->d->m_streaming = StreamingPtr(new Streaming(this->d->m_engine));
+    this->d->m_localStreaming = LocalStreamingPtr(new LocalStreaming(this->d->m_engine));
     this->d->m_virtualCameras = VirtualCamerasPtr(new VirtualCameras(this->d->m_engine));
     this->d->m_updates = UpdatesPtr(new Updates(this->d->m_engine));
     this->d->m_downloadManager =
@@ -857,11 +860,17 @@ bool MediaTools::init(const CliOptions &cliOptions)
     AkElement::link(this->d->m_videoEffects.data(),
                     this->d->m_streaming.data(),
                     Qt::DirectConnection);
+    AkElement::link(this->d->m_videoEffects.data(),
+                    this->d->m_localStreaming.data(),
+                    Qt::DirectConnection);
     AkElement::link(this->d->m_audioInputs.data(),
                     this->d->m_recording.data(),
                     Qt::DirectConnection);
     AkElement::link(this->d->m_audioInputs.data(),
                     this->d->m_streaming.data(),
+                    Qt::DirectConnection);
+    AkElement::link(this->d->m_audioInputs.data(),
+                    this->d->m_localStreaming.data(),
                     Qt::DirectConnection);
     QObject::connect(this->d->m_videoLayer.data(),
                      &VideoLayer::stateChanged,
@@ -871,6 +880,10 @@ bool MediaTools::init(const CliOptions &cliOptions)
                      &VideoLayer::stateChanged,
                      this->d->m_virtualCameras.data(),
                      &VirtualCameras::setState);
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::stateChanged,
+                     this->d->m_localStreaming.data(),
+                     &LocalStreaming::setState);
     QObject::connect(this->d->m_videoLayer.data(),
                      &VideoLayer::stateChanged,
                      this->d->m_audioOutputs.data(),
@@ -883,12 +896,20 @@ bool MediaTools::init(const CliOptions &cliOptions)
                      &Streaming::stateChanged,
                      this->d->m_audioInputs.data(),
                      &AudioInputs::setInputState);
+    QObject::connect(this->d->m_localStreaming.data(),
+                     &LocalStreaming::stateChanged,
+                     this->d->m_audioInputs.data(),
+                     &AudioInputs::setInputState);
     QObject::connect(this->d->m_recording.data(),
                      &Recording::stateChanged,
                      this->d->m_audioInputs.data(),
                      &AudioInputs::setOutputState);
     QObject::connect(this->d->m_streaming.data(),
                      &Streaming::stateChanged,
+                     this->d->m_audioInputs.data(),
+                     &AudioInputs::setOutputState);
+    QObject::connect(this->d->m_localStreaming.data(),
+                     &LocalStreaming::stateChanged,
                      this->d->m_audioInputs.data(),
                      &AudioInputs::setOutputState);
     QObject::connect(this->d->m_virtualCameras.data(),

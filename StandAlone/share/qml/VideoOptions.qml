@@ -33,6 +33,7 @@ ColumnLayout {
     signal openVideoInputOptions(string videoInput)
     signal openVirtualCameraOptions(string videoOutput)
     signal openStreamingPlatformOptions(string videoOutput)
+    signal openLocalStreamingOptions()
     signal openVCamDownloadDialog()
     signal openVCamManualDownloadDialog()
 
@@ -77,6 +78,8 @@ ColumnLayout {
                 videoOptions.openVirtualCameraOptions(videoOutput)
             onOpenStreamingPlatformOptions: videoOutput =>
                 videoOptions.openStreamingPlatformOptions(videoOutput)
+            onOpenLocalStreamingOptions:
+                videoOptions.openLocalStreamingOptions()
             onOpenVCamDownloadDialog: videoOptions.openVCamDownloadDialog()
             onOpenVCamManualDownloadDialog: videoOptions.openVCamManualDownloadDialog()
         }

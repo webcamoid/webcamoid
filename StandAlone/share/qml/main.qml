@@ -639,6 +639,7 @@ ApplicationWindow {
             mediaTools.showAd(MediaTools.AdType_Interstitial);
             videoEffectsDialog.open()
         }
+        onOpenLocalStreamingAdvancedDialog: localStreamingAdvanced.open()
     }
     Rectangle {
         id: flashRectangle
@@ -815,6 +816,11 @@ ApplicationWindow {
     StreamingFailedDialog {
         id: streamingFailedDialog
         anchors.centerIn: Overlay.overlay
+    }
+    LocalStreamingAdvanced {
+        id: localStreamingAdvanced
+        width: parent.width
+        height: parent.height
     }
     UpdatesDialog {
         id: updatesDialog

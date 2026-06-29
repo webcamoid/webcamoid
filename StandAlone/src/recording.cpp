@@ -59,16 +59,6 @@
 #define DEFAULT_VIDEO_GOP 1000
 #define DEFAULT_RECORD_AUDIO true
 
-struct CodecInfo
-{
-    QString pluginID;
-    AkCaps::CapsType type;
-    AkCodecID codecID;
-    QString name;
-    QString description;
-    int priority;
-};
-
 struct FormatInfo
 {
     QString pluginID;
@@ -80,6 +70,16 @@ struct FormatInfo
     QStringList videoPluginsID;
     QString defaultAudioPluginID;
     QString defaultVideoPluginID;
+};
+
+struct CodecInfo
+{
+    QString pluginID;
+    AkCaps::CapsType type;
+    AkCodecID codecID;
+    QString name;
+    QString description;
+    int priority;
 };
 
 struct PluginPriority
@@ -101,8 +101,8 @@ class RecordingPrivate
         int m_audioBitrate {DEFAULT_AUDIO_BITRATE};
         int m_videoBitrate {DEFAULT_VIDEO_BITRATE};
         int m_videoGOP {DEFAULT_VIDEO_GOP};
-        QVector<CodecInfo> m_supportedCodecs;
         QVector<FormatInfo> m_supportedFormats;
+        QVector<CodecInfo> m_supportedCodecs;
         QString m_defaultFormat;
         AkVideoMuxerPtr m_muxer;
         QString m_muxerPluginID;
@@ -689,6 +689,10 @@ void Recording::setVideoFormat(const QString &videoFormat)
 
 void Recording::setCodec(AkCaps::CapsType type, const QString &codec)
 {
+    auto parts     = codec.split(':');
+    auto pluginID  = parts.value(0);
+    auto codecName = parts.value(1);
+
     switch (type) {
     case AkCaps::CapsAudio: {
         auto curCodec =
@@ -699,19 +703,15 @@ void Recording::setCodec(AkCaps::CapsType type, const QString &codec)
         if (codec == curCodec)
             return;
 
-        auto codecParts = codec.split(':');
-        auto codecPluginID = codecParts.value(0);
-        auto codecName = codecParts.value(1);
+        auto enc = akPluginManager->create<AkAudioEncoder>(pluginID);
 
-        auto encoder = akPluginManager->create<AkAudioEncoder>(codecPluginID);
-
-        if (encoder)
-            encoder->setCodec(codecName);
+        if (enc)
+            enc->setCodec(codecName);
         else
-            qDebug() << "Failed to create the muxer:" << codecPluginID;
+            qWarning() << "Failed to create audio encoder:" << pluginID;
 
-        this->d->m_audioEncoder = encoder;
-        this->d->m_audioPluginID = codecPluginID;
+        this->d->m_audioEncoder = enc;
+        this->d->m_audioPluginID = pluginID;
         emit this->codecChanged(type, codec);
         this->d->saveCodec(type, codec);
         this->d->loadCodecOptions(AkCaps::CapsAudio);
@@ -728,19 +728,15 @@ void Recording::setCodec(AkCaps::CapsType type, const QString &codec)
         if (codec == curCodec)
             return;
 
-        auto codecParts = codec.split(':');
-        auto codecPluginID = codecParts.value(0);
-        auto codecName = codecParts.value(1);
+        auto enc = akPluginManager->create<AkVideoEncoder>(pluginID);
 
-        auto encoder = akPluginManager->create<AkVideoEncoder>(codecPluginID);
-
-        if (encoder)
-            encoder->setCodec(codecName);
+        if (enc)
+            enc->setCodec(codecName);
         else
-            qDebug() << "Failed to create the muxer:" << codecPluginID;
+            qWarning() << "Failed to create audio encoder:" << pluginID;
 
-        this->d->m_videoEncoder = encoder;
-        this->d->m_videoPluginID = codecPluginID;
+        this->d->m_videoEncoder = enc;
+        this->d->m_videoPluginID = pluginID;
         emit this->codecChanged(type, codec);
         this->d->saveCodec(type, codec);
         this->d->loadCodecOptions(AkCaps::CapsVideo);

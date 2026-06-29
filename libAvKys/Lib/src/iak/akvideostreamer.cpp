@@ -18,6 +18,7 @@
  */
 
 #include <QElapsedTimer>
+#include <QFileInfo>
 #include <QMetaEnum>
 #include <QTimer>
 #include <QUrl>
@@ -87,6 +88,27 @@ AkStreamingStats AkVideoStreamer::stats() const
 bool AkVideoStreamer::supportsUrl(const QString &url) const
 {
     return !this->protocolForUrl(url).isEmpty();
+}
+
+QString AkVideoStreamer::defaultFormat(const QString &protocol) const
+{
+    return this->supportedFormats(protocol).value(0);
+}
+
+QString AkVideoStreamer::formatForUrl(const QString &url) const
+{
+    auto protocol = this->protocolForUrl(url);
+
+    if (protocol.isEmpty())
+        return {};
+
+    auto ext = QFileInfo(QUrl(url).path()).suffix().toLower();
+    auto formats = this->supportedFormats(protocol);
+
+    if (!ext.isEmpty() && formats.contains(ext))
+        return ext;
+
+    return this->defaultFormat(protocol);
 }
 
 AkCompressedCaps AkVideoStreamer::streamCaps(AkCodecType type) const

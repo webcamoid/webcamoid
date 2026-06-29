@@ -35,11 +35,14 @@ OptionsPanel {
                qsTr("Virtual Camera Options"):
            layout.currentIndex < 6?
                qsTr("Streaming Platform Options"):
+           layout.currentIndex < 7?
+               qsTr("Local Streaming Options"):
                qsTr("%1 options").arg(effectOptions.effectDescription)
     edge: Qt.RightEdge
 
     signal openErrorDialog(string title, string message)
     signal openVideoEffectsDialog()
+    signal openLocalStreamingAdvancedDialog()
 
     function previousPage()
     {
@@ -138,6 +141,10 @@ OptionsPanel {
                 layout.currentIndex = 5
                 streamingPlatformOptions.setOutput(videoOutput)
             }
+            onOpenLocalStreamingOptions: {
+                closeAndOpen()
+                layout.currentIndex = 6
+            }
             onOpenVCamDownloadDialog: vcamDownload.openDownloads()
             onOpenVCamManualDownloadDialog: vcamManualDownload.open()
         }
@@ -145,7 +152,7 @@ OptionsPanel {
             onOpenVideoEffectsDialog: panel.openVideoEffectsDialog()
             onOpenVideoEffectOptions: function (effectIndex) {
                 closeAndOpen()
-                layout.currentIndex = 6
+                layout.currentIndex = 7
                 effectOptions.effectIndex = effectIndex
             }
         }
@@ -188,6 +195,19 @@ OptionsPanel {
             }
 
             onVideoOutputRemoved: closeOption()
+        }
+        LocalStreamingOptions {
+            id: localStreamingOptions
+
+            function closeOption()
+            {
+                closeAndOpen()
+                layout.currentIndex = 1
+            }
+
+            onRemoved: closeOption()
+            onOpenLocalStreamingAdvancedDialog:
+                panel.openLocalStreamingAdvancedDialog()
         }
         VideoEffectOptions {
             id: effectOptions

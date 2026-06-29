@@ -29,6 +29,7 @@ RowLayout {
     property alias labelText: label.text
     property alias placeholderText: label.placeholderText
     property alias buttonText: button.text
+    property alias readOnly: label.readOnly
 
     readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
 

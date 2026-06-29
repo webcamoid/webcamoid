@@ -56,6 +56,8 @@ set(PROJECT_SOURCES
     downloadmanager.h
     iconsprovider.cpp
     iconsprovider.h
+    localstreaming.cpp
+    localstreaming.h
     main.cpp
     mediatools.cpp
     mediatools.h

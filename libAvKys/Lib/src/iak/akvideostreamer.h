@@ -55,6 +55,7 @@ class AKCOMMONS_EXPORT AkVideoStreamer: public AkElement
         enum ProtocolID
         {
             ProtocolID_unknown = AK_MAKE_FOURCC(0, 0, 0, 0),
+            ProtocolID_http    = AK_MAKE_FOURCC('H', 'T', 'T', 'P'), // HTTP
             ProtocolID_rtmp    = AK_MAKE_FOURCC('R', 'T', 'M', 'P'), // Adobe RTMP
             ProtocolID_hls     = AK_MAKE_FOURCC('H', 'L', 'S', 0),   // HTTP Live Streaming
             ProtocolID_dash    = AK_MAKE_FOURCC('D', 'A', 'S', 'H'), // DASH container
@@ -88,9 +89,12 @@ class AKCOMMONS_EXPORT AkVideoStreamer: public AkElement
         // Capabilities per URL
         Q_INVOKABLE bool supportsUrl(const QString &url) const;
         Q_INVOKABLE virtual QString protocolForUrl(const QString &url) const = 0;
-        Q_INVOKABLE virtual QList<AkCodecID> supportedCodecs(const QString &protocol,
+        Q_INVOKABLE virtual QStringList supportedFormats(const QString &protocol) const = 0;
+        Q_INVOKABLE virtual QString defaultFormat(const QString &protocol) const;
+        Q_INVOKABLE virtual QString formatForUrl(const QString &url) const;
+        Q_INVOKABLE virtual QList<AkCodecID> supportedCodecs(const QString &format,
                                                              AkCodecType type) const = 0;
-        Q_INVOKABLE virtual AkCodecID defaultCodec(const QString &protocol,
+        Q_INVOKABLE virtual AkCodecID defaultCodec(const QString &format,
                                                    AkCodecType type) const = 0;
 
         // Stream configuration
