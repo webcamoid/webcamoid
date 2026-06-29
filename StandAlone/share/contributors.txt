@@ -17,6 +17,7 @@ Axus Wizix <axus.wizix@mail.ru>
 Barak A. Pearlmutter <barak+git@pearlmutter.net>
 bearhoney <34187569+bearhoney@users.noreply.github.com>
 bgo-eiu <huyaqoob+toolforge@gmail.com>
+ButterflyOfFire <boffire@users.noreply.hosted.weblate.org>
 Cartache <https://github.com/Cartache>
 CE4 <chregger@gmail.com>
 Champ0999 <champ0999@users.noreply.hosted.weblate.org>

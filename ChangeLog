@@ -1,3 +1,50 @@
+Webcamoid 9.4.0:
+
+- New features:
+  - Added local HTTP streaming support, allowing video and audio to be served over the local network to browsers and players like VLC, as a more stable and portable alternative to the virtual camera.
+  - Added basic support for streaming to RTMP platforms, with stream keys/URLs configurable from the video outputs, support for multiple simultaneous streams, and a streaming button that informs the user when a platform needs to be added or configured.
+  - Reworked the audio layer: removed JACK, SDL, and Qt Audio dependencies; users can now select and combine multiple audio inputs with individual volume control, plus volume control on the audio output; PulseAudio can now be loaded dynamically.
+  - Added a media gallery with playback controls.
+  - Added simple quality sliders with presets for video recording and streaming.
+  - Added an OpenGL ES 2.0 effects pipeline and ported many effects to it (AnalogTV, Aging, Cartoon, Charify, Cinema, Dice, Edge, Emboss, FaceTrack, Fire, GrayScale, Hypnotic, Matrix, Otsu, Pixelate, Radiactive, Swirl, Vignette, Warhol), optimizing the pipeline for both desktop and Android.
+  - Added screen capture support for wlroots-based Wayland compositors via the wlr-screencopy protocol.
+  - Added support for capturing individual windows in desktop capture.
+  - Switched to Homebrew as the base for GNU/Linux and macOS binary builds, improving cross-distro compatibility.
+  - Added support for right-to-left languages.
+  - Added single instance mode.
+
+- Removed:
+  - Removed the unstable, barely maintained virtual camera in macOS in favor of local streaming, which is more stable, portable, and supports both audio and video.
+  - Removed AudioGen, and the GStreamer/VLC playback plugins.
+  - Removed MultiSink in favor of using muxers/encoders directly.
+
+- Bug fixes:
+  - Fixed audio/video synchronization for both FFmpeg and NDK playback.
+  - Fixed a bug preventing simultaneous video audio playback and microphone capture on some configurations (e.g. headsets).
+  - Fixed PipeWire camera capture.
+  - Fixed multiplanar format support with Qt camera capture.
+  - Fixed V4L2 format detection, falling back to VIDIOC_S_FMT and predefined formats when VIDIOC_TRY_FMT/VIDIOC_ENUM_FRAMESIZES fail.
+  - Fixed virtual camera creation errors and default picture setting in Windows.
+
+- Improvements in the UI and user experience:
+  - Adapted camera controls, preferences, and About menus, plus item delegates, for small screens.
+  - Moved flash-related options into the Settings dialog.
+  - Allowed hiding on-screen controls when the pointer moves away.
+  - Added printing of detected camera information for easier debugging.
+  - Recommend using local streaming over the virtual camera in Windows.
+
+- Android:
+  - Re-enabled screen capture using QScreenCapture.
+  - Improved stability on Android 16, fixed foreground media-projection service handling, and redirected ffmpeg output to QDebug.
+
+- Translations support:
+  - Completed translations for dozens of languages (Arabic, Chinese Simplified/Traditional, French, German, Hebrew, Hindi, Indonesian, Japanese, Korean, Portuguese, Russian, Turkish, Vietnamese, and many more), and updated several existing ones via Weblate.
+
+- Other changes:
+  - Limited image save formats to png, jpg, webp, and avif.
+  - Removed unnecessary assets.
+  - Added a privacy policy.
+
 Webcamoid 9.3.0:
 
 - New features:
