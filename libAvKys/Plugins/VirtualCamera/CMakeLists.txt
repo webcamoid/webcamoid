@@ -22,6 +22,5 @@ project(VirtualCamera)
 
 add_subdirectory(src)
 add_subdirectory(src/akvcam)
-add_subdirectory(src/cmio)
 add_subdirectory(src/dshow)
 add_subdirectory(src/v4l2lb)
