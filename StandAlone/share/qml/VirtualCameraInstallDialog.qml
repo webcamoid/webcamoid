@@ -26,8 +26,8 @@ import Webcamoid
 Dialog {
     id: root
     standardButtons: isDefaultVCam? (Dialog.Yes | Dialog.No): Dialog.Ok
-    width: AkUnit.create(320 * AkTheme.controlScale, "dp").pixels
-    height: AkUnit.create(200 * AkTheme.controlScale, "dp").pixels
+    width: AkUnit.create(400 * AkTheme.controlScale, "dp").pixels
+    height: AkUnit.create(300 * AkTheme.controlScale, "dp").pixels
     modal: true
     title: qsTr("Virtual camera install")
 
@@ -48,7 +48,11 @@ Dialog {
             clip: true
 
             Label {
-                text: root.isDefaultVCam?
+                text: Ak.platform == "windows"?
+                          qsTr("The virtual camera in Windows may not work properly and may cause inestability in the system.<br/>")
+                          + qsTr("If you want to share audio and video of your current seesion, consider using </b>local streaming</b> which is more stable and powerful.<br/><br/>")
+                          + qsTr("Are you sure that you want to continue?"):
+                      root.isDefaultVCam?
                           qsTr("The virtual camera is not installed, do you want to install it?"):
                           qsTr("The virtual camera is not installed. Please, install <b>v4l2loopback</b>.")
                 wrapMode: Text.WordWrap
@@ -58,11 +62,7 @@ Dialog {
     }
 
     onAccepted: {
-        if (root.isDefaultVCam) {
-            if (Ak.platform() != "macos" && virtualCameras.downloadVCam())
-                root.openVCamDownloadDialog()
-            else
-                root.openVCamManualDownloadDialog()
-        }
+        if (root.isDefaultVCam)
+            root.openVCamManualDownloadDialog()
     }
 }
