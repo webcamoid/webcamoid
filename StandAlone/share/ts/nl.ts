@@ -1161,37 +1161,37 @@
 <context>
     <name>LocalStreamingOptions</name>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="98"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="99"/>
         <source>Remove</source>
         <translation type="unfinished">Verwijderen</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="115"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="116"/>
         <source>Port</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="134"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="135"/>
         <source>Format</source>
         <translation type="unfinished">Formaat</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="192"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="193"/>
         <source>Resource name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="215"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="216"/>
         <source>Streaming URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="233"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="234"/>
         <source>Open URL in the webbrowser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="243"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="244"/>
         <source>Advanced options</source>
         <translation type="unfinished">Geavanceerde opties</translation>
     </message>
@@ -2671,11 +2671,26 @@
     </message>
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="52"/>
+        <source>The virtual camera in Windows may not work properly and may cause inestability in the system.&lt;br/&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VirtualCameraInstallDialog.qml" line="53"/>
+        <source>If you want to share audio and video of your current seesion, consider using &lt;/b&gt;local streaming&lt;/b&gt; which is more stable and powerful.&lt;br/&gt;&lt;br/&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VirtualCameraInstallDialog.qml" line="54"/>
+        <source>Are you sure that you want to continue?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VirtualCameraInstallDialog.qml" line="56"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
         <translation type="unfinished">De virtuele camera is niet geïnstalleerd. Wil je deze nu installeren?</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraInstallDialog.qml" line="53"/>
+        <location filename="../qml/VirtualCameraInstallDialog.qml" line="57"/>
         <source>The virtual camera is not installed. Please, install &lt;b&gt;v4l2loopback&lt;/b&gt;.</source>
         <translation type="unfinished">De virtuele camera is niet geïnstalleerd. Installeer &lt;b&gt;v4l2loopback&lt;/b&gt;.</translation>
     </message>
@@ -2734,7 +2749,7 @@
 <context>
     <name>VirtualCameras</name>
     <message>
-        <location filename="../../src/virtualcameras.cpp" line="571"/>
+        <location filename="../../src/virtualcameras.cpp" line="567"/>
         <source>Virtual Camera</source>
         <translation type="unfinished">Virtuele camera</translation>
     </message>
