@@ -87,6 +87,7 @@ class LocalStreamingPrivate
         QString m_localResource {"stream"};
         QString m_localFormat {"webm"};
         QString m_location;
+        bool m_enabled {false};
 
         // Caps / state
         AkAudioCaps m_audioCaps;
@@ -411,6 +412,7 @@ void LocalStreaming::setLocation(const QString &location)
     if (this->d->m_location == location)
         return;
 
+    this->d->m_enabled = !location.isEmpty();
     this->d->m_location = location;
     emit this->locationChanged(location);
     this->d->saveLocation(location);
@@ -981,6 +983,16 @@ QString LocalStreamingPrivate::getLocalIPAddress() const
 
 void LocalStreamingPrivate::updateLocation()
 {
+    if (!this->m_enabled) {
+        if (this->m_location.isEmpty())
+            return;
+
+        this->m_location.clear();
+        emit self->locationChanged(this->m_location);
+
+        return;
+    }
+
     auto newLocation = QString("http://%1:%2/%3.%4")
                            .arg(this->getLocalIPAddress())
                            .arg(this->m_localPort)
@@ -1132,6 +1144,7 @@ void LocalStreamingPrivate::loadConfigs()
     config.beginGroup("LocalStreamingConfigs");
 
     // Location
+    this->m_enabled = config.value("enabled", false).toBool();
     this->m_localPort = config.value("localPort", 8080).toUInt();
     this->m_localResource = config.value("localResource", "stream").toString();
     auto ext = this->extensionForFormat(this->m_defaultFormat);
@@ -1249,7 +1262,7 @@ bool LocalStreamingPrivate::init()
     qInfo() << "Starting local streaming";
     this->printStreamingParameters();
 
-    if (this->m_location.isEmpty()) {
+    if (!this->m_enabled || this->m_location.isEmpty()) {
         qCritical() << "Location (URL) not set";
 
         return false;
@@ -1374,6 +1387,17 @@ void LocalStreamingPrivate::uninit()
 
 void LocalStreamingPrivate::saveLocation(const QString &location)
 {
+    QSettings config;
+    config.beginGroup("LocalStreamingConfigs");
+
+    config.setValue("enabled", !location.isEmpty());
+
+    if (location.isEmpty()) {
+        config.endGroup();
+
+        return;
+    }
+
     QUrl url(location);
     auto port = quint16(url.port(8080));
     auto path = url.path();
@@ -1394,8 +1418,6 @@ void LocalStreamingPrivate::saveLocation(const QString &location)
     if (resource.isEmpty())
         resource = "stream";
 
-    QSettings config;
-    config.beginGroup("LocalStreamingConfigs");
     config.setValue("localPort", port);
     config.setValue("localResource", resource);
     config.setValue("localFormat", format);
