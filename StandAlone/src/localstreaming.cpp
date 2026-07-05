@@ -25,6 +25,7 @@
 #include <QQmlContext>
 #include <QSettings>
 #include <QThreadPool>
+#include <QTimer>
 #include <ak.h>
 #include <akaudiocaps.h>
 #include <akcaps.h>
@@ -82,6 +83,9 @@ class LocalStreamingPrivate
     public:
         LocalStreaming *self;
         QQmlApplicationEngine *m_engine {nullptr};
+        quint32 m_localPort {8080};
+        QString m_localResource {"stream"};
+        QString m_localFormat {"webm"};
         QString m_location;
 
         // Caps / state
@@ -113,6 +117,7 @@ class LocalStreamingPrivate
         QThreadPool m_threadPool;
         AkVideoPacket m_curPacket;
         AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
+        QTimer m_ipCheckTimer;
 
         explicit LocalStreamingPrivate(LocalStreaming *self);
         void loadConfigs();
@@ -120,6 +125,8 @@ class LocalStreamingPrivate
         void initSupportedCodecs();
         void initSupportedFormats();
         QString getLocalIPAddress() const;
+        void updateLocation();
+        QString extensionForFormat(const QString &formatId) const;
         static AkVideoStreamerPtr streamerPluginForUrl(const QString &url);
         QString formatFromLocation(const QString &location) const;
         QString defaultCodec(const QString &format,
@@ -145,6 +152,15 @@ LocalStreaming::LocalStreaming(QQmlApplicationEngine *engine, QObject *parent):
     this->d = new LocalStreamingPrivate(this);
     this->setQmlEngine(engine);
     this->d->loadConfigs();
+
+    this->d->m_ipCheckTimer.setInterval(5000);
+    QObject::connect(&this->d->m_ipCheckTimer,
+                     &QTimer::timeout,
+                    this,
+                     [this] () {
+        this->d->updateLocation();
+    });
+    this->d->m_ipCheckTimer.start();
 }
 
 LocalStreaming::~LocalStreaming()
@@ -952,22 +968,40 @@ QString LocalStreamingPrivate::getLocalIPAddress() const
         if (iface.flags() & QNetworkInterface::IsLoopBack)
             continue;
 
-        auto entries = iface.addressEntries();
+        for (const auto &entry: iface.addressEntries()) {
+            auto ip = entry.ip();
 
-        for (auto &entry: entries) {
-            auto addr = entry.ip();
-
-            if (addr.protocol() == QAbstractSocket::IPv4Protocol
-                && !addr.isLoopback()
-                && addr.isInSubnet(QHostAddress("192.168.0.0"), 16)
-                || addr.isInSubnet(QHostAddress("10.0.0.0"), 8)
-                || addr.isInSubnet(QHostAddress("172.16.0.0"), 12)) {
-                return addr.toString();
-            }
+            if (ip.protocol() == QAbstractSocket::IPv4Protocol)
+                return ip.toString();
         }
     }
 
     return QHostAddress(QHostAddress::LocalHost).toString();
+}
+
+void LocalStreamingPrivate::updateLocation()
+{
+    auto newLocation = QString("http://%1:%2/%3.%4")
+                           .arg(this->getLocalIPAddress())
+                           .arg(this->m_localPort)
+                           .arg(this->m_localResource)
+                           .arg(this->m_localFormat);
+
+    if (newLocation == this->m_location)
+        return;
+
+    this->m_location = newLocation;
+    emit self->locationChanged(this->m_location);
+}
+
+QString LocalStreamingPrivate::extensionForFormat(const QString &formatId) const
+{
+    if (formatId.isEmpty())
+        return {};
+
+    auto parts = formatId.split(':');
+
+    return parts.size() > 1? parts[1]: formatId;
 }
 
 // Returns the streamer plugin ID that best handles a given URL.
@@ -1098,13 +1132,17 @@ void LocalStreamingPrivate::loadConfigs()
     config.beginGroup("LocalStreamingConfigs");
 
     // Location
-    this->m_location = config.value("location").toString();
+    this->m_localPort = config.value("localPort", 8080).toUInt();
+    this->m_localResource = config.value("localResource", "stream").toString();
+    auto ext = this->extensionForFormat(this->m_defaultFormat);
+    this->m_localFormat = config.value("localFormat", ext).toString();
+    this->updateLocation();
 
     // Video / audio caps
-    auto outputWidth      = qMax(config.value("outputWidth",      1280 ).toInt(), 160);
-    auto outputHeight     = qMax(config.value("outputHeight",     720  ).toInt(), 90);
-    auto outputFPS        = qMax(config.value("outputFPS",        30   ).toInt(), 1);
-    auto audioSampleRate  = qMax(config.value("audioSampleRate",  48000).toInt(), 8000);
+    auto outputWidth      = qMax(config.value("outputWidth",     1280 ).toInt(), 160);
+    auto outputHeight     = qMax(config.value("outputHeight",    720  ).toInt(), 90);
+    auto outputFPS        = qMax(config.value("outputFPS",       30   ).toInt(), 1);
+    auto audioSampleRate  = qMax(config.value("audioSampleRate", 48000).toInt(), 8000);
 
     this->m_videoCaps = {AkVideoCaps::Format_yuv420p,
                          outputWidth, outputHeight, {outputFPS, 1}};
@@ -1336,9 +1374,32 @@ void LocalStreamingPrivate::uninit()
 
 void LocalStreamingPrivate::saveLocation(const QString &location)
 {
+    QUrl url(location);
+    auto port = quint16(url.port(8080));
+    auto path = url.path();
+
+    if (path.startsWith('/'))
+        path = path.mid(1);
+
+    auto resource = path;
+    auto format = this->m_defaultFormat;
+
+    int dotIndex = path.lastIndexOf('.');
+
+    if (dotIndex >= 0) {
+        resource = path.left(dotIndex);
+        format = path.mid(dotIndex + 1);
+    }
+
+    if (resource.isEmpty())
+        resource = "stream";
+
     QSettings config;
     config.beginGroup("LocalStreamingConfigs");
-    config.setValue("location", location);
+    config.setValue("localPort", port);
+    config.setValue("localResource", resource);
+    config.setValue("localFormat", format);
+
     config.endGroup();
 }
 
