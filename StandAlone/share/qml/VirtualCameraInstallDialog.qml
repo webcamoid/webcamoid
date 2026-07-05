@@ -50,7 +50,7 @@ Dialog {
             Label {
                 text: Ak.platform == "windows"?
                           qsTr("The virtual camera in Windows may not work properly and may cause inestability in the system.<br/>")
-                          + qsTr("If you want to share audio and video of your current seesion, consider using </b>local streaming</b> which is more stable and powerful.<br/><br/>")
+                          + qsTr("If you want to share audio and video of your current seesion, consider using <b>local streaming</b> which is more stable and powerful.<br/><br/>")
                           + qsTr("Are you sure that you want to continue?"):
                       root.isDefaultVCam?
                           qsTr("The virtual camera is not installed, do you want to install it?"):

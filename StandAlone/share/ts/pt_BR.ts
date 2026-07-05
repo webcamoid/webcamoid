@@ -61,12 +61,12 @@
     <message>
         <location filename="../qml/AddPlatformDialog.qml" line="33"/>
         <source>Add platform</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar plataforma</translation>
     </message>
     <message>
         <location filename="../qml/AddPlatformDialog.qml" line="42"/>
         <source>Platform</source>
-        <translation type="unfinished"></translation>
+        <translation>Plataforma</translation>
     </message>
 </context>
 <context>
@@ -74,42 +74,42 @@
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="28"/>
         <source>Add platform</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar plataforma</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="57"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="63"/>
         <source>My Platform</source>
-        <translation type="unfinished"></translation>
+        <translation>Minha Plataforma</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="68"/>
         <source>Website</source>
-        <translation type="unfinished">Site</translation>
+        <translation>Site</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="79"/>
         <source>Streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL de transmissão</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="90"/>
         <source>Key configs URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL de configurações da chave</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="101"/>
         <source>Documentation URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL da documentação</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="113"/>
         <source>Needs key</source>
-        <translation type="unfinished"></translation>
+        <translation>Necessita de chave</translation>
     </message>
 </context>
 <context>
@@ -155,32 +155,32 @@
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="170"/>
         <source>Share file</source>
-        <translation type="unfinished"></translation>
+        <translation>Compartilhar arquivo</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="276"/>
         <source>Share files</source>
-        <translation type="unfinished"></translation>
+        <translation>Compartilhar arquivos</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="359"/>
         <source>Use as...</source>
-        <translation type="unfinished"></translation>
+        <translation>Usar como...</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="396"/>
         <source>Copy to...</source>
-        <translation type="unfinished"></translation>
+        <translation>Copiar para...</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="402"/>
         <source>All Files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Todos os Arquivos (*)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="418"/>
         <source>Move to...</source>
-        <translation type="unfinished"></translation>
+        <translation>Mover para...</translation>
     </message>
 </context>
 <context>
@@ -216,12 +216,12 @@
     <message>
         <location filename="../qml/AudioInputAdd.qml" line="30"/>
         <source>Select the audio source to add</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecione a fonte de áudio para adicionar</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputAdd.qml" line="55"/>
         <source>Audio input</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrada de áudio</translation>
     </message>
 </context>
 <context>
@@ -229,30 +229,30 @@
     <message>
         <location filename="../qml/AudioInputDeviceOptions.qml" line="29"/>
         <source>Audio Input Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Configurações de Entrada de Áudio</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputDeviceOptions.qml" line="124"/>
         <source>Sample Format</source>
         <extracomment>A sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
-        <translation type="unfinished">Formato de Amostra</translation>
+        <translation>Formato de Amostra</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputDeviceOptions.qml" line="142"/>
         <source>Channels</source>
-        <translation type="unfinished">Canais</translation>
+        <translation>Canais</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputDeviceOptions.qml" line="161"/>
         <source>Sample Rate</source>
         <extracomment>Number of audio samples per channel to be played per second.</extracomment>
-        <translation type="unfinished">Taxa de Amostragem</translation>
+        <translation>Taxa de Amostragem</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputDeviceOptions.qml" line="188"/>
         <source>Latency (ms)</source>
         <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio synchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
-        <translation type="unfinished">Latência (ms)</translation>
+        <translation>Latência (ms)</translation>
     </message>
 </context>
 <context>
@@ -260,7 +260,7 @@
     <message>
         <location filename="../qml/AudioInputSourceItem.qml" line="72"/>
         <source>Remove</source>
-        <translation type="unfinished">Remover</translation>
+        <translation>Remover</translation>
     </message>
 </context>
 <context>
@@ -268,22 +268,22 @@
     <message>
         <location filename="../qml/AudioInputs.qml" line="62"/>
         <source>Add audio input</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar entrada de áudio</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputs.qml" line="74"/>
         <source>Add device input</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar entrada de dispositivo</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputs.qml" line="80"/>
         <source>Add video source</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar fonte de vídeo</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputs.qml" line="93"/>
         <source>Configure audio input settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Configurar configurações de entrada de áudio</translation>
     </message>
 </context>
 <context>
@@ -304,35 +304,35 @@
     <message>
         <location filename="../qml/AudioOutputDeviceOptions.qml" line="29"/>
         <source>Audio Device Options</source>
-        <translation type="unfinished">Opções do Dispositivo de Áudio</translation>
+        <translation>Opções do Dispositivo de Áudio</translation>
     </message>
     <message>
         <location filename="../qml/AudioOutputDeviceOptions.qml" line="120"/>
         <source>Audio input</source>
-        <translation type="unfinished"></translation>
+        <translation>Entrada de áudio</translation>
     </message>
     <message>
         <location filename="../qml/AudioOutputDeviceOptions.qml" line="186"/>
         <source>Sample Format</source>
         <extracomment>An sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
-        <translation type="unfinished">Formato de Amostra</translation>
+        <translation>Formato de Amostra</translation>
     </message>
     <message>
         <location filename="../qml/AudioOutputDeviceOptions.qml" line="207"/>
         <source>Channels</source>
-        <translation type="unfinished">Canais</translation>
+        <translation>Canais</translation>
     </message>
     <message>
         <location filename="../qml/AudioOutputDeviceOptions.qml" line="229"/>
         <source>Sample Rate</source>
         <extracomment>Number of audio samples per channel to be played per second.</extracomment>
-        <translation type="unfinished">Taxa de Amostragem</translation>
+        <translation>Taxa de Amostragem</translation>
     </message>
     <message>
         <location filename="../qml/AudioOutputDeviceOptions.qml" line="259"/>
         <source>Latency (ms)</source>
         <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio synchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
-        <translation type="unfinished">Latência (ms)</translation>
+        <translation>Latência (ms)</translation>
     </message>
 </context>
 <context>
@@ -623,128 +623,128 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="29"/>
         <source>Customize Colors</source>
-        <translation type="unfinished"></translation>
+        <translation>Personalizar Cores</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="31"/>
         <source>Change %1 colors.</source>
         <extracomment>Changer the program colors</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Alterar as cores do %1.</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="52"/>
         <source>Color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Esquema de cores</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="64"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="69"/>
         <source>Create a new color scheme from the current selected one</source>
-        <translation type="unfinished"></translation>
+        <translation>Criar um novo esquema de cores a partir do atualmente selecionado</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="74"/>
         <source>Edit</source>
-        <translation type="unfinished">Editar</translation>
+        <translation>Editar</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="80"/>
         <source>Edit the selected color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar o esquema de cores selecionado</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="85"/>
         <source>Remove</source>
-        <translation type="unfinished">Remover</translation>
+        <translation>Remover</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="91"/>
         <source>Delete the selected color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Excluir o esquema de cores selecionado</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="99"/>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation>Importar</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="104"/>
         <source>Add a new color scheme from a file</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar um novo esquema de cores a partir de um arquivo</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="109"/>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportar</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="113"/>
         <source>Save the selected color scheme into a file</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvar o esquema de cores selecionado em um arquivo</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="128"/>
         <source>Export color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportar esquema de cores</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="140"/>
         <source>Enabled</source>
-        <translation type="unfinished">Ativado</translation>
+        <translation>Ativado</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="143"/>
         <source>Disabled</source>
-        <translation type="unfinished">Desativado</translation>
+        <translation>Desativado</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="147"/>
         <source>Preview</source>
-        <translation type="unfinished">Pré-visualização</translation>
+        <translation>Pré-visualização</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="168"/>
         <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
-        <translation type="unfinished">Texto da janela &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</translation>
+        <translation>Texto da janela &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="174"/>
         <source>Button text</source>
-        <translation type="unfinished">Texto do botão</translation>
+        <translation>Texto do botão</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="179"/>
         <source>Tooltip text</source>
-        <translation type="unfinished">Texto da dica</translation>
+        <translation>Texto da dica</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="188"/>
         <source>Placeholder text</source>
-        <translation type="unfinished">Texto de espaço reservado</translation>
+        <translation>Texto de espaço reservado</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="189"/>
         <source>Text</source>
-        <translation type="unfinished">Texto</translation>
+        <translation>Texto</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="219"/>
         <source>Progress %1%</source>
-        <translation type="unfinished">Progresso %1%</translation>
+        <translation>Progresso %1%</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="246"/>
         <source>Select the color scheme to import</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecione o esquema de cores para importar</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="280"/>
         <source>Save the color scheme to a file</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvar o esquema de cores em um arquivo</translation>
     </message>
 </context>
 <context>
@@ -960,7 +960,7 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="30"/>
         <source>Configure photografy quality and formats.</source>
-        <translation type="unfinished"></translation>
+        <translation>Configurar qualidade e formatos da fotografia.</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="54"/>
@@ -985,42 +985,42 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="142"/>
         <source>Flash settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Configurações de flash</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="152"/>
         <source>Use flash</source>
-        <translation type="unfinished">Usar flash</translation>
+        <translation>Usar flash</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="155"/>
         <source>Use flash when taking a photo</source>
-        <translation type="unfinished">Usar flash ao tirar uma foto</translation>
+        <translation>Usar flash ao tirar uma foto</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="164"/>
         <source>Delay</source>
-        <translation type="unfinished">Atraso</translation>
+        <translation>Atraso</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="167"/>
         <source>Photo timer</source>
-        <translation type="unfinished">Temporizador da foto</translation>
+        <translation>Temporizador da foto</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="168"/>
         <source>The time to wait before the photo is taken</source>
-        <translation type="unfinished">O tempo de espera antes da foto ser tirada</translation>
+        <translation>O tempo de espera antes da foto ser tirada</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="176"/>
         <source>Now</source>
-        <translation type="unfinished">Agora</translation>
+        <translation>Agora</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="219"/>
         <source>%1 seconds</source>
-        <translation type="unfinished">%1 segundos</translation>
+        <translation>%1 segundos</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="247"/>
@@ -1052,12 +1052,12 @@
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="43"/>
         <source>Recording settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Configurações de gravação</translation>
     </message>
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="44"/>
         <source>Capture settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Configurações de captura</translation>
     </message>
 </context>
 <context>
@@ -1065,97 +1065,97 @@
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="31"/>
         <source>Local streaming advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opções avançadas de transmissão local</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="130"/>
         <source>Local streaming quality</source>
-        <translation type="unfinished"></translation>
+        <translation>Qualidade da transmissão local</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="155"/>
         <source>Streaming quality</source>
-        <translation type="unfinished"></translation>
+        <translation>Qualidade da transmissão</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="208"/>
         <source>Custom</source>
-        <translation type="unfinished">Personalizado</translation>
+        <translation>Personalizado</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="211"/>
         <source>Video quality: %1×%2 %3 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>Qualidade de vídeo: %1×%2 %3 FPS</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="212"/>
         <source>Video bitrate: %1 Mbps</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa de bits de vídeo: %1 Mbps</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="213"/>
         <source>Audio sample rate: %1 kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa de amostragem de áudio: %1 kHz</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="214"/>
         <source>Audio bitrate: %1 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa de bits de áudio: %1 kbps</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="223"/>
         <source>Video quality</source>
-        <translation type="unfinished">Qualidade de vídeo</translation>
+        <translation>Qualidade de vídeo</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="241"/>
         <source>Output width</source>
-        <translation type="unfinished">Largura de saída</translation>
+        <translation>Largura de saída</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="264"/>
         <source>Output height</source>
-        <translation type="unfinished">Altura de saída</translation>
+        <translation>Altura de saída</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="287"/>
         <source>Output frame rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa de quadros de saída</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="310"/>
         <source>Video bitrate (kbps)</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa de bits de vídeo (kbps)</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="330"/>
         <source>Keyframes stride (ms)</source>
-        <translation type="unfinished">Intervalo de quadros-chave (ms)</translation>
+        <translation>Intervalo de quadros-chave (ms)</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="349"/>
         <source>Video codec</source>
-        <translation type="unfinished">Codec de vídeo</translation>
+        <translation>Codec de vídeo</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="432"/>
         <source>Audio quality</source>
-        <translation type="unfinished">Qualidade de áudio</translation>
+        <translation>Qualidade de áudio</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="450"/>
         <source>Sample rate</source>
-        <translation type="unfinished">Taxa de amostragem</translation>
+        <translation>Taxa de amostragem</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="473"/>
         <source>Audio bitrate (kbps)</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa de bits de áudio (kbps)</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="494"/>
         <source>Audio codec</source>
-        <translation type="unfinished">Codec de áudio</translation>
+        <translation>Codec de áudio</translation>
     </message>
 </context>
 <context>
@@ -1163,37 +1163,37 @@
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="99"/>
         <source>Remove</source>
-        <translation type="unfinished">Remover</translation>
+        <translation>Remover</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="116"/>
         <source>Port</source>
-        <translation type="unfinished"></translation>
+        <translation>Porta</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="135"/>
         <source>Format</source>
-        <translation type="unfinished">Formato</translation>
+        <translation>Formato</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="193"/>
         <source>Resource name</source>
-        <translation type="unfinished"></translation>
+        <translation>Nome do recurso</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="216"/>
         <source>Streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL de transmissão</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="234"/>
         <source>Open URL in the webbrowser</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrir URL no navegador</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="244"/>
         <source>Advanced options</source>
-        <translation type="unfinished">Opções avançadas</translation>
+        <translation>Opções avançadas</translation>
     </message>
 </context>
 <context>
@@ -1234,17 +1234,17 @@
     <message>
         <location filename="../qml/MainPanel.qml" line="35"/>
         <source>Virtual Camera Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opções da Câmera Virtual</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="37"/>
         <source>Streaming Platform Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opções da Plataforma de Transmissão</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="39"/>
         <source>Local Streaming Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opções de Transmissão Local</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="40"/>
@@ -1257,40 +1257,40 @@
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="84"/>
         <source>%1 selected</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 selecionado(s)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="128"/>
         <source>Select all</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecionar tudo</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="135"/>
         <source>Deselect all</source>
-        <translation type="unfinished"></translation>
+        <translation>Desmarcar tudo</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="286"/>
         <source>The directory is empty</source>
-        <translation type="unfinished"></translation>
+        <translation>O diretório está vazio</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="294"/>
         <source>Confirm delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Confirmar exclusão</translation>
     </message>
     <message numerus="yes">
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="302"/>
         <source>Delete %n picture(s) permanently?</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Excluir %n imagem permanentemente?</numerusform>
+            <numerusform>Excluir %n imagens permanentemente?</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="309"/>
         <source>This action can&apos;t be undone.</source>
-        <translation type="unfinished"></translation>
+        <translation>Esta ação não pode ser desfeita.</translation>
     </message>
 </context>
 <context>
@@ -1306,27 +1306,27 @@
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="138"/>
         <source>Use as</source>
-        <translation type="unfinished"></translation>
+        <translation>Usar como</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="143"/>
         <source>Open with</source>
-        <translation type="unfinished"></translation>
+        <translation>Abrir com</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="148"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>Excluir</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="156"/>
         <source>Move to</source>
-        <translation type="unfinished"></translation>
+        <translation>Mover para</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="161"/>
         <source>Copy to</source>
-        <translation type="unfinished"></translation>
+        <translation>Copiar para</translation>
     </message>
 </context>
 <context>
@@ -1666,173 +1666,173 @@
     <message>
         <location filename="../qml/Streaming.qml" line="29"/>
         <source>Streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>Transmissão</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="30"/>
         <source>Configure video streaming to many platforms.</source>
-        <translation type="unfinished"></translation>
+        <translation>Configurar transmissão de vídeo para várias plataformas.</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="122"/>
         <location filename="../qml/Streaming.qml" line="147"/>
         <source>Streaming quality</source>
-        <translation type="unfinished"></translation>
+        <translation>Qualidade da transmissão</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="200"/>
         <source>Custom</source>
-        <translation type="unfinished">Personalizado</translation>
+        <translation>Personalizado</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="203"/>
         <source>Video quality: %1×%2 %3 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>Qualidade de vídeo: %1×%2 %3 FPS</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="204"/>
         <source>Video bitrate: %1 Mbps</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa de bits de vídeo: %1 Mbps</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="205"/>
         <source>Audio sample rate: %1 kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa de amostragem de áudio: %1 kHz</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="206"/>
         <source>Audio bitrate: %1 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa de bits de áudio: %1 kbps</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="214"/>
         <source>Advanced settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Configurações avançadas</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="229"/>
         <source>Video quality</source>
-        <translation type="unfinished">Qualidade de vídeo</translation>
+        <translation>Qualidade de vídeo</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="247"/>
         <source>Output width</source>
-        <translation type="unfinished">Largura de saída</translation>
+        <translation>Largura de saída</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="270"/>
         <source>Output height</source>
-        <translation type="unfinished">Altura de saída</translation>
+        <translation>Altura de saída</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="293"/>
         <source>Output frame rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa de quadros de saída</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="316"/>
         <source>Video bitrate (kbps)</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa de bits de vídeo (kbps)</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="336"/>
         <source>Keyframes stride (ms)</source>
-        <translation type="unfinished">Intervalo de quadros-chave (ms)</translation>
+        <translation>Intervalo de quadros-chave (ms)</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="353"/>
         <source>Video codec</source>
-        <translation type="unfinished">Codec de vídeo</translation>
+        <translation>Codec de vídeo</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="436"/>
         <source>Audio quality</source>
-        <translation type="unfinished">Qualidade de áudio</translation>
+        <translation>Qualidade de áudio</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="454"/>
         <source>Sample rate</source>
-        <translation type="unfinished">Taxa de amostragem</translation>
+        <translation>Taxa de amostragem</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="477"/>
         <source>Audio bitrate (kbps)</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa de bits de áudio (kbps)</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="498"/>
         <source>Audio codec</source>
-        <translation type="unfinished">Codec de áudio</translation>
+        <translation>Codec de áudio</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="521"/>
         <source>Streaming platform settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Configurações da plataforma de transmissão</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="532"/>
         <source>Platform</source>
-        <translation type="unfinished"></translation>
+        <translation>Plataforma</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="540"/>
         <source>Add platform</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar plataforma</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="547"/>
         <source>Remove platform</source>
-        <translation type="unfinished"></translation>
+        <translation>Remover plataforma</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="561"/>
         <source>Website</source>
-        <translation type="unfinished">Site</translation>
+        <translation>Site</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="581"/>
         <source>Visit website</source>
-        <translation type="unfinished"></translation>
+        <translation>Visitar site</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="596"/>
         <source>Streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL de transmissão</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="627"/>
         <source>Hide streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Ocultar URL de transmissão</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="628"/>
         <source>Show streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar URL de transmissão</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="647"/>
         <source>Streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>Chave de transmissão</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="680"/>
         <source>Hide streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>Ocultar chave de transmissão</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="681"/>
         <source>Show streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar chave de transmissão</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="700"/>
         <source>Streaming configuration help</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajuda de configuração de transmissão</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="712"/>
         <source>Get streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>Obter chave de transmissão</translation>
     </message>
 </context>
 <context>
@@ -1840,7 +1840,7 @@
     <message>
         <location filename="../qml/StreamingFailedDialog.qml" line="31"/>
         <source>Streaming failed</source>
-        <translation type="unfinished"></translation>
+        <translation>Falha na transmissão</translation>
     </message>
 </context>
 <context>
@@ -1848,57 +1848,57 @@
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="60"/>
         <source>Remove</source>
-        <translation type="unfinished">Remover</translation>
+        <translation>Remover</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="72"/>
         <source>Website</source>
-        <translation type="unfinished">Site</translation>
+        <translation>Site</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="92"/>
         <source>Visit website</source>
-        <translation type="unfinished"></translation>
+        <translation>Visitar site</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="107"/>
         <source>Streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL de transmissão</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="138"/>
         <source>Hide streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Ocultar URL de transmissão</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="139"/>
         <source>Show streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar URL de transmissão</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="158"/>
         <source>Streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>Chave de transmissão</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="191"/>
         <source>Hide streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>Ocultar chave de transmissão</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="192"/>
         <source>Show streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar chave de transmissão</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="211"/>
         <source>Streaming configuration help</source>
-        <translation type="unfinished"></translation>
+        <translation>Ajuda de configuração de transmissão</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="223"/>
         <source>Get streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>Obter chave de transmissão</translation>
     </message>
 </context>
 <context>
@@ -1906,22 +1906,22 @@
     <message>
         <location filename="../qml/StreamingStartStopDialog.qml" line="33"/>
         <source>Start streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>Iniciar transmissão</translation>
     </message>
     <message>
         <location filename="../qml/StreamingStartStopDialog.qml" line="34"/>
         <source>Stop streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>Parar transmissão</translation>
     </message>
     <message>
         <location filename="../qml/StreamingStartStopDialog.qml" line="50"/>
         <source>Thousands of people will start watching you around the world on internet.&lt;br/&gt;Are you sure that you want to start streaming?</source>
-        <translation type="unfinished"></translation>
+        <translation>Milhares de pessoas começarão a assistir você ao redor do mundo na internet.&lt;br/&gt;Tem certeza de que deseja iniciar a transmissão?</translation>
     </message>
     <message>
         <location filename="../qml/StreamingStartStopDialog.qml" line="51"/>
         <source>Are you sure that you want to stop streaming?</source>
-        <translation type="unfinished"></translation>
+        <translation>Tem certeza de que deseja parar a transmissão?</translation>
     </message>
 </context>
 <context>
@@ -2213,22 +2213,22 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="82"/>
         <source>Edit media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar fonte de arquivo de mídia</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="86"/>
         <source>Edit media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>Editar fonte de URL de mídia</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="90"/>
         <source>Add media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar fonte de arquivo de mídia</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="91"/>
         <source>Add media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar fonte de URL de mídia</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="130"/>
@@ -2262,12 +2262,12 @@
     <message>
         <location filename="../qml/VideoInputAddScreen.qml" line="30"/>
         <source>Select the screen to add</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecione a tela para adicionar</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddScreen.qml" line="55"/>
         <source>Screen</source>
-        <translation type="unfinished">Tela</translation>
+        <translation>Tela</translation>
     </message>
 </context>
 <context>
@@ -2275,12 +2275,12 @@
     <message>
         <location filename="../qml/VideoInputAddWindow.qml" line="30"/>
         <source>Select the window to add</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecione a janela para adicionar</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddWindow.qml" line="55"/>
         <source>Window</source>
-        <translation type="unfinished">Janela</translation>
+        <translation>Janela</translation>
     </message>
 </context>
 <context>
@@ -2306,27 +2306,27 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="76"/>
         <source>Add screen</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar tela</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="77"/>
         <source>Add screen source</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar fonte de tela</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="83"/>
         <source>Add window</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar janela</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="91"/>
         <source>Add media file</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar arquivo de mídia</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="97"/>
         <source>Add media URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar URL de mídia</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="117"/>
@@ -2495,7 +2495,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="102"/>
         <source>Add virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar câmera virtual</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="115"/>
@@ -2505,17 +2505,17 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="123"/>
         <source>Add streaming platform</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar plataforma de transmissão</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="131"/>
         <source>Add local streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>Adicionar transmissão local</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="196"/>
         <source>Local Streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>Transmissão Local</translation>
     </message>
 </context>
 <context>
@@ -2548,48 +2548,48 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="151"/>
         <source>Use flash</source>
-        <translation type="unfinished">Usar flash</translation>
+        <translation>Usar flash</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="154"/>
         <source>Use flash when recording a video</source>
-        <translation type="unfinished"></translation>
+        <translation>Usar flash ao gravar um vídeo</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="165"/>
         <location filename="../qml/VideoRecording.qml" line="190"/>
         <source>Recording quality</source>
-        <translation type="unfinished"></translation>
+        <translation>Qualidade de gravação</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="240"/>
         <source>Custom</source>
-        <translation type="unfinished">Personalizado</translation>
+        <translation>Personalizado</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="244"/>
         <source>Video quality: %1×%2 %3 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>Qualidade de vídeo: %1×%2 %3 FPS</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="245"/>
         <source>Video bitrate: %1 Mbps</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa de bits de vídeo: %1 Mbps</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="246"/>
         <source>Audio sample rate: %1 kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa de amostragem de áudio: %1 kHz</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="247"/>
         <source>Audio bitrate: %1 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation>Taxa de bits de áudio: %1 kbps</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="255"/>
         <source>Advanced settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Configurações avançadas</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="268"/>
@@ -2667,32 +2667,32 @@
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="32"/>
         <source>Virtual camera install</source>
-        <translation type="unfinished"></translation>
+        <translation>Instalação da câmera virtual</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="52"/>
         <source>The virtual camera in Windows may not work properly and may cause inestability in the system.&lt;br/&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>A câmera virtual no Windows pode não funcionar corretamente e pode causar instabilidade no sistema.&lt;br/&gt;</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="53"/>
-        <source>If you want to share audio and video of your current seesion, consider using &lt;/b&gt;local streaming&lt;/b&gt; which is more stable and powerful.&lt;br/&gt;&lt;br/&gt;</source>
-        <translation type="unfinished"></translation>
+        <source>If you want to share audio and video of your current seesion, consider using &lt;b&gt;local streaming&lt;/b&gt; which is more stable and powerful.&lt;br/&gt;&lt;br/&gt;</source>
+        <translation>Se você deseja compartilhar áudio e vídeo da sua sessão atual, considere usar a &lt;b&gt;transmissão local&lt;/b&gt;, que é mais estável e poderosa.&lt;br/&gt;&lt;br/&gt;</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="54"/>
         <source>Are you sure that you want to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>Tem certeza de que deseja continuar?</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="56"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
-        <translation type="unfinished">A câmera virtual não está instalada, você deseja instalá-la?</translation>
+        <translation>A câmera virtual não está instalada, deseja instalá-la?</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="57"/>
         <source>The virtual camera is not installed. Please, install &lt;b&gt;v4l2loopback&lt;/b&gt;.</source>
-        <translation type="unfinished">A câmera virtual não está instalada. Por favor, instale o &lt;b&gt;v4l2loopback&lt;/b&gt;.</translation>
+        <translation>A câmera virtual não está instalada. Por favor, instale o &lt;b&gt;v4l2loopback&lt;/b&gt;.</translation>
     </message>
 </context>
 <context>
@@ -2700,32 +2700,32 @@
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="65"/>
         <source>Edit</source>
-        <translation type="unfinished">Editar</translation>
+        <translation>Editar</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="77"/>
         <source>Can&apos;t Edit The Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Não é Possível Editar a Câmera Virtual</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="84"/>
         <source>Set output picture</source>
-        <translation type="unfinished">Definir imagem de saída</translation>
+        <translation>Definir imagem de saída</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="95"/>
         <source>Remove</source>
-        <translation type="unfinished">Remover</translation>
+        <translation>Remover</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="110"/>
         <source>Error removing the virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Erro ao remover a câmera virtual</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="114"/>
         <source>Can&apos;t Remove The Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Não é Possível Remover a Câmera Virtual</translation>
     </message>
 </context>
 <context>
@@ -2733,17 +2733,17 @@
     <message>
         <location filename="../qml/VirtualCameraUpdateDialog.qml" line="33"/>
         <source>Virtual camera update</source>
-        <translation type="unfinished"></translation>
+        <translation>Atualização da câmera virtual</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraUpdateDialog.qml" line="54"/>
         <source>The virtual camera is outdated (%1), install the latest version (%2)?</source>
-        <translation type="unfinished">A câmera virtual está desatualizada (%1), instalar a última versão (%2)?</translation>
+        <translation>A câmera virtual está desatualizada (%1), instalar a versão mais recente (%2)?</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraUpdateDialog.qml" line="62"/>
         <source>Show this dialog next time</source>
-        <translation type="unfinished">Mostrar esta caixa de diálogo na próxima vez</translation>
+        <translation>Mostrar esta caixa de diálogo na próxima vez</translation>
     </message>
 </context>
 <context>
@@ -2751,7 +2751,7 @@
     <message>
         <location filename="../../src/virtualcameras.cpp" line="567"/>
         <source>Virtual Camera</source>
-        <translation type="unfinished">Câmera Virtual</translation>
+        <translation>Câmera Virtual</translation>
     </message>
 </context>
 <context>
@@ -2764,27 +2764,27 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="45"/>
         <source>Aging intensity</source>
-        <translation type="unfinished"></translation>
+        <translation>Intensidade de envelhecimento</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="64"/>
         <source>Dust density</source>
-        <translation type="unfinished"></translation>
+        <translation>Densidade de poeira</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="83"/>
         <source>Scratch density</source>
-        <translation type="unfinished"></translation>
+        <translation>Densidade de arranhões</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="102"/>
         <source>Scratch brightness</source>
-        <translation type="unfinished"></translation>
+        <translation>Brilho dos arranhões</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="121"/>
         <source>Pits density</source>
-        <translation type="unfinished"></translation>
+        <translation>Densidade de pontos</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Blur/share/qml/main.qml" line="28"/>
@@ -3640,6 +3640,11 @@
         <translation>Dragão</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="379"/>
+        <source>Elephant</source>
+        <translation>Elefante</translation>
+    </message>
+    <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="383"/>
         <source>Elk</source>
         <translation>Alce</translation>
@@ -3690,6 +3695,11 @@
         <translation>Macaco</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="423"/>
+        <source>Mouse</source>
+        <translation>Camundongo</translation>
+    </message>
+    <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="427"/>
         <source>Panda</source>
         <translation>Panda</translation>
@@ -3698,6 +3708,11 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="431"/>
         <source>Penguin</source>
         <translation>Pinguim</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="435"/>
+        <source>Pumpkin</source>
+        <translation>Abóbora</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="439"/>
@@ -3713,6 +3728,11 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="447"/>
         <source>Sheep</source>
         <translation>Ovelha</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="451"/>
+        <source>Skull</source>
+        <translation>Caveira</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="455"/>
@@ -3745,49 +3765,9 @@
         <translation>Fundo</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="652"/>
-        <source>Horizontal Offset</source>
-        <translation>Deslocamento Horizontal</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="671"/>
-        <source>Vertical Offset</source>
-        <translation>Deslocamento Vertical</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="798"/>
-        <source>Horizontal Radius %</source>
-        <translation>Raio Horizontal %</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="815"/>
-        <source>Vertical Radius %</source>
-        <translation>Raio Vertical %</translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="523"/>
         <source>Black Square</source>
         <translation>Quadrado Preto</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="379"/>
-        <source>Elephant</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="423"/>
-        <source>Mouse</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="435"/>
-        <source>Pumpkin</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="451"/>
-        <source>Skull</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="537"/>
@@ -3827,6 +3807,16 @@
         <translation>Configurações avançadas da área da face para desfoque de fundo ou imagem abaixo.</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="652"/>
+        <source>Horizontal Offset</source>
+        <translation>Deslocamento Horizontal</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="671"/>
+        <source>Vertical Offset</source>
+        <translation>Deslocamento Vertical</translation>
+    </message>
+    <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="691"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="761"/>
         <source>Width Adjust %</source>
@@ -3844,6 +3834,16 @@
         <translation>Área Redonda</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="798"/>
+        <source>Horizontal Radius %</source>
+        <translation>Raio Horizontal %</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="815"/>
+        <source>Vertical Radius %</source>
+        <translation>Raio Vertical %</translation>
+    </message>
+    <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="305"/>
         <source>Select marker color</source>
         <translation>Selecionar cor do marcador</translation>
@@ -3856,12 +3856,12 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="60"/>
         <source>Luminance soft</source>
-        <translation type="unfinished"></translation>
+        <translation>Luminância suave</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="64"/>
         <source>Luminance hard</source>
-        <translation type="unfinished"></translation>
+        <translation>Luminância forte</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="75"/>
@@ -3883,34 +3883,34 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="251"/>
         <source>Cold color</source>
-        <translation type="unfinished"></translation>
+        <translation>Cor fria</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="253"/>
         <source>Choose the fire cold color</source>
-        <translation type="unfinished"></translation>
+        <translation>Escolha a cor fria do fogo</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="260"/>
         <source>Hot color</source>
-        <translation type="unfinished"></translation>
+        <translation>Cor quente</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="262"/>
         <source>Choose the fire hot color</source>
-        <translation type="unfinished"></translation>
+        <translation>Escolha a cor quente do fogo</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="36"/>
         <source>Canny mode</source>
         <extracomment>https://en.wikipedia.org/wiki/Canny_edge_detector</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Modo Canny</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="47"/>
         <source>Equalize</source>
         <extracomment>https://en.wikipedia.org/wiki/Histogram_equalization</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Equalizar</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="92"/>
@@ -3926,12 +3926,12 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="77"/>
         <source>Linecolor</source>
-        <translation type="unfinished"></translation>
+        <translation>Cor da linha</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="79"/>
         <source>Choose the line color</source>
-        <translation type="unfinished"></translation>
+        <translation>Escolha a cor da linha</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="173"/>
@@ -4203,44 +4203,44 @@
         <translation>Contraste</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="60"/>
-        <source>Soft color</source>
-        <translation>Cor suave</translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="56"/>
         <source>Hard color</source>
         <translation>Cor forte</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="60"/>
+        <source>Soft color</source>
+        <translation>Cor suave</translation>
+    </message>
+    <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="64"/>
         <source>Hard natural</source>
-        <translation type="unfinished"></translation>
+        <translation>Natural forte</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="68"/>
         <source>Soft natural</source>
-        <translation type="unfinished"></translation>
+        <translation>Natural suave</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="72"/>
         <source>Luminance hard color</source>
-        <translation type="unfinished"></translation>
+        <translation>Cor de luminância forte</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="76"/>
         <source>Luminance soft color</source>
-        <translation type="unfinished"></translation>
+        <translation>Cor de luminância suave</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="80"/>
         <source>Luminance hard natural</source>
-        <translation type="unfinished"></translation>
+        <translation>Luminância forte natural</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="84"/>
         <source>Luminance soft natural</source>
-        <translation type="unfinished"></translation>
+        <translation>Luminância suave natural</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="165"/>
@@ -4264,14 +4264,14 @@
         <translation>Chuva</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="89"/>
-        <source>Decay</source>
-        <translation>Decaimento</translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="63"/>
         <source>General parameters</source>
         <translation>Parâmetros gerais</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="89"/>
+        <source>Decay</source>
+        <translation>Decaimento</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="104"/>
@@ -4387,14 +4387,15 @@
         <translation>Selecionar unidade de recorte</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="100"/>
-        <source>Top</source>
-        <translation>Topo</translation>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="50"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="184"/>
+        <source>Reset</source>
+        <translation>Resetar</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="117"/>
-        <source>Bottom</source>
-        <translation>Fundo</translation>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="52"/>
+        <source>Reset parameters</source>
+        <translation>Resetar parâmetros</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="66"/>
@@ -4407,6 +4408,16 @@
         <translation>Direita</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="100"/>
+        <source>Top</source>
+        <translation>Topo</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="117"/>
+        <source>Bottom</source>
+        <translation>Fundo</translation>
+    </message>
+    <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="133"/>
         <source>Fill color</source>
         <translation>Cor de preenchimento</translation>
@@ -4417,15 +4428,9 @@
         <translation>Escolha a cor de preenchimento</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="50"/>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="184"/>
-        <source>Reset</source>
-        <translation>Resetar</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="52"/>
-        <source>Reset parameters</source>
-        <translation>Resetar parâmetros</translation>
+        <location filename="../../../libAvKys/ExtraPlugins/Vignette/share/qml/main.qml" line="35"/>
+        <source>Choose the vignette color</source>
+        <translation>Escolha a cor do vinheta</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Vignette/share/qml/main.qml" line="46"/>
@@ -4446,11 +4451,6 @@
         <translation>Suavidade</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Vignette/share/qml/main.qml" line="35"/>
-        <source>Choose the vignette color</source>
-        <translation>Escolha a cor do vinheta</translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/Plugins/Warp/share/qml/main.qml" line="27"/>
         <source>Ripples</source>
         <translation>Ondulações</translation>
@@ -4459,11 +4459,6 @@
         <location filename="../../../libAvKys/Plugins/Warp/share/qml/main.qml" line="43"/>
         <source>Duration (in seconds)</source>
         <translation>Duração (em segundos)</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="427"/>
-        <source>Aspect ratio</source>
-        <translation>Proporção de tela</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="191"/>
@@ -4534,6 +4529,11 @@
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="412"/>
         <source>Margin bottom</source>
         <translation>Margem inferior</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="427"/>
+        <source>Aspect ratio</source>
+        <translation>Proporção de tela</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="438"/>
@@ -4678,22 +4678,22 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="126"/>
         <source>Light</source>
-        <translation type="unfinished">Claro</translation>
+        <translation>Claro</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="136"/>
         <source>Light threshold</source>
-        <translation type="unfinished"></translation>
+        <translation>Limiar de luz</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="153"/>
         <source>Light color</source>
-        <translation type="unfinished"></translation>
+        <translation>Cor da luz</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="155"/>
         <source>Choose the color of the light</source>
-        <translation type="unfinished"></translation>
+        <translation>Escolha a cor da luz</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="162"/>
@@ -4798,22 +4798,22 @@
     <message>
         <location filename="../qml/main.qml" line="295"/>
         <source>Start streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>Iniciar transmissão</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="295"/>
         <source>Stop streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>Parar transmissão</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="300"/>
         <source>You must add at least one streaming platform to the video outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>Você deve adicionar pelo menos uma plataforma de transmissão às saídas de vídeo</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="302"/>
         <source>The following platforms are not configured:&lt;br/&gt;&lt;br/&gt;%1</source>
-        <translation type="unfinished"></translation>
+        <translation>As seguintes plataformas não estão configuradas:&lt;br/&gt;&lt;br/&gt;%1</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="336"/>
@@ -4936,32 +4936,32 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="29"/>
         <source>Angle %1°</source>
-        <translation type="unfinished"></translation>
+        <translation>Ângulo %1°</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Pixelate/share/qml/main.qml" line="27"/>
         <source>Block width</source>
-        <translation type="unfinished"></translation>
+        <translation>Largura do bloco</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Pixelate/share/qml/main.qml" line="44"/>
         <source>Block height</source>
-        <translation type="unfinished"></translation>
+        <translation>Altura do bloco</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Swirl/share/qml/main.qml" line="28"/>
         <source>Center X</source>
-        <translation type="unfinished"></translation>
+        <translation>Centro X</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Swirl/share/qml/main.qml" line="47"/>
         <source>Center Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Centro Y</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Swirl/share/qml/main.qml" line="66"/>
         <source>Degrees</source>
-        <translation type="unfinished"></translation>
+        <translation>Graus</translation>
     </message>
 </context>
 </TS>

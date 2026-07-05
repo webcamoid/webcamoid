@@ -61,12 +61,12 @@
     <message>
         <location filename="../qml/AddPlatformDialog.qml" line="33"/>
         <source>Add platform</source>
-        <translation type="unfinished"></translation>
+        <translation>新增平台</translation>
     </message>
     <message>
         <location filename="../qml/AddPlatformDialog.qml" line="42"/>
         <source>Platform</source>
-        <translation type="unfinished"></translation>
+        <translation>平台</translation>
     </message>
 </context>
 <context>
@@ -74,42 +74,42 @@
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="28"/>
         <source>Add platform</source>
-        <translation type="unfinished"></translation>
+        <translation>新增平台</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="57"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>名稱</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="63"/>
         <source>My Platform</source>
-        <translation type="unfinished"></translation>
+        <translation>我的平台</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="68"/>
         <source>Website</source>
-        <translation type="unfinished">網站</translation>
+        <translation>網站</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="79"/>
         <source>Streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>串流網址</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="90"/>
         <source>Key configs URL</source>
-        <translation type="unfinished"></translation>
+        <translation>金鑰設定網址</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="101"/>
         <source>Documentation URL</source>
-        <translation type="unfinished"></translation>
+        <translation>說明文件網址</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="113"/>
         <source>Needs key</source>
-        <translation type="unfinished"></translation>
+        <translation>需要金鑰</translation>
     </message>
 </context>
 <context>
@@ -155,32 +155,32 @@
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="170"/>
         <source>Share file</source>
-        <translation type="unfinished"></translation>
+        <translation>分享檔案</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="276"/>
         <source>Share files</source>
-        <translation type="unfinished"></translation>
+        <translation>分享檔案</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="359"/>
         <source>Use as...</source>
-        <translation type="unfinished"></translation>
+        <translation>用作...</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="396"/>
         <source>Copy to...</source>
-        <translation type="unfinished"></translation>
+        <translation>複製到...</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="402"/>
         <source>All Files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>所有檔案 (*)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="418"/>
         <source>Move to...</source>
-        <translation type="unfinished"></translation>
+        <translation>移動到...</translation>
     </message>
 </context>
 <context>
@@ -203,7 +203,7 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="247"/>
         <source>Bitrate (bits/secs)</source>
-        <translation>位元率 （bits/秒）</translation>
+        <translation>位元率（bits/秒）</translation>
     </message>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="256"/>
@@ -216,12 +216,12 @@
     <message>
         <location filename="../qml/AudioInputAdd.qml" line="30"/>
         <source>Select the audio source to add</source>
-        <translation type="unfinished"></translation>
+        <translation>選擇要新增的音訊來源</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputAdd.qml" line="55"/>
         <source>Audio input</source>
-        <translation type="unfinished"></translation>
+        <translation>音訊輸入</translation>
     </message>
 </context>
 <context>
@@ -229,30 +229,30 @@
     <message>
         <location filename="../qml/AudioInputDeviceOptions.qml" line="29"/>
         <source>Audio Input Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>音訊輸入設定</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputDeviceOptions.qml" line="124"/>
         <source>Sample Format</source>
         <extracomment>A sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
-        <translation type="unfinished">樣本格式</translation>
+        <translation>樣本格式</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputDeviceOptions.qml" line="142"/>
         <source>Channels</source>
-        <translation type="unfinished">聲道</translation>
+        <translation>聲道</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputDeviceOptions.qml" line="161"/>
         <source>Sample Rate</source>
         <extracomment>Number of audio samples per channel to be played per second.</extracomment>
-        <translation type="unfinished">取樣率</translation>
+        <translation>取樣率</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputDeviceOptions.qml" line="188"/>
         <source>Latency (ms)</source>
         <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio synchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
-        <translation type="unfinished">延遲（毫秒）</translation>
+        <translation>延遲（毫秒）</translation>
     </message>
 </context>
 <context>
@@ -260,7 +260,7 @@
     <message>
         <location filename="../qml/AudioInputSourceItem.qml" line="72"/>
         <source>Remove</source>
-        <translation type="unfinished">移除</translation>
+        <translation>移除</translation>
     </message>
 </context>
 <context>
@@ -268,22 +268,22 @@
     <message>
         <location filename="../qml/AudioInputs.qml" line="62"/>
         <source>Add audio input</source>
-        <translation type="unfinished"></translation>
+        <translation>新增音訊輸入</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputs.qml" line="74"/>
         <source>Add device input</source>
-        <translation type="unfinished"></translation>
+        <translation>新增裝置輸入</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputs.qml" line="80"/>
         <source>Add video source</source>
-        <translation type="unfinished"></translation>
+        <translation>新增視訊來源</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputs.qml" line="93"/>
         <source>Configure audio input settings</source>
-        <translation type="unfinished"></translation>
+        <translation>設定音訊輸入設定</translation>
     </message>
 </context>
 <context>
@@ -304,35 +304,35 @@
     <message>
         <location filename="../qml/AudioOutputDeviceOptions.qml" line="29"/>
         <source>Audio Device Options</source>
-        <translation type="unfinished">音訊裝置選項</translation>
+        <translation>音訊裝置選項</translation>
     </message>
     <message>
         <location filename="../qml/AudioOutputDeviceOptions.qml" line="120"/>
         <source>Audio input</source>
-        <translation type="unfinished"></translation>
+        <translation>音訊輸入</translation>
     </message>
     <message>
         <location filename="../qml/AudioOutputDeviceOptions.qml" line="186"/>
         <source>Sample Format</source>
         <extracomment>An sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
-        <translation type="unfinished">樣本格式</translation>
+        <translation>樣本格式</translation>
     </message>
     <message>
         <location filename="../qml/AudioOutputDeviceOptions.qml" line="207"/>
         <source>Channels</source>
-        <translation type="unfinished">聲道</translation>
+        <translation>聲道</translation>
     </message>
     <message>
         <location filename="../qml/AudioOutputDeviceOptions.qml" line="229"/>
         <source>Sample Rate</source>
         <extracomment>Number of audio samples per channel to be played per second.</extracomment>
-        <translation type="unfinished">取樣率</translation>
+        <translation>取樣率</translation>
     </message>
     <message>
         <location filename="../qml/AudioOutputDeviceOptions.qml" line="259"/>
         <source>Latency (ms)</source>
         <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio synchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
-        <translation type="unfinished">延遲（毫秒）</translation>
+        <translation>延遲（毫秒）</translation>
     </message>
 </context>
 <context>
@@ -623,128 +623,128 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="29"/>
         <source>Customize Colors</source>
-        <translation type="unfinished"></translation>
+        <translation>自訂色彩</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="31"/>
         <source>Change %1 colors.</source>
         <extracomment>Changer the program colors</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>變更 %1 的色彩。</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="52"/>
         <source>Color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>色彩配置</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="64"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>新增</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="69"/>
         <source>Create a new color scheme from the current selected one</source>
-        <translation type="unfinished"></translation>
+        <translation>從目前選取的色彩配置建立新的色彩配置</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="74"/>
         <source>Edit</source>
-        <translation type="unfinished">編輯</translation>
+        <translation>編輯</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="80"/>
         <source>Edit the selected color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>編輯選取的色彩配置</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="85"/>
         <source>Remove</source>
-        <translation type="unfinished">移除</translation>
+        <translation>移除</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="91"/>
         <source>Delete the selected color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>刪除選取的色彩配置</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="99"/>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation>匯入</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="104"/>
         <source>Add a new color scheme from a file</source>
-        <translation type="unfinished"></translation>
+        <translation>從檔案新增色彩配置</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="109"/>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>匯出</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="113"/>
         <source>Save the selected color scheme into a file</source>
-        <translation type="unfinished"></translation>
+        <translation>將選取的色彩配置儲存為檔案</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="128"/>
         <source>Export color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>匯出色彩配置</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="140"/>
         <source>Enabled</source>
-        <translation type="unfinished">已啟用</translation>
+        <translation>已啟用</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="143"/>
         <source>Disabled</source>
-        <translation type="unfinished">已停用</translation>
+        <translation>已停用</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="147"/>
         <source>Preview</source>
-        <translation type="unfinished">預覽</translation>
+        <translation>預覽</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="168"/>
         <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
-        <translation type="unfinished">視窗文字 &lt;a href=&quot;#&quot;&gt;連結&lt;/a&gt;</translation>
+        <translation>視窗文字 &lt;a href=&quot;#&quot;&gt;連結&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="174"/>
         <source>Button text</source>
-        <translation type="unfinished">按鈕文字</translation>
+        <translation>按鈕文字</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="179"/>
         <source>Tooltip text</source>
-        <translation type="unfinished">工具提示文字</translation>
+        <translation>工具提示文字</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="188"/>
         <source>Placeholder text</source>
-        <translation type="unfinished">佔位符文字</translation>
+        <translation>佔位符文字</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="189"/>
         <source>Text</source>
-        <translation type="unfinished">文字</translation>
+        <translation>文字</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="219"/>
         <source>Progress %1%</source>
-        <translation type="unfinished">進度 %1%</translation>
+        <translation>進度 %1%</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="246"/>
         <source>Select the color scheme to import</source>
-        <translation type="unfinished"></translation>
+        <translation>選擇要匯入的色彩配置</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="280"/>
         <source>Save the color scheme to a file</source>
-        <translation type="unfinished"></translation>
+        <translation>將色彩配置儲存為檔案</translation>
     </message>
 </context>
 <context>
@@ -960,7 +960,7 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="30"/>
         <source>Configure photografy quality and formats.</source>
-        <translation type="unfinished"></translation>
+        <translation>設定攝影品質與格式。</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="54"/>
@@ -985,42 +985,42 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="142"/>
         <source>Flash settings</source>
-        <translation type="unfinished"></translation>
+        <translation>閃光燈設定</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="152"/>
         <source>Use flash</source>
-        <translation type="unfinished">使用閃光燈</translation>
+        <translation>使用閃光燈</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="155"/>
         <source>Use flash when taking a photo</source>
-        <translation type="unfinished">拍照時使用閃光燈</translation>
+        <translation>拍照時使用閃光燈</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="164"/>
         <source>Delay</source>
-        <translation type="unfinished">延遲</translation>
+        <translation>延遲</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="167"/>
         <source>Photo timer</source>
-        <translation type="unfinished">拍照計時器</translation>
+        <translation>拍照計時器</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="168"/>
         <source>The time to wait before the photo is taken</source>
-        <translation type="unfinished">拍照前的等待時間</translation>
+        <translation>拍照前的等待時間</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="176"/>
         <source>Now</source>
-        <translation type="unfinished">立即</translation>
+        <translation>立即</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="219"/>
         <source>%1 seconds</source>
-        <translation type="unfinished">%1 秒</translation>
+        <translation>%1 秒</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="247"/>
@@ -1052,12 +1052,12 @@
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="43"/>
         <source>Recording settings</source>
-        <translation type="unfinished"></translation>
+        <translation>錄製設定</translation>
     </message>
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="44"/>
         <source>Capture settings</source>
-        <translation type="unfinished"></translation>
+        <translation>擷取設定</translation>
     </message>
 </context>
 <context>
@@ -1065,97 +1065,97 @@
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="31"/>
         <source>Local streaming advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation>本機串流進階選項</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="130"/>
         <source>Local streaming quality</source>
-        <translation type="unfinished"></translation>
+        <translation>本機串流品質</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="155"/>
         <source>Streaming quality</source>
-        <translation type="unfinished"></translation>
+        <translation>串流品質</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="208"/>
         <source>Custom</source>
-        <translation type="unfinished">自訂</translation>
+        <translation>自訂</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="211"/>
         <source>Video quality: %1×%2 %3 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>視訊品質：%1×%2 %3 FPS</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="212"/>
         <source>Video bitrate: %1 Mbps</source>
-        <translation type="unfinished"></translation>
+        <translation>視訊位元率：%1 Mbps</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="213"/>
         <source>Audio sample rate: %1 kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>音訊取樣率：%1 kHz</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="214"/>
         <source>Audio bitrate: %1 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation>音訊位元率：%1 kbps</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="223"/>
         <source>Video quality</source>
-        <translation type="unfinished">視訊品質</translation>
+        <translation>視訊品質</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="241"/>
         <source>Output width</source>
-        <translation type="unfinished">輸出寬度</translation>
+        <translation>輸出寬度</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="264"/>
         <source>Output height</source>
-        <translation type="unfinished">輸出高度</translation>
+        <translation>輸出高度</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="287"/>
         <source>Output frame rate</source>
-        <translation type="unfinished"></translation>
+        <translation>輸出影格率</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="310"/>
         <source>Video bitrate (kbps)</source>
-        <translation type="unfinished"></translation>
+        <translation>視訊位元率 (kbps)</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="330"/>
         <source>Keyframes stride (ms)</source>
-        <translation type="unfinished">關鍵影格間隔（毫秒）</translation>
+        <translation>關鍵影格間隔（毫秒）</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="349"/>
         <source>Video codec</source>
-        <translation type="unfinished">視訊編解碼器</translation>
+        <translation>視訊編解碼器</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="432"/>
         <source>Audio quality</source>
-        <translation type="unfinished">音訊品質</translation>
+        <translation>音訊品質</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="450"/>
         <source>Sample rate</source>
-        <translation type="unfinished">取樣率</translation>
+        <translation>取樣率</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="473"/>
         <source>Audio bitrate (kbps)</source>
-        <translation type="unfinished"></translation>
+        <translation>音訊位元率 (kbps)</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="494"/>
         <source>Audio codec</source>
-        <translation type="unfinished">音訊編解碼器</translation>
+        <translation>音訊編解碼器</translation>
     </message>
 </context>
 <context>
@@ -1163,37 +1163,37 @@
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="99"/>
         <source>Remove</source>
-        <translation type="unfinished">移除</translation>
+        <translation>移除</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="116"/>
         <source>Port</source>
-        <translation type="unfinished"></translation>
+        <translation>連接埠</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="135"/>
         <source>Format</source>
-        <translation type="unfinished">格式</translation>
+        <translation>格式</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="193"/>
         <source>Resource name</source>
-        <translation type="unfinished"></translation>
+        <translation>資源名稱</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="216"/>
         <source>Streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>串流網址</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="234"/>
         <source>Open URL in the webbrowser</source>
-        <translation type="unfinished"></translation>
+        <translation>在網頁瀏覽器中開啟網址</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="244"/>
         <source>Advanced options</source>
-        <translation type="unfinished">進階選項</translation>
+        <translation>進階選項</translation>
     </message>
 </context>
 <context>
@@ -1234,17 +1234,17 @@
     <message>
         <location filename="../qml/MainPanel.qml" line="35"/>
         <source>Virtual Camera Options</source>
-        <translation type="unfinished"></translation>
+        <translation>虛擬攝影機選項</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="37"/>
         <source>Streaming Platform Options</source>
-        <translation type="unfinished"></translation>
+        <translation>串流平台選項</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="39"/>
         <source>Local Streaming Options</source>
-        <translation type="unfinished"></translation>
+        <translation>本機串流選項</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="40"/>
@@ -1257,39 +1257,39 @@
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="84"/>
         <source>%1 selected</source>
-        <translation type="unfinished"></translation>
+        <translation>已選取 %1</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="128"/>
         <source>Select all</source>
-        <translation type="unfinished"></translation>
+        <translation>全選</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="135"/>
         <source>Deselect all</source>
-        <translation type="unfinished"></translation>
+        <translation>取消全選</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="286"/>
         <source>The directory is empty</source>
-        <translation type="unfinished"></translation>
+        <translation>此目錄為空</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="294"/>
         <source>Confirm delete</source>
-        <translation type="unfinished"></translation>
+        <translation>確認刪除</translation>
     </message>
     <message numerus="yes">
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="302"/>
         <source>Delete %n picture(s) permanently?</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>確定要永久刪除 %n 張圖片嗎？</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="309"/>
         <source>This action can&apos;t be undone.</source>
-        <translation type="unfinished"></translation>
+        <translation>此動作無法復原。</translation>
     </message>
 </context>
 <context>
@@ -1305,27 +1305,27 @@
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="138"/>
         <source>Use as</source>
-        <translation type="unfinished"></translation>
+        <translation>用作</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="143"/>
         <source>Open with</source>
-        <translation type="unfinished"></translation>
+        <translation>開啟方式</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="148"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>刪除</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="156"/>
         <source>Move to</source>
-        <translation type="unfinished"></translation>
+        <translation>移動到</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="161"/>
         <source>Copy to</source>
-        <translation type="unfinished"></translation>
+        <translation>複製到</translation>
     </message>
 </context>
 <context>
@@ -1665,173 +1665,173 @@
     <message>
         <location filename="../qml/Streaming.qml" line="29"/>
         <source>Streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>串流</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="30"/>
         <source>Configure video streaming to many platforms.</source>
-        <translation type="unfinished"></translation>
+        <translation>設定影片串流至多個平台。</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="122"/>
         <location filename="../qml/Streaming.qml" line="147"/>
         <source>Streaming quality</source>
-        <translation type="unfinished"></translation>
+        <translation>串流品質</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="200"/>
         <source>Custom</source>
-        <translation type="unfinished">自訂</translation>
+        <translation>自訂</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="203"/>
         <source>Video quality: %1×%2 %3 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>視訊品質：%1×%2 %3 FPS</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="204"/>
         <source>Video bitrate: %1 Mbps</source>
-        <translation type="unfinished"></translation>
+        <translation>視訊位元率：%1 Mbps</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="205"/>
         <source>Audio sample rate: %1 kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>音訊取樣率：%1 kHz</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="206"/>
         <source>Audio bitrate: %1 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation>音訊位元率：%1 kbps</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="214"/>
         <source>Advanced settings</source>
-        <translation type="unfinished"></translation>
+        <translation>進階設定</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="229"/>
         <source>Video quality</source>
-        <translation type="unfinished">視訊品質</translation>
+        <translation>視訊品質</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="247"/>
         <source>Output width</source>
-        <translation type="unfinished">輸出寬度</translation>
+        <translation>輸出寬度</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="270"/>
         <source>Output height</source>
-        <translation type="unfinished">輸出高度</translation>
+        <translation>輸出高度</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="293"/>
         <source>Output frame rate</source>
-        <translation type="unfinished"></translation>
+        <translation>輸出影格率</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="316"/>
         <source>Video bitrate (kbps)</source>
-        <translation type="unfinished"></translation>
+        <translation>視訊位元率 (kbps)</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="336"/>
         <source>Keyframes stride (ms)</source>
-        <translation type="unfinished">關鍵影格間隔（毫秒）</translation>
+        <translation>關鍵影格間隔（毫秒）</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="353"/>
         <source>Video codec</source>
-        <translation type="unfinished">視訊編解碼器</translation>
+        <translation>視訊編解碼器</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="436"/>
         <source>Audio quality</source>
-        <translation type="unfinished">音訊品質</translation>
+        <translation>音訊品質</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="454"/>
         <source>Sample rate</source>
-        <translation type="unfinished">取樣率</translation>
+        <translation>取樣率</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="477"/>
         <source>Audio bitrate (kbps)</source>
-        <translation type="unfinished"></translation>
+        <translation>音訊位元率 (kbps)</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="498"/>
         <source>Audio codec</source>
-        <translation type="unfinished">音訊編解碼器</translation>
+        <translation>音訊編解碼器</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="521"/>
         <source>Streaming platform settings</source>
-        <translation type="unfinished"></translation>
+        <translation>串流平台設定</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="532"/>
         <source>Platform</source>
-        <translation type="unfinished"></translation>
+        <translation>平台</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="540"/>
         <source>Add platform</source>
-        <translation type="unfinished"></translation>
+        <translation>新增平台</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="547"/>
         <source>Remove platform</source>
-        <translation type="unfinished"></translation>
+        <translation>移除平台</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="561"/>
         <source>Website</source>
-        <translation type="unfinished">網站</translation>
+        <translation>網站</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="581"/>
         <source>Visit website</source>
-        <translation type="unfinished"></translation>
+        <translation>前往網站</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="596"/>
         <source>Streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>串流網址</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="627"/>
         <source>Hide streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>隱藏串流網址</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="628"/>
         <source>Show streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>顯示串流網址</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="647"/>
         <source>Streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>串流金鑰</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="680"/>
         <source>Hide streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>隱藏串流金鑰</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="681"/>
         <source>Show streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>顯示串流金鑰</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="700"/>
         <source>Streaming configuration help</source>
-        <translation type="unfinished"></translation>
+        <translation>串流設定說明</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="712"/>
         <source>Get streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>取得串流金鑰</translation>
     </message>
 </context>
 <context>
@@ -1839,7 +1839,7 @@
     <message>
         <location filename="../qml/StreamingFailedDialog.qml" line="31"/>
         <source>Streaming failed</source>
-        <translation type="unfinished"></translation>
+        <translation>串流失敗</translation>
     </message>
 </context>
 <context>
@@ -1847,57 +1847,57 @@
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="60"/>
         <source>Remove</source>
-        <translation type="unfinished">移除</translation>
+        <translation>移除</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="72"/>
         <source>Website</source>
-        <translation type="unfinished">網站</translation>
+        <translation>網站</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="92"/>
         <source>Visit website</source>
-        <translation type="unfinished"></translation>
+        <translation>前往網站</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="107"/>
         <source>Streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>串流網址</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="138"/>
         <source>Hide streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>隱藏串流網址</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="139"/>
         <source>Show streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>顯示串流網址</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="158"/>
         <source>Streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>串流金鑰</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="191"/>
         <source>Hide streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>隱藏串流金鑰</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="192"/>
         <source>Show streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>顯示串流金鑰</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="211"/>
         <source>Streaming configuration help</source>
-        <translation type="unfinished"></translation>
+        <translation>串流設定說明</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="223"/>
         <source>Get streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>取得串流金鑰</translation>
     </message>
 </context>
 <context>
@@ -1905,22 +1905,22 @@
     <message>
         <location filename="../qml/StreamingStartStopDialog.qml" line="33"/>
         <source>Start streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>開始串流</translation>
     </message>
     <message>
         <location filename="../qml/StreamingStartStopDialog.qml" line="34"/>
         <source>Stop streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>停止串流</translation>
     </message>
     <message>
         <location filename="../qml/StreamingStartStopDialog.qml" line="50"/>
         <source>Thousands of people will start watching you around the world on internet.&lt;br/&gt;Are you sure that you want to start streaming?</source>
-        <translation type="unfinished"></translation>
+        <translation>成千上萬的人將在網際網路上開始觀看你的直播。&lt;br/&gt;你確定要開始串流嗎？</translation>
     </message>
     <message>
         <location filename="../qml/StreamingStartStopDialog.qml" line="51"/>
         <source>Are you sure that you want to stop streaming?</source>
-        <translation type="unfinished"></translation>
+        <translation>你確定要停止串流嗎？</translation>
     </message>
 </context>
 <context>
@@ -2212,22 +2212,22 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="82"/>
         <source>Edit media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>編輯媒體檔案來源</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="86"/>
         <source>Edit media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>編輯媒體網址來源</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="90"/>
         <source>Add media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>新增媒體檔案來源</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="91"/>
         <source>Add media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>新增媒體網址來源</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="130"/>
@@ -2261,12 +2261,12 @@
     <message>
         <location filename="../qml/VideoInputAddScreen.qml" line="30"/>
         <source>Select the screen to add</source>
-        <translation type="unfinished"></translation>
+        <translation>選擇要新增的螢幕</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddScreen.qml" line="55"/>
         <source>Screen</source>
-        <translation type="unfinished">螢幕內容</translation>
+        <translation>螢幕內容</translation>
     </message>
 </context>
 <context>
@@ -2274,12 +2274,12 @@
     <message>
         <location filename="../qml/VideoInputAddWindow.qml" line="30"/>
         <source>Select the window to add</source>
-        <translation type="unfinished"></translation>
+        <translation>選擇要新增的視窗</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddWindow.qml" line="55"/>
         <source>Window</source>
-        <translation type="unfinished">視窗</translation>
+        <translation>視窗</translation>
     </message>
 </context>
 <context>
@@ -2305,27 +2305,27 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="76"/>
         <source>Add screen</source>
-        <translation type="unfinished"></translation>
+        <translation>新增螢幕</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="77"/>
         <source>Add screen source</source>
-        <translation type="unfinished"></translation>
+        <translation>新增螢幕來源</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="83"/>
         <source>Add window</source>
-        <translation type="unfinished"></translation>
+        <translation>新增視窗</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="91"/>
         <source>Add media file</source>
-        <translation type="unfinished"></translation>
+        <translation>新增媒體檔案</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="97"/>
         <source>Add media URL</source>
-        <translation type="unfinished"></translation>
+        <translation>新增媒體網址</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="117"/>
@@ -2494,7 +2494,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="102"/>
         <source>Add virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>新增虛擬攝影機</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="115"/>
@@ -2504,17 +2504,17 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="123"/>
         <source>Add streaming platform</source>
-        <translation type="unfinished"></translation>
+        <translation>新增串流平台</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="131"/>
         <source>Add local streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>新增本機串流</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="196"/>
         <source>Local Streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>本機串流</translation>
     </message>
 </context>
 <context>
@@ -2547,48 +2547,48 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="151"/>
         <source>Use flash</source>
-        <translation type="unfinished">使用閃光燈</translation>
+        <translation>使用閃光燈</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="154"/>
         <source>Use flash when recording a video</source>
-        <translation type="unfinished"></translation>
+        <translation>錄製影片時使用閃光燈</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="165"/>
         <location filename="../qml/VideoRecording.qml" line="190"/>
         <source>Recording quality</source>
-        <translation type="unfinished"></translation>
+        <translation>錄製品質</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="240"/>
         <source>Custom</source>
-        <translation type="unfinished">自訂</translation>
+        <translation>自訂</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="244"/>
         <source>Video quality: %1×%2 %3 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>視訊品質：%1×%2 %3 FPS</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="245"/>
         <source>Video bitrate: %1 Mbps</source>
-        <translation type="unfinished"></translation>
+        <translation>視訊位元率：%1 Mbps</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="246"/>
         <source>Audio sample rate: %1 kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>音訊取樣率：%1 kHz</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="247"/>
         <source>Audio bitrate: %1 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation>音訊位元率：%1 kbps</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="255"/>
         <source>Advanced settings</source>
-        <translation type="unfinished"></translation>
+        <translation>進階設定</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="268"/>
@@ -2666,32 +2666,32 @@
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="32"/>
         <source>Virtual camera install</source>
-        <translation type="unfinished"></translation>
+        <translation>虛擬攝影機安裝</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="52"/>
         <source>The virtual camera in Windows may not work properly and may cause inestability in the system.&lt;br/&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Windows 上的虛擬攝影機可能無法正常運作，並可能導致系統不穩定。&lt;br/&gt;</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="53"/>
-        <source>If you want to share audio and video of your current seesion, consider using &lt;/b&gt;local streaming&lt;/b&gt; which is more stable and powerful.&lt;br/&gt;&lt;br/&gt;</source>
-        <translation type="unfinished"></translation>
+        <source>If you want to share audio and video of your current seesion, consider using &lt;b&gt;local streaming&lt;/b&gt; which is more stable and powerful.&lt;br/&gt;&lt;br/&gt;</source>
+        <translation>如果你想分享目前會期的音訊與視訊，建議使用更穩定且更強大的&lt;b&gt;本機串流&lt;/b&gt;。&lt;br/&gt;&lt;br/&gt;</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="54"/>
         <source>Are you sure that you want to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>你確定要繼續嗎？</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="56"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
-        <translation type="unfinished">虛擬攝影機尚未安裝，是否安裝？</translation>
+        <translation>虛擬攝影機尚未安裝，是否安裝？</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="57"/>
         <source>The virtual camera is not installed. Please, install &lt;b&gt;v4l2loopback&lt;/b&gt;.</source>
-        <translation type="unfinished">虛擬攝影機尚未安裝。請安裝 &lt;b&gt;v4l2loopback&lt;/b&gt;。</translation>
+        <translation>虛擬攝影機尚未安裝。請安裝 &lt;b&gt;v4l2loopback&lt;/b&gt;。</translation>
     </message>
 </context>
 <context>
@@ -2699,32 +2699,32 @@
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="65"/>
         <source>Edit</source>
-        <translation type="unfinished">編輯</translation>
+        <translation>編輯</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="77"/>
         <source>Can&apos;t Edit The Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>無法編輯虛擬攝影機</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="84"/>
         <source>Set output picture</source>
-        <translation type="unfinished">設定輸出圖像</translation>
+        <translation>設定輸出圖像</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="95"/>
         <source>Remove</source>
-        <translation type="unfinished">移除</translation>
+        <translation>移除</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="110"/>
         <source>Error removing the virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>移除虛擬攝影機時出錯</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="114"/>
         <source>Can&apos;t Remove The Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>無法移除虛擬攝影機</translation>
     </message>
 </context>
 <context>
@@ -2732,17 +2732,17 @@
     <message>
         <location filename="../qml/VirtualCameraUpdateDialog.qml" line="33"/>
         <source>Virtual camera update</source>
-        <translation type="unfinished"></translation>
+        <translation>虛擬攝影機更新</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraUpdateDialog.qml" line="54"/>
         <source>The virtual camera is outdated (%1), install the latest version (%2)?</source>
-        <translation type="unfinished">虛擬攝影機版本過舊 (%1)，是否安裝最新版本 (%2)？</translation>
+        <translation>虛擬攝影機版本過舊 (%1)，是否安裝最新版本 (%2)？</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraUpdateDialog.qml" line="62"/>
         <source>Show this dialog next time</source>
-        <translation type="unfinished">下次顯示這個對話框</translation>
+        <translation>下次顯示這個對話框</translation>
     </message>
 </context>
 <context>
@@ -2750,7 +2750,7 @@
     <message>
         <location filename="../../src/virtualcameras.cpp" line="567"/>
         <source>Virtual Camera</source>
-        <translation type="unfinished">虛擬攝影機</translation>
+        <translation>虛擬攝影機</translation>
     </message>
 </context>
 <context>
@@ -2763,27 +2763,27 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="45"/>
         <source>Aging intensity</source>
-        <translation type="unfinished"></translation>
+        <translation>老化強度</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="64"/>
         <source>Dust density</source>
-        <translation type="unfinished"></translation>
+        <translation>灰塵密度</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="83"/>
         <source>Scratch density</source>
-        <translation type="unfinished"></translation>
+        <translation>刮痕密度</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="102"/>
         <source>Scratch brightness</source>
-        <translation type="unfinished"></translation>
+        <translation>刮痕亮度</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="121"/>
         <source>Pits density</source>
-        <translation type="unfinished"></translation>
+        <translation>凹坑密度</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Blur/share/qml/main.qml" line="28"/>
@@ -3569,29 +3569,14 @@
         <translation>狗</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="379"/>
-        <source>Elephant</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="423"/>
-        <source>Mouse</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="435"/>
-        <source>Pumpkin</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="451"/>
-        <source>Skull</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="375"/>
         <source>Dragon</source>
         <translation>龍</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="379"/>
+        <source>Elephant</source>
+        <translation>大象</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="383"/>
@@ -3644,6 +3629,11 @@
         <translation>猴子</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="423"/>
+        <source>Mouse</source>
+        <translation>老鼠</translation>
+    </message>
+    <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="427"/>
         <source>Panda</source>
         <translation>熊貓</translation>
@@ -3652,6 +3642,11 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="431"/>
         <source>Penguin</source>
         <translation>企鵝</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="435"/>
+        <source>Pumpkin</source>
+        <translation>南瓜</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="439"/>
@@ -3667,6 +3662,11 @@
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="447"/>
         <source>Sheep</source>
         <translation>綿羊</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="451"/>
+        <source>Skull</source>
+        <translation>骷髏</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="455"/>
@@ -3699,48 +3699,9 @@
         <translation>背景</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="652"/>
-        <source>Horizontal Offset</source>
-        <translation>水平偏移</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="671"/>
-        <source>Vertical Offset</source>
-        <translation>垂直偏移</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="798"/>
-        <source>Horizontal Radius %</source>
-        <translation>水平半徑 %</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="815"/>
-        <source>Vertical Radius %</source>
-        <translation>垂直半徑 %</translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="523"/>
         <source>Black Square</source>
         <translation>黑色方塊</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="63"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="103"/>
-        <source>Haar file</source>
-        <extracomment>https://en.wikipedia.org/wiki/Haar-like_feature</extracomment>
-        <translation>Haar 檔案</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="71"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="111"/>
-        <source>Eye</source>
-        <translation>眼睛</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="75"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="115"/>
-        <source>Eye glasses</source>
-        <translation>眼鏡</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="537"/>
@@ -3780,6 +3741,23 @@
         <translation>背景模糊或下方圖片的進階臉部區域設定。</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Vignette/share/qml/main.qml" line="63"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="632"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="741"/>
+        <source>Scale</source>
+        <translation>縮放比例</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="652"/>
+        <source>Horizontal Offset</source>
+        <translation>水平偏移</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="671"/>
+        <source>Vertical Offset</source>
+        <translation>垂直偏移</translation>
+    </message>
+    <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="691"/>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="761"/>
         <source>Width Adjust %</source>
@@ -3797,9 +3775,38 @@
         <translation>圓形區域</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="798"/>
+        <source>Horizontal Radius %</source>
+        <translation>水平半徑 %</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="815"/>
+        <source>Vertical Radius %</source>
+        <translation>垂直半徑 %</translation>
+    </message>
+    <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="305"/>
         <source>Select marker color</source>
         <translation>選擇標記色彩</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="63"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="103"/>
+        <source>Haar file</source>
+        <extracomment>https://en.wikipedia.org/wiki/Haar-like_feature</extracomment>
+        <translation>Haar 檔案</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="71"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="111"/>
+        <source>Eye</source>
+        <translation>眼睛</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceTrack/share/qml/main.qml" line="75"/>
+        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="115"/>
+        <source>Eye glasses</source>
+        <translation>眼鏡</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="56"/>
@@ -3809,12 +3816,12 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="60"/>
         <source>Luminance soft</source>
-        <translation type="unfinished"></translation>
+        <translation>亮度柔和</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="64"/>
         <source>Luminance hard</source>
-        <translation type="unfinished"></translation>
+        <translation>亮度硬邊</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="75"/>
@@ -3836,34 +3843,34 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="251"/>
         <source>Cold color</source>
-        <translation type="unfinished"></translation>
+        <translation>冷色調</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="253"/>
         <source>Choose the fire cold color</source>
-        <translation type="unfinished"></translation>
+        <translation>選擇火焰冷色調</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="260"/>
         <source>Hot color</source>
-        <translation type="unfinished"></translation>
+        <translation>暖色調</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="262"/>
         <source>Choose the fire hot color</source>
-        <translation type="unfinished"></translation>
+        <translation>選擇火焰暖色調</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="36"/>
         <source>Canny mode</source>
         <extracomment>https://en.wikipedia.org/wiki/Canny_edge_detector</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Canny 模式</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="47"/>
         <source>Equalize</source>
         <extracomment>https://en.wikipedia.org/wiki/Histogram_equalization</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>等化</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="92"/>
@@ -3879,12 +3886,12 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="77"/>
         <source>Linecolor</source>
-        <translation type="unfinished"></translation>
+        <translation>線條色彩</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="79"/>
         <source>Choose the line color</source>
-        <translation type="unfinished"></translation>
+        <translation>選擇線條色彩</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="173"/>
@@ -4180,32 +4187,32 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="64"/>
         <source>Hard natural</source>
-        <translation type="unfinished"></translation>
+        <translation>硬邊自然</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="68"/>
         <source>Soft natural</source>
-        <translation type="unfinished"></translation>
+        <translation>柔和自然</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="72"/>
         <source>Luminance hard color</source>
-        <translation type="unfinished"></translation>
+        <translation>亮度硬邊色彩</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="76"/>
         <source>Luminance soft color</source>
-        <translation type="unfinished"></translation>
+        <translation>亮度柔和色彩</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="80"/>
         <source>Luminance hard natural</source>
-        <translation type="unfinished"></translation>
+        <translation>亮度硬邊自然</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="84"/>
         <source>Luminance soft natural</source>
-        <translation type="unfinished"></translation>
+        <translation>亮度柔和自然</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="165"/>
@@ -4352,14 +4359,15 @@
         <translation>選擇裁切單位</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="100"/>
-        <source>Top</source>
-        <translation>上邊</translation>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="50"/>
+        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="184"/>
+        <source>Reset</source>
+        <translation>重設</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="117"/>
-        <source>Bottom</source>
-        <translation>下邊</translation>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="52"/>
+        <source>Reset parameters</source>
+        <translation>重設參數</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="66"/>
@@ -4372,6 +4380,16 @@
         <translation>右邊</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="100"/>
+        <source>Top</source>
+        <translation>上邊</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="117"/>
+        <source>Bottom</source>
+        <translation>下邊</translation>
+    </message>
+    <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="133"/>
         <source>Fill color</source>
         <translation>填充色彩</translation>
@@ -4382,28 +4400,10 @@
         <translation>選擇填充色彩</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="50"/>
-        <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="184"/>
-        <source>Reset</source>
-        <translation>重設</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="52"/>
-        <source>Reset parameters</source>
-        <translation>重設參數</translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/ExtraPlugins/Vignette/share/qml/main.qml" line="46"/>
         <source>Aspect</source>
         <extracomment>Aspect ratio</extracomment>
         <translation>長寬比</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Vignette/share/qml/main.qml" line="63"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="632"/>
-        <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="741"/>
-        <source>Scale</source>
-        <translation>縮放比例</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Vignette/share/qml/main.qml" line="80"/>
@@ -4643,22 +4643,22 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="126"/>
         <source>Light</source>
-        <translation type="unfinished">淺色</translation>
+        <translation>淺色</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="136"/>
         <source>Light threshold</source>
-        <translation type="unfinished"></translation>
+        <translation>亮部閾值</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="153"/>
         <source>Light color</source>
-        <translation type="unfinished"></translation>
+        <translation>亮部色彩</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="155"/>
         <source>Choose the color of the light</source>
-        <translation type="unfinished"></translation>
+        <translation>選擇亮部色彩</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="162"/>
@@ -4763,22 +4763,22 @@
     <message>
         <location filename="../qml/main.qml" line="295"/>
         <source>Start streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>開始串流</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="295"/>
         <source>Stop streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>停止串流</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="300"/>
         <source>You must add at least one streaming platform to the video outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>你必須至少新增一個串流平台至視訊輸出</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="302"/>
         <source>The following platforms are not configured:&lt;br/&gt;&lt;br/&gt;%1</source>
-        <translation type="unfinished"></translation>
+        <translation>下列平台尚未設定：&lt;br/&gt;&lt;br/&gt;%1</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="336"/>
@@ -4935,32 +4935,32 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="29"/>
         <source>Angle %1°</source>
-        <translation type="unfinished"></translation>
+        <translation>角度 %1°</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Pixelate/share/qml/main.qml" line="27"/>
         <source>Block width</source>
-        <translation type="unfinished"></translation>
+        <translation>區塊寬度</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Pixelate/share/qml/main.qml" line="44"/>
         <source>Block height</source>
-        <translation type="unfinished"></translation>
+        <translation>區塊高度</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Swirl/share/qml/main.qml" line="28"/>
         <source>Center X</source>
-        <translation type="unfinished"></translation>
+        <translation>中心 X</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Swirl/share/qml/main.qml" line="47"/>
         <source>Center Y</source>
-        <translation type="unfinished"></translation>
+        <translation>中心 Y</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Swirl/share/qml/main.qml" line="66"/>
         <source>Degrees</source>
-        <translation type="unfinished"></translation>
+        <translation>度數</translation>
     </message>
 </context>
 </TS>

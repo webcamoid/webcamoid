@@ -61,12 +61,12 @@
     <message>
         <location filename="../qml/AddPlatformDialog.qml" line="33"/>
         <source>Add platform</source>
-        <translation type="unfinished"></translation>
+        <translation>ಪ್ಲಾಟ್ಫಾರ್ಮ್ ಸೇರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/AddPlatformDialog.qml" line="42"/>
         <source>Platform</source>
-        <translation type="unfinished"></translation>
+        <translation>ಪ್ಲಾಟ್ಫಾರ್ಮ್</translation>
     </message>
 </context>
 <context>
@@ -74,42 +74,42 @@
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="28"/>
         <source>Add platform</source>
-        <translation type="unfinished"></translation>
+        <translation>ಪ್ಲಾಟ್ಫಾರ್ಮ್ ಸೇರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="57"/>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>ಹೆಸರು</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="63"/>
         <source>My Platform</source>
-        <translation type="unfinished"></translation>
+        <translation>ನನ್ನ ಪ್ಲಾಟ್ಫಾರ್ಮ್</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="68"/>
         <source>Website</source>
-        <translation type="unfinished">ವೆಬ್ಸೈಟ್</translation>
+        <translation>ವೆಬ್ಸೈಟ್</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="79"/>
         <source>Streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ URL</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="90"/>
         <source>Key configs URL</source>
-        <translation type="unfinished"></translation>
+        <translation>ಕೀ ಕಾನ್ಫಿಗ್ URL</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="101"/>
         <source>Documentation URL</source>
-        <translation type="unfinished"></translation>
+        <translation>ಡಾಕ್ಯುಮೆಂಟೇಶನ್ URL</translation>
     </message>
     <message>
         <location filename="../qml/AddStreamingPlatformDialog.qml" line="113"/>
         <source>Needs key</source>
-        <translation type="unfinished"></translation>
+        <translation>ಕೀ ಅಗತ್ಯವಿದೆ</translation>
     </message>
 </context>
 <context>
@@ -155,32 +155,32 @@
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="170"/>
         <source>Share file</source>
-        <translation type="unfinished"></translation>
+        <translation>ಫೈಲ್ ಹಂಚಿಕೊಳ್ಳಿ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="276"/>
         <source>Share files</source>
-        <translation type="unfinished"></translation>
+        <translation>ಫೈಲ್‌ಗಳನ್ನು ಹಂಚಿಕೊಳ್ಳಿ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="359"/>
         <source>Use as...</source>
-        <translation type="unfinished"></translation>
+        <translation>ಇದನ್ನು ಬಳಸಿ...</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="396"/>
         <source>Copy to...</source>
-        <translation type="unfinished"></translation>
+        <translation>ಇದಕ್ಕೆ ನಕಲಿಸಿ...</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="402"/>
         <source>All Files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>ಎಲ್ಲಾ ಫೈಲ್‌ಗಳು (*)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="418"/>
         <source>Move to...</source>
-        <translation type="unfinished"></translation>
+        <translation>ಇದಕ್ಕೆ ಸರಿಸಿ...</translation>
     </message>
 </context>
 <context>
@@ -216,12 +216,12 @@
     <message>
         <location filename="../qml/AudioInputAdd.qml" line="30"/>
         <source>Select the audio source to add</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸೇರಿಸಲು ಆಡಿಯೋ ಮೂಲವನ್ನು ಆಯ್ಕೆಮಾಡಿ</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputAdd.qml" line="55"/>
         <source>Audio input</source>
-        <translation type="unfinished"></translation>
+        <translation>ಆಡಿಯೋ ಇನ್ಪುಟ್</translation>
     </message>
 </context>
 <context>
@@ -229,30 +229,30 @@
     <message>
         <location filename="../qml/AudioInputDeviceOptions.qml" line="29"/>
         <source>Audio Input Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>ಆಡಿಯೋ ಇನ್ಪುಟ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳು</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputDeviceOptions.qml" line="124"/>
         <source>Sample Format</source>
         <extracomment>A sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
-        <translation type="unfinished">ಸ್ಯಾಂಪಲ್ ಫಾರ್ಮಾಟ್</translation>
+        <translation>ಸ್ಯಾಂಪಲ್ ಫಾರ್ಮಾಟ್</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputDeviceOptions.qml" line="142"/>
         <source>Channels</source>
-        <translation type="unfinished">ಚಾನೆಲ್‌ಗಳು</translation>
+        <translation>ಚಾನೆಲ್‌ಗಳು</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputDeviceOptions.qml" line="161"/>
         <source>Sample Rate</source>
         <extracomment>Number of audio samples per channel to be played per second.</extracomment>
-        <translation type="unfinished">ಸ್ಯಾಂಪಲ್ ದರ</translation>
+        <translation>ಸ್ಯಾಂಪಲ್ ದರ</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputDeviceOptions.qml" line="188"/>
         <source>Latency (ms)</source>
         <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio synchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
-        <translation type="unfinished">ವಿಳಂಬ (ms)</translation>
+        <translation>ವಿಳಂಬ (ms)</translation>
     </message>
 </context>
 <context>
@@ -260,7 +260,7 @@
     <message>
         <location filename="../qml/AudioInputSourceItem.qml" line="72"/>
         <source>Remove</source>
-        <translation type="unfinished">ತೆಗೆದುಹಾಕಿ</translation>
+        <translation>ತೆಗೆದುಹಾಕಿ</translation>
     </message>
 </context>
 <context>
@@ -268,22 +268,22 @@
     <message>
         <location filename="../qml/AudioInputs.qml" line="62"/>
         <source>Add audio input</source>
-        <translation type="unfinished"></translation>
+        <translation>ಆಡಿಯೋ ಇನ್ಪುಟ್ ಸೇರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputs.qml" line="74"/>
         <source>Add device input</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸಾಧನ ಇನ್ಪುಟ್ ಸೇರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputs.qml" line="80"/>
         <source>Add video source</source>
-        <translation type="unfinished"></translation>
+        <translation>ವೀಡಿಯೊ ಮೂಲ ಸೇರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputs.qml" line="93"/>
         <source>Configure audio input settings</source>
-        <translation type="unfinished"></translation>
+        <translation>ಆಡಿಯೋ ಇನ್ಪುಟ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಿ</translation>
     </message>
 </context>
 <context>
@@ -304,35 +304,35 @@
     <message>
         <location filename="../qml/AudioOutputDeviceOptions.qml" line="29"/>
         <source>Audio Device Options</source>
-        <translation type="unfinished">ಆಡಿಯೋ ಸಾಧನ ಆಯ್ಕೆಗಳು</translation>
+        <translation>ಆಡಿಯೋ ಸಾಧನ ಆಯ್ಕೆಗಳು</translation>
     </message>
     <message>
         <location filename="../qml/AudioOutputDeviceOptions.qml" line="120"/>
         <source>Audio input</source>
-        <translation type="unfinished"></translation>
+        <translation>ಆಡಿಯೋ ಇನ್ಪುಟ್</translation>
     </message>
     <message>
         <location filename="../qml/AudioOutputDeviceOptions.qml" line="186"/>
         <source>Sample Format</source>
         <extracomment>An sample represents the strength of the wave at a certain time. A sample can be expressed as the number of bits defining it (more bits better sound), the type of data representing it (signed integer, unsigned integer, floating point), and the endianness of the data (big endian, little endian). The sample format is the representation of that information. For example, &apos;s16le&apos; means that each sample format is represented by a 16 bits signed integer arranged as little endian.</extracomment>
-        <translation type="unfinished">ಸ್ಯಾಂಪಲ್ ಫಾರ್ಮಾಟ್</translation>
+        <translation>ಸ್ಯಾಂಪಲ್ ಫಾರ್ಮಾಟ್</translation>
     </message>
     <message>
         <location filename="../qml/AudioOutputDeviceOptions.qml" line="207"/>
         <source>Channels</source>
-        <translation type="unfinished">ಚಾನೆಲ್‌ಗಳು</translation>
+        <translation>ಚಾನೆಲ್‌ಗಳು</translation>
     </message>
     <message>
         <location filename="../qml/AudioOutputDeviceOptions.qml" line="229"/>
         <source>Sample Rate</source>
         <extracomment>Number of audio samples per channel to be played per second.</extracomment>
-        <translation type="unfinished">ಸ್ಯಾಂಪಲ್ ದರ</translation>
+        <translation>ಸ್ಯಾಂಪಲ್ ದರ</translation>
     </message>
     <message>
         <location filename="../qml/AudioOutputDeviceOptions.qml" line="259"/>
         <source>Latency (ms)</source>
         <extracomment>The latency is the amount of accumulated audio ready to play, measured in time. Higher latency == smoother audio playback, but more desynchronization with the video. Lowerer latency == audio synchronization near to the video, but glitchy audio playback. https://en.wikipedia.org/wiki/Latency_(audio)</extracomment>
-        <translation type="unfinished">ವಿಳಂಬ (ms)</translation>
+        <translation>ವಿಳಂಬ (ms)</translation>
     </message>
 </context>
 <context>
@@ -348,12 +348,12 @@
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="32"/>
         <source>Video capture settings</source>
-        <translation>ವೀಡಿಯೊ ಸೆರೆಹಿಡಿತ ಸettings</translation>
+        <translation>ವೀಡಿಯೊ ಸೆರೆಹಿಡಿತ ಸೆಟ್ಟಿಂಗ್‌ಗಳು</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="33"/>
         <source>Image capture settings</source>
-        <translation>ಚಿತ್ರ ಸೆರೆಹಿಡಿತ ಸettings</translation>
+        <translation>ಚಿತ್ರ ಸೆರೆಹಿಡಿತ ಸೆಟ್ಟಿಂಗ್‌ಗಳು</translation>
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="58"/>
@@ -623,128 +623,128 @@
     <message>
         <location filename="../qml/ColorSchemes.qml" line="29"/>
         <source>Customize Colors</source>
-        <translation type="unfinished"></translation>
+        <translation>ಬಣ್ಣಗಳನ್ನು ಕಸ್ಟಮೈಸ್ ಮಾಡಿ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="31"/>
         <source>Change %1 colors.</source>
         <extracomment>Changer the program colors</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 ಬಣ್ಣಗಳನ್ನು ಬದಲಾಯಿಸಿ.</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="52"/>
         <source>Color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>ಬಣ್ಣ ಯೋಜನೆ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="64"/>
         <source>Add</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸೇರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="69"/>
         <source>Create a new color scheme from the current selected one</source>
-        <translation type="unfinished"></translation>
+        <translation>ಪ್ರಸ್ತುತ ಆಯ್ಕೆಯಾದ ಯೋಜನೆಯಿಂದ ಹೊಸ ಬಣ್ಣ ಯೋಜನೆಯನ್ನು ರಚಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="74"/>
         <source>Edit</source>
-        <translation type="unfinished">ಸಂಪಾದಿಸಿ</translation>
+        <translation>ಸಂಪಾದಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="80"/>
         <source>Edit the selected color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>ಆಯ್ಕೆಯಾದ ಬಣ್ಣ ಯೋಜನೆಯನ್ನು ಸಂಪಾದಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="85"/>
         <source>Remove</source>
-        <translation type="unfinished">ತೆಗೆದುಹಾಕಿ</translation>
+        <translation>ತೆಗೆದುಹಾಕಿ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="91"/>
         <source>Delete the selected color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>ಆಯ್ಕೆಯಾದ ಬಣ್ಣ ಯೋಜನೆಯನ್ನು ಅಳಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="99"/>
         <source>Import</source>
-        <translation type="unfinished"></translation>
+        <translation>ಆಮದು ಮಾಡಿ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="104"/>
         <source>Add a new color scheme from a file</source>
-        <translation type="unfinished"></translation>
+        <translation>ಫೈಲ್‌ನಿಂದ ಹೊಸ ಬಣ್ಣ ಯೋಜನೆಯನ್ನು ಸೇರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="109"/>
         <source>Export</source>
-        <translation type="unfinished"></translation>
+        <translation>ರಫ್ತು ಮಾಡಿ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="113"/>
         <source>Save the selected color scheme into a file</source>
-        <translation type="unfinished"></translation>
+        <translation>ಆಯ್ಕೆಯಾದ ಬಣ್ಣ ಯೋಜನೆಯನ್ನು ಫೈಲ್‌ಗೆ ಉಳಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="128"/>
         <source>Export color scheme</source>
-        <translation type="unfinished"></translation>
+        <translation>ಬಣ್ಣ ಯೋಜನೆಯನ್ನು ರಫ್ತು ಮಾಡಿ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="140"/>
         <source>Enabled</source>
-        <translation type="unfinished">ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ</translation>
+        <translation>ಸಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="143"/>
         <source>Disabled</source>
-        <translation type="unfinished">ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ</translation>
+        <translation>ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಲಾಗಿದೆ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="147"/>
         <source>Preview</source>
-        <translation type="unfinished">ಪೂರ್ವವೀಕ್ಷಣೆ</translation>
+        <translation>ಪೂರ್ವವೀಕ್ಷಣೆ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="168"/>
         <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
-        <translation type="unfinished">ವಿಂಡೋ ಟೆಕ್ಸ್ಟ್ &lt;a href=&quot;#&quot;&gt;ಲಿಂಕ್&lt;/a&gt;</translation>
+        <translation>ವಿಂಡೋ ಟೆಕ್ಸ್ಟ್ &lt;a href=&quot;#&quot;&gt;ಲಿಂಕ್&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="174"/>
         <source>Button text</source>
-        <translation type="unfinished">ಬಟನ್ ಪಠ್ಯ</translation>
+        <translation>ಬಟನ್ ಪಠ್ಯ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="179"/>
         <source>Tooltip text</source>
-        <translation type="unfinished">ಟೂಲ್ಟಿಪ್ ಪಠ್ಯ</translation>
+        <translation>ಟೂಲ್ಟಿಪ್ ಪಠ್ಯ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="188"/>
         <source>Placeholder text</source>
-        <translation type="unfinished">ಪ್ಲೇಸ್ಹೋಲ್ಡರ್ ಪಠ್ಯ</translation>
+        <translation>ಪ್ಲೇಸ್ಹೋಲ್ಡರ್ ಪಠ್ಯ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="189"/>
         <source>Text</source>
-        <translation type="unfinished">ಪಠ್ಯ</translation>
+        <translation>ಪಠ್ಯ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="219"/>
         <source>Progress %1%</source>
-        <translation type="unfinished">ಪ್ರಗತಿ %1%</translation>
+        <translation>ಪ್ರಗತಿ %1%</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="246"/>
         <source>Select the color scheme to import</source>
-        <translation type="unfinished"></translation>
+        <translation>ಆಮದು ಮಾಡಲು ಬಣ್ಣ ಯೋಜನೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemes.qml" line="280"/>
         <source>Save the color scheme to a file</source>
-        <translation type="unfinished"></translation>
+        <translation>ಬಣ್ಣ ಯೋಜನೆಯನ್ನು ಫೈಲ್‌ಗೆ ಉಳಿಸಿ</translation>
     </message>
 </context>
 <context>
@@ -960,7 +960,7 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="30"/>
         <source>Configure photografy quality and formats.</source>
-        <translation type="unfinished"></translation>
+        <translation>ಛಾಯಾಗ್ರಹಣ ಗುಣಮಟ್ಟ ಮತ್ತು ಫಾರ್ಮಾಟ್‌ಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಿ.</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="54"/>
@@ -985,42 +985,42 @@
     <message>
         <location filename="../qml/ImageCapture.qml" line="142"/>
         <source>Flash settings</source>
-        <translation type="unfinished"></translation>
+        <translation>ಫ್ಲ್ಯಾಶ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳು</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="152"/>
         <source>Use flash</source>
-        <translation type="unfinished">ಫ್ಲ್ಯಾಶ್ ಬಳಸಿ</translation>
+        <translation>ಫ್ಲ್ಯಾಶ್ ಬಳಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="155"/>
         <source>Use flash when taking a photo</source>
-        <translation type="unfinished">ಫೋಟೋ ತೆಗೆಯುವಾಗ ಫ್ಲ್ಯಾಶ್ ಬಳಸಿ</translation>
+        <translation>ಫೋಟೋ ತೆಗೆಯುವಾಗ ಫ್ಲ್ಯಾಶ್ ಬಳಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="164"/>
         <source>Delay</source>
-        <translation type="unfinished">ವಿಳಂಬ</translation>
+        <translation>ವಿಳಂಬ</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="167"/>
         <source>Photo timer</source>
-        <translation type="unfinished">ಫೋಟೋ ಟೈಮರ್</translation>
+        <translation>ಫೋಟೋ ಟೈಮರ್</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="168"/>
         <source>The time to wait before the photo is taken</source>
-        <translation type="unfinished">ಫೋಟೋ ತೆಗೆಯುವ ಮೊದಲು ಕಾಯಬೇಕಾದ ಸಮಯ</translation>
+        <translation>ಫೋಟೋ ತೆಗೆಯುವ ಮೊದಲು ಕಾಯಬೇಕಾದ ಸಮಯ</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="176"/>
         <source>Now</source>
-        <translation type="unfinished">ಈಗ</translation>
+        <translation>ಈಗ</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="219"/>
         <source>%1 seconds</source>
-        <translation type="unfinished">%1 ಸೆಕೆಂಡುಗಳು</translation>
+        <translation>%1 ಸೆಕೆಂಡುಗಳು</translation>
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="247"/>
@@ -1052,12 +1052,12 @@
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="43"/>
         <source>Recording settings</source>
-        <translation type="unfinished"></translation>
+        <translation>ರೆಕಾರ್ಡಿಂಗ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳು</translation>
     </message>
     <message>
         <location filename="../qml/LocalSettingsMenu.qml" line="44"/>
         <source>Capture settings</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸೆರೆಹಿಡಿತ ಸೆಟ್ಟಿಂಗ್‌ಗಳು</translation>
     </message>
 </context>
 <context>
@@ -1065,97 +1065,97 @@
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="31"/>
         <source>Local streaming advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಥಳೀಯ ಸ್ಟ್ರೀಮಿಂಗ್ ಸುಧಾರಿತ ಆಯ್ಕೆಗಳು</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="130"/>
         <source>Local streaming quality</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಥಳೀಯ ಸ್ಟ್ರೀಮಿಂಗ್ ಗುಣಮಟ್ಟ</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="155"/>
         <source>Streaming quality</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ ಗುಣಮಟ್ಟ</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="208"/>
         <source>Custom</source>
-        <translation type="unfinished">ಕಸ್ಟಮ್</translation>
+        <translation>ಕಸ್ಟಮ್</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="211"/>
         <source>Video quality: %1×%2 %3 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>ವೀಡಿಯೊ ಗುಣಮಟ್ಟ: %1×%2 %3 FPS</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="212"/>
         <source>Video bitrate: %1 Mbps</source>
-        <translation type="unfinished"></translation>
+        <translation>ವೀಡಿಯೊ ಬಿಟ್ರೇಟ್: %1 Mbps</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="213"/>
         <source>Audio sample rate: %1 kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>ಆಡಿಯೋ ಸ್ಯಾಂಪಲ್ ದರ: %1 kHz</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="214"/>
         <source>Audio bitrate: %1 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation>ಆಡಿಯೋ ಬಿಟ್ರೇಟ್: %1 kbps</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="223"/>
         <source>Video quality</source>
-        <translation type="unfinished">ವೀಡಿಯೊ ಗುಣಮಟ್ಟ</translation>
+        <translation>ವೀಡಿಯೊ ಗುಣಮಟ್ಟ</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="241"/>
         <source>Output width</source>
-        <translation type="unfinished">ಔಟ್ಪುಟ್ ಅಗಲ</translation>
+        <translation>ಔಟ್ಪುಟ್ ಅಗಲ</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="264"/>
         <source>Output height</source>
-        <translation type="unfinished">ಔಟ್ಪುಟ್ ಎತ್ತರ</translation>
+        <translation>ಔಟ್ಪುಟ್ ಎತ್ತರ</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="287"/>
         <source>Output frame rate</source>
-        <translation type="unfinished"></translation>
+        <translation>ಔಟ್ಪುಟ್ ಫ್ರೇಮ್ ದರ</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="310"/>
         <source>Video bitrate (kbps)</source>
-        <translation type="unfinished"></translation>
+        <translation>ವೀಡಿಯೊ ಬಿಟ್ರೇಟ್ (kbps)</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="330"/>
         <source>Keyframes stride (ms)</source>
-        <translation type="unfinished">ಕೀಫ್ರೇಮ್‌ಗಳ ಸ್ಟ್ರೈಡ್ (ms)</translation>
+        <translation>ಕೀಫ್ರೇಮ್‌ಗಳ ಸ್ಟ್ರೈಡ್ (ms)</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="349"/>
         <source>Video codec</source>
-        <translation type="unfinished">ವೀಡಿಯೊ ಕೋಡೆಕ್</translation>
+        <translation>ವೀಡಿಯೊ ಕೋಡೆಕ್</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="432"/>
         <source>Audio quality</source>
-        <translation type="unfinished">ಆಡಿಯೋ ಗುಣಮಟ್ಟ</translation>
+        <translation>ಆಡಿಯೋ ಗುಣಮಟ್ಟ</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="450"/>
         <source>Sample rate</source>
-        <translation type="unfinished">ಸ್ಯಾಂಪಲ್ ದರ</translation>
+        <translation>ಸ್ಯಾಂಪಲ್ ದರ</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="473"/>
         <source>Audio bitrate (kbps)</source>
-        <translation type="unfinished"></translation>
+        <translation>ಆಡಿಯೋ ಬಿಟ್ರೇಟ್ (kbps)</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="494"/>
         <source>Audio codec</source>
-        <translation type="unfinished">ಆಡಿಯೋ ಕೋಡೆಕ್</translation>
+        <translation>ಆಡಿಯೋ ಕೋಡೆಕ್</translation>
     </message>
 </context>
 <context>
@@ -1163,37 +1163,37 @@
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="99"/>
         <source>Remove</source>
-        <translation type="unfinished">ತೆಗೆದುಹಾಕಿ</translation>
+        <translation>ತೆಗೆದುಹಾಕಿ</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="116"/>
         <source>Port</source>
-        <translation type="unfinished"></translation>
+        <translation>ಪೋರ್ಟ್</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="135"/>
         <source>Format</source>
-        <translation type="unfinished">ಫಾರ್ಮಾಟ್</translation>
+        <translation>ಫಾರ್ಮಾಟ್</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="193"/>
         <source>Resource name</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸಂಪನ್ಮೂಲ ಹೆಸರು</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="216"/>
         <source>Streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ URL</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="234"/>
         <source>Open URL in the webbrowser</source>
-        <translation type="unfinished"></translation>
+        <translation>ವೆಬ್ ಬ್ರೌಸರ್ನಲ್ಲಿ URL ತೆರೆಯಿರಿ</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="244"/>
         <source>Advanced options</source>
-        <translation type="unfinished">ಸುಧಾರಿತ ಆಯ್ಕೆಗಳು</translation>
+        <translation>ಸುಧಾರಿತ ಆಯ್ಕೆಗಳು</translation>
     </message>
 </context>
 <context>
@@ -1234,17 +1234,17 @@
     <message>
         <location filename="../qml/MainPanel.qml" line="35"/>
         <source>Virtual Camera Options</source>
-        <translation type="unfinished"></translation>
+        <translation>ವರ್ಚುವಲ್ ಕ್ಯಾಮೆರಾ ಆಯ್ಕೆಗಳು</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="37"/>
         <source>Streaming Platform Options</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ ಪ್ಲಾಟ್ಫಾರ್ಮ್ ಆಯ್ಕೆಗಳು</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="39"/>
         <source>Local Streaming Options</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಥಳೀಯ ಸ್ಟ್ರೀಮಿಂಗ್ ಆಯ್ಕೆಗಳು</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="40"/>
@@ -1257,40 +1257,40 @@
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="84"/>
         <source>%1 selected</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ಆಯ್ಕೆಯಾಗಿದೆ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="128"/>
         <source>Select all</source>
-        <translation type="unfinished"></translation>
+        <translation>ಎಲ್ಲವನ್ನೂ ಆಯ್ಕೆಮಾಡಿ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="135"/>
         <source>Deselect all</source>
-        <translation type="unfinished"></translation>
+        <translation>ಎಲ್ಲಾ ಆಯ್ಕೆಯನ್ನು ತೆಗೆದುಹಾಕಿ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="286"/>
         <source>The directory is empty</source>
-        <translation type="unfinished"></translation>
+        <translation>ಡೈರೆಕ್ಟರಿ ಖಾಲಿಯಾಗಿದೆ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="294"/>
         <source>Confirm delete</source>
-        <translation type="unfinished"></translation>
+        <translation>ಅಳಿಸುವಿಕೆಯನ್ನು ದೃಢೀಕರಿಸಿ</translation>
     </message>
     <message numerus="yes">
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="302"/>
         <source>Delete %n picture(s) permanently?</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n ಚಿತ್ರವನ್ನು ಶಾಶ್ವತವಾಗಿ ಅಳಿಸುವುದೇ?</numerusform>
+            <numerusform>%n ಚಿತ್ರಗಳನ್ನು ಶಾಶ್ವತವಾಗಿ ಅಳಿಸುವುದೇ?</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="309"/>
         <source>This action can&apos;t be undone.</source>
-        <translation type="unfinished"></translation>
+        <translation>ಈ ಕ್ರಿಯೆಯನ್ನು ಹಿಂತಿರುಗಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ.</translation>
     </message>
 </context>
 <context>
@@ -1306,27 +1306,27 @@
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="138"/>
         <source>Use as</source>
-        <translation type="unfinished"></translation>
+        <translation>ಇದನ್ನು ಬಳಸಿ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="143"/>
         <source>Open with</source>
-        <translation type="unfinished"></translation>
+        <translation>ಇದರೊಂದಿಗೆ ತೆರೆಯಿರಿ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="148"/>
         <source>Delete</source>
-        <translation type="unfinished"></translation>
+        <translation>ಅಳಿಸಿ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="156"/>
         <source>Move to</source>
-        <translation type="unfinished"></translation>
+        <translation>ಇದಕ್ಕೆ ಸರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="161"/>
         <source>Copy to</source>
-        <translation type="unfinished"></translation>
+        <translation>ಇದಕ್ಕೆ ನಕಲಿಸಿ</translation>
     </message>
 </context>
 <context>
@@ -1666,173 +1666,173 @@
     <message>
         <location filename="../qml/Streaming.qml" line="29"/>
         <source>Streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="30"/>
         <source>Configure video streaming to many platforms.</source>
-        <translation type="unfinished"></translation>
+        <translation>ಅನೇಕ ಪ್ಲಾಟ್ಫಾರ್ಮ್‌ಗಳಿಗೆ ವೀಡಿಯೊ ಸ್ಟ್ರೀಮಿಂಗ್ ಕಾನ್ಫಿಗರ್ ಮಾಡಿ.</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="122"/>
         <location filename="../qml/Streaming.qml" line="147"/>
         <source>Streaming quality</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ ಗುಣಮಟ್ಟ</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="200"/>
         <source>Custom</source>
-        <translation type="unfinished">ಕಸ್ಟಮ್</translation>
+        <translation>ಕಸ್ಟಮ್</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="203"/>
         <source>Video quality: %1×%2 %3 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>ವೀಡಿಯೊ ಗುಣಮಟ್ಟ: %1×%2 %3 FPS</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="204"/>
         <source>Video bitrate: %1 Mbps</source>
-        <translation type="unfinished"></translation>
+        <translation>ವೀಡಿಯೊ ಬಿಟ್ರೇಟ್: %1 Mbps</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="205"/>
         <source>Audio sample rate: %1 kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>ಆಡಿಯೋ ಸ್ಯಾಂಪಲ್ ದರ: %1 kHz</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="206"/>
         <source>Audio bitrate: %1 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation>ಆಡಿಯೋ ಬಿಟ್ರೇಟ್: %1 kbps</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="214"/>
         <source>Advanced settings</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸುಧಾರಿತ ಸೆಟ್ಟಿಂಗ್‌ಗಳು</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="229"/>
         <source>Video quality</source>
-        <translation type="unfinished">ವೀಡಿಯೊ ಗುಣಮಟ್ಟ</translation>
+        <translation>ವೀಡಿಯೊ ಗುಣಮಟ್ಟ</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="247"/>
         <source>Output width</source>
-        <translation type="unfinished">ಔಟ್ಪುಟ್ ಅಗಲ</translation>
+        <translation>ಔಟ್ಪುಟ್ ಅಗಲ</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="270"/>
         <source>Output height</source>
-        <translation type="unfinished">ಔಟ್ಪುಟ್ ಎತ್ತರ</translation>
+        <translation>ಔಟ್ಪುಟ್ ಎತ್ತರ</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="293"/>
         <source>Output frame rate</source>
-        <translation type="unfinished"></translation>
+        <translation>ಔಟ್ಪುಟ್ ಫ್ರೇಮ್ ದರ</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="316"/>
         <source>Video bitrate (kbps)</source>
-        <translation type="unfinished"></translation>
+        <translation>ವೀಡಿಯೊ ಬಿಟ್ರೇಟ್ (kbps)</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="336"/>
         <source>Keyframes stride (ms)</source>
-        <translation type="unfinished">ಕೀಫ್ರೇಮ್‌ಗಳ ಸ್ಟ್ರೈಡ್ (ms)</translation>
+        <translation>ಕೀಫ್ರೇಮ್‌ಗಳ ಸ್ಟ್ರೈಡ್ (ms)</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="353"/>
         <source>Video codec</source>
-        <translation type="unfinished">ವೀಡಿಯೊ ಕೋಡೆಕ್</translation>
+        <translation>ವೀಡಿಯೊ ಕೋಡೆಕ್</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="436"/>
         <source>Audio quality</source>
-        <translation type="unfinished">ಆಡಿಯೋ ಗುಣಮಟ್ಟ</translation>
+        <translation>ಆಡಿಯೋ ಗುಣಮಟ್ಟ</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="454"/>
         <source>Sample rate</source>
-        <translation type="unfinished">ಸ್ಯಾಂಪಲ್ ದರ</translation>
+        <translation>ಸ್ಯಾಂಪಲ್ ದರ</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="477"/>
         <source>Audio bitrate (kbps)</source>
-        <translation type="unfinished"></translation>
+        <translation>ಆಡಿಯೋ ಬಿಟ್ರೇಟ್ (kbps)</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="498"/>
         <source>Audio codec</source>
-        <translation type="unfinished">ಆಡಿಯೋ ಕೋಡೆಕ್</translation>
+        <translation>ಆಡಿಯೋ ಕೋಡೆಕ್</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="521"/>
         <source>Streaming platform settings</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ ಪ್ಲಾಟ್ಫಾರ್ಮ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳು</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="532"/>
         <source>Platform</source>
-        <translation type="unfinished"></translation>
+        <translation>ಪ್ಲಾಟ್ಫಾರ್ಮ್</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="540"/>
         <source>Add platform</source>
-        <translation type="unfinished"></translation>
+        <translation>ಪ್ಲಾಟ್ಫಾರ್ಮ್ ಸೇರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="547"/>
         <source>Remove platform</source>
-        <translation type="unfinished"></translation>
+        <translation>ಪ್ಲಾಟ್ಫಾರ್ಮ್ ತೆಗೆದುಹಾಕಿ</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="561"/>
         <source>Website</source>
-        <translation type="unfinished">ವೆಬ್ಸೈಟ್</translation>
+        <translation>ವೆಬ್ಸೈಟ್</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="581"/>
         <source>Visit website</source>
-        <translation type="unfinished"></translation>
+        <translation>ವೆಬ್ಸೈಟ್ ಭೇಟಿ ಮಾಡಿ</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="596"/>
         <source>Streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ URL</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="627"/>
         <source>Hide streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ URL ಮರೆಮಾಡಿ</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="628"/>
         <source>Show streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ URL ತೋರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="647"/>
         <source>Streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ ಕೀ</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="680"/>
         <source>Hide streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ ಕೀ ಮರೆಮಾಡಿ</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="681"/>
         <source>Show streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ ಕೀ ತೋರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="700"/>
         <source>Streaming configuration help</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ ಕಾನ್ಫಿಗರೇಶನ್ ಸಹಾಯ</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="712"/>
         <source>Get streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ ಕೀ ಪಡೆಯಿರಿ</translation>
     </message>
 </context>
 <context>
@@ -1840,7 +1840,7 @@
     <message>
         <location filename="../qml/StreamingFailedDialog.qml" line="31"/>
         <source>Streaming failed</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ ವಿಫಲವಾಗಿದೆ</translation>
     </message>
 </context>
 <context>
@@ -1848,57 +1848,57 @@
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="60"/>
         <source>Remove</source>
-        <translation type="unfinished">ತೆಗೆದುಹಾಕಿ</translation>
+        <translation>ತೆಗೆದುಹಾಕಿ</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="72"/>
         <source>Website</source>
-        <translation type="unfinished">ವೆಬ್ಸೈಟ್</translation>
+        <translation>ವೆಬ್ಸೈಟ್</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="92"/>
         <source>Visit website</source>
-        <translation type="unfinished"></translation>
+        <translation>ವೆಬ್ಸೈಟ್ ಭೇಟಿ ಮಾಡಿ</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="107"/>
         <source>Streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ URL</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="138"/>
         <source>Hide streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ URL ಮರೆಮಾಡಿ</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="139"/>
         <source>Show streaming URL</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ URL ತೋರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="158"/>
         <source>Streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ ಕೀ</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="191"/>
         <source>Hide streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ ಕೀ ಮರೆಮಾಡಿ</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="192"/>
         <source>Show streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ ಕೀ ತೋರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="211"/>
         <source>Streaming configuration help</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ ಕಾನ್ಫಿಗರೇಶನ್ ಸಹಾಯ</translation>
     </message>
     <message>
         <location filename="../qml/StreamingPlatformOptions.qml" line="223"/>
         <source>Get streaming key</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ ಕೀ ಪಡೆಯಿರಿ</translation>
     </message>
 </context>
 <context>
@@ -1906,22 +1906,22 @@
     <message>
         <location filename="../qml/StreamingStartStopDialog.qml" line="33"/>
         <source>Start streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ ಪ್ರಾರಂಭಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/StreamingStartStopDialog.qml" line="34"/>
         <source>Stop streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ ನಿಲ್ಲಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/StreamingStartStopDialog.qml" line="50"/>
         <source>Thousands of people will start watching you around the world on internet.&lt;br/&gt;Are you sure that you want to start streaming?</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸಾವಿರಾರು ಜನರು ಇಂಟರ್ನೆಟ್ನಲ್ಲಿ ವಿಶ್ವದಾದ್ಯಂತ ನಿಮ್ಮನ್ನು ವೀಕ್ಷಿಸಲು ಪ್ರಾರಂಭಿಸುತ್ತಾರೆ.&lt;br/&gt;ನೀವು ಸ್ಟ್ರೀಮಿಂಗ್ ಪ್ರಾರಂಭಿಸಲು ಬಯಸುತ್ತೀರಾ ಎಂದು ಖಚಿತವಾಗಿದೆಯೇ?</translation>
     </message>
     <message>
         <location filename="../qml/StreamingStartStopDialog.qml" line="51"/>
         <source>Are you sure that you want to stop streaming?</source>
-        <translation type="unfinished"></translation>
+        <translation>ನೀವು ಸ್ಟ್ರೀಮಿಂಗ್ ನಿಲ್ಲಿಸಲು ಬಯಸುತ್ತೀರಾ ಎಂದು ಖಚಿತವಾಗಿದೆಯೇ?</translation>
     </message>
 </context>
 <context>
@@ -2213,22 +2213,22 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="82"/>
         <source>Edit media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>ಮೀಡಿಯಾ ಫೈಲ್ ಮೂಲವನ್ನು ಸಂಪಾದಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="86"/>
         <source>Edit media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>ಮೀಡಿಯಾ URL ಮೂಲವನ್ನು ಸಂಪಾದಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="90"/>
         <source>Add media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>ಮೀಡಿಯಾ ಫೈಲ್ ಮೂಲ ಸೇರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="91"/>
         <source>Add media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>ಮೀಡಿಯಾ URL ಮೂಲ ಸೇರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="130"/>
@@ -2262,12 +2262,12 @@
     <message>
         <location filename="../qml/VideoInputAddScreen.qml" line="30"/>
         <source>Select the screen to add</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸೇರಿಸಲು ಸ್ಕ್ರೀನ್ ಆಯ್ಕೆಮಾಡಿ</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddScreen.qml" line="55"/>
         <source>Screen</source>
-        <translation type="unfinished">ಸ್ಕ್ರೀನ್</translation>
+        <translation>ಸ್ಕ್ರೀನ್</translation>
     </message>
 </context>
 <context>
@@ -2275,12 +2275,12 @@
     <message>
         <location filename="../qml/VideoInputAddWindow.qml" line="30"/>
         <source>Select the window to add</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸೇರಿಸಲು ವಿಂಡೋ ಆಯ್ಕೆಮಾಡಿ</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddWindow.qml" line="55"/>
         <source>Window</source>
-        <translation type="unfinished">ವಿಂಡೋ</translation>
+        <translation>ವಿಂಡೋ</translation>
     </message>
 </context>
 <context>
@@ -2311,27 +2311,27 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="76"/>
         <source>Add screen</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಕ್ರೀನ್ ಸೇರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="77"/>
         <source>Add screen source</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಕ್ರೀನ್ ಮೂಲ ಸೇರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="83"/>
         <source>Add window</source>
-        <translation type="unfinished"></translation>
+        <translation>ವಿಂಡೋ ಸೇರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="91"/>
         <source>Add media file</source>
-        <translation type="unfinished"></translation>
+        <translation>ಮೀಡಿಯಾ ಫೈಲ್ ಸೇರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="97"/>
         <source>Add media URL</source>
-        <translation type="unfinished"></translation>
+        <translation>ಮೀಡಿಯಾ URL ಸೇರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="117"/>
@@ -2495,7 +2495,7 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="102"/>
         <source>Add virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>ವರ್ಚುವಲ್ ಕ್ಯಾಮೆರಾ ಸೇರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="115"/>
@@ -2505,17 +2505,17 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="123"/>
         <source>Add streaming platform</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ ಪ್ಲಾಟ್ಫಾರ್ಮ್ ಸೇರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="131"/>
         <source>Add local streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಥಳೀಯ ಸ್ಟ್ರೀಮಿಂಗ್ ಸೇರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="196"/>
         <source>Local Streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಥಳೀಯ ಸ್ಟ್ರೀಮಿಂಗ್</translation>
     </message>
 </context>
 <context>
@@ -2548,48 +2548,48 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="151"/>
         <source>Use flash</source>
-        <translation type="unfinished">ಫ್ಲ್ಯಾಶ್ ಬಳಸಿ</translation>
+        <translation>ಫ್ಲ್ಯಾಶ್ ಬಳಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="154"/>
         <source>Use flash when recording a video</source>
-        <translation type="unfinished"></translation>
+        <translation>ವೀಡಿಯೊ ರೆಕಾರ್ಡ್ ಮಾಡುವಾಗ ಫ್ಲ್ಯಾಶ್ ಬಳಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="165"/>
         <location filename="../qml/VideoRecording.qml" line="190"/>
         <source>Recording quality</source>
-        <translation type="unfinished"></translation>
+        <translation>ರೆಕಾರ್ಡಿಂಗ್ ಗುಣಮಟ್ಟ</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="240"/>
         <source>Custom</source>
-        <translation type="unfinished">ಕಸ್ಟಮ್</translation>
+        <translation>ಕಸ್ಟಮ್</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="244"/>
         <source>Video quality: %1×%2 %3 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>ವೀಡಿಯೊ ಗುಣಮಟ್ಟ: %1×%2 %3 FPS</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="245"/>
         <source>Video bitrate: %1 Mbps</source>
-        <translation type="unfinished"></translation>
+        <translation>ವೀಡಿಯೊ ಬಿಟ್ರೇಟ್: %1 Mbps</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="246"/>
         <source>Audio sample rate: %1 kHz</source>
-        <translation type="unfinished"></translation>
+        <translation>ಆಡಿಯೋ ಸ್ಯಾಂಪಲ್ ದರ: %1 kHz</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="247"/>
         <source>Audio bitrate: %1 kbps</source>
-        <translation type="unfinished"></translation>
+        <translation>ಆಡಿಯೋ ಬಿಟ್ರೇಟ್: %1 kbps</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="255"/>
         <source>Advanced settings</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸುಧಾರಿತ ಸೆಟ್ಟಿಂಗ್‌ಗಳು</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="268"/>
@@ -2667,32 +2667,32 @@
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="32"/>
         <source>Virtual camera install</source>
-        <translation type="unfinished"></translation>
+        <translation>ವರ್ಚುವಲ್ ಕ್ಯಾಮೆರಾ ಸ್ಥಾಪನೆ</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="52"/>
         <source>The virtual camera in Windows may not work properly and may cause inestability in the system.&lt;br/&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>ವಿಂಡೋಸ್‌ನಲ್ಲಿ ವರ್ಚುವಲ್ ಕ್ಯಾಮೆರಾ ಸರಿಯಾಗಿ ಕಾರ್ಯನಿರ್ವಹಿಸದೇ ಇರಬಹುದು ಮತ್ತು ವ್ಯವಸ್ಥೆಯಲ್ಲಿ ಅಸ್ಥಿರತೆಯನ್ನು ಉಂಟುಮಾಡಬಹುದು.&lt;br/&gt;</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="53"/>
-        <source>If you want to share audio and video of your current seesion, consider using &lt;/b&gt;local streaming&lt;/b&gt; which is more stable and powerful.&lt;br/&gt;&lt;br/&gt;</source>
-        <translation type="unfinished"></translation>
+        <source>If you want to share audio and video of your current seesion, consider using &lt;b&gt;local streaming&lt;/b&gt; which is more stable and powerful.&lt;br/&gt;&lt;br/&gt;</source>
+        <translation>ನಿಮ್ಮ ಪ್ರಸ್ತುತ ಸೆಷನ್ನ ಆಡಿಯೋ ಮತ್ತು ವೀಡಿಯೊವನ್ನು ಹಂಚಿಕೊಳ್ಳಲು ನೀವು ಬಯಸಿದರೆ, ಹೆಚ್ಚು ಸ್ಥಿರ ಮತ್ತು ಶಕ್ತಿಯುತವಾದ &lt;b&gt;ಸ್ಥಳೀಯ ಸ್ಟ್ರೀಮಿಂಗ್&lt;/b&gt; ಅನ್ನು ಬಳಸುವುದನ್ನು ಪರಿಗಣಿಸಿ.&lt;br/&gt;&lt;br/&gt;</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="54"/>
         <source>Are you sure that you want to continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>ನೀವು ಮುಂದುವರಿಯಲು ಬಯಸುತ್ತೀರಾ ಎಂದು ಖಚಿತವಾಗಿದೆಯೇ?</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="56"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
-        <translation type="unfinished">ವರ್ಚುವಲ್ ಕ್ಯಾಮೆರಾ ಸ್ಥಾಪಿಸಲಾಗಿಲ್ಲ, ನೀವು ಅದನ್ನು ಸ್ಥಾಪಿಸಲು ಬಯಸುವಿರಾ?</translation>
+        <translation>ವರ್ಚುವಲ್ ಕ್ಯಾಮೆರಾ ಸ್ಥಾಪಿಸಲಾಗಿಲ್ಲ, ನೀವು ಅದನ್ನು ಸ್ಥಾಪಿಸಲು ಬಯಸುವಿರಾ?</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="57"/>
         <source>The virtual camera is not installed. Please, install &lt;b&gt;v4l2loopback&lt;/b&gt;.</source>
-        <translation type="unfinished">ವರ್ಚುವಲ್ ಕ್ಯಾಮೆರಾ ಸ್ಥಾಪಿಸಲಾಗಿಲ್ಲ. ದಯವಿಟ್ಟು &lt;b&gt;v4l2loopback&lt;/b&gt; ಸ್ಥಾಪಿಸಿ.</translation>
+        <translation>ವರ್ಚುವಲ್ ಕ್ಯಾಮೆರಾ ಸ್ಥಾಪಿಸಲಾಗಿಲ್ಲ. ದಯವಿಟ್ಟು &lt;b&gt;v4l2loopback&lt;/b&gt; ಸ್ಥಾಪಿಸಿ.</translation>
     </message>
 </context>
 <context>
@@ -2700,32 +2700,32 @@
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="65"/>
         <source>Edit</source>
-        <translation type="unfinished">ಸಂಪಾದಿಸಿ</translation>
+        <translation>ಸಂಪಾದಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="77"/>
         <source>Can&apos;t Edit The Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>ವರ್ಚುವಲ್ ಕ್ಯಾಮೆರಾವನ್ನು ಸಂಪಾದಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="84"/>
         <source>Set output picture</source>
-        <translation type="unfinished">ಔಟ್ಪುಟ್ ಚಿತ್ರ ಹೊಂದಿಸಿ</translation>
+        <translation>ಔಟ್ಪುಟ್ ಚಿತ್ರ ಹೊಂದಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="95"/>
         <source>Remove</source>
-        <translation type="unfinished">ತೆಗೆದುಹಾಕಿ</translation>
+        <translation>ತೆಗೆದುಹಾಕಿ</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="110"/>
         <source>Error removing the virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>ವರ್ಚುವಲ್ ಕ್ಯಾಮೆರಾ ತೆಗೆದುಹಾಕುವಲ್ಲಿ ದೋಷ</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="114"/>
         <source>Can&apos;t Remove The Virtual Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>ವರ್ಚುವಲ್ ಕ್ಯಾಮೆರಾವನ್ನು ತೆಗೆದುಹಾಕಲು ಸಾಧ್ಯವಿಲ್ಲ</translation>
     </message>
 </context>
 <context>
@@ -2733,17 +2733,17 @@
     <message>
         <location filename="../qml/VirtualCameraUpdateDialog.qml" line="33"/>
         <source>Virtual camera update</source>
-        <translation type="unfinished"></translation>
+        <translation>ವರ್ಚುವಲ್ ಕ್ಯಾಮೆರಾ ಅಪ್ಡೇಟ್</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraUpdateDialog.qml" line="54"/>
         <source>The virtual camera is outdated (%1), install the latest version (%2)?</source>
-        <translation type="unfinished">ವರ್ಚುವಲ್ ಕ್ಯಾಮೆರಾ ಹಳೆಯದಾಗಿದೆ (%1), ಇತ್ತೀಚಿನ ಆವೃತ್ತಿಯನ್ನು ಸ್ಥಾಪಿಸುವುದೇ (%2)?</translation>
+        <translation>ವರ್ಚುವಲ್ ಕ್ಯಾಮೆರಾ ಹಳೆಯದಾಗಿದೆ (%1), ಇತ್ತೀಚಿನ ಆವೃತ್ತಿಯನ್ನು ಸ್ಥಾಪಿಸುವುದೇ (%2)?</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraUpdateDialog.qml" line="62"/>
         <source>Show this dialog next time</source>
-        <translation type="unfinished">ಮುಂದಿನ ಬಾರಿ ಈ ಸಂವಾದ ತೋರಿಸಿ</translation>
+        <translation>ಮುಂದಿನ ಬಾರಿ ಈ ಸಂವಾದ ತೋರಿಸಿ</translation>
     </message>
 </context>
 <context>
@@ -2751,7 +2751,7 @@
     <message>
         <location filename="../../src/virtualcameras.cpp" line="567"/>
         <source>Virtual Camera</source>
-        <translation type="unfinished">ವರ್ಚುವಲ್ ಕ್ಯಾಮೆರಾ</translation>
+        <translation>ವರ್ಚುವಲ್ ಕ್ಯಾಮೆರಾ</translation>
     </message>
 </context>
 <context>
@@ -2781,27 +2781,27 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="45"/>
         <source>Aging intensity</source>
-        <translation type="unfinished"></translation>
+        <translation>ವಯಸ್ಸಾದ ತೀವ್ರತೆ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="64"/>
         <source>Dust density</source>
-        <translation type="unfinished"></translation>
+        <translation>ಧೂಳಿನ ಸಾಂದ್ರತೆ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="83"/>
         <source>Scratch density</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಕ್ರ್ಯಾಚ್ ಸಾಂದ್ರತೆ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="102"/>
         <source>Scratch brightness</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಕ್ರ್ಯಾಚ್ ಪ್ರಕಾಶಮಾನತೆ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="121"/>
         <source>Pits density</source>
-        <translation type="unfinished"></translation>
+        <translation>ಗುಳಿಗಳ ಸಾಂದ್ರತೆ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="28"/>
@@ -2882,13 +2882,13 @@
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="36"/>
         <source>Canny mode</source>
         <extracomment>https://en.wikipedia.org/wiki/Canny_edge_detector</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ಕ್ಯಾನಿ ಮೋಡ್</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="47"/>
         <source>Equalize</source>
         <extracomment>https://en.wikipedia.org/wiki/Histogram_equalization</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>ಸಮೀಕರಿಸಿ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="92"/>
@@ -2904,12 +2904,12 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="77"/>
         <source>Linecolor</source>
-        <translation type="unfinished"></translation>
+        <translation>ಲೈನ್ ಬಣ್ಣ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="79"/>
         <source>Choose the line color</source>
-        <translation type="unfinished"></translation>
+        <translation>ಲೈನ್ ಬಣ್ಣವನ್ನು ಆಯ್ಕೆಮಾಡಿ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="111"/>
@@ -3861,22 +3861,22 @@
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="379"/>
         <source>Elephant</source>
-        <translation type="unfinished"></translation>
+        <translation>ಆನೆ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="423"/>
         <source>Mouse</source>
-        <translation type="unfinished"></translation>
+        <translation>ಇಲಿ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="435"/>
         <source>Pumpkin</source>
-        <translation type="unfinished"></translation>
+        <translation>ಕುಂಬಳಕಾಯಿ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="451"/>
         <source>Skull</source>
-        <translation type="unfinished"></translation>
+        <translation>ತಲೆಬುರುಡೆ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/FaceDetect/share/qml/main.qml" line="375"/>
@@ -4188,12 +4188,12 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="60"/>
         <source>Luminance soft</source>
-        <translation type="unfinished"></translation>
+        <translation>ಲುಮಿನೆನ್ಸ್ ಸಾಫ್ಟ್</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="64"/>
         <source>Luminance hard</source>
-        <translation type="unfinished"></translation>
+        <translation>ಲುಮಿನೆನ್ಸ್ ಹಾರ್ಡ್</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="75"/>
@@ -4235,22 +4235,22 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="251"/>
         <source>Cold color</source>
-        <translation type="unfinished"></translation>
+        <translation>ಶೀತ ಬಣ್ಣ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="253"/>
         <source>Choose the fire cold color</source>
-        <translation type="unfinished"></translation>
+        <translation>ಬೆಂಕಿಯ ಶೀತ ಬಣ್ಣವನ್ನು ಆಯ್ಕೆಮಾಡಿ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="260"/>
         <source>Hot color</source>
-        <translation type="unfinished"></translation>
+        <translation>ಬಿಸಿ ಬಣ್ಣ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="262"/>
         <source>Choose the fire hot color</source>
-        <translation type="unfinished"></translation>
+        <translation>ಬೆಂಕಿಯ ಬಿಸಿ ಬಣ್ಣವನ್ನು ಆಯ್ಕೆಮಾಡಿ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Flip/share/qml/main.qml" line="26"/>
@@ -4538,32 +4538,32 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="64"/>
         <source>Hard natural</source>
-        <translation type="unfinished"></translation>
+        <translation>ಹಾರ್ಡ್ ನ್ಯಾಚುರಲ್</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="68"/>
         <source>Soft natural</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸಾಫ್ಟ್ ನ್ಯಾಚುರಲ್</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="72"/>
         <source>Luminance hard color</source>
-        <translation type="unfinished"></translation>
+        <translation>ಲುಮಿನೆನ್ಸ್ ಹಾರ್ಡ್ ಬಣ್ಣ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="76"/>
         <source>Luminance soft color</source>
-        <translation type="unfinished"></translation>
+        <translation>ಲುಮಿನೆನ್ಸ್ ಸಾಫ್ಟ್ ಬಣ್ಣ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="80"/>
         <source>Luminance hard natural</source>
-        <translation type="unfinished"></translation>
+        <translation>ಲುಮಿನೆನ್ಸ್ ಹಾರ್ಡ್ ನ್ಯಾಚುರಲ್</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="84"/>
         <source>Luminance soft natural</source>
-        <translation type="unfinished"></translation>
+        <translation>ಲುಮಿನೆನ್ಸ್ ಸಾಫ್ಟ್ ನ್ಯಾಚುರಲ್</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="165"/>
@@ -4713,22 +4713,22 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="126"/>
         <source>Light</source>
-        <translation type="unfinished">ಲೈಟ್</translation>
+        <translation>ಲೈಟ್</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="136"/>
         <source>Light threshold</source>
-        <translation type="unfinished"></translation>
+        <translation>ಲೈಟ್ ಥ್ರೆಶೋಲ್ಡ್</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="153"/>
         <source>Light color</source>
-        <translation type="unfinished"></translation>
+        <translation>ಲೈಟ್ ಬಣ್ಣ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="155"/>
         <source>Choose the color of the light</source>
-        <translation type="unfinished"></translation>
+        <translation>ಬೆಳಕಿನ ಬಣ್ಣವನ್ನು ಆಯ್ಕೆಮಾಡಿ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="162"/>
@@ -4823,22 +4823,22 @@
     <message>
         <location filename="../qml/main.qml" line="295"/>
         <source>Start streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ ಪ್ರಾರಂಭಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="295"/>
         <source>Stop streaming</source>
-        <translation type="unfinished"></translation>
+        <translation>ಸ್ಟ್ರೀಮಿಂಗ್ ನಿಲ್ಲಿಸಿ</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="300"/>
         <source>You must add at least one streaming platform to the video outputs</source>
-        <translation type="unfinished"></translation>
+        <translation>ನೀವು ವೀಡಿಯೊ ಔಟ್ಪುಟ್‌ಗಳಿಗೆ ಕನಿಷ್ಠ ಒಂದು ಸ್ಟ್ರೀಮಿಂಗ್ ಪ್ಲಾಟ್ಫಾರ್ಮ್ ಅನ್ನು ಸೇರಿಸಬೇಕು</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="302"/>
         <source>The following platforms are not configured:&lt;br/&gt;&lt;br/&gt;%1</source>
-        <translation type="unfinished"></translation>
+        <translation>ಈ ಕೆಳಗಿನ ಪ್ಲಾಟ್ಫಾರ್ಮ್‌ಗಳನ್ನು ಕಾನ್ಫಿಗರ್ ಮಾಡಲಾಗಿಲ್ಲ:&lt;br/&gt;&lt;br/&gt;%1</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="336"/>
@@ -4936,32 +4936,32 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="29"/>
         <source>Angle %1°</source>
-        <translation type="unfinished"></translation>
+        <translation>ಕೋನ %1°</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Pixelate/share/qml/main.qml" line="27"/>
         <source>Block width</source>
-        <translation type="unfinished"></translation>
+        <translation>ಬ್ಲಾಕ್ ಅಗಲ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Pixelate/share/qml/main.qml" line="44"/>
         <source>Block height</source>
-        <translation type="unfinished"></translation>
+        <translation>ಬ್ಲಾಕ್ ಎತ್ತರ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Swirl/share/qml/main.qml" line="28"/>
         <source>Center X</source>
-        <translation type="unfinished"></translation>
+        <translation>ಕೇಂದ್ರ X</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Swirl/share/qml/main.qml" line="47"/>
         <source>Center Y</source>
-        <translation type="unfinished"></translation>
+        <translation>ಕೇಂದ್ರ Y</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Swirl/share/qml/main.qml" line="66"/>
         <source>Degrees</source>
-        <translation type="unfinished"></translation>
+        <translation>ಡಿಗ್ರಿಗಳು</translation>
     </message>
 </context>
 </TS>

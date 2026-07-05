@@ -57,7 +57,6 @@ set(LANGUAGES
     it
     ja
     ka
-    kab
     kk
     km
     kn
@@ -68,7 +67,6 @@ set(LANGUAGES
     nb_NO
     nl
     oc
-    ota
     pl
     pt
     pt_BR
