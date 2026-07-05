@@ -93,7 +93,7 @@ jobs:
       COMPILER: ${{ matrix.compiler }}
       USE_SYSTEM_GCC: ${{ matrix.use_system_gcc }}
       BREW_GCC_VERSION: ${{ matrix.gcc_version }}
-      ARCHITECTURE: arm64
+      ARCHITECTURE: arm64v8
       UPLOAD: ${{ matrix.upload }}
       DAILY_BUILD: ${{ !startsWith(github.ref, 'refs/tags/') && 1 || 0 }}
     steps:
