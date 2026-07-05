@@ -37,12 +37,6 @@ Import an issue in Bountyhub, set a price and get your issue solved or a feature
 
 [![Webcamoid on BountyHub](https://img.shields.io/badge/Webcamoid-on%20BountyHub-yellow)](https://bountyhub.dev/bounties?repo=webcamoid/webcamoid)
 
-## Donations campaings ##
-
-Do you want to use Webcamoid in MacOs X, you can colabore in the donations campaing for buying MacBook.
-
-[![Go to GoGetFunding](https://img.shields.io/badge/campaign-GoGetFunding-blue?style=for-the-badge)](https://gogetfunding.com/buying-a-macbook-for-webcamoid-macos-development/)
-
 ## Status ##
 
 [![Android](https://github.com/webcamoid/webcamoid/actions/workflows/android.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/android.yml)
@@ -54,7 +48,7 @@ Do you want to use Webcamoid in MacOs X, you can colabore in the donations campa
 [![Mageia](https://github.com/webcamoid/webcamoid/actions/workflows/linux-mageia.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-mageia.yml)
 [![OpenSUSE](https://github.com/webcamoid/webcamoid/actions/workflows/linux-opensuse.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-opensuse.yml)
 [![Ubuntu](https://github.com/webcamoid/webcamoid/actions/workflows/linux-ubuntu.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-ubuntu.yml)
-[![Linux Homebrew](https://github.com/webcamoid/webcamoid/actions/workflows/linux-homebrew.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-homebrew.yml)
+[![Linux Homebrew](https://github.com/webcamoid/webcamoid/actions/workflows/linux-brew.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/linux-brew.yml)
 [![Flatpak](https://github.com/webcamoid/webcamoid/actions/workflows/flatpak.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/flatpak.yml)
 [![FreeBSD](https://github.com/webcamoid/webcamoid/actions/workflows/freebsd.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/freebsd.yml)
 [![Mac](https://github.com/webcamoid/webcamoid/actions/workflows/mac.yml/badge.svg)](https://github.com/webcamoid/webcamoid/actions/workflows/mac.yml)

@@ -97,10 +97,10 @@ jobs:
       UPLOAD: ${{ matrix.upload }}
       DAILY_BUILD: ${{ !startsWith(github.ref, 'refs/tags/') && 1 || 0 }}
     steps:
-    - uses: actions/checkout@v6
-      with:
-        submodules: true
-        token: ${{ secrets.UPLOAD_TOKEN }}
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+          token: ${{ secrets.UPLOAD_TOKEN }}
       - name: Install Homebrew
         run: |
           /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
