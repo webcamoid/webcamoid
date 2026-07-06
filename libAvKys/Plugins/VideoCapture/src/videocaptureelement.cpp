@@ -25,6 +25,11 @@
 #include <QSharedPointer>
 #include <QThreadPool>
 #include <QtConcurrent>
+
+#ifdef SHOWCASE_MODE
+#include <QFileDialog>
+#endif
+
 #include <akcaps.h>
 #include <akcompressedvideocaps.h>
 #include <akcompressedvideopacket.h>
@@ -93,6 +98,11 @@ class VideoCaptureElementPrivate
         void cameraLoop();
         void linksChanged(const AkPluginLinks &links);
         void buildStringCache();
+
+#ifdef SHOWCASE_MODE
+        static QString showcasePicturePath();
+        static AkVideoPacket showcaseFramePacket(const AkVideoCaps &caps);
+#endif
 };
 
 VideoCaptureElement::VideoCaptureElement():
@@ -1098,7 +1108,15 @@ void VideoCaptureElementPrivate::cameraLoop()
                 continue;
             }
 
+#ifdef SHOWCASE_MODE
+            auto originalFrame = capture->readFrame();
+            AkPacket packet = this->showcaseFramePacket(originalFrame.caps());
+
+            if (!packet)
+                packet = originalFrame;
+#else
             auto packet = capture->readFrame();
+#endif
 
             if (!packet)
                 continue;
@@ -1319,5 +1337,72 @@ void VideoCaptureElementPrivate::buildStringCache()
 
     this->m_stringsCache = cache;
 }
+
+#ifdef SHOWCASE_MODE
+QString VideoCaptureElementPrivate::showcasePicturePath()
+{
+    static QString videoCaptureElementPath;
+    static bool videoCaptureElementResolved = false;
+
+    if (videoCaptureElementResolved)
+        return videoCaptureElementPath;
+
+    QMetaObject::invokeMethod(qApp, [&]() {
+        videoCaptureElementPath =
+            QFileDialog::getOpenFileName(nullptr,
+                                         "Select showcase image",
+                                         QString(),
+                                         "Images (*.png *.jpg *.jpeg)");
+    }, Qt::BlockingQueuedConnection);
+
+    videoCaptureElementResolved = true;
+
+    return videoCaptureElementPath;
+}
+
+AkVideoPacket VideoCaptureElementPrivate::showcaseFramePacket(const AkVideoCaps &caps)
+{
+    auto picturePath = showcasePicturePath();
+
+    if (picturePath.isEmpty())
+        return {};
+
+    QImage sourceImage(picturePath);
+
+    if (sourceImage.isNull())
+        return {};
+
+    int width = caps.width();
+    int height = caps.height();
+
+    auto scaled = sourceImage.scaled(width,
+                                     height,
+                                     Qt::KeepAspectRatioByExpanding,
+                                     Qt::SmoothTransformation);
+
+    QRect cropRect((scaled.width() - width) / 2,
+                   (scaled.height() - height) / 2,
+                   width,
+                   height);
+    auto cropped = scaled.copy(cropRect);
+
+    if (cropped.format() != QImage::Format_ARGB32)
+        cropped = cropped.convertToFormat(QImage::Format_ARGB32);
+
+    AkVideoPacket rgbPacket({AkVideoCaps::Format_argbpack,
+                             width,
+                             height,
+                             caps.fps()},
+                            true);
+
+    for (int y = 0; y < height; y++) {
+        auto srcLine = reinterpret_cast<const quint8 *>(cropped.constScanLine(y));
+        auto dstLine = rgbPacket.line(0, y);
+        memcpy(dstLine, srcLine, size_t(width) * sizeof(QRgb));
+    }
+
+    return rgbPacket;
+}
+#endif
 
 #include "moc_videocaptureelement.cpp"

@@ -31,6 +31,11 @@ set(QT_COMPONENTS
     Concurrent
     Gui
     Qml)
+
+if (SHOWCASE_MODE)
+    list(APPEND QT_COMPONENTS Widgets)
+endif ()
+
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
@@ -68,6 +73,10 @@ target_include_directories(VideoCaptureSrc
 target_compile_definitions(VideoCaptureSrc PRIVATE AVKYS_PLUGIN_VIDEOCAPTURE)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(VideoCaptureSrc avkys ${QT_LIBS})
+
+if (SHOWCASE_MODE)
+    add_definitions(-DSHOWCASE_MODE)
+endif ()
 
 if (WIN32)
     target_link_libraries(VideoCaptureSrc ole32)

@@ -66,6 +66,7 @@ set(NOVIDEOEFFECTS OFF CACHE BOOL "No build video effects")
 set(NOWASAPI OFF CACHE BOOL "Disable WASAPI support")
 set(NOWLROOTS OFF CACHE BOOL "Disable Wayland capture support using wlroots protocol")
 set(NOXLIBSCREENCAP OFF CACHE BOOL "Disable screen capture using Xlib")
+set(SHOWCASE_MODE OFF CACHE BOOL "Enable this option when you want to take good screenshots of the program")
 
 # SIMD optimizations
 
