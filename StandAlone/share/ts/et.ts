@@ -3699,12 +3699,12 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="473"/>
         <source>Pixel grid width</source>
-        <translation type="unfinished"></translation>
+        <translation>Pikseliruudustiku laius</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="490"/>
         <source>Pixel grid height</source>
-        <translation type="unfinished"></translation>
+        <translation>Pikseliruudustiku kõrgus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="533"/>
