@@ -49,7 +49,6 @@ add_subdirectory(SwapRB)
 
 if (NOT NOVIDEOEFFECTS)
     add_subdirectory(AspectRatio)
-    add_subdirectory(Blur)
     add_subdirectory(ChangeHSL)
     add_subdirectory(ColorFilter)
     add_subdirectory(ColorKey)
