@@ -3709,7 +3709,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="533"/>
         <source>Adjust the size and position of the face marker area.</source>
-        <translation type="unfinished"></translation>
+        <translation>Muuda näotuvastuse markeri mõõte ja paigutust.</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="562"/>
