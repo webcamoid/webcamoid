@@ -4678,44 +4678,54 @@
         <translation>دورانیہ (سیکنڈ میں)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="28"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="33"/>
         <source>X-Axis</source>
         <translation>ایکس محور</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="38"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="43"/>
         <source>Amplitude (X)</source>
         <translation>امپلی ٹیوڈ (ایکس)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="54"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="59"/>
         <source>Frequency (X)</source>
         <translation>فریکوئنسی (ایکس)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="70"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="75"/>
         <source>Phase (X)</source>
         <translation>فیز (ایکس)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="85"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="90"/>
         <source>Y-Axis</source>
         <translation>وائی محور</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="95"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="100"/>
         <source>Amplitude (Y)</source>
         <translation>امپلی ٹیوڈ (وائی)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="111"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="116"/>
         <source>Frequency (Y)</source>
         <translation>فریکوئنسی (وائی)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="127"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="132"/>
         <source>Phase (Y)</source>
         <translation>فیز (وائی)</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="149"/>
+        <source>Backgroud color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="151"/>
+        <source>Choose the backgroud color</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="46"/>

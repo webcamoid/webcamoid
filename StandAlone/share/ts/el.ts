@@ -4633,44 +4633,54 @@
         <translation>Επιλογή χρώματος σκιάς</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="28"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="33"/>
         <source>X-Axis</source>
         <translation>Άξονας Χ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="38"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="43"/>
         <source>Amplitude (X)</source>
         <translation>Αποskew (Χ)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="54"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="59"/>
         <source>Frequency (X)</source>
         <translation>Συχνότητα (Χ)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="70"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="75"/>
         <source>Phase (X)</source>
         <translation>Φάση (Χ)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="85"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="90"/>
         <source>Y-Axis</source>
         <translation>Άξονας Υ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="95"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="100"/>
         <source>Amplitude (Y)</source>
         <translation>Αποskew (Υ)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="111"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="116"/>
         <source>Frequency (Y)</source>
         <translation>Συχνότητα (Υ)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="127"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="132"/>
         <source>Phase (Y)</source>
         <translation>Φάση (Υ)</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="149"/>
+        <source>Backgroud color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="151"/>
+        <source>Choose the backgroud color</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="61"/>

@@ -4678,44 +4678,54 @@
         <translation>Müddət (saniyə ilə)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="28"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="33"/>
         <source>X-Axis</source>
         <translation>X Oxu</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="38"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="43"/>
         <source>Amplitude (X)</source>
         <translation>Amplituda (X)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="54"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="59"/>
         <source>Frequency (X)</source>
         <translation>Tezlik (X)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="70"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="75"/>
         <source>Phase (X)</source>
         <translation>Faza (X)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="85"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="90"/>
         <source>Y-Axis</source>
         <translation>Y Oxu</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="95"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="100"/>
         <source>Amplitude (Y)</source>
         <translation>Amplituda (Y)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="111"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="116"/>
         <source>Frequency (Y)</source>
         <translation>Tezlik (Y)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Wave/share/qml/main.qml" line="127"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="132"/>
         <source>Phase (Y)</source>
         <translation>Faza (Y)</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="149"/>
+        <source>Backgroud color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="151"/>
+        <source>Choose the backgroud color</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="46"/>
