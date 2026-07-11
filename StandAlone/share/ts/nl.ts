@@ -3719,17 +3719,17 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="473"/>
         <source>Pixel grid width</source>
-        <translation type="unfinished"></translation>
+        <translation>Breedte van pixelrooster</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="490"/>
         <source>Pixel grid height</source>
-        <translation type="unfinished"></translation>
+        <translation>Hoogte van pixelrooster</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="533"/>
         <source>Adjust the size and position of the face marker area.</source>
-        <translation type="unfinished"></translation>
+        <translation>Pas de grootte en positie van het gezichtsherkenningsgebied aan.</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="562"/>
@@ -4788,12 +4788,12 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="149"/>
         <source>Backgroud color</source>
-        <translation type="unfinished"></translation>
+        <translation>Achtergrondkleur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="151"/>
         <source>Choose the backgroud color</source>
-        <translation type="unfinished"></translation>
+        <translation>Kies een achtergrondkleur</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="61"/>
