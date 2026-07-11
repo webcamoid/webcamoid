@@ -4548,12 +4548,12 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="149"/>
         <source>Backgroud color</source>
-        <translation type="unfinished"></translation>
+        <translation>Arka plan rengi</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="151"/>
         <source>Choose the backgroud color</source>
-        <translation type="unfinished"></translation>
+        <translation>Arka plan rengini seçin</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="61"/>
