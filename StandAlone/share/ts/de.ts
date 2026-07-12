@@ -4675,12 +4675,12 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="149"/>
         <source>Backgroud color</source>
-        <translation type="unfinished"></translation>
+        <translation>Hintergrundfarbe</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="151"/>
         <source>Choose the backgroud color</source>
-        <translation type="unfinished"></translation>
+        <translation>Hintergrundfarbe auswählen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="61"/>
