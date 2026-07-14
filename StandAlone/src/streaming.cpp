@@ -124,7 +124,6 @@ class StreamingPrivate
         QMetaObject::Connection m_videoHeadersChangedConnection;
         QMutex m_mutex;
         QThreadPool m_threadPool;
-        AkVideoPacket m_curPacket;
         AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 
         explicit StreamingPrivate(Streaming *self);
@@ -831,11 +830,6 @@ void Streaming::resetBitrate(AkCaps::CapsType type)
 
 AkPacket Streaming::iStream(const AkPacket &packet)
 {
-    if (packet.type() == AkPacket::PacketVideo) {
-        QMutexLocker locker(&this->d->m_mutex);
-        this->d->m_curPacket = packet;
-    }
-
     if (this->d->m_isStreaming) {
         switch (packet.type()) {
         case AkPacket::PacketAudio:

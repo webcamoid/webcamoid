@@ -107,9 +107,7 @@ class AkGLPipelinePrivate
         char *m_readbackBuffer {nullptr};
         size_t m_readbackBufferSize {0};
 
-        QThreadPool m_threadPool;
-        QFuture<void> m_threadStatus;
-        AkVideoPacket m_curPacket;
+        QMutex m_packetMutex;
 
         explicit AkGLPipelinePrivate(AkGLPipeline *self);
 
@@ -129,7 +127,6 @@ class AkGLPipelinePrivate
         void ensureFboSize(QOpenGLFramebufferObject *&fbo,
                            int width,
                            int height);
-        void sendPacket(const AkVideoPacket &packet);
 };
 
 AkGLPipeline::AkGLPipeline(QObject *parent):
@@ -798,9 +795,6 @@ void AkGLPipelinePrivate::uninitGL()
         delete this->m_context;
         this->m_context = nullptr;
     }
-
-    this->m_threadPool.waitForDone();
-    this->m_curPacket = AkVideoPacket();
 }
 
 void AkGLPipelinePrivate::initEffects()
@@ -887,7 +881,7 @@ void AkGLPipelinePrivate::processPacket(const AkVideoPacket &packet)
     if (packetLineSize == gpuLineSize)
         memcpy(this->m_uploadBuffer,
                packet.constData(),
-               this->m_uploadBufferSize);
+               gpuBufferSize);
     else
         for (int y = 0; y < height; ++y)
             memcpy(this->m_uploadBuffer + y * gpuLineSize,
@@ -917,7 +911,10 @@ void AkGLPipelinePrivate::processPacket(const AkVideoPacket &packet)
 
         for (auto &effect: this->m_effects)
             if (effect.element) {
-                this->ensureFboSize(this->m_fbo[dstIdx], width, height);
+                auto outSize = this->m_fbo[srcIdx]->size();
+                this->ensureFboSize(this->m_fbo[dstIdx],
+                                    outSize.width(),
+                                    outSize.height());
                 effect.element->process(this->m_fbo[srcIdx],
                                         this->m_fbo[dstIdx],
                                         packet.id(),
@@ -927,7 +924,10 @@ void AkGLPipelinePrivate::processPacket(const AkVideoPacket &packet)
 
         if (this->m_preview.element
             && (!this->m_chainEffects || this->m_effects.isEmpty())) {
-            this->ensureFboSize(this->m_fbo[dstIdx], width, height);
+            auto outSize = this->m_fbo[srcIdx]->size();
+            this->ensureFboSize(this->m_fbo[dstIdx],
+                                outSize.width(),
+                                outSize.height());
             this->m_preview.element->process(this->m_fbo[srcIdx],
                                              this->m_fbo[dstIdx],
                                              packet.id(),
@@ -974,22 +974,16 @@ void AkGLPipelinePrivate::processPacket(const AkVideoPacket &packet)
     if (gpuLineSize == dst.lineSize(0))
         memcpy(dst.data(),
                this->m_readbackBuffer,
-               this->m_readbackBufferSize);
+               gpuBufferSize);
     else
         for (int y = 0; y < outSize.height(); ++y)
             memcpy(dst.line(0, y),
                    this->m_readbackBuffer + y * gpuLineSize,
                    copyLineSize);
 
-    if (!this->m_threadStatus.isRunning()) {
-        this->m_threadStatus.waitForFinished();
-        this->m_curPacket = dst;
-
-        this->m_threadStatus =
-            QtConcurrent::run(&this->m_threadPool,
-                              &AkGLPipelinePrivate::sendPacket,
-                              this,
-                              this->m_curPacket);
+    if (this->m_packetMutex.tryLock()) {
+        emit self->oStream(dst);
+        this->m_packetMutex.unlock();
     }
 }
 
@@ -1024,11 +1018,6 @@ void AkGLPipelinePrivate::ensureFboSize(QOpenGLFramebufferObject *&fbo,
 
     delete fbo;
     fbo = new QOpenGLFramebufferObject(width, height, fmt);
-}
-
-void AkGLPipelinePrivate::sendPacket(const AkVideoPacket &packet)
-{
-    emit self->oStream(packet);
 }
 
 AkGLPipelineEffect::AkGLPipelineEffect()
