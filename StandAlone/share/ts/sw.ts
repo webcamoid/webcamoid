@@ -2834,22 +2834,22 @@
         <translation>Kelele</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AspectRatio/share/qml/main.qml" line="27"/>
         <source>Width</source>
         <translation>Upana</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="33"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AspectRatio/share/qml/main.qml" line="33"/>
         <source>Aspect ratio width</source>
         <translation>Upana wa uwiano wa sura</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="45"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AspectRatio/share/qml/main.qml" line="45"/>
         <source>Height</source>
         <translation>Urefu</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="51"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AspectRatio/share/qml/main.qml" line="51"/>
         <source>Aspect ratio height</source>
         <translation>Urefu wa uwiano wa sura</translation>
     </message>
@@ -2896,8 +2896,8 @@
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="150"/>
         <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="91"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="125"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Ripple/share/qml/main.qml" line="114"/>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="46"/>
-        <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="114"/>
         <source>Threshold</source>
         <translation>Kizingiti</translation>
     </message>
@@ -2933,97 +2933,97 @@
         <translation>Kizuizi cha kukagua</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="42"/>
+        <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="42"/>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="43"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="42"/>
-        <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="42"/>
         <source>Transform matrix</source>
         <extracomment>https://en.wikipedia.org/wiki/Transformation_matrix</extracomment>
         <translation>Matrix ya mageuzi</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="58"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="59"/>
+        <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="58"/>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="59"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="58"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="59"/>
-        <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="58"/>
         <source>Column 0, Row 0</source>
         <translation>Kolamu 0, Safu 0</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="70"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="71"/>
+        <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="70"/>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="71"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="70"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="71"/>
-        <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="70"/>
         <source>Column 1, Row 0</source>
         <translation>Kolamu 1, Safu 0</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="82"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="83"/>
+        <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="82"/>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="83"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="82"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="83"/>
-        <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="82"/>
         <source>Column 2, Row 0</source>
         <translation>Kolamu 2, Safu 0</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="94"/>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="95"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="94"/>
         <source>Column 3, Row 0</source>
         <translation>Kolamu 3, Safu 0</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="108"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="97"/>
+        <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="96"/>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="109"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="108"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="97"/>
-        <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="96"/>
         <source>Column 0, Row 1</source>
         <translation>Kolamu 0, Safu 1</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="120"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="109"/>
+        <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="108"/>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="121"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="120"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="109"/>
-        <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="108"/>
         <source>Column 1, Row 1</source>
         <translation>Kolamu 1, Safu 1</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="132"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="121"/>
+        <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="120"/>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="133"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="132"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="121"/>
-        <location filename="../../../libAvKys/Plugins/MatrixTransform/share/qml/main.qml" line="120"/>
         <source>Column 2, Row 1</source>
         <translation>Kolamu 2, Safu 1</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="144"/>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="145"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="144"/>
         <source>Column 3, Row 1</source>
         <translation>Kolamu 3, Safu 1</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="158"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="135"/>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="159"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="158"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="135"/>
         <source>Column 0, Row 2</source>
         <translation>Kolamu 0, Safu 2</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="170"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="147"/>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="171"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="170"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="147"/>
         <source>Column 1, Row 2</source>
         <translation>Kolamu 1, Safu 2</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="182"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="159"/>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="183"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="182"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="159"/>
         <source>Column 2, Row 2</source>
         <translation>Kolamu 2, Safu 2</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="194"/>
         <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="195"/>
-        <location filename="../../../libAvKys/Plugins/ColorTransform/share/qml/main.qml" line="194"/>
         <source>Column 3, Row 2</source>
         <translation>Kolamu 3, Safu 2</translation>
     </message>
@@ -3032,7 +3032,7 @@
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="44"/>
         <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="48"/>
-        <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="43"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Ripple/share/qml/main.qml" line="43"/>
         <source>Mode</source>
         <translation>Hali</translation>
     </message>
@@ -3192,17 +3192,17 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="208"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="137"/>
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="87"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="214"/>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="137"/>
         <source>Background color</source>
         <translation>Rangi ya nyuma</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="210"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="139"/>
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="89"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="216"/>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="139"/>
         <source>Choose the background color</source>
         <translation>Chagua rangi ya nyuma</translation>
     </message>
@@ -3225,10 +3225,10 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cinema/share/qml/main.qml" line="52"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="59"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="125"/>
         <location filename="../../../libAvKys/ExtraPlugins/Vignette/share/qml/main.qml" line="33"/>
         <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="34"/>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="59"/>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="125"/>
         <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="33"/>
         <source>Color</source>
         <translation>Rangi</translation>
@@ -3252,56 +3252,56 @@
         <translation>Laini</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="61"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="61"/>
         <source>Choose the color to filter</source>
         <translation>Chagua rangi ya kuchuja</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="71"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="71"/>
         <source>Color Difference</source>
         <translation>Tofauti ya Rangi</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="88"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="88"/>
         <source>Smoothness</source>
         <translation>Ulaini</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="104"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="104"/>
         <source>Normalize</source>
         <translation>Rekebisha</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="114"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="114"/>
         <source>Background type</source>
         <translation>Aina ya nyuma</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="121"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="121"/>
         <source>No background</source>
         <translation>Hakuna nyuma</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="129"/>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="237"/>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="129"/>
         <source>Image</source>
         <translation>Picha</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="163"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="152"/>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="118"/>
         <source>Source palette</source>
         <translation>Pazia la chanzo</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="164"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="153"/>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="119"/>
         <source>Search the image file to use as palette</source>
         <translation>Tafuta faili ya picha ya kutumia kama pazia</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="163"/>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="639"/>
-        <location filename="../../../libAvKys/Plugins/ColorKey/share/qml/main.qml" line="174"/>
         <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="142"/>
         <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="222"/>
         <source>Please choose an image file</source>
@@ -3388,97 +3388,97 @@
         <translation>Maalum</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Photocopy/share/qml/main.qml" line="44"/>
         <location filename="../../../libAvKys/Plugins/Contrast/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/Photocopy/share/qml/main.qml" line="44"/>
         <source>Contrast</source>
         <translation>Utofautishaji</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="43"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="43"/>
         <source>Convolve matrix</source>
         <extracomment>https://en.wikipedia.org/wiki/Kernel_(image_processing)</extracomment>
         <translation>Matrix ya kujikunja</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="167"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="173"/>
         <location filename="../../../libAvKys/ExtraPlugins/Emboss/share/qml/main.qml" line="28"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="167"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="173"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Saturated/share/qml/main.qml" line="27"/>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="46"/>
         <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="52"/>
-        <location filename="../../../libAvKys/Plugins/Saturated/share/qml/main.qml" line="27"/>
         <source>Factor</source>
         <translation>Kipengele</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="185"/>
         <location filename="../../../libAvKys/ExtraPlugins/Emboss/share/qml/main.qml" line="46"/>
-        <location filename="../../../libAvKys/Plugins/Convolve/share/qml/main.qml" line="185"/>
         <source>Bias</source>
         <translation>Upendeleo</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="33"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="33"/>
         <source>Edit</source>
         <translation>Hariri</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="35"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="35"/>
         <source>Enable edition mode</source>
         <translation>Washa hali ya hariri</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="42"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="42"/>
         <source>Pixels/%</source>
         <translation>Pikseli/%</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="43"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="43"/>
         <source>Select cropping unit</source>
         <translation>Chagua kitengo cha kukatia</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="50"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="50"/>
         <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="184"/>
         <source>Reset</source>
         <translation>Weka upya</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="52"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="52"/>
         <source>Reset parameters</source>
         <translation>Weka upya vigezo</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="57"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="57"/>
         <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="46"/>
         <source>Keep resolution</source>
         <translation>Hifadhi mwonekano</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="66"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="66"/>
         <source>Left</source>
         <translation>Kushoto</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="83"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="83"/>
         <source>Right</source>
         <translation>Kulia</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="100"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="100"/>
         <source>Top</source>
         <translation>Juu</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="117"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="117"/>
         <source>Bottom</source>
         <translation>Chini</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="133"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="133"/>
         <source>Fill color</source>
         <translation>Jaza rangi</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="135"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="135"/>
         <source>Choose the filling color</source>
         <translation>Chagua rangi ya kujaza</translation>
     </message>
@@ -3514,14 +3514,14 @@
         <translation>Ukubwa wa kizuizi</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Quark/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Quark/share/qml/main.qml" line="33"/>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="91"/>
         <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="97"/>
         <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="34"/>
         <location filename="../../../libAvKys/Plugins/Nervous/share/qml/main.qml" line="27"/>
         <location filename="../../../libAvKys/Plugins/Nervous/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/Quark/share/qml/main.qml" line="27"/>
-        <location filename="../../../libAvKys/Plugins/Quark/share/qml/main.qml" line="33"/>
         <source>Number of frames</source>
         <translation>Idadi ya fremu</translation>
     </message>
@@ -3556,9 +3556,9 @@
         <translation>Ukubwa wa kielekezi</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Ripple/share/qml/main.qml" line="73"/>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="34"/>
-        <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="73"/>
         <source>Amplitude</source>
         <translation>Kimo</translation>
     </message>
@@ -3575,17 +3575,17 @@
         <translation>Ukubwa wa gridi</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Dizzy/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Dizzy/share/qml/main.qml" line="27"/>
         <source>Speed</source>
         <translation>Kasi</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Dizzy/share/qml/main.qml" line="45"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Dizzy/share/qml/main.qml" line="45"/>
         <source>Zoom rate</source>
         <translation>Kiwango cha kuvutia</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Dizzy/share/qml/main.qml" line="62"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Dizzy/share/qml/main.qml" line="62"/>
         <source>Strength</source>
         <translation>Nguvu</translation>
     </message>
@@ -4125,14 +4125,14 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="132"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="109"/>
-        <location filename="../../../libAvKys/Plugins/Zoom/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Zoom/share/qml/main.qml" line="27"/>
         <source>Zoom</source>
         <translation>Kuvutia</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="173"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="146"/>
-        <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="135"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Ripple/share/qml/main.qml" line="135"/>
         <source>Luma threshold</source>
         <extracomment>Minimum luminance/light/white level/intensity in a gray or black and white picture. https://en.wikipedia.org/wiki/Luma_(video)</extracomment>
         <translation>Kizingiti cha luma</translation>
@@ -4319,7 +4319,7 @@
         <translation>Lazimisha kiwango cha fremu</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Implode/share/qml/main.qml" line="28"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Implode/share/qml/main.qml" line="28"/>
         <source>Amount</source>
         <translation>Kiasi</translation>
     </message>
@@ -4438,7 +4438,7 @@
         <translation>Viwango</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Photocopy/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Photocopy/share/qml/main.qml" line="27"/>
         <source>Brightness</source>
         <translation>Mwangaza</translation>
     </message>
@@ -4494,85 +4494,85 @@
         <translation>Rangi ya mionzi</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="51"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Ripple/share/qml/main.qml" line="51"/>
         <source>Motion detect</source>
         <translation>Gundua mwendo</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="55"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Ripple/share/qml/main.qml" line="55"/>
         <source>Rain</source>
         <translation>Mvua</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="63"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Ripple/share/qml/main.qml" line="63"/>
         <source>General parameters</source>
         <translation>Vigezo vya jumla</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="89"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Ripple/share/qml/main.qml" line="89"/>
         <source>Decay</source>
         <translation>Kuharibika</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="104"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Ripple/share/qml/main.qml" line="104"/>
         <source>Motion detection parameters</source>
         <translation>Vigezo vya kugundua mwendo</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="150"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Ripple/share/qml/main.qml" line="150"/>
         <source>Rain parameters</source>
         <translation>Vigezo vya mvua</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="160"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Ripple/share/qml/main.qml" line="160"/>
         <source>Minimum drop size</source>
         <translation>Ukubwa mdogo wa tone</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="176"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Ripple/share/qml/main.qml" line="176"/>
         <source>Maximum drop size</source>
         <translation>Ukubwa mkubwa wa tone</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="192"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Ripple/share/qml/main.qml" line="192"/>
         <source>Drop thickness</source>
         <translation>Uzito wa tone</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Ripple/share/qml/main.qml" line="209"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Ripple/share/qml/main.qml" line="209"/>
         <source>Drop frequency</source>
         <translation>Mzunguko wa tone</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="38"/>
-        <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="44"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ScanLines/share/qml/main.qml" line="38"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ScanLines/share/qml/main.qml" line="44"/>
         <source>Show lines</source>
         <translation>Onyesha mistari</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="56"/>
-        <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="62"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ScanLines/share/qml/main.qml" line="56"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ScanLines/share/qml/main.qml" line="62"/>
         <source>Hide lines</source>
         <translation>Ficha mistari</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="73"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ScanLines/share/qml/main.qml" line="73"/>
         <source>Hide color</source>
         <translation>Ficha rangi</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ScanLines/share/qml/main.qml" line="75"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ScanLines/share/qml/main.qml" line="75"/>
         <source>Choose the hide color</source>
         <translation>Chagua rangi ya kuficha</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Shagadelic/share/qml/main.qml" line="27"/>
-        <location filename="../../../libAvKys/Plugins/Shagadelic/share/qml/main.qml" line="33"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Shagadelic/share/qml/main.qml" line="40"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Shagadelic/share/qml/main.qml" line="46"/>
         <source>Mask</source>
         <translation>Mask</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Temperature/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Temperature/share/qml/main.qml" line="27"/>
         <source>Temperature</source>
         <translation>Joto</translation>
     </message>
@@ -4668,12 +4668,12 @@
         <translation>Chagua rangi ya kivuli</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Warp/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Warp/share/qml/main.qml" line="27"/>
         <source>Ripples</source>
         <translation>Mawimbi</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Warp/share/qml/main.qml" line="43"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Warp/share/qml/main.qml" line="43"/>
         <source>Duration (in seconds)</source>
         <translation>Muda (kwa sekunde)</translation>
     </message>
