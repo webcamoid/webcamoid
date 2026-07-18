@@ -41,8 +41,10 @@ add_subdirectory(VirtualCamera)
 # These are required by some of the base plugins to work fine.
 add_subdirectory(AdjustHSL)
 add_subdirectory(Contrast)
-add_subdirectory(Flip)
-add_subdirectory(FpsControl)
 add_subdirectory(Gamma)
 add_subdirectory(Rotate)
-add_subdirectory(SwapRB)
+
+if (NOT NOVIDEOEFFECTS)
+    add_subdirectory(Flip)
+    add_subdirectory(SwapRB)
+endif ()

@@ -1926,22 +1926,22 @@
 <context>
     <name>TableColor</name>
     <message>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="40"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FalseColor/share/qml/TableColor.qml" line="40"/>
         <source>Select the new color</source>
         <translation>အရောင်အသစ်ကိုရွေးချယ်ပါ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="42"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FalseColor/share/qml/TableColor.qml" line="42"/>
         <source>Color %1</source>
         <translation>အရောင် %1</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="51"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FalseColor/share/qml/TableColor.qml" line="51"/>
         <source>Remove color</source>
         <translation>အရောင်ဖယ်ရှားပါ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="52"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FalseColor/share/qml/TableColor.qml" line="52"/>
         <source>Remove color %1</source>
         <translation>အရောင် %1 ကိုဖယ်ရှားပါ</translation>
     </message>
@@ -2854,10 +2854,10 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Blur/share/qml/main.qml" line="28"/>
-        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="49"/>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="63"/>
-        <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/OilPaint/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorFilter/share/qml/main.qml" line="49"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorReplace/share/qml/main.qml" line="63"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Denoise/share/qml/main.qml" line="29"/>
+        <location filename="../../../libAvKys/ExtraPlugins/OilPaint/share/qml/main.qml" line="27"/>
         <source>Radius</source>
         <translation>အချင်းဝက်</translation>
     </message>
@@ -2894,9 +2894,9 @@
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="58"/>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="150"/>
         <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="91"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Life/share/qml/main.qml" line="46"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="125"/>
         <location filename="../../../libAvKys/ExtraPlugins/Ripple/share/qml/main.qml" line="114"/>
-        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="46"/>
         <source>Threshold</source>
         <translation>အစပ်</translation>
     </message>
@@ -2932,97 +2932,97 @@
         <translation>စကင်ဘလောက်</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="42"/>
         <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="42"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="43"/>
         <source>Transform matrix</source>
         <extracomment>https://en.wikipedia.org/wiki/Transformation_matrix</extracomment>
         <translation>ပြောင်းလဲမှုမက်ထရစ်</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="59"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="58"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="59"/>
         <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="58"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="59"/>
         <source>Column 0, Row 0</source>
         <translation>ကော်လံ 0၊ အတန်း 0</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="71"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="70"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="71"/>
         <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="70"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="71"/>
         <source>Column 1, Row 0</source>
         <translation>ကော်လံ 1၊ အတန်း 0</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="83"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="82"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="83"/>
         <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="82"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="83"/>
         <source>Column 2, Row 0</source>
         <translation>ကော်လံ 2၊ အတန်း 0</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="95"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="94"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="95"/>
         <source>Column 3, Row 0</source>
         <translation>ကော်လံ 3၊ အတန်း 0</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="109"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="108"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="97"/>
         <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="96"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="109"/>
         <source>Column 0, Row 1</source>
         <translation>ကော်လံ 0၊ အတန်း 1</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="121"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="120"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="109"/>
         <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="108"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="121"/>
         <source>Column 1, Row 1</source>
         <translation>ကော်လံ 1၊ အတန်း 1</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="133"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="132"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="121"/>
         <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="120"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="133"/>
         <source>Column 2, Row 1</source>
         <translation>ကော်လံ 2၊ အတန်း 1</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="145"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="144"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="145"/>
         <source>Column 3, Row 1</source>
         <translation>ကော်လံ 3၊ အတန်း 1</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="159"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="158"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="135"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="159"/>
         <source>Column 0, Row 2</source>
         <translation>ကော်လံ 0၊ အတန်း 2</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="171"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="170"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="147"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="171"/>
         <source>Column 1, Row 2</source>
         <translation>ကော်လံ 1၊ အတန်း 2</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="183"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="182"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="159"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="183"/>
         <source>Column 2, Row 2</source>
         <translation>ကော်လံ 2၊ အတန်း 2</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="195"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="194"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="195"/>
         <source>Column 3, Row 2</source>
         <translation>ကော်လံ 3၊ အတန်း 2</translation>
     </message>
@@ -3224,11 +3224,11 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cinema/share/qml/main.qml" line="52"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorFilter/share/qml/main.qml" line="34"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="59"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="125"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Life/share/qml/main.qml" line="33"/>
         <location filename="../../../libAvKys/ExtraPlugins/Vignette/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="34"/>
-        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="33"/>
         <source>Color</source>
         <translation>အရောင်</translation>
     </message>
@@ -3238,15 +3238,15 @@
         <translation>အစင်းများအရောင်ရွေးချယ်ပါ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="36"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorFilter/share/qml/main.qml" line="36"/>
         <source>Select the color to filter</source>
         <translation>စစ်ထုတ်ရန်အရောင်ရွေးချယ်ပါ</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorFilter/share/qml/main.qml" line="67"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorReplace/share/qml/main.qml" line="81"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FalseColor/share/qml/main.qml" line="72"/>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="52"/>
-        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="67"/>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="81"/>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="72"/>
         <source>Soft</source>
         <translation>ပျော့ပျောင်း</translation>
     </message>
@@ -3288,101 +3288,101 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="152"/>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="118"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="108"/>
         <source>Source palette</source>
         <translation>မူရင်းပြားခုပင်</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="153"/>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="119"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="109"/>
         <source>Search the image file to use as palette</source>
         <translation>ပြားခုပင် အဖြစ်အသုံးပြုရန် ပုံဖိုင်ရှာဖွေပါ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="163"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="131"/>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="639"/>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="142"/>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="222"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="212"/>
         <source>Please choose an image file</source>
         <translation>ကျေးဇူးပြု၍ပုံဖိုင်တစ်ခုရွေးချယ်ပါ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="34"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorReplace/share/qml/main.qml" line="34"/>
         <source>Old color</source>
         <translation>အရောင်ဟောင်း</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="36"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorReplace/share/qml/main.qml" line="36"/>
         <source>Select the color to replace</source>
         <translation>အစားထိုးရန်အရောင်ရွေးချယ်ပါ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="48"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorReplace/share/qml/main.qml" line="48"/>
         <source>New color</source>
         <translation>အရောင်အသစ်</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="50"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorReplace/share/qml/main.qml" line="50"/>
         <source>Select the new color</source>
         <translation>အရောင်အသစ်ရွေးချယ်ပါ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="50"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="50"/>
         <source>Color table</source>
         <translation>အရောင်ဇယား</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="58"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="58"/>
         <source>Base</source>
         <extracomment>Base color, show the image without modifications</extracomment>
         <translation>အခြေခံ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="62"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="62"/>
         <source>Metal</source>
         <translation>သတ္တု</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="67"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="67"/>
         <source>Heat</source>
         <extracomment>https://en.wikipedia.org/wiki/Heat_map</extracomment>
         <translation>အပူ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="71"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="71"/>
         <source>Old Photo</source>
         <translation>ဓာတ်ပုံဟောင်း</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="75"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="75"/>
         <source>Red &amp; Green</source>
         <translation>အနီ &amp; အစိမ်း</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="80"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="80"/>
         <source>Sepia</source>
         <extracomment>https://en.wikipedia.org/wiki/Sepia_(color)</extracomment>
         <translation>ဆီပီယာ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="84"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="84"/>
         <source>X-Pro</source>
         <translation>X-Pro</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="88"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="88"/>
         <source>X-Ray</source>
         <translation>X-Ray</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="92"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="92"/>
         <source>Yellow &amp; Blue</source>
         <translation>အဝါ &amp; အပြာ</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="96"/>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="421"/>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="96"/>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="104"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="104"/>
         <source>Custom</source>
         <translation>စိတ်ကြိုက်</translation>
     </message>
@@ -3403,8 +3403,6 @@
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="173"/>
         <location filename="../../../libAvKys/ExtraPlugins/Emboss/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/ExtraPlugins/Saturated/share/qml/main.qml" line="27"/>
-        <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="46"/>
-        <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="52"/>
         <source>Factor</source>
         <translation>အချက်</translation>
     </message>
@@ -3482,63 +3480,43 @@
         <translation>ဖြည့်ရန်အရောင်ရွေးချယ်ပါ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="42"/>
+        <location filename="../../../libAvKys/ExtraPlugins/DelayGrab/share/qml/main.qml" line="42"/>
         <source>Grab mode</source>
         <translation>ဖမ်းယူမုဒ်</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="50"/>
+        <location filename="../../../libAvKys/ExtraPlugins/DelayGrab/share/qml/main.qml" line="50"/>
         <source>Random square</source>
         <translation>ကျပန်းစတုရန်း</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="54"/>
+        <location filename="../../../libAvKys/ExtraPlugins/DelayGrab/share/qml/main.qml" line="54"/>
         <source>Vertical increase</source>
         <translation>ဒေါင်လိုက်တိုးပွား</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="58"/>
+        <location filename="../../../libAvKys/ExtraPlugins/DelayGrab/share/qml/main.qml" line="58"/>
         <source>Horizontal increase</source>
         <translation>အလျားလိုက်တိုးပွား</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="62"/>
+        <location filename="../../../libAvKys/ExtraPlugins/DelayGrab/share/qml/main.qml" line="62"/>
         <source>Rings increase</source>
         <translation>ကွင်းများတိုးပွား</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="72"/>
-        <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="78"/>
+        <location filename="../../../libAvKys/ExtraPlugins/DelayGrab/share/qml/main.qml" line="72"/>
         <source>Block size</source>
         <translation>ဘလောက်အရွယ်</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Quark/share/qml/main.qml" line="27"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Quark/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="91"/>
-        <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="97"/>
-        <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="28"/>
-        <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="34"/>
-        <location filename="../../../libAvKys/Plugins/Nervous/share/qml/main.qml" line="27"/>
-        <location filename="../../../libAvKys/Plugins/Nervous/share/qml/main.qml" line="33"/>
-        <source>Number of frames</source>
-        <translation>ဖရိမ်အရေအတွက်</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="69"/>
-        <source>Mu</source>
-        <extracomment>Mu factor (µ letter from greek), represents the average of a group of values. https://en.wikipedia.org/wiki/Arithmetic_mean</extracomment>
-        <translation>မု</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="93"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Denoise/share/qml/main.qml" line="53"/>
         <source>Sigma</source>
-        <extracomment>Sigma factor (σ letter from greek), represents the standard deviation of a group of values. https://en.wikipedia.org/wiki/Standard_deviation</extracomment>
+        <extracomment>Sigma factor (σ letter from greek), represents the standard * deviation of the color range kernel: how different two colors * can be and still be considered similar enough to blend * together. * * https://en.wikipedia.org/wiki/Standard_deviation</extracomment>
         <translation>စစ်မာ</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DesktopCapture/src/share/qml/main.qml" line="49"/>
-        <location filename="../../../libAvKys/Plugins/FpsControl/share/qml/main.qml" line="44"/>
         <location filename="../../../libAvKys/Plugins/ImageSrc/share/qml/main.qml" line="56"/>
         <source>Frame rate</source>
         <translation>ဖရိမ်နှုန်း</translation>
@@ -3555,23 +3533,15 @@
         <translation>ကာဆာအရွယ်</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Distort/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/ExtraPlugins/Ripple/share/qml/main.qml" line="73"/>
-        <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="28"/>
-        <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="34"/>
         <source>Amplitude</source>
         <translation>အတိုင်းအတာ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="48"/>
-        <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="54"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Distort/share/qml/main.qml" line="45"/>
         <source>Frequency</source>
         <translation>ကြိမ်နှုန်း</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="68"/>
-        <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="74"/>
-        <source>Grid size</source>
-        <translation>ဂရစ်အရွယ်</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Dizzy/share/qml/main.qml" line="27"/>
@@ -3584,7 +3554,11 @@
         <translation>ချဲ့နှုန်း</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/DelayGrab/share/qml/main.qml" line="88"/>
         <location filename="../../../libAvKys/ExtraPlugins/Dizzy/share/qml/main.qml" line="62"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FrameOverlap/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Nervous/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Quark/share/qml/main.qml" line="27"/>
         <source>Strength</source>
         <translation>အင်အား</translation>
     </message>
@@ -4081,17 +4055,17 @@
         <translation>ဒီဘတ်မုဒ်</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="81"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FalseColor/share/qml/main.qml" line="81"/>
         <source>Add color</source>
         <translation>အရောင်ထည့်ပါ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="88"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FalseColor/share/qml/main.qml" line="88"/>
         <source>Clear all colors</source>
         <translation>အရောင်အားလုံးရှင်းလင်းပါ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="102"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FalseColor/share/qml/main.qml" line="102"/>
         <source>Select the color to add</source>
         <extracomment>Select the color to add to the color table</extracomment>
         <translation>ထည့်ရန်အရောင်ရွေးချယ်ပါ</translation>
@@ -4179,110 +4153,99 @@
         <translation>ဒေါင်လိုက်လှန်</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FpsControl/share/qml/main.qml" line="74"/>
-        <source>Fill gaps</source>
-        <translation>ကွာဟချက်များဖြည့်ပါ</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="48"/>
-        <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="54"/>
-        <source>Stride</source>
-        <translation>ခြေလှမ်း</translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/Plugins/Gamma/share/qml/main.qml" line="29"/>
         <source>Gamma</source>
         <translation>ဂမ်မာ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="57"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="57"/>
         <source>Pattern</source>
         <translation>ပုံစံ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="64"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="64"/>
         <source>90° Halftone 6x6</source>
         <translation>90° ဟက်ဖ်တုန်း 6x6</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="68"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="68"/>
         <source>Cluster 3</source>
         <translation>အစုအဖွဲ့ 3</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="72"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="72"/>
         <source>Cluster 4</source>
         <translation>အစုအဖွဲ့ 4</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="76"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="76"/>
         <source>Cluster 8</source>
         <translation>အစုအဖွဲ့ 8</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="80"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="80"/>
         <source>Lines 4x4</source>
         <translation>လိုင်းများ 4x4</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="84"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="84"/>
         <source>Magic 2x2</source>
         <translation>မှော်ပညာ 2x2</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="88"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="88"/>
         <source>Magic 4x4</source>
         <translation>မှော်ပညာ 4x4</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="92"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="92"/>
         <source>Ordered 4x4</source>
         <translation>စီစဉ်ထား 4x4</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="96"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="96"/>
         <source>Ordered 6x6</source>
         <translation>စီစဉ်ထား 6x6</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="100"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="100"/>
         <source>Ordered 8x8</source>
         <translation>စီစဉ်ထား 8x8</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="123"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="115"/>
         <source>Bitmap pattern</source>
         <translation>ဘစ်တ်မပ်ပုံစံ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="124"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="116"/>
         <source>Search the image to use as pattern</source>
         <translation>ပုံစံအဖြစ်အသုံးပြုရန်ပုံရှာဖွေပါ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="148"/>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="154"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="138"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="144"/>
         <source>Pattern size</source>
         <translation>ပုံစံအရွယ်</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="166"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="156"/>
         <source>Lightning</source>
         <translation>မိုးကြိုး</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="183"/>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="189"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="173"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="179"/>
         <source>Slope</source>
         <translation>စောင်းနိမ့်မြင့်</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="202"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="192"/>
         <source>Interception</source>
         <translation>ကြားဖြတ်ခြင်း</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="208"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="198"/>
         <source>Intercept</source>
         <translation>ကြားဖြတ်</translation>
     </message>
@@ -4323,13 +4286,13 @@
         <translation>ပမာဏ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="36"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Life/share/qml/main.qml" line="36"/>
         <source>Choose the automata color</source>
         <extracomment>https://en.wikipedia.org/wiki/Life-like_cellular_automaton</extracomment>
         <translation>အော်တိုမာတာအရောင်ရွေးချယ်ပါ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="68"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Life/share/qml/main.qml" line="68"/>
         <source>Luma Threshold</source>
         <extracomment>Minimum luminance/light/white level/intensity in a gray or black and white picture. https://en.wikipedia.org/wiki/Luma_(video)</extracomment>
         <translation>လူမာအစပ်</translation>
@@ -4421,12 +4384,7 @@
         <translation>ချိန်ကိုက်</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Nervous/share/qml/main.qml" line="45"/>
-        <source>Simple</source>
-        <translation>ရိုးရှင်း</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Opacity/share/qml/main.qml" line="28"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Opacity/share/qml/main.qml" line="28"/>
         <source>Opacity</source>
         <translation>မတောက်ပမှု</translation>
     </message>
@@ -4888,6 +4846,11 @@
         <location filename="../../../libAvKys/ExtraPlugins/Swirl/share/qml/main.qml" line="66"/>
         <source>Degrees</source>
         <translation>ဒီဂရီများ</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Nervous/share/qml/main.qml" line="42"/>
+        <source>Smooth</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

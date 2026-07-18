@@ -29,6 +29,7 @@
 class AkVideoEncoder;
 class AkVideoEncoderPrivate;
 class AkVideoCaps;
+class AkVideoPacket;
 
 using AkVideoEncoderPtr = QSharedPointer<AkVideoEncoder>;
 using AkVideoEncoderCodecID = AkCompressedVideoCaps::VideoCodecID;
@@ -110,6 +111,11 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
         Q_INVOKABLE BitrateMode bitrateMode() const;
         Q_INVOKABLE virtual bool hasHardwareSupport(const QString &codec) const;
 
+    protected:
+        bool discardFrame(const AkVideoPacket &packet) const;
+        void regulateFps(const AkVideoPacket &packet);
+        virtual void encodeFrame(const AkVideoPacket &packet) = 0;
+
     private:
         AkVideoEncoderPrivate *d;
 
@@ -142,6 +148,7 @@ class AKCOMMONS_EXPORT AkVideoEncoder: public AkElement
         void resetOptionValue(const QString &option);
         void resetBitrateMode();
         virtual void resetOptions();
+        void restartFpsControl();
 };
 
 Q_DECLARE_METATYPE(AkVideoEncoder::BitrateMode)

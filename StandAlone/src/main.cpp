@@ -154,7 +154,11 @@ int main(int argc, char *argv[])
 #ifdef OPENMP_ENABLED
     #pragma omp parallel
     {
+#if defined(_OPENMP) && _OPENMP >= 202011
+        #pragma omp masked
+#else
         #pragma omp master
+#endif
         {
             auto threads = omp_get_num_threads();
 

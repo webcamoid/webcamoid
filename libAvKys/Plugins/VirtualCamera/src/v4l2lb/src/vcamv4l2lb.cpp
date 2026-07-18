@@ -132,8 +132,6 @@ class VCamV4L2LoopBackPrivate
         QVector<CaptureBuffer> m_buffers;
         QMap<QString, DeviceControlValues> m_deviceControlValues;
         QMutex m_controlsMutex;
-        AkElementPtr m_flipFilter   {akPluginManager->create<AkElement>("VideoFilter/Flip")};
-        AkElementPtr m_swapRBFilter {akPluginManager->create<AkElement>("VideoFilter/SwapRB")};
         QString m_error;
         AkVideoCaps m_currentCaps;
         AkVideoConverter m_videoConverter;
@@ -1301,16 +1299,6 @@ void VCamV4L2LoopBack::setDevice(const QString &device)
             close(fd);
 
             for (auto &control: this->d->deviceControls()) {
-                if ((control.name == "Horizontal Flip" || control.name == "Vertical Flip")
-                    && !this->d->m_flipFilter) {
-                    continue;
-                }
-
-                if ((control.name == "Swap Red and Blue")
-                    && !this->d->m_swapRBFilter) {
-                    continue;
-                }
-
                 int value = control.default_value;
 
                 if (this->d->m_deviceControlValues.contains(this->d->m_device)
@@ -1397,21 +1385,10 @@ bool VCamV4L2LoopBack::write(const AkVideoPacket &packet)
     }
 
     auto values = this->d->m_deviceControlValues[this->d->m_device];
-    auto packet_ = packet;
-
-    if (this->d->m_flipFilter) {
-        this->d->m_flipFilter->setProperty("horizontalFlip", values.value("Horizontal Flip", false));
-        this->d->m_flipFilter->setProperty("verticalFlip", values.value("Vertical Flip", false));
-        packet_ = this->d->m_flipFilter->iStream(packet_);
-    }
-
-    if (this->d->m_swapRBFilter && values.value("Swap Red and Blue", false))
-        packet_ = this->d->m_swapRBFilter->iStream(packet_);
-
     this->d->m_videoConverter.setScalingMode(AkVideoConverter::ScalingMode(values.value("Scaling Mode", 0)));
     this->d->m_videoConverter.setAspectRatioMode(AkVideoConverter::AspectRatioMode(values.value("Aspect Ratio Mode", 0)));
     this->d->m_videoConverter.begin();
-    auto videoPacket = this->d->m_videoConverter.convert(packet_);
+    auto videoPacket = this->d->m_videoConverter.convert(packet);
     this->d->m_videoConverter.end();
 
     if (!videoPacket)
@@ -1926,14 +1903,11 @@ const V4l2CtrlTypeMap &VCamV4L2LoopBackPrivate::ctrlTypeToStr() const
 const DeviceControls &VCamV4L2LoopBackPrivate::deviceControls() const
 {
     static const DeviceControls vcamV4l2DeviceControls = {
-        {"Horizontal Flip"   , "boolean", 0, 1, 1, 0, {}           },
-        {"Vertical Flip"     , "boolean", 0, 1, 1, 0, {}           },
         {"Scaling Mode"      , "menu"   , 0, 0, 1, 0, {"Fast",
                                                        "Linear"}   },
         {"Aspect Ratio Mode" , "menu"   , 0, 0, 1, 0, {"Ignore",
                                                        "Keep",
                                                        "Expanding"}},
-        {"Swap Red and Blue" , "boolean", 0, 1, 1, 0, {}           },
     };
 
     return vcamV4l2DeviceControls;

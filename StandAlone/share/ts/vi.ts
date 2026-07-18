@@ -1926,22 +1926,22 @@
 <context>
     <name>TableColor</name>
     <message>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="40"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FalseColor/share/qml/TableColor.qml" line="40"/>
         <source>Select the new color</source>
         <translation>Chọn màu mới</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="42"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FalseColor/share/qml/TableColor.qml" line="42"/>
         <source>Color %1</source>
         <translation>Màu %1</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="51"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FalseColor/share/qml/TableColor.qml" line="51"/>
         <source>Remove color</source>
         <translation>Xóa màu</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/TableColor.qml" line="52"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FalseColor/share/qml/TableColor.qml" line="52"/>
         <source>Remove color %1</source>
         <translation>Xóa màu %1</translation>
     </message>
@@ -2787,10 +2787,10 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Blur/share/qml/main.qml" line="28"/>
-        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="49"/>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="63"/>
-        <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="29"/>
-        <location filename="../../../libAvKys/Plugins/OilPaint/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorFilter/share/qml/main.qml" line="49"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorReplace/share/qml/main.qml" line="63"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Denoise/share/qml/main.qml" line="29"/>
+        <location filename="../../../libAvKys/ExtraPlugins/OilPaint/share/qml/main.qml" line="27"/>
         <source>Radius</source>
         <translation>Bán kính</translation>
     </message>
@@ -2832,97 +2832,97 @@
         <translation>Chọn một màu</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="42"/>
         <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="42"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="43"/>
         <source>Transform matrix</source>
         <extracomment>https://en.wikipedia.org/wiki/Transformation_matrix</extracomment>
         <translation>Ma trận biến đổi</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="59"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="58"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="59"/>
         <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="58"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="59"/>
         <source>Column 0, Row 0</source>
         <translation>Cột 0, Hàng 0</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="71"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="70"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="71"/>
         <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="70"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="71"/>
         <source>Column 1, Row 0</source>
         <translation>Cột 1, Hàng 0</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="83"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="82"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="83"/>
         <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="82"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="83"/>
         <source>Column 2, Row 0</source>
         <translation>Cột 2, Hàng 0</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="95"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="94"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="95"/>
         <source>Column 3, Row 0</source>
         <translation>Cột 3, Hàng 0</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="109"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="108"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="97"/>
         <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="96"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="109"/>
         <source>Column 0, Row 1</source>
         <translation>Cột 0, Hàng 1</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="121"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="120"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="109"/>
         <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="108"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="121"/>
         <source>Column 1, Row 1</source>
         <translation>Cột 1, Hàng 1</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="133"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="132"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="121"/>
         <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="120"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="133"/>
         <source>Column 2, Row 1</source>
         <translation>Cột 2, Hàng 1</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="145"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="144"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="145"/>
         <source>Column 3, Row 1</source>
         <translation>Cột 3, Hàng 1</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="159"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="158"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="135"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="159"/>
         <source>Column 0, Row 2</source>
         <translation>Cột 0, Hàng 2</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="171"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="170"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="147"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="171"/>
         <source>Column 1, Row 2</source>
         <translation>Cột 1, Hàng 2</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="183"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="182"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="159"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="183"/>
         <source>Column 2, Row 2</source>
         <translation>Cột 2, Hàng 2</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="195"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="194"/>
-        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="195"/>
         <source>Column 3, Row 2</source>
         <translation>Cột 3, Hàng 2</translation>
     </message>
@@ -3124,11 +3124,11 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cinema/share/qml/main.qml" line="52"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorFilter/share/qml/main.qml" line="34"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="59"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="125"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Life/share/qml/main.qml" line="33"/>
         <location filename="../../../libAvKys/ExtraPlugins/Vignette/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="34"/>
-        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="33"/>
         <source>Color</source>
         <translation>Màu sắc</translation>
     </message>
@@ -3138,75 +3138,75 @@
         <translation>Chọn màu dải</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorFilter/share/qml/main.qml" line="67"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorReplace/share/qml/main.qml" line="81"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FalseColor/share/qml/main.qml" line="72"/>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="52"/>
-        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="67"/>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="81"/>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="72"/>
         <source>Soft</source>
         <translation>Mềm mại</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorFilter/share/qml/main.qml" line="36"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorFilter/share/qml/main.qml" line="36"/>
         <source>Select the color to filter</source>
         <translation>Chọn màu để lọc</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="50"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="50"/>
         <source>Color table</source>
         <translation>Bảng màu</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="58"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="58"/>
         <source>Base</source>
         <extracomment>Base color, show the image without modifications</extracomment>
         <translation>Nền cơ bản</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="62"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="62"/>
         <source>Metal</source>
         <translation>Kim loại</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="67"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="67"/>
         <source>Heat</source>
         <extracomment>https://en.wikipedia.org/wiki/Heat_map</extracomment>
         <translation>Nhiệt</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="71"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="71"/>
         <source>Old Photo</source>
         <translation>Ảnh Cũ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="75"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="75"/>
         <source>Red &amp; Green</source>
         <translation>Đỏ &amp; Xanh lá</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="80"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="80"/>
         <source>Sepia</source>
         <extracomment>https://en.wikipedia.org/wiki/Sepia_(color)</extracomment>
         <translation>Sepia</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="84"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="84"/>
         <source>X-Pro</source>
         <translation>X-Pro</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="88"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="88"/>
         <source>X-Ray</source>
         <translation>Tia X</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="92"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="92"/>
         <source>Yellow &amp; Blue</source>
         <translation>Vàng &amp; Xanh dương</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="96"/>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="421"/>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="96"/>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="104"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="104"/>
         <source>Custom</source>
         <translation>Tùy chỉnh</translation>
     </message>
@@ -3222,21 +3222,21 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="152"/>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="118"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="108"/>
         <source>Source palette</source>
         <translation>Bảng màu nguồn</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="153"/>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="119"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="109"/>
         <source>Search the image file to use as palette</source>
         <translation>Tìm tệp hình ảnh để sử dụng làm bảng màu</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="163"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="131"/>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="639"/>
-        <location filename="../../../libAvKys/Plugins/ColorTap/share/qml/main.qml" line="142"/>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="222"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="212"/>
         <source>Please choose an image file</source>
         <translation>Vui lòng chọn một tệp hình ảnh</translation>
     </message>
@@ -3251,8 +3251,6 @@
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="173"/>
         <location filename="../../../libAvKys/ExtraPlugins/Emboss/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/ExtraPlugins/Saturated/share/qml/main.qml" line="27"/>
-        <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="46"/>
-        <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="52"/>
         <source>Factor</source>
         <translation>Hệ số</translation>
     </message>
@@ -3263,63 +3261,43 @@
         <translation>Độ lệch</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="42"/>
+        <location filename="../../../libAvKys/ExtraPlugins/DelayGrab/share/qml/main.qml" line="42"/>
         <source>Grab mode</source>
         <translation>Chế độ chụp</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="50"/>
+        <location filename="../../../libAvKys/ExtraPlugins/DelayGrab/share/qml/main.qml" line="50"/>
         <source>Random square</source>
         <translation>Ô vuông ngẫu nhiên</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="54"/>
+        <location filename="../../../libAvKys/ExtraPlugins/DelayGrab/share/qml/main.qml" line="54"/>
         <source>Vertical increase</source>
         <translation>Tăng dọc</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="58"/>
+        <location filename="../../../libAvKys/ExtraPlugins/DelayGrab/share/qml/main.qml" line="58"/>
         <source>Horizontal increase</source>
         <translation>Tăng ngang</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="62"/>
+        <location filename="../../../libAvKys/ExtraPlugins/DelayGrab/share/qml/main.qml" line="62"/>
         <source>Rings increase</source>
         <translation>Tăng vòng</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="72"/>
-        <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="78"/>
+        <location filename="../../../libAvKys/ExtraPlugins/DelayGrab/share/qml/main.qml" line="72"/>
         <source>Block size</source>
         <translation>Kích thước khối</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Quark/share/qml/main.qml" line="27"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Quark/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="91"/>
-        <location filename="../../../libAvKys/Plugins/DelayGrab/share/qml/main.qml" line="97"/>
-        <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="28"/>
-        <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="34"/>
-        <location filename="../../../libAvKys/Plugins/Nervous/share/qml/main.qml" line="27"/>
-        <location filename="../../../libAvKys/Plugins/Nervous/share/qml/main.qml" line="33"/>
-        <source>Number of frames</source>
-        <translation>Số lượng khung hình</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="69"/>
-        <source>Mu</source>
-        <extracomment>Mu factor (µ letter from greek), represents the average of a group of values. https://en.wikipedia.org/wiki/Arithmetic_mean</extracomment>
-        <translation>Mu</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Denoise/share/qml/main.qml" line="93"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Denoise/share/qml/main.qml" line="53"/>
         <source>Sigma</source>
-        <extracomment>Sigma factor (σ letter from greek), represents the standard deviation of a group of values. https://en.wikipedia.org/wiki/Standard_deviation</extracomment>
+        <extracomment>Sigma factor (σ letter from greek), represents the standard * deviation of the color range kernel: how different two colors * can be and still be considered similar enough to blend * together. * * https://en.wikipedia.org/wiki/Standard_deviation</extracomment>
         <translation>Sigma</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/DesktopCapture/src/share/qml/main.qml" line="49"/>
-        <location filename="../../../libAvKys/Plugins/FpsControl/share/qml/main.qml" line="44"/>
         <location filename="../../../libAvKys/Plugins/ImageSrc/share/qml/main.qml" line="56"/>
         <source>Frame rate</source>
         <translation>Tốc độ khung hình</translation>
@@ -3330,23 +3308,15 @@
         <translation>Kích thước con trỏ</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Distort/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/ExtraPlugins/Ripple/share/qml/main.qml" line="73"/>
-        <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="28"/>
-        <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="34"/>
         <source>Amplitude</source>
         <translation>Biên độ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="48"/>
-        <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="54"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Distort/share/qml/main.qml" line="45"/>
         <source>Frequency</source>
         <translation>Tần số</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="68"/>
-        <location filename="../../../libAvKys/Plugins/Distort/share/qml/main.qml" line="74"/>
-        <source>Grid size</source>
-        <translation>Kích thước lưới</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Dizzy/share/qml/main.qml" line="27"/>
@@ -3359,7 +3329,11 @@
         <translation>Tốc độ thu phóng</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/DelayGrab/share/qml/main.qml" line="88"/>
         <location filename="../../../libAvKys/ExtraPlugins/Dizzy/share/qml/main.qml" line="62"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FrameOverlap/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Nervous/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Quark/share/qml/main.qml" line="27"/>
         <source>Strength</source>
         <translation>Cường độ</translation>
     </message>
@@ -3834,9 +3808,9 @@
         <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="58"/>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="150"/>
         <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="91"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Life/share/qml/main.qml" line="46"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="125"/>
         <location filename="../../../libAvKys/ExtraPlugins/Ripple/share/qml/main.qml" line="114"/>
-        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="46"/>
         <source>Threshold</source>
         <translation>Ngưỡng</translation>
     </message>
@@ -3871,100 +3845,94 @@
         <translation>Biến thiên Alpha</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="48"/>
-        <location filename="../../../libAvKys/Plugins/FrameOverlap/share/qml/main.qml" line="54"/>
-        <source>Stride</source>
-        <translation>Bước nhảy</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="57"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="57"/>
         <source>Pattern</source>
         <translation>Mẫu</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="64"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="64"/>
         <source>90° Halftone 6x6</source>
         <translation>Halfone 6x6 90°</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="68"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="68"/>
         <source>Cluster 3</source>
         <translation>Cụm 3</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="72"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="72"/>
         <source>Cluster 4</source>
         <translation>Cụm 4</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="76"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="76"/>
         <source>Cluster 8</source>
         <translation>Cụm 8</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="80"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="80"/>
         <source>Lines 4x4</source>
         <translation>Đường 4x4</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="84"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="84"/>
         <source>Magic 2x2</source>
         <translation>Ma thuật 2x2</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="88"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="88"/>
         <source>Magic 4x4</source>
         <translation>Ma thuật 4x4</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="92"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="92"/>
         <source>Ordered 4x4</source>
         <translation>Có thứ tự 4x4</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="96"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="96"/>
         <source>Ordered 6x6</source>
         <translation>Có thứ tự 6x6</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="100"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="100"/>
         <source>Ordered 8x8</source>
         <translation>Có thứ tự 8x8</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="123"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="115"/>
         <source>Bitmap pattern</source>
         <translation>Mẫu bitmap</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="124"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="116"/>
         <source>Search the image to use as pattern</source>
         <translation>Tìm hình ảnh để sử dụng làm mẫu</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="148"/>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="154"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="138"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="144"/>
         <source>Pattern size</source>
         <translation>Kích thước mẫu</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="166"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="156"/>
         <source>Lightning</source>
         <translation>Sét</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="183"/>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="189"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="173"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="179"/>
         <source>Slope</source>
         <translation>Độ dốc</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="202"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="192"/>
         <source>Interception</source>
         <translation>Điểm cắt</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Halftone/share/qml/main.qml" line="208"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="198"/>
         <source>Intercept</source>
         <translation>Cắt ngang</translation>
     </message>
@@ -3995,13 +3963,13 @@
         <translation>Gia tốc tốc độ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="36"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Life/share/qml/main.qml" line="36"/>
         <source>Choose the automata color</source>
         <extracomment>https://en.wikipedia.org/wiki/Life-like_cellular_automaton</extracomment>
         <translation>Chọn màu tự động</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Life/share/qml/main.qml" line="68"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Life/share/qml/main.qml" line="68"/>
         <source>Luma Threshold</source>
         <extracomment>Minimum luminance/light/white level/intensity in a gray or black and white picture. https://en.wikipedia.org/wiki/Luma_(video)</extracomment>
         <translation>Ngưỡng Luma</translation>
@@ -4097,11 +4065,6 @@
         <location filename="../../../libAvKys/Plugins/MultiSrc/src/share/qml/main.qml" line="160"/>
         <source>Synchronise</source>
         <translation>Đồng bộ hóa</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Nervous/share/qml/main.qml" line="45"/>
-        <source>Simple</source>
-        <translation>Đơn giản</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Photocopy/share/qml/main.qml" line="27"/>
@@ -4498,17 +4461,17 @@
         <translation>Cấp độ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="81"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FalseColor/share/qml/main.qml" line="81"/>
         <source>Add color</source>
         <translation>Thêm màu</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="88"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FalseColor/share/qml/main.qml" line="88"/>
         <source>Clear all colors</source>
         <translation>Xóa tất cả màu</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FalseColor/share/qml/main.qml" line="102"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FalseColor/share/qml/main.qml" line="102"/>
         <source>Select the color to add</source>
         <extracomment>Select the color to add to the color table</extracomment>
         <translation>Chọn màu để thêm</translation>
@@ -4541,22 +4504,22 @@
         <translation>Ép tốc độ khung hình</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="34"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorReplace/share/qml/main.qml" line="34"/>
         <source>Old color</source>
         <translation>Màu cũ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="36"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorReplace/share/qml/main.qml" line="36"/>
         <source>Select the color to replace</source>
         <translation>Chọn màu cần thay thế</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="48"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorReplace/share/qml/main.qml" line="48"/>
         <source>New color</source>
         <translation>Màu mới</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/ColorReplace/share/qml/main.qml" line="50"/>
+        <location filename="../../../libAvKys/ExtraPlugins/ColorReplace/share/qml/main.qml" line="50"/>
         <source>Select the new color</source>
         <translation>Chọn màu mới</translation>
     </message>
@@ -4567,7 +4530,7 @@
         <translation>Giữ độ phân giải</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Opacity/share/qml/main.qml" line="28"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Opacity/share/qml/main.qml" line="28"/>
         <source>Opacity</source>
         <translation>Độ mờ đục</translation>
     </message>
@@ -4830,11 +4793,6 @@
         <translation>Đang chạy lệnh</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/FpsControl/share/qml/main.qml" line="74"/>
-        <source>Fill gaps</source>
-        <translation>Lấp khoảng trống</translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="129"/>
         <source>Video format</source>
         <translation>Định dạng video</translation>
@@ -4888,6 +4846,11 @@
         <location filename="../../../libAvKys/ExtraPlugins/Swirl/share/qml/main.qml" line="66"/>
         <source>Degrees</source>
         <translation>Độ</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Nervous/share/qml/main.qml" line="42"/>
+        <source>Smooth</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>

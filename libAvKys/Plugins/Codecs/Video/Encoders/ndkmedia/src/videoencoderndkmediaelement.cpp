@@ -25,7 +25,6 @@
 #include <akpacket.h>
 #include <akvideocaps.h>
 #include <akcompressedvideocaps.h>
-#include <akpluginmanager.h>
 #include <akvideoconverter.h>
 #include <akvideopacket.h>
 #include <akcompressedvideopacket.h>
@@ -414,7 +413,6 @@ class VideoEncoderNDKMediaElementPrivate
         bool m_initialized {false};
         bool m_paused {false};
         qint64 m_encodedTimePts {0};
-        AkElementPtr m_fpsControl {akPluginManager->create<AkElement>("VideoFilter/FpsControl")};
 
         explicit VideoEncoderNDKMediaElementPrivate(VideoEncoderNDKMediaElement *self);
         ~VideoEncoderNDKMediaElementPrivate();
@@ -520,17 +518,10 @@ AkPacket VideoEncoderNDKMediaElement::iVideoStream(const AkVideoPacket &packet)
 {
     QMutexLocker mutexLocker(&this->d->m_mutex);
 
-    if (this->d->m_paused || !this->d->m_initialized || !this->d->m_fpsControl)
+    if (this->d->m_paused || !this->d->m_initialized)
         return {};
 
-    bool discard = false;
-    QMetaObject::invokeMethod(this->d->m_fpsControl.data(),
-                              "discard",
-                              Qt::DirectConnection,
-                              Q_RETURN_ARG(bool, discard),
-                              Q_ARG(AkVideoPacket, packet));
-
-    if (discard)
+    if (this->discardFrame(packet))
         return {};
 
     this->d->m_videoConverter.begin();
@@ -540,9 +531,14 @@ AkPacket VideoEncoderNDKMediaElement::iVideoStream(const AkVideoPacket &packet)
     if (!src)
         return {};
 
-    this->d->m_fpsControl->iStream(src);
+    this->regulateFps(src);
 
     return {};
+}
+
+void VideoEncoderNDKMediaElement::encodeFrame(const AkVideoPacket &packet)
+{
+    this->d->encodeFrame(packet);
 }
 
 bool VideoEncoderNDKMediaElement::setState(ElementState state)
@@ -617,13 +613,6 @@ VideoEncoderNDKMediaElementPrivate::VideoEncoderNDKMediaElementPrivate(VideoEnco
 
                         this->updateOutputCaps();
                      });
-
-    if (this->m_fpsControl)
-        QObject::connect(this->m_fpsControl.data(),
-                         &AkElement::oStream,
-                         [this] (const AkPacket &packet) {
-                             this->encodeFrame(packet);
-                         });
 }
 
 VideoEncoderNDKMediaElementPrivate::~VideoEncoderNDKMediaElementPrivate()
@@ -1002,14 +991,7 @@ bool VideoEncoderNDKMediaElementPrivate::init()
         AMediaFormat_delete(mediaFormat);
     });
     this->updateHeaders();
-
-    if (this->m_fpsControl) {
-        this->m_fpsControl->setProperty("fps", QVariant::fromValue(this->m_videoConverter.outputCaps().fps()));
-        this->m_fpsControl->setProperty("fillGaps", self->fillGaps());
-        QMetaObject::invokeMethod(this->m_fpsControl.data(),
-                                  "restart",
-                                  Qt::DirectConnection);
-    }
+    self->restartFpsControl();
 
     this->m_encodedTimePts = 0;
     this->m_initialized = true;
@@ -1078,10 +1060,7 @@ void VideoEncoderNDKMediaElementPrivate::uninit()
         this->m_codec = nullptr;
     }
 
-    if (this->m_fpsControl)
-        QMetaObject::invokeMethod(this->m_fpsControl.data(),
-                                  "restart",
-                                  Qt::DirectConnection);
+    self->restartFpsControl();
 
     this->m_paused = false;
     this->m_outputMediaFormat = {};

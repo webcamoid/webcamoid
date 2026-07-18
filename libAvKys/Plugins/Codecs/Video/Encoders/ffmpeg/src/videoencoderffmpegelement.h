@@ -52,6 +52,7 @@ class VideoEncoderFFmpegElement: public AkVideoEncoder
 
     protected:
         AkPacket iVideoStream(const AkVideoPacket &packet) override;
+        void encodeFrame(const AkVideoPacket &packet) override;
 
     signals:
         void globalHeadersChanged(bool globalHeaders);

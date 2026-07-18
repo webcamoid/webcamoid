@@ -45,6 +45,7 @@ class VideoEncoderNDKMediaElement: public AkVideoEncoder
 
     protected:
         AkPacket iVideoStream(const AkVideoPacket &packet) override;
+        void encodeFrame(const AkVideoPacket &packet) override;
 
     public slots:
         bool setState(AkElement::ElementState state) override;

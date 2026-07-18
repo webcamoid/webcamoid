@@ -55,7 +55,6 @@
 #include "akvideocaps.h"
 #include "akvideoconverter.h"
 #include "akvideoformatspec.h"
-#include "akvideomixer.h"
 #include "akvideopacket.h"
 #include "iak/akelement.h"
 #include "qml/akcolorizedimage.h"
@@ -145,7 +144,6 @@ void Ak::registerTypes()
     AkVideoCaps::registerTypes();
     AkVideoConverter::registerTypes();
     AkVideoFormatSpec::registerTypes();
-    AkVideoMixer::registerTypes();
     AkVideoPacket::registerTypes();
 }
 

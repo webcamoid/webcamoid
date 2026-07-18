@@ -20,7 +20,9 @@
 #include <QVariant>
 
 #include "akvideoencoder.h"
+#include "../akfrac.h"
 #include "../akvideocaps.h"
+#include "../akvideopacket.h"
 
 class AkVideoEncoderPrivate
 {
@@ -32,6 +34,11 @@ class AkVideoEncoderPrivate
         bool m_fillGaps {false};
         QVariantMap m_optionValues;
         AkVideoEncoder::BitrateMode m_bitrateMode {AkVideoEncoder::BitrateMode_VBR};
+
+        qint64 m_ptsOut {0};
+        qint64 m_prevPts {-1};
+        qint64 m_prevId {-1};
+        AkVideoPacket m_prevPacket;
 };
 
 AkVideoEncoder::AkVideoEncoder(QObject *parent):
@@ -270,6 +277,94 @@ void AkVideoEncoder::resetOptions()
 
     for (auto &option: this->options())
         this->resetOptionValue(option.name());
+}
+
+bool AkVideoEncoder::discardFrame(const AkVideoPacket &packet) const
+{
+    if (!packet)
+        return true;
+
+    auto fps = this->outputCaps().rawCaps().fps();
+
+    if (!fps)
+        return false;
+
+    auto pts = qint64(packet.pts()
+                      * packet.timeBase().value()
+                      * fps.value());
+
+    return this->d->m_prevPts >= 0
+           && this->d->m_prevId == packet.id()
+           && pts == this->d->m_prevPts;
+}
+
+void AkVideoEncoder::regulateFps(const AkVideoPacket &packet)
+{
+    if (!packet)
+        return;
+
+    auto fps = this->outputCaps().rawCaps().fps();
+
+    if (!fps) {
+        this->encodeFrame(packet);
+
+        return;
+    }
+
+    auto pts = qint64(packet.pts()
+                      * packet.timeBase().value()
+                      * fps.value());
+
+    /* The source frame rate is much higher than the output frame rate,
+     * discard the exedent frame.
+     */
+    if (this->d->m_prevPts >= 0
+        && this->d->m_prevId == packet.id()
+        && pts == this->d->m_prevPts) {
+        return;
+    }
+
+    // Calculate the number of frames between the previous and the current one.
+    qint64 framesDiff =
+            this->d->m_prevPts < 0
+            || pts <= this->d->m_prevPts
+            || this->d->m_prevId != packet.id()?
+                1:
+                pts - this->d->m_prevPts;
+    quint64 fill = framesDiff - 1;
+
+    /* If the fillGaps option is enabled, repeat the previous frame until
+     * complete the missings one.
+     */
+    if (this->fillGaps() && fill > 0)
+        for (quint64 i = 0; i < fill; ++i) {
+            this->d->m_prevPacket.setPts(this->d->m_ptsOut);
+            this->encodeFrame(this->d->m_prevPacket);
+            ++this->d->m_ptsOut;
+        }
+
+    if (this->d->m_prevPts >= 0 && !this->fillGaps())
+        this->d->m_ptsOut += framesDiff;
+
+    this->d->m_prevPacket = packet;
+    this->d->m_prevPacket.setPts(this->d->m_ptsOut);
+    this->d->m_prevPacket.setDuration(1);
+    this->d->m_prevPacket.setTimeBase(fps.invert());
+    this->encodeFrame(this->d->m_prevPacket);
+
+    if (this->d->m_prevPts < 0 || this->fillGaps())
+        ++this->d->m_ptsOut;
+
+    this->d->m_prevId = packet.id();
+    this->d->m_prevPts = pts;
+}
+
+void AkVideoEncoder::restartFpsControl()
+{
+    this->d->m_ptsOut = 0;
+    this->d->m_prevPts = -1;
+    this->d->m_prevId = -1;
+    this->d->m_prevPacket = AkVideoPacket();
 }
 
 #include "moc_akvideoencoder.cpp"
