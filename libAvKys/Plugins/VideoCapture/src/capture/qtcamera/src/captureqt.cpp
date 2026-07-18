@@ -144,9 +144,6 @@ class CaptureQtPrivate
         bool m_permissionResultReady {false};
 #endif
 
-        AkElementPtr m_hslFilter {akPluginManager->create<AkElement>("VideoFilter/AdjustHSL")};
-        AkElementPtr m_contrastFilter {akPluginManager->create<AkElement>("VideoFilter/Contrast")};
-        AkElementPtr m_gammaFilter {akPluginManager->create<AkElement>("VideoFilter/Gamma")};
         AkElementPtr m_rotateFilter {akPluginManager->create<AkElement>("VideoFilter/Rotate")};
         qint64 m_id {-1};
         AkFrac m_fps;
@@ -429,15 +426,6 @@ AkPacket CaptureQt::readFrame()
     auto packet = this->d->m_videoPacket;
     this->d->m_videoPacket = {};
     this->d->m_frameMutex.unlock();
-
-    if (this->d->m_hslFilter)
-        packet = this->d->m_hslFilter->iStream(packet);
-
-    if (this->d->m_gammaFilter)
-        packet = this->d->m_gammaFilter->iStream(packet);
-
-    if (this->d->m_contrastFilter)
-        packet = this->d->m_contrastFilter->iStream(packet);
 
     return packet;
 }
@@ -737,93 +725,14 @@ CaptureQtPrivate::~CaptureQtPrivate()
 
 QVariantList CaptureQtPrivate::imageControls() const
 {
-    QVariantList controlsList;
-
-    if (this->m_hslFilter)
-        controlsList << QVariant(QVariantList {
-            "Brightness",
-            "integer",
-            -255,
-            255,
-            1,
-            0,
-            this->m_hslFilter->property("luminance").toInt(),
-            QStringList()
-        });
-
-    if (this->m_contrastFilter)
-        controlsList << QVariant(QVariantList {
-            "Contrast",
-            "integer",
-            -255,
-            255,
-            1,
-            0,
-            this->m_contrastFilter->property("contrast").toInt(),
-            QStringList()
-        });
-
-    if (this->m_hslFilter)
-        controlsList << QVariant(QVariantList {
-            "Saturation",
-            "integer",
-            -255,
-            255,
-            1,
-            0,
-            this->m_hslFilter->property("saturation").toInt(),
-            QStringList()
-        });
-
-    if (this->m_hslFilter)
-        controlsList << QVariant(QVariantList {
-            "Hue",
-            "integer",
-            -359,
-            359,
-            1,
-            0,
-            this->m_hslFilter->property("hue").toInt(),
-            QStringList()
-        });
-
-    if (this->m_gammaFilter)
-        controlsList << QVariant(QVariantList {
-            "Gamma",
-            "integer",
-            -255,
-            255,
-            1,
-            0,
-            this->m_gammaFilter->property("gamma").toInt(),
-            QStringList()
-        });
-
-    return controlsList;
+    return {};
 }
 
 bool CaptureQtPrivate::setImageControls(const QVariantMap &imageControls) const
 {
-    for (auto it = imageControls.cbegin(); it != imageControls.cend(); it++) {
-        if (it.key() == "Brightness") {
-            if (this->m_hslFilter)
-                this->m_hslFilter->setProperty("luminance", it.value());
-        } else if (it.key() == "Contrast") {
-            if (this->m_contrastFilter)
-                this->m_contrastFilter->setProperty("contrast", it.value());
-        } else if (it.key() == "Saturation") {
-            if (this->m_hslFilter)
-                this->m_hslFilter->setProperty("saturation", it.value());
-        } else if (it.key() == "Hue") {
-            if (this->m_hslFilter)
-                this->m_hslFilter->setProperty("hue", it.value());
-        } else if (it.key() == "Gamma") {
-            if (this->m_gammaFilter)
-                this->m_gammaFilter->setProperty("gamma", it.value());
-        }
-    }
+    Q_UNUSED(imageControls)
 
-    return true;
+    return false;
 }
 
 QVariantMap CaptureQtPrivate::controlStatus(const QVariantList &controls) const

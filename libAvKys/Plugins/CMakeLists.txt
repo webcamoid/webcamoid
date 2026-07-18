@@ -39,12 +39,12 @@ add_subdirectory(VirtualCamera)
 
 # Base video effects.
 # These are required by some of the base plugins to work fine.
-add_subdirectory(AdjustHSL)
-add_subdirectory(Contrast)
-add_subdirectory(Gamma)
 add_subdirectory(Rotate)
 
 if (NOT NOVIDEOEFFECTS)
+    add_subdirectory(AdjustHSL)
+    add_subdirectory(Contrast)
     add_subdirectory(Flip)
+    add_subdirectory(Gamma)
     add_subdirectory(SwapRB)
 endif ()
