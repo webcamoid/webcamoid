@@ -173,7 +173,6 @@ brew install \
     ffmpeg \
     ${USE_GCC} \
     git \
-    libuvc \
     libxext \
     libxfixes \
     ninja \

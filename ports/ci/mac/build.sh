@@ -100,7 +100,6 @@ cmake \
     -DDAILY_BUILD=${DAILY_BUILD} \
     -DNOALSA=ON \
     -DNOLIBUSB=ON \
-    -DNOLIBUVC=ON \
     -DNOPULSEAUDIO=ON
 cmake --build "\${BUILD_PATH}" --parallel \$(sysctl -n hw.ncpu)
 cmake --install "\${BUILD_PATH}"

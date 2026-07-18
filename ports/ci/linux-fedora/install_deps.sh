@@ -100,7 +100,6 @@ dnf -y install \
     git \
     kmod-devel \
     libusb1-devel \
-    libuvc-devel \
     libv4l-devel \
     make \
     ninja-build \

@@ -1,5 +1,0 @@
-<RCC>
-    <qresource prefix="/libuvc">
-        <file>share/usbdb/usb.ids</file>
-    </qresource>
-</RCC>

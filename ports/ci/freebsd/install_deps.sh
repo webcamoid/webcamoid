@@ -27,7 +27,6 @@ pkg install -y \
     cmake \
     ffmpeg \
     git \
-    libuvc \
     libXext \
     libXfixes \
     ninja \

@@ -188,7 +188,6 @@ apt-get -y install \
     libswscale-dev \
     libusb-dev \
     libusb-1.0-0-dev \
-    libuvc-dev \
     libv4l-dev \
     libvulkan-dev \
     libwebpdemux2 \
