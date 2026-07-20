@@ -2757,19 +2757,19 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/AdjustHSL/share/qml/main.qml" line="30"/>
+        <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="30"/>
         <source>Hue</source>
         <translation>ह्यू</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/AdjustHSL/share/qml/main.qml" line="48"/>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="79"/>
+        <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="48"/>
         <source>Saturation</source>
         <translation>संतृप्ति</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/AdjustHSL/share/qml/main.qml" line="66"/>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="95"/>
+        <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="66"/>
         <source>Luminance</source>
         <translation>ल्यूमिनेंस</translation>
     </message>
@@ -2834,31 +2834,31 @@
         <translation>नॉइज़</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/AspectRatio/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="27"/>
         <source>Width</source>
         <translation>चौड़ाई</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/AspectRatio/share/qml/main.qml" line="33"/>
+        <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="33"/>
         <source>Aspect ratio width</source>
         <translation>एस्पेक्ट रेशियो चौड़ाई</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/AspectRatio/share/qml/main.qml" line="45"/>
+        <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="45"/>
         <source>Height</source>
         <translation>ऊंचाई</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/AspectRatio/share/qml/main.qml" line="51"/>
+        <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="51"/>
         <source>Aspect ratio height</source>
         <translation>एस्पेक्ट रेशियो ऊंचाई</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Blur/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorFilter/share/qml/main.qml" line="49"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorReplace/share/qml/main.qml" line="63"/>
         <location filename="../../../libAvKys/ExtraPlugins/Denoise/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/ExtraPlugins/OilPaint/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/Plugins/Blur/share/qml/main.qml" line="28"/>
         <source>Radius</source>
         <translation>त्रिज्या</translation>
     </message>
@@ -2879,35 +2879,35 @@
         <translation>किनारे दिखाएं</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="36"/>
+        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="36"/>
         <source>Canny mode</source>
         <extracomment>https://en.wikipedia.org/wiki/Canny_edge_detector</extracomment>
         <translation>कैनी मोड</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="47"/>
+        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="47"/>
         <source>Equalize</source>
         <extracomment>https://en.wikipedia.org/wiki/Histogram_equalization</extracomment>
         <translation>बराबर करें</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="92"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="58"/>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="150"/>
         <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="91"/>
         <location filename="../../../libAvKys/ExtraPlugins/Life/share/qml/main.qml" line="46"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="125"/>
         <location filename="../../../libAvKys/ExtraPlugins/Ripple/share/qml/main.qml" line="114"/>
+        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="58"/>
         <source>Threshold</source>
         <translation>थ्रेशोल्ड</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="77"/>
+        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="77"/>
         <source>Linecolor</source>
         <translation>लाइन रंग</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="79"/>
+        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="79"/>
         <source>Choose the line color</source>
         <translation>लाइन रंग चुनें</translation>
     </message>
@@ -2933,97 +2933,97 @@
         <translation>स्कैन ब्लॉक</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="42"/>
         <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="42"/>
+        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="43"/>
         <source>Transform matrix</source>
         <extracomment>https://en.wikipedia.org/wiki/Transformation_matrix</extracomment>
         <translation>ट्रांसफॉर्म मैट्रिक्स</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="59"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="58"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="59"/>
         <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="58"/>
+        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="59"/>
         <source>Column 0, Row 0</source>
         <translation>कॉलम 0, पंक्ति 0</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="71"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="70"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="71"/>
         <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="70"/>
+        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="71"/>
         <source>Column 1, Row 0</source>
         <translation>कॉलम 1, पंक्ति 0</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="83"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="82"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="83"/>
         <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="82"/>
+        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="83"/>
         <source>Column 2, Row 0</source>
         <translation>कॉलम 2, पंक्ति 0</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="95"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="94"/>
+        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="95"/>
         <source>Column 3, Row 0</source>
         <translation>कॉलम 3, पंक्ति 0</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="109"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="108"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="97"/>
         <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="96"/>
+        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="109"/>
         <source>Column 0, Row 1</source>
         <translation>कॉलम 0, पंक्ति 1</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="121"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="120"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="109"/>
         <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="108"/>
+        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="121"/>
         <source>Column 1, Row 1</source>
         <translation>कॉलम 1, पंक्ति 1</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="133"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="132"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="121"/>
         <location filename="../../../libAvKys/ExtraPlugins/MatrixTransform/share/qml/main.qml" line="120"/>
+        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="133"/>
         <source>Column 2, Row 1</source>
         <translation>कॉलम 2, पंक्ति 1</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="145"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="144"/>
+        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="145"/>
         <source>Column 3, Row 1</source>
         <translation>कॉलम 3, पंक्ति 1</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="159"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="158"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="135"/>
+        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="159"/>
         <source>Column 0, Row 2</source>
         <translation>कॉलम 0, पंक्ति 2</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="171"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="170"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="147"/>
+        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="171"/>
         <source>Column 1, Row 2</source>
         <translation>कॉलम 1, पंक्ति 2</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="183"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="182"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="159"/>
+        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="183"/>
         <source>Column 2, Row 2</source>
         <translation>कॉलम 2, पंक्ति 2</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/ChangeHSL/share/qml/main.qml" line="195"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTransform/share/qml/main.qml" line="194"/>
+        <location filename="../../../libAvKys/Plugins/ChangeHSL/share/qml/main.qml" line="195"/>
         <source>Column 3, Row 2</source>
         <translation>कॉलम 3, पंक्ति 2</translation>
     </message>
@@ -3193,16 +3193,16 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="208"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="137"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="87"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="214"/>
+        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="87"/>
         <source>Background color</source>
         <translation>बैकग्राउंड रंग</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="210"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="139"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Edge/share/qml/main.qml" line="89"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="216"/>
+        <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="89"/>
         <source>Choose the background color</source>
         <translation>बैकग्राउंड रंग चुनें</translation>
     </message>
@@ -3229,7 +3229,7 @@
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="59"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="125"/>
         <location filename="../../../libAvKys/ExtraPlugins/Life/share/qml/main.qml" line="33"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Vignette/share/qml/main.qml" line="33"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="33"/>
         <source>Color</source>
         <translation>रंग</translation>
     </message>
@@ -3388,8 +3388,8 @@
         <translation>कस्टम</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Contrast/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/ExtraPlugins/Photocopy/share/qml/main.qml" line="44"/>
+        <location filename="../../../libAvKys/Plugins/Contrast/share/qml/main.qml" line="29"/>
         <source>Contrast</source>
         <translation>कॉन्ट्रास्ट</translation>
     </message>
@@ -3402,81 +3402,81 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="167"/>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="173"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Emboss/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/ExtraPlugins/Saturated/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="28"/>
         <source>Factor</source>
         <translation>फैक्टर</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Convolve/share/qml/main.qml" line="185"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Emboss/share/qml/main.qml" line="46"/>
+        <location filename="../../../libAvKys/Plugins/Emboss/share/qml/main.qml" line="46"/>
         <source>Bias</source>
         <translation>बायस</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="33"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="33"/>
         <source>Edit</source>
         <translation>संपादित करें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="35"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="35"/>
         <source>Enable edition mode</source>
         <translation>एडिशन मोड सक्षम करें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="42"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="42"/>
         <source>Pixels/%</source>
         <translation>पिक्सेल/%</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="43"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="43"/>
         <source>Select cropping unit</source>
         <translation>क्रॉपिंग यूनिट चुनें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="50"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="50"/>
         <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="184"/>
         <source>Reset</source>
         <translation>रीसेट</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="52"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="52"/>
         <source>Reset parameters</source>
         <translation>पैरामीटर्स रीसेट करें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="57"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Rotate/share/qml/main.qml" line="46"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="57"/>
+        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="46"/>
         <source>Keep resolution</source>
         <translation>रिज़ॉल्यूशन बनाए रखें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="66"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="66"/>
         <source>Left</source>
         <translation>बाएं</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="83"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="83"/>
         <source>Right</source>
         <translation>दाएं</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="100"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="100"/>
         <source>Top</source>
         <translation>शीर्ष</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="117"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="117"/>
         <source>Bottom</source>
         <translation>नीचे</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="133"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="133"/>
         <source>Fill color</source>
         <translation>भरने का रंग</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="135"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="135"/>
         <source>Choose the filling color</source>
         <translation>भरने का रंग चुनें</translation>
     </message>
@@ -3941,7 +3941,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="542"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Vignette/share/qml/main.qml" line="63"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="63"/>
         <source>Scale</source>
         <translation>स्केल</translation>
     </message>
@@ -4099,7 +4099,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="132"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="109"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Zoom/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/Plugins/Zoom/share/qml/main.qml" line="27"/>
         <source>Zoom</source>
         <translation>ज़ूम</translation>
     </message>
@@ -4144,17 +4144,17 @@
         <translation>आग का गर्म रंग चुनें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Flip/share/qml/main.qml" line="26"/>
+        <location filename="../../../libAvKys/Plugins/Flip/share/qml/main.qml" line="26"/>
         <source>Flip horizontally</source>
         <translation>हॉरिजॉन्टल फ्लिप करें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Flip/share/qml/main.qml" line="34"/>
+        <location filename="../../../libAvKys/Plugins/Flip/share/qml/main.qml" line="34"/>
         <source>Flip vertically</source>
         <translation>वर्टिकल फ्लिप करें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Gamma/share/qml/main.qml" line="29"/>
+        <location filename="../../../libAvKys/Plugins/Gamma/share/qml/main.qml" line="29"/>
         <source>Gamma</source>
         <translation>गामा</translation>
     </message>
@@ -4385,7 +4385,7 @@
         <translation>सिंक्रनाइज़</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Opacity/share/qml/main.qml" line="28"/>
+        <location filename="../../../libAvKys/Plugins/Opacity/share/qml/main.qml" line="28"/>
         <source>Opacity</source>
         <translation>ओपेसिटी</translation>
     </message>
@@ -4530,7 +4530,7 @@
         <translation>मास्क</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Temperature/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/Plugins/Temperature/share/qml/main.qml" line="27"/>
         <source>Temperature</source>
         <translation>तापमान</translation>
     </message>
@@ -4555,18 +4555,18 @@
         <translation>डिफ़ॉल्ट मानों पर रीसेट करें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Vignette/share/qml/main.qml" line="35"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="35"/>
         <source>Choose the vignette color</source>
         <translation>विगनेट रंग चुनें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Vignette/share/qml/main.qml" line="46"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="46"/>
         <source>Aspect</source>
         <extracomment>Aspect ratio</extracomment>
         <translation>एस्पेक्ट</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Vignette/share/qml/main.qml" line="80"/>
+        <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="80"/>
         <source>Softness</source>
         <translation>सॉफ्टनेस</translation>
     </message>
@@ -4819,17 +4819,17 @@
         <translation>कमांड चल रही हैं</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Rotate/share/qml/main.qml" line="29"/>
+        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="29"/>
         <source>Angle %1°</source>
         <translation>कोण %1°</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Pixelate/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/Plugins/Pixelate/share/qml/main.qml" line="27"/>
         <source>Block width</source>
         <translation>ब्लॉक चौड़ाई</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Pixelate/share/qml/main.qml" line="44"/>
+        <location filename="../../../libAvKys/Plugins/Pixelate/share/qml/main.qml" line="44"/>
         <source>Block height</source>
         <translation>ब्लॉक ऊंचाई</translation>
     </message>
