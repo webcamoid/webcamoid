@@ -4078,8 +4078,8 @@
         <translation>בהירות</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Contrast/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/ExtraPlugins/Photocopy/share/qml/main.qml" line="44"/>
-        <location filename="../../../libAvKys/Plugins/Contrast/share/qml/main.qml" line="29"/>
         <source>Contrast</source>
         <translation>ניגוד</translation>
     </message>
@@ -4544,12 +4544,12 @@
         <translation>מצב ניפוי שגיאות</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Flip/share/qml/main.qml" line="26"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Flip/share/qml/main.qml" line="26"/>
         <source>Flip horizontally</source>
         <translation>היפוך אופקי</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Flip/share/qml/main.qml" line="34"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Flip/share/qml/main.qml" line="34"/>
         <source>Flip vertically</source>
         <translation>היפוך אנכי</translation>
     </message>
@@ -4596,24 +4596,24 @@
         <translation>נא לבחור את הצבע להוספה</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Gamma/share/qml/main.qml" line="29"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Gamma/share/qml/main.qml" line="29"/>
         <source>Gamma</source>
         <translation>גמא</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="30"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AdjustHSL/share/qml/main.qml" line="30"/>
         <source>Hue</source>
         <translation>גוון</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AdjustHSL/share/qml/main.qml" line="48"/>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="79"/>
-        <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="48"/>
         <source>Saturation</source>
         <translation>רוויה</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AdjustHSL/share/qml/main.qml" line="66"/>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="95"/>
-        <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="66"/>
         <source>Luminance</source>
         <translation>בהירות</translation>
     </message>
@@ -4644,7 +4644,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="57"/>
-        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="46"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Rotate/share/qml/main.qml" line="46"/>
         <source>Keep resolution</source>
         <translation>שמירה על הרזולוציה</translation>
     </message>
@@ -4819,7 +4819,7 @@
         <translation>אפס לערכי ברירת מחדל</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="29"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Rotate/share/qml/main.qml" line="29"/>
         <source>Angle %1°</source>
         <translation>זווית %1°</translation>
     </message>

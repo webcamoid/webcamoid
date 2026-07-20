@@ -67,7 +67,6 @@ class VideoEffects: public QObject
         Q_INVOKABLE AkPluginInfo effectInfo(const QString &effectId) const;
         Q_INVOKABLE QString effectDescription(const QString &effectId) const;
         Q_INVOKABLE AkElement::ElementState state() const;
-        Q_INVOKABLE bool isGpuEffect(const QString &effectId) const;
         Q_INVOKABLE bool chainEffects() const;
         Q_INVOKABLE bool embedControls(const QString &where,
                                        int effectIndex,

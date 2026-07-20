@@ -24,6 +24,7 @@
 #include <akcaps.h>
 #include <akvideocaps.h>
 
+class ScreenDevPrivate;
 class DesktopCaptureElement;
 class AkPacket;
 
@@ -33,7 +34,7 @@ class ScreenDev: public QObject
 
     public:
         ScreenDev(QObject *parent=nullptr);
-        virtual ~ScreenDev() = default;
+        virtual ~ScreenDev();
 
         Q_INVOKABLE virtual AkFrac fps() const = 0;
         Q_INVOKABLE virtual QStringList medias() = 0;
@@ -48,6 +49,10 @@ class ScreenDev: public QObject
         Q_INVOKABLE virtual bool showCursor() const = 0;
         Q_INVOKABLE virtual int cursorSize() const = 0;
         Q_INVOKABLE virtual bool isWindow(const QString &media) const = 0;
+        Q_INVOKABLE AkPacket rotate(const AkPacket &packet, qreal angle);
+
+    private:
+        ScreenDevPrivate *d;
 
     signals:
         void mediasChanged(const QStringList &medias);

@@ -2757,19 +2757,19 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="30"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AdjustHSL/share/qml/main.qml" line="30"/>
         <source>Hue</source>
         <translation>ពណ៌</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AdjustHSL/share/qml/main.qml" line="48"/>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="79"/>
-        <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="48"/>
         <source>Saturation</source>
         <translation>ភាពឆ្អិត</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AdjustHSL/share/qml/main.qml" line="66"/>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="95"/>
-        <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="66"/>
         <source>Luminance</source>
         <translation>ពន្លឺ</translation>
     </message>
@@ -3388,8 +3388,8 @@
         <translation>ផ្ទាល់ខ្លួន</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Contrast/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/ExtraPlugins/Photocopy/share/qml/main.qml" line="44"/>
-        <location filename="../../../libAvKys/Plugins/Contrast/share/qml/main.qml" line="29"/>
         <source>Contrast</source>
         <translation>ផ្ទុយ</translation>
     </message>
@@ -3446,7 +3446,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="57"/>
-        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="46"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Rotate/share/qml/main.qml" line="46"/>
         <source>Keep resolution</source>
         <translation>រក្សាការដោះស្រាយ</translation>
     </message>
@@ -4144,17 +4144,17 @@
         <translation>ជ្រើសរើសសម្បុរក្តៅនៃភ្លើង</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Flip/share/qml/main.qml" line="26"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Flip/share/qml/main.qml" line="26"/>
         <source>Flip horizontally</source>
         <translation>ត្រឡប់ផ្ដេក</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Flip/share/qml/main.qml" line="34"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Flip/share/qml/main.qml" line="34"/>
         <source>Flip vertically</source>
         <translation>ត្រឡប់បញ្ឈរ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Gamma/share/qml/main.qml" line="29"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Gamma/share/qml/main.qml" line="29"/>
         <source>Gamma</source>
         <translation>Gamma</translation>
     </message>
@@ -4819,7 +4819,7 @@
         <translation>កំពុងដំណើរការពាក្យបញ្ជា</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="29"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Rotate/share/qml/main.qml" line="29"/>
         <source>Angle %1°</source>
         <translation>មុំ %1°</translation>
     </message>

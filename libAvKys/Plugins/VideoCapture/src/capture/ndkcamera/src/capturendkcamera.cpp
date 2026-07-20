@@ -33,9 +33,7 @@
 #include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
-#include <akpluginmanager.h>
 #include <akvideopacket.h>
-#include <iak/akelement.h>
 #include <camera/NdkCameraManager.h>
 #include <media/NdkImageReader.h>
 
@@ -351,7 +349,6 @@ class CaptureNdkCameraPrivate
         bool m_permissionResultReady {false};
 #endif
 
-        AkElementPtr m_rotate {akPluginManager->create<AkElement>("VideoFilter/Rotate")};
         int m_nBuffers {4};
         Capture::TorchMode m_torchMode {Capture::Torch_Off};
 
@@ -670,13 +667,15 @@ AkPacket CaptureNdkCamera::readFrame()
 
     this->d->m_mutex.unlock();
 
-    if (!this->d->m_rotate)
+    if (!packet)
         return packet;
 
     auto angle = this->d->cameraRotation(this->d->m_curDeviceId);
-    this->d->m_rotate->setProperty("angle", angle);
 
-    return this->d->m_rotate->iStream(packet);
+    if (qFuzzyIsNull(angle))
+        return packet;
+
+    return this->rotate(packet, angle);
 }
 
 bool CaptureNdkCamera::isTorchSupported() const

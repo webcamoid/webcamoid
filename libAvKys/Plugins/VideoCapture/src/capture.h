@@ -108,6 +108,7 @@ class Capture: public QObject
         Q_INVOKABLE static int nearestResolution(const QSize &resolution,
                                                  const AkFrac &fps,
                                                  const AkCapsList &caps);
+        Q_INVOKABLE AkPacket rotate(const AkPacket &packet, qreal angle);
 
     private:
         CapturePrivate *d;

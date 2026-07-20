@@ -32,13 +32,11 @@
 #include <akfrac.h>
 #include <akcaps.h>
 #include <akpacket.h>
-#include <akpluginmanager.h>
 #include <akvideocaps.h>
 #include <akvideoformatspec.h>
 #include <akvideopacket.h>
 #include <akcompressedvideocaps.h>
 #include <akcompressedvideopacket.h>
-#include <iak/akelement.h>
 
 #if (defined(Q_OS_ANDROID) || defined(Q_OS_MACOS)) && QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
 #include <QPermissions>
@@ -144,7 +142,6 @@ class CaptureQtPrivate
         bool m_permissionResultReady {false};
 #endif
 
-        AkElementPtr m_rotateFilter {akPluginManager->create<AkElement>("VideoFilter/Rotate")};
         qint64 m_id {-1};
         AkFrac m_fps;
         bool m_isTorchSupported {false};
@@ -836,15 +833,13 @@ void CaptureQtPrivate::frameReady(const QVideoFrame &frame)
 
     if (videoPacket) {
         auto angle = this->cameraRotation(frame);
+        AkPacket packet;
 
-        if (this->m_rotateFilter)
-            this->m_rotateFilter->setProperty("angle", angle);
+        if (!qFuzzyIsNull(angle))
+            packet = self->rotate(videoPacket, angle);
 
         this->m_frameMutex.lockForWrite();
-        this->m_videoPacket =
-            this->m_rotateFilter?
-                this->m_rotateFilter->iStream(videoPacket):
-                videoPacket;
+        this->m_videoPacket = packet;
         this->m_packetReady.wakeAll();
         this->m_frameMutex.unlock();
     }

@@ -31,10 +31,8 @@
 #include <akcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
-#include <akpluginmanager.h>
 #include <akvideoformatspec.h>
 #include <akvideopacket.h>
-#include <iak/akelement.h>
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 5, 0)
 #include <QPermissions>
@@ -444,7 +442,6 @@ class CaptureAndroidCameraPrivate
         bool m_permissionResultReady {false};
 #endif
 
-        AkElementPtr m_rotate {akPluginManager->create<AkElement>("VideoFilter/Rotate")};
         Capture::TorchMode m_torchMode {Capture::Torch_Off};
 
         explicit CaptureAndroidCameraPrivate(CaptureAndroidCamera *self);
@@ -800,13 +797,15 @@ AkPacket CaptureAndroidCamera::readFrame()
     this->d->m_curPacket = {};
     this->d->m_mutex.unlock();
 
-    if (!this->d->m_rotate)
+    if (!packet)
         return packet;
 
     auto angle = this->d->cameraRotation(this->d->m_curDeviceId);
-    this->d->m_rotate->setProperty("angle", angle);
 
-    return this->d->m_rotate->iStream(packet);
+    if (qFuzzyIsNull(angle))
+        return packet;
+
+    return this->rotate(packet, angle);
 }
 
 bool CaptureAndroidCamera::isTorchSupported() const

@@ -409,9 +409,20 @@ void AkGLPipeline::applyPreview()
         QMutexLocker mutexLocker(&this->d->m_effectsMutex);
 
         if (this->d->m_preview.element) {
-            if (this->d->m_chainEffects && !this->d->m_effects.isEmpty())
-                this->d->m_effects << this->d->m_preview;
-            else {
+            if (this->d->m_chainEffects && !this->d->m_effects.isEmpty()) {
+                // Avoid adding duplicate effects to the chain.
+                bool alreadyInChain = false;
+
+                for (auto &effect: this->d->m_effects) {
+                    if (effect.info.id() == this->d->m_preview.info.id()) {
+                        alreadyInChain = true;
+                        break;
+                    }
+                }
+
+                if (!alreadyInChain)
+                    this->d->m_effects << this->d->m_preview;
+            } else {
                 this->d->m_effects.clear();
                 this->d->m_effects << this->d->m_preview;
             }
@@ -909,21 +920,28 @@ void AkGLPipelinePrivate::processPacket(const AkVideoPacket &packet)
     {
         QMutexLocker mutexLocker(&this->m_effectsMutex);
 
-        for (auto &effect: this->m_effects)
-            if (effect.element) {
-                auto outSize = this->m_fbo[srcIdx]->size();
-                this->ensureFboSize(this->m_fbo[dstIdx],
-                                    outSize.width(),
-                                    outSize.height());
-                effect.element->process(this->m_fbo[srcIdx],
-                                        this->m_fbo[dstIdx],
-                                        packet.id(),
-                                        pts);
-                std::swap(srcIdx, dstIdx);
-            }
+        // Process existing effects only when chaining or when no preview
+        // is active (otherwise the preview replaces them).
+        if (this->m_chainEffects || !this->m_preview.element) {
+            for (auto &effect: this->m_effects)
+                if (effect.element) {
+                    auto outSize = this->m_fbo[srcIdx]->size();
+                    this->ensureFboSize(this->m_fbo[dstIdx],
+                                        outSize.width(),
+                                        outSize.height());
+                    effect.element->process(this->m_fbo[srcIdx],
+                                            this->m_fbo[dstIdx],
+                                            packet.id(),
+                                            pts);
+                    std::swap(srcIdx, dstIdx);
+                }
+        }
 
-        if (this->m_preview.element
-            && (!this->m_chainEffects || this->m_effects.isEmpty())) {
+        // Process the preview on top:
+        //
+        // - chainEffects=false: preview replaces the effect list.
+        // - chainEffects=true:  preview is chained after existing effects.
+        if (this->m_preview.element) {
             auto outSize = this->m_fbo[srcIdx]->size();
             this->ensureFboSize(this->m_fbo[dstIdx],
                                 outSize.width(),

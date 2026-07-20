@@ -34,17 +34,3 @@ add_subdirectory(MultiSrc)
 add_subdirectory(PacketSync)
 add_subdirectory(VideoCapture)
 add_subdirectory(VirtualCamera)
-
-# Video effects
-
-# Base video effects.
-# These are required by some of the base plugins to work fine.
-add_subdirectory(Rotate)
-
-if (NOT NOVIDEOEFFECTS)
-    add_subdirectory(AdjustHSL)
-    add_subdirectory(Contrast)
-    add_subdirectory(Flip)
-    add_subdirectory(Gamma)
-    add_subdirectory(SwapRB)
-endif ()

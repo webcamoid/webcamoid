@@ -83,7 +83,6 @@ class XlibDevPrivate
         XShmSegmentInfo m_shmInfo;
 #endif
         XImage *m_xImage {nullptr};
-        AkElementPtr m_rotateFilter {akPluginManager->create<AkElement>("VideoFilter/Rotate")};
         bool m_haveShmExtension {false};
         bool m_showCursor {false};
         bool m_followCursor {false};
@@ -740,13 +739,11 @@ void XlibDevPrivate::readFrame()
 #endif
 
 #ifdef HAVE_XRANDR_SUPPORT
-    if (this->m_rotateFilter && this->m_targetWindow == this->m_rootWindow) {
+    if (this->m_targetWindow == this->m_rootWindow) {
         auto angle = -this->screenRotation();
 
-        if (!qFuzzyIsNull(angle)) {
-            this->m_rotateFilter->setProperty("angle", angle);
-            videoPacket = this->m_rotateFilter->iStream(videoPacket);
-        }
+        if (!qFuzzyIsNull(angle))
+            videoPacket = self->rotate(videoPacket, angle);
     }
 #endif
 

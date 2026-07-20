@@ -75,7 +75,6 @@ class QtScreenDevPrivate
         QVideoSink m_videoSink;
         QVideoFrame m_curFrame;
         QSize m_currentFrameSize;
-        AkElementPtr m_rotateFilter {akPluginManager->create<AkElement>("VideoFilter/Rotate")};
         QList<QSize> m_availableSizes;
         QString m_iconsPath {":/Webcamoid/share/themes/WebcamoidTheme/icons"};
         QString m_themeName {"hicolor"};
@@ -563,13 +562,11 @@ void QtScreenDevPrivate::sendFrame(const QVideoFrame &frame)
 
     frameCopy.unmap();
 
-    if (this->m_rotateFilter && this->m_curScreen) {
+    if (this->m_curScreen) {
         auto angle = -this->screenRotation();
 
-        if (!qFuzzyIsNull(angle)) {
-            this->m_rotateFilter->setProperty("angle", angle);
-            videoPacket = this->m_rotateFilter->iStream(videoPacket);
-        }
+        if (!qFuzzyIsNull(angle))
+            videoPacket = self->rotate(videoPacket, angle);
     }
 
     emit self->oStream(videoPacket);

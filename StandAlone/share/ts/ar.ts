@@ -2761,19 +2761,19 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="30"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AdjustHSL/share/qml/main.qml" line="30"/>
         <source>Hue</source>
         <translation>الصبغة</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AdjustHSL/share/qml/main.qml" line="48"/>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="79"/>
-        <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="48"/>
         <source>Saturation</source>
         <translation>التشبع</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AdjustHSL/share/qml/main.qml" line="66"/>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="95"/>
-        <location filename="../../../libAvKys/Plugins/AdjustHSL/share/qml/main.qml" line="66"/>
         <source>Luminance</source>
         <translation>الإضاءة</translation>
     </message>
@@ -3444,7 +3444,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Crop/share/qml/main.qml" line="57"/>
-        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="46"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Rotate/share/qml/main.qml" line="46"/>
         <source>Keep resolution</source>
         <translation>الحفاظ على الدقة</translation>
     </message>
@@ -4142,17 +4142,17 @@
         <translation>اختر لون النار الساخن</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Flip/share/qml/main.qml" line="26"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Flip/share/qml/main.qml" line="26"/>
         <source>Flip horizontally</source>
         <translation>قلب أفقياً</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Flip/share/qml/main.qml" line="34"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Flip/share/qml/main.qml" line="34"/>
         <source>Flip vertically</source>
         <translation>قلب عمودياً</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Gamma/share/qml/main.qml" line="29"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Gamma/share/qml/main.qml" line="29"/>
         <source>Gamma</source>
         <translation>غاما</translation>
     </message>
@@ -4817,13 +4817,13 @@
         <translation>جاري تشغيل الأوامر</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Contrast/share/qml/main.qml" line="29"/>
         <location filename="../../../libAvKys/ExtraPlugins/Photocopy/share/qml/main.qml" line="44"/>
-        <location filename="../../../libAvKys/Plugins/Contrast/share/qml/main.qml" line="29"/>
         <source>Contrast</source>
         <translation>التباين</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="29"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Rotate/share/qml/main.qml" line="29"/>
         <source>Angle %1°</source>
         <translation>الزاوية %1°</translation>
     </message>
