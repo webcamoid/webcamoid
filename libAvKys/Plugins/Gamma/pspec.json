@@ -1,0 +1,12 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Gamma",
+            "description": "Gamma",
+            "id": "VideoFilterGL/Gamma",
+            "implements": ["Element", "VideoFilterGL"],
+            "type": "qtplugin"
+        }
+    ]
+}

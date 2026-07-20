@@ -1,0 +1,12 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "AdjustHSL",
+            "description": "Adjust HSL",
+            "id": "VideoFilterGL/AdjustHSL",
+            "implements": ["Element", "VideoFilterGL"],
+            "type": "qtplugin"
+        }
+    ]
+}

@@ -1,0 +1,12 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "AspectRatio",
+            "description": "Aspect ratio",
+            "id": "VideoFilterGL/AspectRatio",
+            "implements": ["Element", "VideoFilterGL"],
+            "type": "qtplugin"
+        }
+    ]
+}

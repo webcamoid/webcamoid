@@ -1,0 +1,12 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Zoom",
+            "description": "Zoom",
+            "id": "VideoFilterGL/Zoom",
+            "implements": ["Element", "VideoFilterGL"],
+            "type": "qtplugin"
+        }
+    ]
+}

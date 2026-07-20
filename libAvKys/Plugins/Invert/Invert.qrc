@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/Invert">
+        <file>share/shaders/invert.frag</file>
+        <file>share/shaders/invert.vert</file>
+    </qresource>
+</RCC>

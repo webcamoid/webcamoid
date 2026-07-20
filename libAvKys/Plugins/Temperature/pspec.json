@@ -1,0 +1,12 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "Temperature",
+            "description": "Temperature",
+            "id": "VideoFilterGL/Temperature",
+            "implements": ["Element", "VideoFilterGL"],
+            "type": "qtplugin"
+        }
+    ]
+}

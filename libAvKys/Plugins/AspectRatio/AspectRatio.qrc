@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/AspectRatio">
+        <file>share/qml/main.qml</file>
+        <file>share/shaders/aspectratio.frag</file>
+        <file>share/shaders/aspectratio.vert</file>
+    </qresource>
+</RCC>

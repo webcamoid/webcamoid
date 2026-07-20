@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/SwapRB">
+        <file>share/shaders/swaprb.frag</file>
+        <file>share/shaders/swaprb.vert</file>
+    </qresource>
+</RCC>

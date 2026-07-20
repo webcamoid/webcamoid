@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/GrayScale">
+        <file>share/shaders/grayscale.frag</file>
+        <file>share/shaders/grayscale.vert</file>
+    </qresource>
+</RCC>

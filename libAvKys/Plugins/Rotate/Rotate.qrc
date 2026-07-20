@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/Rotate">
+        <file>share/qml/main.qml</file>
+        <file>share/shaders/rotate.frag</file>
+        <file>share/shaders/rotate.vert</file>
+    </qresource>
+</RCC>

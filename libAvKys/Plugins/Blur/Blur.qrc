@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/Blur">
+        <file>share/qml/main.qml</file>
+        <file>share/shaders/blur.vert</file>
+        <file>share/shaders/blurcopy.frag</file>
+        <file>share/shaders/blurh.frag</file>
+        <file>share/shaders/blurv.frag</file>
+    </qresource>
+</RCC>

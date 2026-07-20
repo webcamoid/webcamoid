@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/Edge">
+        <file>share/qml/main.qml</file>
+        <file>share/shaders/downscale.frag</file>
+        <file>share/shaders/edge.vert</file>
+        <file>share/shaders/equalize.frag</file>
+        <file>share/shaders/nms.frag</file>
+        <file>share/shaders/sobel.frag</file>
+        <file>share/shaders/threshold.frag</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/Contrast">
+        <file>share/qml/main.qml</file>
+        <file>share/shaders/contrast.frag</file>
+        <file>share/shaders/contrast.vert</file>
+    </qresource>
+</RCC>

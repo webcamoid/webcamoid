@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/Normalize">
+        <file>share/shaders/normalize.frag</file>
+        <file>share/shaders/normalize.vert</file>
+    </qresource>
+</RCC>
