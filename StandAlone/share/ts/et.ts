@@ -4851,7 +4851,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Nervous/share/qml/main.qml" line="42"/>
         <source>Smooth</source>
-        <translation type="unfinished"></translation>
+        <translation>Sujuv</translation>
     </message>
 </context>
 </TS>
