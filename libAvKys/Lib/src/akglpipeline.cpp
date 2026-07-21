@@ -707,10 +707,10 @@ void AkGLPipelinePrivate::initGL()
     // Full-screen quad in NDC [-1, 1]. UV origin matches OpenGL convention
     // (V=0 at bottom-left), so no Y-flip is required in the blit shader.
     static const float akGLPipelinePrivateQuadVertices[] = {
-        -1.0f, -1.0f, 0.0f, 0.0f, 1.0f,
-         1.0f, -1.0f, 0.0f, 1.0f, 1.0f,
-         1.0f,  1.0f, 0.0f, 1.0f, 0.0f,
-        -1.0f,  1.0f, 0.0f, 0.0f, 0.0f,
+        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+         1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+        -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
     };
 
     this->m_vbo = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
@@ -896,8 +896,8 @@ void AkGLPipelinePrivate::processPacket(const AkVideoPacket &packet)
     else
         for (int y = 0; y < height; ++y)
             memcpy(this->m_uploadBuffer + y * gpuLineSize,
-                packet.constLine(0, y),
-                copyLineSize);
+                   packet.constLine(0, y),
+                   copyLineSize);
 
     self->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
                           GL_RGBA, GL_UNSIGNED_BYTE,

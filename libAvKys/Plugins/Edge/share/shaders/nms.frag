@@ -23,25 +23,24 @@ varying mediump vec2 vTexCoord;
 
 void main()
 {
-    highp vec2 uv = vec2(vTexCoord.x, 1.0 - vTexCoord.y);
     highp vec2 texel = uTexelSize;
-    highp vec4 grad = texture2D(uGradTex, uv);
+    highp vec4 grad = texture2D(uGradTex, vTexCoord);
     highp float mag = grad.r;
     mediump float dir = grad.g * 3.0;
     highp float left, right;
 
     if (dir < 0.5) {
-        left = texture2D(uGradTex, uv + texel * vec2(-1.0, 0.0)).r;
-        right = texture2D(uGradTex, uv + texel * vec2( 1.0, 0.0)).r;
+        left = texture2D(uGradTex, vTexCoord + texel * vec2(-1.0, 0.0)).r;
+        right = texture2D(uGradTex, vTexCoord + texel * vec2( 1.0, 0.0)).r;
     } else if (dir < 1.5) {
-        left = texture2D(uGradTex, uv + texel * vec2(-1.0,-1.0)).r;
-        right = texture2D(uGradTex, uv + texel * vec2( 1.0, 1.0)).r;
+        left = texture2D(uGradTex, vTexCoord + texel * vec2(-1.0,-1.0)).r;
+        right = texture2D(uGradTex, vTexCoord + texel * vec2( 1.0, 1.0)).r;
     } else if (dir < 2.5) {
-        left = texture2D(uGradTex, uv + texel * vec2( 1.0,-1.0)).r;
-        right = texture2D(uGradTex, uv + texel * vec2(-1.0, 1.0)).r;
+        left = texture2D(uGradTex, vTexCoord + texel * vec2( 1.0,-1.0)).r;
+        right = texture2D(uGradTex, vTexCoord + texel * vec2(-1.0, 1.0)).r;
     } else {
-        left = texture2D(uGradTex, uv + texel * vec2( 0.0,-1.0)).r;
-        right = texture2D(uGradTex, uv + texel * vec2( 0.0, 1.0)).r;
+        left = texture2D(uGradTex, vTexCoord + texel * vec2( 0.0,-1.0)).r;
+        right = texture2D(uGradTex, vTexCoord + texel * vec2( 0.0, 1.0)).r;
     }
 
     highp float outMag = (mag >= left && mag >= right) ? mag : 0.0;

@@ -24,8 +24,7 @@ varying mediump vec2 vTexCoord;
 
 void main()
 {
-    highp vec2 uv = vec2(vTexCoord.x, 1.0 - vTexCoord.y);
-    highp vec4 color = texture2D(uTexture, uv);
+    highp vec4 color = texture2D(uTexture, vTexCoord);
     mediump float luma = dot(color.rgb, vec3(0.299, 0.587, 0.114));
     mediump float eq = (luma - uMin) / (uMax - uMin);
     eq = clamp(eq, 0.0, 1.0);

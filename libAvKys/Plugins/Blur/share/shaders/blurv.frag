@@ -38,8 +38,7 @@ void main()
             continue;
 
         highp vec2 offset = vec2(0.0, float(i) * uTexelHeight);
-        highp vec2 p = vTexCoord + offset;
-        sum += texture2D(uTex, vec2(p.x, 1.0 - p.y));
+        sum += texture2D(uTex, vTexCoord + offset);
         count += 1.0;
     }
 

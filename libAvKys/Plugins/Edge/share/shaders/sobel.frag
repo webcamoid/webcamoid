@@ -23,17 +23,16 @@ varying mediump vec2 vTexCoord;
 
 void main()
 {
-    highp vec2 uv = vec2(vTexCoord.x, 1.0 - vTexCoord.y);
     highp vec2 texel = uTexelSize;
 
-    highp float s00 = texture2D(uTexture, uv + texel * vec2(-1.0,-1.0)).r;
-    highp float s10 = texture2D(uTexture, uv + texel * vec2( 0.0,-1.0)).r;
-    highp float s20 = texture2D(uTexture, uv + texel * vec2( 1.0,-1.0)).r;
-    highp float s01 = texture2D(uTexture, uv + texel * vec2(-1.0, 0.0)).r;
-    highp float s21 = texture2D(uTexture, uv + texel * vec2( 1.0, 0.0)).r;
-    highp float s02 = texture2D(uTexture, uv + texel * vec2(-1.0, 1.0)).r;
-    highp float s12 = texture2D(uTexture, uv + texel * vec2( 0.0, 1.0)).r;
-    highp float s22 = texture2D(uTexture, uv + texel * vec2( 1.0, 1.0)).r;
+    highp float s00 = texture2D(uTexture, vTexCoord + texel * vec2(-1.0,-1.0)).r;
+    highp float s10 = texture2D(uTexture, vTexCoord + texel * vec2( 0.0,-1.0)).r;
+    highp float s20 = texture2D(uTexture, vTexCoord + texel * vec2( 1.0,-1.0)).r;
+    highp float s01 = texture2D(uTexture, vTexCoord + texel * vec2(-1.0, 0.0)).r;
+    highp float s21 = texture2D(uTexture, vTexCoord + texel * vec2( 1.0, 0.0)).r;
+    highp float s02 = texture2D(uTexture, vTexCoord + texel * vec2(-1.0, 1.0)).r;
+    highp float s12 = texture2D(uTexture, vTexCoord + texel * vec2( 0.0, 1.0)).r;
+    highp float s22 = texture2D(uTexture, vTexCoord + texel * vec2( 1.0, 1.0)).r;
 
     highp float gx = -s00 - 2.0 * s10 - s20 + s02 + 2.0 * s12 + s22;
     highp float gy = -s00 - 2.0 * s01 - s02 + s20 + 2.0 * s21 + s22;
