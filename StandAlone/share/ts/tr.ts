@@ -4850,7 +4850,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Nervous/share/qml/main.qml" line="42"/>
         <source>Smooth</source>
-        <translation type="unfinished"></translation>
+        <translation>Düzgün</translation>
     </message>
 </context>
 </TS>
