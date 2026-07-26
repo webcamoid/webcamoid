@@ -23,9 +23,11 @@
 #include <QQmlContext>
 #include <QQmlProperty>
 #include <QQmlApplicationEngine>
-#include <akglpipeline.h>
+#include <akfrac.h>
+#include <akglcompositor.h>
 #include <akpacket.h>
 #include <akplugininfo.h>
+#include <akvideopacket.h>
 
 #include "videoeffects.h"
 #include "videodisplay.h"
@@ -35,9 +37,10 @@ class VideoEffectsPrivate
     public:
         VideoEffects *self;
         QQmlApplicationEngine *m_engine {nullptr};
-        AkGLPipeline m_glPipeline;
+        AkGLCompositor m_glCompositor;
         QMutex m_mutex;
         AkElement::ElementState m_state {AkElement::ElementStateNull};
+        quint64 m_sourceId {0};
 
         explicit VideoEffectsPrivate(VideoEffects *self);
         void updateChainEffects();
@@ -58,40 +61,45 @@ VideoEffects::VideoEffects(QQmlApplicationEngine *engine, QObject *parent):
     this->updateAvailableEffects();
     this->d->updateChainEffects();
     this->d->updateEffects();
-    this->d->m_glPipeline.addPacketReader();
+    this->d->m_glCompositor.addPacketReader();
+
+    this->d->m_sourceId = this->d->m_glCompositor.addSource();
+    this->d->m_glCompositor.setSourceRect(this->d->m_sourceId,
+                                           QRectF(0.0, 0.0, 1.0, 1.0));
 }
 
 VideoEffects::~VideoEffects()
 {
     this->setState(AkElement::ElementStateNull);
-    this->d->m_glPipeline.removePacketReader();
+    this->d->m_glCompositor.removePacketReader();
+    this->d->m_glCompositor.removeSource(this->d->m_sourceId);
     this->d->saveEffectsProperties();
     delete this->d;
 }
 
 QStringList VideoEffects::availableEffects() const
 {
-    return this->d->m_glPipeline.availableEffects();
+    return this->d->m_glCompositor.availableEffects();
 }
 
 QStringList VideoEffects::effects() const
 {
-    return this->d->m_glPipeline.effects();
+    return this->d->m_glCompositor.effects();
 }
 
 QString VideoEffects::preview() const
 {
-    return this->d->m_glPipeline.preview();
+    return this->d->m_glCompositor.preview();
 }
 
 AkPluginInfo VideoEffects::effectInfo(const QString &effectId) const
 {
-    return this->d->m_glPipeline.effectInfo(effectId);
+    return this->d->m_glCompositor.effectInfo(effectId);
 }
 
 QString VideoEffects::effectDescription(const QString &effectId) const
 {
-    return this->d->m_glPipeline.effectDescription(effectId);
+    return this->d->m_glCompositor.effectDescription(effectId);
 }
 
 AkElement::ElementState VideoEffects::state() const
@@ -101,19 +109,19 @@ AkElement::ElementState VideoEffects::state() const
 
 bool VideoEffects::chainEffects() const
 {
-    return this->d->m_glPipeline.chainEffects();
+    return this->d->m_glCompositor.chainEffects();
 }
 
 bool VideoEffects::embedControls(const QString &where,
                                  int effectIndex,
                                  const QString &name) const
 {
-    auto element = this->d->m_glPipeline.elementAt(effectIndex);
+    auto element = this->d->m_glCompositor.elementAt(effectIndex);
 
     if (!element)
         return false;
 
-    auto pluginId = this->d->m_glPipeline.effectInfo(effectIndex).id();
+    auto pluginId = this->d->m_glCompositor.effectInfo(effectIndex).id();
     auto interface = element->controlInterface(this->d->m_engine,
                                                pluginId);
 
@@ -145,14 +153,14 @@ bool VideoEffects::embedControls(const QString &where,
 bool VideoEffects::embedPreviewControls(const QString &where,
                                         const QString &name) const
 {
-    QObject *interface = nullptr;
-    auto glPreview = this->d->m_glPipeline.previewElement();
+    auto glPreview = this->d->m_glCompositor.previewElement();
 
     if (!glPreview)
         return false;
 
-    auto info = this->d->m_glPipeline.effectInfo(this->d->m_glPipeline.preview());
-    interface = glPreview->controlInterface(this->d->m_engine, info.id());
+    auto info = this->d->m_glCompositor.effectInfo(
+                    this->d->m_glCompositor.preview());
+    auto interface = glPreview->controlInterface(this->d->m_engine, info.id());
 
     if (!interface)
         return false;
@@ -207,7 +215,7 @@ void VideoEffects::setEffects(const QStringList &effects)
         return;
 
     this->d->m_mutex.lock();
-    this->d->m_glPipeline.setEffects(effects);
+    this->d->m_glCompositor.setEffects(effects);
     this->d->m_mutex.unlock();
 
     emit this->effectsChanged(effects);
@@ -217,19 +225,19 @@ void VideoEffects::setEffects(const QStringList &effects)
 
 void VideoEffects::setPreview(const QString &preview)
 {
-    if (this->d->m_glPipeline.preview() == preview)
+    if (this->d->m_glCompositor.preview() == preview)
         return;
 
     this->d->m_mutex.lock();
     auto state = this->d->m_state;
-    this->d->m_glPipeline.setState(AkElement::ElementStateNull);
+    this->d->m_glCompositor.setState(AkElement::ElementStateNull);
     this->d->unlinkPreview();
-    this->d->m_glPipeline.setPreview(preview);
+    this->d->m_glCompositor.setPreview(preview);
 
     if (!preview.isEmpty())
         this->d->linkPreview();
 
-    this->d->m_glPipeline.setState(state);
+    this->d->m_glCompositor.setState(state);
     this->d->m_mutex.unlock();
 
     emit this->previewChanged(preview);
@@ -241,7 +249,7 @@ void VideoEffects::setState(AkElement::ElementState state)
         return;
 
     this->d->m_mutex.lock();
-    this->d->m_glPipeline.setState(state);
+    this->d->m_glCompositor.setState(state);
     this->d->m_state = state;
     this->d->m_mutex.unlock();
 
@@ -251,7 +259,7 @@ void VideoEffects::setState(AkElement::ElementState state)
 void VideoEffects::setChainEffects(bool chainEffects)
 {
     this->d->m_mutex.lock();
-    this->d->m_glPipeline.setChainEffects(chainEffects);
+    this->d->m_glCompositor.setChainEffects(chainEffects);
     this->d->m_mutex.unlock();
 
     this->d->saveChainEffects(chainEffects);
@@ -288,11 +296,11 @@ void VideoEffects::applyPreview()
 {
     this->d->m_mutex.lock();
     bool applied = false;
-    auto effectsId = this->d->m_glPipeline.effects();
+    auto effectsId = this->d->m_glCompositor.effects();
 
-    if (!this->d->m_glPipeline.preview().isEmpty()) {
+    if (!this->d->m_glCompositor.preview().isEmpty()) {
         this->d->unlinkPreview();
-        this->d->m_glPipeline.applyPreview();
+        this->d->m_glCompositor.applyPreview();
         applied = true;
     }
 
@@ -301,7 +309,7 @@ void VideoEffects::applyPreview()
     if (applied)
         emit this->previewChanged({});
 
-    auto curEffectsIds = this->d->m_glPipeline.effects();
+    auto curEffectsIds = this->d->m_glCompositor.effects();
 
     if (effectsId != curEffectsIds) {
         emit this->effectsChanged(curEffectsIds);
@@ -311,7 +319,7 @@ void VideoEffects::applyPreview()
 
 void VideoEffects::moveEffect(int from, int to)
 {
-    auto totalEffects = this->d->m_glPipeline.effects().size();
+    auto totalEffects = this->d->m_glCompositor.effects().size();
 
     if (from == to
         || from < 0
@@ -321,7 +329,7 @@ void VideoEffects::moveEffect(int from, int to)
         return;
 
     this->d->m_mutex.lock();
-    this->d->m_glPipeline.moveEffect(from, to);
+    this->d->m_glCompositor.moveEffect(from, to);
     this->d->m_mutex.unlock();
 
     emit this->effectsChanged(this->effects());
@@ -330,11 +338,11 @@ void VideoEffects::moveEffect(int from, int to)
 
 void VideoEffects::removeEffect(int index)
 {
-    if (index < 0 || index >= this->d->m_glPipeline.effects().size())
+    if (index < 0 || index >= this->d->m_glCompositor.effects().size())
         return;
 
     this->d->m_mutex.lock();
-    this->d->m_glPipeline.removeEffect(index);
+    this->d->m_glCompositor.removeEffect(index);
     this->d->m_mutex.unlock();
 
     emit this->effectsChanged(this->effects());
@@ -343,11 +351,11 @@ void VideoEffects::removeEffect(int index)
 
 void VideoEffects::removeAllEffects()
 {
-    if (this->d->m_glPipeline.isEmpty())
+    if (this->d->m_glCompositor.isEmpty())
         return;
 
     this->d->m_mutex.lock();
-    this->d->m_glPipeline.removeAllEffects();
+    this->d->m_glCompositor.removeAllEffects();
     this->d->m_mutex.unlock();
 
     emit this->effectsChanged({});
@@ -356,7 +364,7 @@ void VideoEffects::removeAllEffects()
 
 void VideoEffects::updateAvailableEffects()
 {
-    this->d->m_glPipeline.updateAvailableEffects();
+    this->d->m_glCompositor.updateAvailableEffects();
 }
 
 void VideoEffects::setQmlEngine(QQmlApplicationEngine *engine)
@@ -375,8 +383,21 @@ AkPacket VideoEffects::iStream(const AkPacket &packet)
     if (packet.type() != AkPacket::PacketVideo)
         return {};
 
+    AkVideoPacket videoPacket(packet);
+
+    if (!videoPacket)
+        return {};
+
+    auto inputCaps = videoPacket.caps();
+    AkVideoCaps outputCaps(AkVideoCaps::Format_rgba,
+                           inputCaps.width(),
+                           inputCaps.height(),
+                           inputCaps.fps());
+
     this->d->m_mutex.lock();
-    this->d->m_glPipeline.iStream(packet);
+    this->d->m_glCompositor.setOutputCaps(outputCaps);
+    videoPacket.setId(qint64(this->d->m_sourceId));
+    this->d->m_glCompositor.iStream(videoPacket);
     this->d->m_mutex.unlock();
 
     return {};
@@ -385,18 +406,19 @@ AkPacket VideoEffects::iStream(const AkPacket &packet)
 VideoEffectsPrivate::VideoEffectsPrivate(VideoEffects *self):
     self(self)
 {
-    this->m_glPipeline.setPreserveNullPlugins(true);
-    QObject::connect(&this->m_glPipeline,
-                     SIGNAL(oStream(AkPacket)),
+    this->m_glCompositor.setPreserveNullPlugins(true);
+
+    QObject::connect(&this->m_glCompositor,
+                     &AkGLCompositor::oStream,
                      self,
-                     SLOT(sendPacket(AkPacket)),
+                     &VideoEffects::sendPacket,
                      Qt::DirectConnection);
-    QObject::connect(&this->m_glPipeline,
-                     &AkGLPipeline::availableEffectsChanged,
+    QObject::connect(&this->m_glCompositor,
+                     &AkGLCompositor::availableEffectsChanged,
                      self,
                      &VideoEffects::availableEffectsChanged);
-    QObject::connect(&this->m_glPipeline,
-                     &AkGLPipeline::chainEffectsChanged,
+    QObject::connect(&this->m_glCompositor,
+                     &AkGLCompositor::chainEffectsChanged,
                      self,
                      &VideoEffects::chainEffectsChanged);
 }
@@ -431,11 +453,11 @@ void VideoEffectsPrivate::updateEffects()
 void VideoEffectsPrivate::updateEffectsProperties()
 {
     QSettings config;
-    auto effects = this->m_glPipeline.effects();
+    auto effects = this->m_glCompositor.effects();
 
     for (int i = 0; i < effects.size(); ++i) {
         config.beginGroup("VideoEffects_" + effects[i]);
-        auto element = this->m_glPipeline.elementAt(i);
+        auto element = this->m_glCompositor.elementAt(i);
 
         for (auto &key: config.allKeys())
             element->setProperty(key.toStdString().c_str(),
@@ -461,7 +483,7 @@ void VideoEffectsPrivate::saveEffects()
 
     int i = 0;
 
-    for (auto &effect: this->m_glPipeline.effects()) {
+    for (auto &effect: this->m_glCompositor.effects()) {
         config.setArrayIndex(i);
         config.setValue("effect", effect);
         i++;
@@ -475,11 +497,11 @@ void VideoEffectsPrivate::saveEffectsProperties()
 {
     QSettings config;
 
-    auto effects = this->m_glPipeline.effects();
+    auto effects = this->m_glCompositor.effects();
 
     for (int i = 0; i < effects.size(); ++i) {
         config.beginGroup("VideoEffects_" + effects[i]);
-        auto element = this->m_glPipeline.elementAt(i);
+        auto element = this->m_glCompositor.elementAt(i);
 
         if (element)
             for (int property = 0;
@@ -508,7 +530,7 @@ void VideoEffectsPrivate::linkPreview()
         auto effectPreview = obj->findChild<VideoDisplay *>("effectPreview");
 
         if (effectPreview) {
-            this->m_glPipeline.link(effectPreview, Qt::DirectConnection);
+            this->m_glCompositor.link(effectPreview, Qt::DirectConnection);
 
             break;
         }
@@ -524,7 +546,7 @@ void VideoEffectsPrivate::unlinkPreview()
         auto effectPreview = obj->findChild<VideoDisplay *>("effectPreview");
 
         if (effectPreview) {
-            this->m_glPipeline.unlink(effectPreview);
+            this->m_glCompositor.unlink(effectPreview);
 
             break;
         }

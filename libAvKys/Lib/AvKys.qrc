@@ -15,5 +15,7 @@
         <file>share/qml/AkControls/qmldir</file>
         <file>share/shaders/glpipeline/blit.frag</file>
         <file>share/shaders/glpipeline/blit.vert</file>
+        <file>share/shaders/glpipeline/composite.frag</file>
+        <file>share/shaders/glpipeline/composite.vert</file>
     </qresource>
 </RCC>

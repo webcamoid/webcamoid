@@ -18,33 +18,16 @@
  */
 
 #include <QDebug>
-#include <QFuture>
 #include <QMutex>
-#include <QOffscreenSurface>
 #include <QOpenGLBuffer>
-#include <QOpenGLContext>
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLFramebufferObjectFormat>
-#include <QOpenGLShaderProgram>
-#include <QOpenGLTexture>
-#include <QOpenGLVertexArrayObject>
 #include <QQmlEngine>
-#include <QThread>
-#include <QThreadPool>
 #include <QVector>
-#include <QWaitCondition>
-#include <QtConcurrent>
 
 #include "akglpipeline.h"
-#include "akalgorithm.h"
-#include "akfrac.h"
-#include "akpacket.h"
 #include "akplugininfo.h"
 #include "akpluginmanager.h"
-#include "akvideocaps.h"
-#include "akvideoconverter.h"
-#include "akvideopacket.h"
-#include "iak/akvideoeffect.h"
 
 class AkGLPipelineEffect
 {
@@ -52,107 +35,64 @@ class AkGLPipelineEffect
         AkVideoEffectPtr element;
         AkPluginInfo info;
 
-        AkGLPipelineEffect();
+        AkGLPipelineEffect()
+        {
+        }
+
         AkGLPipelineEffect(const AkVideoEffectPtr &element,
-                           const AkPluginInfo &info);
-        AkGLPipelineEffect &operator =(const AkGLPipelineEffect &other);
+                           const AkPluginInfo &info):
+            element(element),
+            info(info)
+        {
+        }
 };
 
 class AkGLPipelinePrivate
 {
     public:
-        AkGLPipeline *self;
-
-        QOpenGLContext *m_shareContext {nullptr};
-        QThread *m_renderThread {nullptr};
-        QAtomicInt m_packetReaders;
-
-        // GL context and surface - owned exclusively by the render thread.
-        QOpenGLContext *m_context {nullptr};
-        QOffscreenSurface *m_surface {nullptr};
-
-        // GL objects - created/destroyed on the render thread.
-        QOpenGLBuffer *m_vbo {nullptr};
-        QOpenGLBuffer *m_ibo {nullptr};
-        QOpenGLVertexArrayObject *m_blitVao {nullptr};
-        QOpenGLShaderProgram *m_blitShader {nullptr};
-        QOpenGLFramebufferObject *m_fbo[2] = {nullptr, nullptr};
-        QOpenGLTexture *m_uploadTex {nullptr};
-
-        // Packet queue (written by iVideoStream, read by render thread)
-        QMutex m_queueMutex;
-        QWaitCondition m_queueCond;
-        QVector<AkVideoPacket> m_packetQueue;
-        // Maximum packets buffered before iVideoStream blocks.
-        static constexpr int kMaxQueue {4};
-
-        // Signals the render thread to exit its processing loop.
-        bool m_stopRequested {false};
-        QMutex m_stopMutex;
-
-        // Shared effect/pipeline state (read by render thread, written by control thread)
-        QMutex m_effectsMutex;
-        QVector<AkGLPipelineEffect> m_effects;
-        AkGLPipelineEffect m_preview;
-        bool m_chainEffects {false};
-
-        // Other state (control thread only)
-        AkVideoConverter m_videoConverter {{AkVideoCaps::Format_rgba, 0, 0, {}}};
-        QStringList m_availableEffects;
+        // Control thread
+        QMutex m_requestMutex;
+        QVector<AkGLPipelineEffect> m_requestEffects;
+        AkGLPipelineEffect m_requestPreview;
+        bool m_requestChainEffects {false};
+        bool m_requestDirty {false};
         bool m_preserveNullPlugins {false};
 
-        // Input and output buffers
-        char *m_uploadBuffer {nullptr};
-        size_t m_uploadBufferSize {0};
-        char *m_readbackBuffer {nullptr};
-        size_t m_readbackBufferSize {0};
+        // Render thread
+        QVector<AkGLPipelineEffect> m_activeEffects;
+        AkGLPipelineEffect m_activePreview;
+        bool m_activeChainEffects {false};
 
-        QMutex m_packetMutex;
+        // OpenGL context
+        QOpenGLFunctions *m_gl {nullptr};
+        QOpenGLBuffer *m_vbo {nullptr};
+        QOpenGLBuffer *m_ibo {nullptr};
+        QOpenGLFramebufferObject *m_fbo[2] = {nullptr, nullptr};
 
-        explicit AkGLPipelinePrivate(AkGLPipeline *self);
-
-        // Control-thread helpers
-        void startRenderThread();
-        void stopRenderThread();
-
-        // Render-thread methods (only called from renderGL())
-        void renderGL();
-        void initGL();
-        void uninitGL();
-        void initEffects();
-        void uninitEffects();
+        void applyPendingRequest();
         void initEffect(const AkVideoEffectPtr &effect);
-        void processPacket(const AkVideoPacket &packet);
-        void blitTexture(GLuint tex, int width, int height);
         void ensureFboSize(QOpenGLFramebufferObject *&fbo,
                            int width,
                            int height);
 };
 
 AkGLPipeline::AkGLPipeline(QObject *parent):
-    AkElement(parent)
+    QObject(parent)
 {
-    this->d = new AkGLPipelinePrivate(this);
-    this->updateAvailableEffects();
+    this->d = new AkGLPipelinePrivate;
 }
 
 AkGLPipeline::~AkGLPipeline()
 {
-    this->setState(AkElement::ElementStateNull);
     delete this->d;
-}
-
-QStringList AkGLPipeline::availableEffects() const
-{
-    return this->d->m_availableEffects;
 }
 
 QStringList AkGLPipeline::effects() const
 {
-    QMutexLocker mutexLocker(&this->d->m_effectsMutex);
+    QMutexLocker mutexLocker(&this->d->m_requestMutex);
     QStringList ids;
 
-    for (auto &effect: this->d->m_effects)
+    for (auto &effect: this->d->m_requestEffects)
         ids << effect.info.id();
 
     return ids;
@@ -160,218 +100,219 @@ QStringList AkGLPipeline::effects() const
 
 QString AkGLPipeline::preview() const
 {
-    QMutexLocker mutexLocker(&this->d->m_effectsMutex);
+    QMutexLocker mutexLocker(&this->d->m_requestMutex);
 
-    if (!this->d->m_preview.element)
+    if (!this->d->m_requestPreview.element)
         return {};
 
-    return this->d->m_preview.info.id();
-}
-
-AkPluginInfo AkGLPipeline::effectInfo(const QString &effectId) const
-{
-    return akPluginManager->pluginInfo(effectId);
-}
-
-AkPluginInfo AkGLPipeline::effectInfo(int index) const
-{
-    QMutexLocker mutexLocker(&this->d->m_effectsMutex);
-
-    return this->d->m_effects.at(index).info;
-}
-
-QString AkGLPipeline::effectDescription(const QString &effectId) const
-{
-    if (effectId.isEmpty())
-        return {};
-
-    auto info = akPluginManager->pluginInfo(effectId);
-
-    if (!info)
-        return {};
-
-    return info.description();
+    return this->d->m_requestPreview.info.id();
 }
 
 bool AkGLPipeline::chainEffects() const
 {
-    QMutexLocker mutexLocker(&this->d->m_effectsMutex);
+    QMutexLocker mutexLocker(&this->d->m_requestMutex);
 
-    return this->d->m_chainEffects;
+    return this->d->m_requestChainEffects;
 }
 
 bool AkGLPipeline::preserveNullPlugins() const
 {
+    QMutexLocker mutexLocker(&this->d->m_requestMutex);
+
     return this->d->m_preserveNullPlugins;
 }
 
 bool AkGLPipeline::isEmpty() const
 {
-    QMutexLocker mutexLocker(&this->d->m_effectsMutex);
+    QMutexLocker mutexLocker(&this->d->m_requestMutex);
 
-    return this->d->m_effects.isEmpty() && !this->d->m_preview.element;
+    return this->d->m_requestEffects.isEmpty()
+           && !this->d->m_requestPreview.element;
 }
 
 AkVideoEffectPtr AkGLPipeline::elementAt(int index) const
 {
-    QMutexLocker mutexLocker(&this->d->m_effectsMutex);
+    QMutexLocker mutexLocker(&this->d->m_requestMutex);
 
-    return this->d->m_effects.at(index).element;
+    if (index < 0 || index >= this->d->m_requestEffects.size())
+        return {};
+
+    return this->d->m_requestEffects.at(index).element;
 }
 
 AkVideoEffectPtr AkGLPipeline::previewElement() const
 {
-    QMutexLocker mutexLocker(&this->d->m_effectsMutex);
+    QMutexLocker mutexLocker(&this->d->m_requestMutex);
 
-    return this->d->m_preview.element;
+    return this->d->m_requestPreview.element;
 }
 
-void AkGLPipeline::setShareContext(QOpenGLContext *shareContext)
+AkPluginInfo AkGLPipeline::effectInfo(int index) const
 {
-    this->d->m_shareContext = shareContext;
+    QMutexLocker mutexLocker(&this->d->m_requestMutex);
+
+    if (index < 0 || index >= this->d->m_requestEffects.size())
+        return {};
+
+    return this->d->m_requestEffects.at(index).info;
 }
 
-void AkGLPipeline::addPacketReader()
+void AkGLPipeline::init(QOpenGLFunctions *glFunctions,
+                        QOpenGLBuffer *vbo,
+                        QOpenGLBuffer *ibo)
 {
-    this->d->m_packetReaders++;
+    this->d->m_gl = glFunctions;
+    this->d->m_vbo = vbo;
+    this->d->m_ibo = ibo;
+
+    QMutexLocker mutexLocker(&this->d->m_requestMutex);
+    this->d->m_requestDirty = true;
 }
 
-void AkGLPipeline::removePacketReader()
+void AkGLPipeline::uninit()
 {
-    this->d->m_packetReaders--;
+    for (auto &effect: this->d->m_activeEffects)
+        if (effect.element)
+            effect.element->uninit();
+
+    if (this->d->m_activePreview.element)
+        this->d->m_activePreview.element->uninit();
+
+    this->d->m_activeEffects.clear();
+    this->d->m_activePreview = {};
+
+    for (auto &fbo: this->d->m_fbo) {
+        delete fbo;
+        fbo = nullptr;
+    }
+
+    this->d->m_gl = nullptr;
+    this->d->m_vbo = nullptr;
+    this->d->m_ibo = nullptr;
 }
 
-void AkGLPipeline::setEffects(const QStringList &effects)
+void AkGLPipeline::process(QOpenGLFramebufferObject *inputFbo,
+                           QOpenGLFramebufferObject *&outputFbo,
+                           qint64 streamId,
+                           qreal pts)
 {
-    if (this->effects() == effects)
+    this->d->applyPendingRequest();
+
+    if (this->d->m_activeEffects.isEmpty()
+        && !this->d->m_activePreview.element) {
+        if (inputFbo != outputFbo)
+            QOpenGLFramebufferObject::blitFramebuffer(outputFbo,
+                                                      inputFbo,
+                                                      GL_COLOR_BUFFER_BIT,
+                                                      GL_NEAREST);
+
         return;
+    }
 
-    bool wasEmpty = this->isEmpty();
-    bool isRunning = this->d->m_renderThread != nullptr;
+    auto src = inputFbo;
+    int dstIdx = 0;
 
-    if (isRunning)
-        this->d->stopRenderThread();
+    auto runStep = [this, &src, &dstIdx, streamId, pts] (const AkVideoEffectPtr &element) {
+        this->d->ensureFboSize(this->d->m_fbo[dstIdx], src->width(), src->height());
+        element->process(src, this->d->m_fbo[dstIdx], streamId, pts);
+        src = this->d->m_fbo[dstIdx];
+        dstIdx = 1 - dstIdx;
+    };
 
+    if (this->d->m_activeChainEffects || !this->d->m_activePreview.element)
+        for (auto &effect: this->d->m_activeEffects)
+            if (effect.element)
+                runStep(effect.element);
+
+    if (this->d->m_activePreview.element)
+        runStep(this->d->m_activePreview.element);
+
+    if (src != outputFbo)
+        QOpenGLFramebufferObject::blitFramebuffer(outputFbo,
+                                                  src,
+                                                  GL_COLOR_BUFFER_BIT,
+                                                  GL_NEAREST);
+}
+
+void AkGLPipeline::setEffects(const QStringList &effectIds)
+{
     {
-        QMutexLocker mutexLocker(&this->d->m_effectsMutex);
-        this->d->m_effects.clear();
+        QMutexLocker mutexLocker(&this->d->m_requestMutex);
+        QStringList curIds;
 
-        for (auto &effectId: effects) {
+        for (auto &effect: this->d->m_requestEffects)
+            curIds << effect.info.id();
+
+        if (curIds == effectIds)
+            return;
+
+        QVector<AkGLPipelineEffect> newEffects;
+
+        for (auto &effectId: effectIds) {
             auto effect = akPluginManager->create<AkVideoEffect>(effectId);
 
-            if (effect) {
-                this->d->m_effects << AkGLPipelineEffect(effect,
-                                                         akPluginManager->pluginInfo(effectId));
-            } else if (this->d->m_preserveNullPlugins) {
-                this->d->m_effects << AkGLPipelineEffect();
-            }
+            if (effect)
+                newEffects << AkGLPipelineEffect(effect,
+                                                 akPluginManager->pluginInfo(effectId));
+            else if (this->d->m_preserveNullPlugins)
+                newEffects << AkGLPipelineEffect();
         }
+
+        this->d->m_requestEffects = newEffects;
+        this->d->m_requestDirty = true;
     }
 
-    if (isRunning)
-        this->d->startRenderThread();
-
-    emit this->effectsChanged(effects);
-
-    bool isEmpty = this->isEmpty();
-
-    if (wasEmpty != isEmpty)
-        emit this->isEmptyChanged(isEmpty);
+    emit this->effectsChanged(effectIds);
 }
 
-void AkGLPipeline::setPreview(const QString &preview)
+void AkGLPipeline::setPreview(const QString &effectId)
 {
-    if (this->preview() == preview)
-        return;
-
-    bool wasEmpty = this->isEmpty();
-    bool isRunning = this->d->m_renderThread != nullptr;
-
-    if (isRunning)
-        this->d->stopRenderThread();
-
     {
-        QMutexLocker mutexLocker(&this->d->m_effectsMutex);
-        this->d->m_preview.element = akPluginManager->create<AkVideoEffect>(preview);
-        this->d->m_preview.info = akPluginManager->pluginInfo(preview);
+        QMutexLocker mutexLocker(&this->d->m_requestMutex);
+
+        if (this->d->m_requestPreview.info.id() == effectId)
+            return;
+
+        if (effectId.isEmpty()) {
+            this->d->m_requestPreview = {};
+        } else {
+            auto effect = akPluginManager->create<AkVideoEffect>(effectId);
+            this->d->m_requestPreview =
+                    AkGLPipelineEffect(effect, akPluginManager->pluginInfo(effectId));
+        }
+
+        this->d->m_requestDirty = true;
     }
 
-    if (isRunning)
-        this->d->startRenderThread();
-
-    emit this->previewChanged(preview);
-    bool isEmpty = this->isEmpty();
-
-    if (wasEmpty != isEmpty)
-        emit this->isEmptyChanged(isEmpty);
-}
-
-bool AkGLPipeline::setState(AkElement::ElementState state)
-{
-    auto curState = this->state();
-
-    switch (curState) {
-    case AkElement::ElementStateNull:
-        switch (state) {
-        case AkElement::ElementStatePaused:
-            return AkElement::setState(state);
-        case AkElement::ElementStatePlaying:
-            this->d->startRenderThread();
-            return AkElement::setState(state);
-        case AkElement::ElementStateNull:
-            break;
-        }
-        break;
-
-    case AkElement::ElementStatePaused:
-        switch (state) {
-        case AkElement::ElementStateNull:
-            this->d->stopRenderThread();
-            return AkElement::setState(state);
-        case AkElement::ElementStatePlaying:
-            return AkElement::setState(state);
-        case AkElement::ElementStatePaused:
-            break;
-        }
-        break;
-
-    case AkElement::ElementStatePlaying:
-        switch (state) {
-        case AkElement::ElementStateNull:
-            this->d->stopRenderThread();
-            return AkElement::setState(state);
-        case AkElement::ElementStatePaused:
-            return AkElement::setState(state);
-        case AkElement::ElementStatePlaying:
-            break;
-        }
-        break;
-    }
-
-    return false;
+    emit this->previewChanged(effectId);
 }
 
 void AkGLPipeline::setChainEffects(bool chainEffects)
 {
     {
-        QMutexLocker mutexLocker(&this->d->m_effectsMutex);
+        QMutexLocker mutexLocker(&this->d->m_requestMutex);
 
-        if (this->d->m_chainEffects == chainEffects)
+        if (this->d->m_requestChainEffects == chainEffects)
             return;
 
-        this->d->m_chainEffects = chainEffects;
+        this->d->m_requestChainEffects = chainEffects;
+        this->d->m_requestDirty = true;
     }
 
-    // chainEffects only affects processing logic, no GL reinit needed.
     emit this->chainEffectsChanged(chainEffects);
 }
 
 void AkGLPipeline::setPreserveNullPlugins(bool preserveNullPlugins)
 {
-    if (this->d->m_preserveNullPlugins == preserveNullPlugins)
-        return;
+    {
+        QMutexLocker mutexLocker(&this->d->m_requestMutex);
 
-    this->d->m_preserveNullPlugins = preserveNullPlugins;
+        if (this->d->m_preserveNullPlugins == preserveNullPlugins)
+            return;
+
+        this->d->m_preserveNullPlugins = preserveNullPlugins;
+    }
+
     emit this->preserveNullPluginsChanged(preserveNullPlugins);
 }
 
@@ -382,7 +323,7 @@ void AkGLPipeline::resetEffects()
 
 void AkGLPipeline::resetPreview()
 {
-    this->setPreview({});
+    this->setPreview("");
 }
 
 void AkGLPipeline::resetChainEffects()
@@ -395,177 +336,70 @@ void AkGLPipeline::resetPreserveNullPlugins()
     this->setPreserveNullPlugins(false);
 }
 
-void AkGLPipeline::applyPreview()
-{
-    bool wasEmpty = this->isEmpty();
-    bool isRunning = this->d->m_renderThread != nullptr;
-
-    if (isRunning)
-        this->d->stopRenderThread();
-
-    bool applied = false;
-
-    {
-        QMutexLocker mutexLocker(&this->d->m_effectsMutex);
-
-        if (this->d->m_preview.element) {
-            if (this->d->m_chainEffects && !this->d->m_effects.isEmpty()) {
-                // Avoid adding duplicate effects to the chain.
-                bool alreadyInChain = false;
-
-                for (auto &effect: this->d->m_effects) {
-                    if (effect.info.id() == this->d->m_preview.info.id()) {
-                        alreadyInChain = true;
-                        break;
-                    }
-                }
-
-                if (!alreadyInChain)
-                    this->d->m_effects << this->d->m_preview;
-            } else {
-                this->d->m_effects.clear();
-                this->d->m_effects << this->d->m_preview;
-            }
-
-            this->d->m_preview = {};
-            applied = true;
-        }
-    }
-
-    if (!applied)
-        return;
-
-    if (isRunning)
-        this->d->startRenderThread();
-
-    emit this->previewChanged({});
-    emit this->effectsChanged(this->effects());
-
-    bool isEmpty = this->isEmpty();
-
-    if (wasEmpty != isEmpty)
-        emit this->isEmptyChanged(isEmpty);
-}
-
 void AkGLPipeline::moveEffect(int from, int to)
 {
-    bool isRunning = this->d->m_renderThread != nullptr;
+    QMutexLocker mutexLocker(&this->d->m_requestMutex);
 
-    if (isRunning)
-        this->d->stopRenderThread();
+    if (from == to
+        || from < 0
+        || from >= this->d->m_requestEffects.size()
+        || to < 0
+        || to >= this->d->m_requestEffects.size())
+        return;
 
-    {
-        QMutexLocker mutexLocker(&this->d->m_effectsMutex);
-
-        if (from == to
-            || from < 0
-            || from >= this->d->m_effects.size()
-            || to < 0
-            || to >= this->d->m_effects.size())
-            return;
-
-        this->d->m_effects.move(from, to);
-    }
-
-    if (isRunning)
-        this->d->startRenderThread();
-
-    // Order change only - no GL objects need to be recreated.
-    emit this->effectsChanged(this->effects());
+    this->d->m_requestEffects.move(from, to);
+    this->d->m_requestDirty = true;
 }
 
 void AkGLPipeline::removeEffect(int index)
 {
-    bool isRunning = this->d->m_renderThread != nullptr;
+    QMutexLocker mutexLocker(&this->d->m_requestMutex);
 
-    if (isRunning)
-        this->d->stopRenderThread();
+    if (index < 0 || index >= this->d->m_requestEffects.size())
+        return;
 
-    {
-        QMutexLocker mutexLocker(&this->d->m_effectsMutex);
-
-        if (index < 0 || index >= this->d->m_effects.size())
-            return;
-
-        this->d->m_effects.removeAt(index);
-    }
-
-    if (isRunning)
-        this->d->startRenderThread();
-
-    emit this->effectsChanged(this->effects());
+    this->d->m_requestEffects.removeAt(index);
+    this->d->m_requestDirty = true;
 }
 
 void AkGLPipeline::removeAllEffects()
 {
-    if (this->isEmpty())
+    QMutexLocker mutexLocker(&this->d->m_requestMutex);
+
+    if (this->d->m_requestEffects.isEmpty())
         return;
 
-    bool isRunning = this->d->m_renderThread != nullptr;
-
-    if (isRunning)
-        this->d->stopRenderThread();
-
-    {
-        QMutexLocker mutexLocker(&this->d->m_effectsMutex);
-        this->d->m_effects.clear();
-    }
-
-    if (isRunning)
-        this->d->startRenderThread();
-
-    emit this->effectsChanged({});
-    emit this->isEmptyChanged(true);
+    this->d->m_requestEffects.clear();
+    this->d->m_requestDirty = true;
 }
 
-// Converts the packet to RGBA and enqueues it for the render thread.
-AkPacket AkGLPipeline::iVideoStream(const AkVideoPacket &packet)
+void AkGLPipeline::applyPreview()
 {
-    if (!packet)
-        return {};
+    QMutexLocker mutexLocker(&this->d->m_requestMutex);
 
-    // If there is nothing to process, pass through immediately.
-    if (this->isEmpty() || this->state() != AkElement::ElementStatePlaying) {
-        emit this->oStream(packet);
+    if (!this->d->m_requestPreview.element)
+        return;
 
-        return packet;
+    if (this->d->m_requestChainEffects
+        && !this->d->m_requestEffects.isEmpty()) {
+        bool alreadyInChain = false;
+
+        for (auto &effect: this->d->m_requestEffects)
+            if (effect.info.id() == this->d->m_requestPreview.info.id()) {
+                alreadyInChain = true;
+
+                break;
+            }
+
+        if (!alreadyInChain)
+            this->d->m_requestEffects << this->d->m_requestPreview;
+    } else {
+        this->d->m_requestEffects.clear();
+        this->d->m_requestEffects << this->d->m_requestPreview;
     }
 
-    // Convert the frames to RGBA.
-    this->d->m_videoConverter.begin();
-    auto src = this->d->m_videoConverter.convert(packet);
-    this->d->m_videoConverter.end();
-
-    // Enqueue, blocking if the render thread is falling behind.
-    {
-        QMutexLocker mutexLocker(&this->d->m_queueMutex);
-
-        while (this->d->m_packetQueue.size() >= AkGLPipelinePrivate::kMaxQueue)
-            this->d->m_queueCond.wait(&this->d->m_queueMutex);
-
-        this->d->m_packetQueue << src;
-        this->d->m_queueCond.wakeAll();
-    }
-
-    return {};
-}
-
-void AkGLPipeline::updateAvailableEffects()
-{
-    auto availableEffects =
-            akPluginManager->listPlugins({},
-                                         {"VideoFilterGL"},
-                                         AkPluginManager::FilterEnabled);
-    std::sort(availableEffects.begin(),
-              availableEffects.end(),
-              [this] (const QString &pluginId1, const QString &pluginId2) {
-        return this->effectDescription(pluginId1) < this->effectDescription(pluginId2);
-    });
-
-    if (this->d->m_availableEffects != availableEffects) {
-        this->d->m_availableEffects = availableEffects;
-        emit this->availableEffectsChanged(availableEffects);
-    }
+    this->d->m_requestPreview = {};
+    this->d->m_requestDirty = true;
 }
 
 void AkGLPipeline::registerTypes()
@@ -576,452 +410,54 @@ void AkGLPipeline::registerTypes()
                                                QJSEngine *jsEngine) -> QObject * {
         Q_UNUSED(qmlEngine)
         Q_UNUSED(jsEngine)
+
         return new AkGLPipeline();
     });
 }
 
-AkGLPipelinePrivate::AkGLPipelinePrivate(AkGLPipeline *self):
-    self(self)
+void AkGLPipelinePrivate::applyPendingRequest()
 {
-}
+    QVector<AkGLPipelineEffect> newEffects;
+    AkGLPipelineEffect newPreview;
+    bool chainEffects;
 
-void AkGLPipelinePrivate::startRenderThread()
-{
-    if (this->m_renderThread)
-        return;
-
-    this->m_renderThread = QThread::create([this] { this->renderGL(); });
-    this->m_renderThread->start();
-}
-
-void AkGLPipelinePrivate::stopRenderThread()
-{
-    if (!this->m_renderThread)
-        return;
-
-    // Signal the render thread to stop and wake it in case it is waiting on the queue.
     {
-        QMutexLocker mutexLocker(&this->m_stopMutex);
-        this->m_stopRequested = true;
-    }
+         QMutexLocker mutexLocker(&this->m_requestMutex);
 
-    this->m_queueCond.wakeAll();
+         if (!this->m_requestDirty)
+             return;
 
-    this->m_renderThread->wait();
-    delete this->m_renderThread;
-    this->m_renderThread = nullptr;
+         newEffects = this->m_requestEffects;
+         newPreview = this->m_requestPreview;
+         chainEffects = this->m_requestChainEffects;
+         this->m_requestDirty = false;
+     }
 
-    this->m_stopRequested = false;
+     for (auto &effect: this->m_activeEffects)
+         if (effect.element)
+             effect.element->uninit();
 
-    QMutexLocker mutexLocker(&this->m_queueMutex);
-    this->m_packetQueue.clear();
-}
+     if (this->m_activePreview.element)
+         this->m_activePreview.element->uninit();
 
-void AkGLPipelinePrivate::renderGL()
-{
-    this->m_surface = new QOffscreenSurface;
-    QSurfaceFormat fmt;
+     for (auto &effect: newEffects)
+         if (effect.element)
+             this->initEffect(effect.element);
 
-#if defined(Q_OS_ANDROID)
-    fmt.setRenderableType(QSurfaceFormat::OpenGLES);
-    fmt.setVersion(2, 0);
-#elif defined(Q_OS_MAC)
-    fmt.setRenderableType(QSurfaceFormat::OpenGL);
-    fmt.setProfile(QSurfaceFormat::CoreProfile);
-    fmt.setVersion(4, 1);
-#else
-    fmt.setRenderableType(QSurfaceFormat::OpenGL);
-    fmt.setProfile(QSurfaceFormat::CompatibilityProfile);
-    fmt.setVersion(2, 1);
-#endif
+     if (newPreview.element)
+         this->initEffect(newPreview.element);
 
-    this->m_surface->setFormat(fmt);
-    this->m_surface->create();
-
-    this->initGL();
-    this->initEffects();
-
-    while (true) {
-        // Check whether a stop was requested before blocking on the queue.
-        {
-            QMutexLocker mutexLocker(&this->m_stopMutex);
-
-            if (this->m_stopRequested)
-                break;
-        }
-
-        // Wait for the next packet from the input queue.
-        AkVideoPacket packet;
-
-        {
-            QMutexLocker queueMutexLocker(&this->m_queueMutex);
-
-            while (this->m_packetQueue.isEmpty()) {
-                // Re-check stop condition while waiting to avoid missing a wakeup.
-                {
-                    QMutexLocker mutexLocker(&this->m_stopMutex);
-
-                    if (this->m_stopRequested)
-                        goto done;
-                }
-
-                this->m_queueCond.wait(&this->m_queueMutex, 100);
-            }
-
-            if (self->state() != AkElement::ElementStatePlaying)
-                continue;
-
-            packet = this->m_packetQueue.takeFirst();
-            this->m_queueCond.wakeAll();
-        }
-
-        if (packet)
-            this->processPacket(packet);
-    }
-
-done:
-    this->uninitEffects();
-    this->uninitGL();
-
-    delete this->m_surface;
-    this->m_surface = nullptr;
-}
-
-void AkGLPipelinePrivate::initGL()
-{
-    QSurfaceFormat fmt;
-    fmt.setVersion(2, 0);
-    fmt.setProfile(QSurfaceFormat::CoreProfile);
-
-    this->m_context = new QOpenGLContext;
-    this->m_context->setFormat(fmt);
-
-    if (this->m_shareContext)
-        this->m_context->setShareContext(this->m_shareContext);
-
-    this->m_context->create();
-    this->m_context->makeCurrent(this->m_surface);
-
-    self->initializeOpenGLFunctions();
-
-    // Full-screen quad in NDC [-1, 1]. UV origin matches OpenGL convention
-    // (V=0 at bottom-left), so no Y-flip is required in the blit shader.
-    static const float akGLPipelinePrivateQuadVertices[] = {
-        -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-         1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
-         1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
-        -1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
-    };
-
-    this->m_vbo = new QOpenGLBuffer(QOpenGLBuffer::VertexBuffer);
-    this->m_vbo->create();
-    this->m_vbo->bind();
-    this->m_vbo->allocate(akGLPipelinePrivateQuadVertices,
-                          sizeof(akGLPipelinePrivateQuadVertices));
-    this->m_vbo->release();
-
-    static const unsigned int akGLPipelinePrivateQuadIndices[] = {
-        0, 1, 2, 2, 3, 0
-    };
-
-    this->m_ibo = new QOpenGLBuffer(QOpenGLBuffer::IndexBuffer);
-    this->m_ibo->create();
-    this->m_ibo->bind();
-    this->m_ibo->allocate(akGLPipelinePrivateQuadIndices,
-                          sizeof(akGLPipelinePrivateQuadIndices));
-    this->m_ibo->release();
-
-    this->m_blitShader = new QOpenGLShaderProgram;
-    this->m_blitVao = new QOpenGLVertexArrayObject;
-    this->m_blitVao->create();
-    this->m_blitVao->bind();
-    this->m_vbo->bind();
-    this->m_ibo->bind();
-
-    this->m_blitShader->addShaderFromSourceFile(QOpenGLShader::Vertex,
-                                                ":/Ak/share/shaders/glpipeline/blit.vert");
-    this->m_blitShader->addShaderFromSourceFile(QOpenGLShader::Fragment,
-                                                ":/Ak/share/shaders/glpipeline/blit.frag");
-
-    this->m_blitShader->link();
-    this->m_blitShader->bind();
-
-    int posAttr = this->m_blitShader->attributeLocation("aPos");
-    this->m_blitShader->enableAttributeArray(posAttr);
-    this->m_blitShader->setAttributeBuffer(posAttr, GL_FLOAT, 0, 3, 5 * sizeof(float));
-
-    int texAttr = this->m_blitShader->attributeLocation("aTexCoord");
-    this->m_blitShader->enableAttributeArray(texAttr);
-    this->m_blitShader->setAttributeBuffer(texAttr, GL_FLOAT, 3 * sizeof(float), 2, 5 * sizeof(float));
-
-    this->m_blitShader->release();
-    this->m_blitVao->release();
-
-    this->m_uploadTex = new QOpenGLTexture(QOpenGLTexture::Target2D);
-    this->m_uploadTex->setFormat(QOpenGLTexture::RGBA8_UNorm);
-    this->m_uploadTex->setMinificationFilter(QOpenGLTexture::Linear);
-    this->m_uploadTex->setMagnificationFilter(QOpenGLTexture::Linear);
-    this->m_uploadTex->setWrapMode(QOpenGLTexture::ClampToEdge);
-}
-
-void AkGLPipelinePrivate::uninitGL()
-{
-    if (this->m_uploadTex) {
-        if (this->m_uploadTex->isCreated())
-            this->m_uploadTex->destroy();
-        delete this->m_uploadTex;
-        this->m_uploadTex = nullptr;
-    }
-
-    for (auto *&fbo: this->m_fbo) {
-        delete fbo;
-        fbo = nullptr;
-    }
-
-    if (this->m_blitVao) {
-        this->m_blitVao->destroy();
-        delete this->m_blitVao;
-        this->m_blitVao = nullptr;
-    }
-
-    if (this->m_vbo) {
-        this->m_vbo->destroy();
-        delete this->m_vbo;
-        this->m_vbo = nullptr;
-    }
-
-    if (this->m_ibo) {
-        this->m_ibo->destroy();
-        delete this->m_ibo;
-        this->m_ibo = nullptr;
-    }
-
-    if (this->m_blitShader) {
-        delete this->m_blitShader;
-        this->m_blitShader = nullptr;
-    }
-
-    if (this->m_context) {
-        this->m_context->doneCurrent();
-        delete this->m_context;
-        this->m_context = nullptr;
-    }
-}
-
-void AkGLPipelinePrivate::initEffects()
-{
-    QMutexLocker mutexLocker(&this->m_effectsMutex);
-
-    for (auto &effect: this->m_effects)
-        if (effect.element)
-            this->initEffect(effect.element);
-
-    if (this->m_preview.element)
-        this->initEffect(this->m_preview.element);
-
-    this->m_uploadBufferSize = 0;
-
-    if (this->m_uploadBuffer) {
-        delete this->m_uploadBuffer;
-        this->m_uploadBuffer = nullptr;
-    }
-
-    this->m_readbackBufferSize = 0;
-
-    if (this->m_readbackBuffer) {
-        delete this->m_readbackBuffer;
-        this->m_readbackBuffer = nullptr;
-    }
-}
-
-void AkGLPipelinePrivate::uninitEffects()
-{
-    QMutexLocker mutexLocker(&this->m_effectsMutex);
-
-    for (auto &effect: this->m_effects)
-        if (effect.element)
-            effect.element->uninit();
-
-    if (this->m_preview.element)
-        this->m_preview.element->uninit();
+     this->m_activeEffects = newEffects;
+     this->m_activePreview = newPreview;
+     this->m_activeChainEffects = chainEffects;
 }
 
 void AkGLPipelinePrivate::initEffect(const AkVideoEffectPtr &effect)
 {
-    effect->setGLFunctions(self);
+    effect->setGLFunctions(this->m_gl);
 
     if (!effect->init(this->m_vbo, this->m_ibo))
-        qWarning() << "Effect failed to initialize:" << effect.get();
-}
-
-void AkGLPipelinePrivate::processPacket(const AkVideoPacket &packet)
-{
-    int width = packet.caps().width();
-    int height = packet.caps().height();
-
-    // Reallocate the upload texture when the frame resolution changes.
-    if (!this->m_uploadTex->isCreated()
-        || this->m_uploadTex->width() != width
-        || this->m_uploadTex->height() != height) {
-        if (this->m_uploadTex->isCreated())
-            this->m_uploadTex->destroy();
-
-        this->m_uploadTex->setSize(width, height);
-        this->m_uploadTex->setFormat(QOpenGLTexture::RGBA8_UNorm);
-        this->m_uploadTex->setMinificationFilter(QOpenGLTexture::Linear);
-        this->m_uploadTex->setMagnificationFilter(QOpenGLTexture::Linear);
-        this->m_uploadTex->setWrapMode(QOpenGLTexture::ClampToEdge);
-        this->m_uploadTex->allocateStorage();
-    }
-
-    // Copy the packed RGBA frame data into the upload texture.
-    this->m_uploadTex->bind();
-    size_t packetLineSize = packet.lineSize(0);
-    size_t gpuLineSize = 4 * width;
-    size_t gpuBufferSize = gpuLineSize * height;
-    size_t copyLineSize = qMin(packetLineSize, gpuLineSize);
-
-    if (this->m_uploadBufferSize < gpuBufferSize) {
-        if (this->m_uploadBuffer)
-            delete this->m_uploadBuffer;
-
-        this->m_uploadBuffer = new char[gpuBufferSize];
-        this->m_uploadBufferSize = gpuBufferSize;
-    }
-
-    if (packetLineSize == gpuLineSize)
-        memcpy(this->m_uploadBuffer,
-               packet.constData(),
-               gpuBufferSize);
-    else
-        for (int y = 0; y < height; ++y)
-            memcpy(this->m_uploadBuffer + y * gpuLineSize,
-                   packet.constLine(0, y),
-                   copyLineSize);
-
-    self->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
-                          GL_RGBA, GL_UNSIGNED_BYTE,
-                          this->m_uploadBuffer);
-    this->m_uploadTex->release();
-
-    // Blit into fbo[0] as pipeline entry point.
-    this->ensureFboSize(this->m_fbo[0], width, height);
-    this->ensureFboSize(this->m_fbo[1], width, height);
-    this->m_fbo[0]->bind();
-    self->glViewport(0, 0, width, height);
-    this->blitTexture(this->m_uploadTex->textureId(), width, height);
-    this->m_fbo[0]->release();
-
-    // Run the effect chain.
-    int srcIdx = 0;
-    int dstIdx = 1;
-    auto pts = packet.pts() * packet.timeBase().value();
-
-    {
-        QMutexLocker mutexLocker(&this->m_effectsMutex);
-
-        // Process existing effects only when chaining or when no preview
-        // is active (otherwise the preview replaces them).
-        if (this->m_chainEffects || !this->m_preview.element) {
-            for (auto &effect: this->m_effects)
-                if (effect.element) {
-                    auto outSize = this->m_fbo[srcIdx]->size();
-                    this->ensureFboSize(this->m_fbo[dstIdx],
-                                        outSize.width(),
-                                        outSize.height());
-                    effect.element->process(this->m_fbo[srcIdx],
-                                            this->m_fbo[dstIdx],
-                                            packet.id(),
-                                            pts);
-                    std::swap(srcIdx, dstIdx);
-                }
-        }
-
-        // Process the preview on top:
-        //
-        // - chainEffects=false: preview replaces the effect list.
-        // - chainEffects=true:  preview is chained after existing effects.
-        if (this->m_preview.element) {
-            auto outSize = this->m_fbo[srcIdx]->size();
-            this->ensureFboSize(this->m_fbo[dstIdx],
-                                outSize.width(),
-                                outSize.height());
-            this->m_preview.element->process(this->m_fbo[srcIdx],
-                                             this->m_fbo[dstIdx],
-                                             packet.id(),
-                                             pts);
-            std::swap(srcIdx, dstIdx);
-        }
-    }
-
-    emit self->outputTextureReady(this->m_fbo[srcIdx]->texture(),
-                                  this->m_fbo[srcIdx]->size());
-
-    if (this->m_packetReaders == 0)
-        return;
-
-    // Read back.
-    auto outSize = this->m_fbo[srcIdx]->size();
-    AkVideoCaps dstCaps(packet.caps().format(),
-                        outSize.width(),
-                        outSize.height(),
-                        packet.caps().fps());
-    AkVideoPacket dst(dstCaps);
-    dst.copyMetadata(packet);
-
-    gpuLineSize = 4 * outSize.width();
-    gpuBufferSize = gpuLineSize * outSize.height();
-
-    if (this->m_readbackBufferSize < gpuBufferSize) {
-        if (this->m_readbackBuffer)
-            delete this->m_readbackBuffer;
-
-        this->m_readbackBuffer = new char[gpuBufferSize];
-        this->m_readbackBufferSize = gpuBufferSize;
-    }
-
-    this->m_fbo[srcIdx]->bind();
-    self->glReadPixels(0, 0,
-                       outSize.width(), outSize.height(),
-                       GL_RGBA, GL_UNSIGNED_BYTE,
-                       this->m_readbackBuffer);
-    this->m_fbo[srcIdx]->release();
-
-    copyLineSize = qMin<size_t>(gpuLineSize, dst.lineSize(0));
-
-    if (gpuLineSize == dst.lineSize(0))
-        memcpy(dst.data(),
-               this->m_readbackBuffer,
-               gpuBufferSize);
-    else
-        for (int y = 0; y < outSize.height(); ++y)
-            memcpy(dst.line(0, y),
-                   this->m_readbackBuffer + y * gpuLineSize,
-                   copyLineSize);
-
-    if (this->m_packetMutex.tryLock()) {
-        emit self->oStream(dst);
-        this->m_packetMutex.unlock();
-    }
-}
-
-void AkGLPipelinePrivate::blitTexture(GLuint tex, int width, int height)
-{
-    self->glViewport(0, 0, width, height);
-    self->glClear(GL_COLOR_BUFFER_BIT);
-
-    this->m_blitVao->bind();
-    this->m_blitShader->bind();
-
-    self->glActiveTexture(GL_TEXTURE0);
-    self->glBindTexture(GL_TEXTURE_2D, tex);
-    this->m_blitShader->setUniformValue("uTex", 0);
-
-    self->glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
-
-    this->m_blitShader->release();
-    this->m_blitVao->release();
-    self->glBindTexture(GL_TEXTURE_2D, 0);
+        qWarning() << "AkGLPipeline: effect failed to initialize:" << effect.get();
 }
 
 void AkGLPipelinePrivate::ensureFboSize(QOpenGLFramebufferObject *&fbo,
@@ -1036,27 +472,6 @@ void AkGLPipelinePrivate::ensureFboSize(QOpenGLFramebufferObject *&fbo,
 
     delete fbo;
     fbo = new QOpenGLFramebufferObject(width, height, fmt);
-}
-
-AkGLPipelineEffect::AkGLPipelineEffect()
-{
-}
-
-AkGLPipelineEffect::AkGLPipelineEffect(const AkVideoEffectPtr &element,
-                                       const AkPluginInfo &info):
-    element(element),
-    info(info)
-{
-}
-
-AkGLPipelineEffect &AkGLPipelineEffect::operator =(const AkGLPipelineEffect &other)
-{
-    if (this != &other) {
-        this->element = other.element;
-        this->info = other.info;
-    }
-
-    return *this;
 }
 
 #include "moc_akglpipeline.cpp"

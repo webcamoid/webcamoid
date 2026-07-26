@@ -83,6 +83,8 @@ qt_add_library(avkys
                src/akcpufeatures.h
                src/akfrac.cpp
                src/akfrac.h
+               src/akglcompositor.cpp
+               src/akglcompositor.h
                src/akglpipeline.cpp
                src/akglpipeline.h
                src/akmenuoption.cpp

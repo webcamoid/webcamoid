@@ -20,24 +20,16 @@
 #ifndef AKGLPIPELINE_H
 #define AKGLPIPELINE_H
 
-#include <QOpenGLFunctions>
-
-#include "iak/akelement.h"
 #include "iak/akvideoeffect.h"
 
 class AkGLPipelinePrivate;
-class AkPacket;
 class AkPluginInfo;
-class AkVideoPacket;
+class QOpenGLBuffer;
+class QOpenGLFramebufferObject;
 
-class AKCOMMONS_EXPORT AkGLPipeline:
-        public AkElement,
-        protected QOpenGLFunctions
+class AKCOMMONS_EXPORT AkGLPipeline: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList availableEffects
-               READ availableEffects
-               NOTIFY availableEffectsChanged)
     Q_PROPERTY(QStringList effects
                READ effects
                WRITE setEffects
@@ -64,54 +56,52 @@ class AKCOMMONS_EXPORT AkGLPipeline:
 
     public:
         explicit AkGLPipeline(QObject *parent=nullptr);
-        ~AkGLPipeline();
+        AkGLPipeline(const AkGLPipeline &other) = delete;
+        AkGLPipeline &operator =(const AkGLPipeline &other) = delete;
+        ~AkGLPipeline() override;
 
-        Q_INVOKABLE QStringList availableEffects() const;
         Q_INVOKABLE QStringList effects() const;
         Q_INVOKABLE QString preview() const;
-        Q_INVOKABLE AkPluginInfo effectInfo(const QString &effectId) const;
-        Q_INVOKABLE AkPluginInfo effectInfo(int index) const;
-        Q_INVOKABLE QString effectDescription(const QString &effectId) const;
         Q_INVOKABLE bool chainEffects() const;
         Q_INVOKABLE bool preserveNullPlugins() const;
         Q_INVOKABLE bool isEmpty() const;
         Q_INVOKABLE AkVideoEffectPtr elementAt(int index) const;
         Q_INVOKABLE AkVideoEffectPtr previewElement() const;
+        Q_INVOKABLE AkPluginInfo effectInfo(int index) const;
+        Q_INVOKABLE void init(QOpenGLFunctions *glFunctions,
+                              QOpenGLBuffer *vbo,
+                              QOpenGLBuffer *ibo);
+        Q_INVOKABLE void uninit();
+        Q_INVOKABLE void process(QOpenGLFramebufferObject *inputFbo,
+                                 QOpenGLFramebufferObject *&outputFbo,
+                                 qint64 streamId,
+                                 qreal pts);
 
     private:
         AkGLPipelinePrivate *d;
 
     Q_SIGNALS:
-        void availableEffectsChanged(const QStringList &availableEffects);
         void effectsChanged(const QStringList &effects);
         void previewChanged(const QString &preview);
         void chainEffectsChanged(bool chainEffects);
         void preserveNullPluginsChanged(bool preserveNullPlugins);
         void isEmptyChanged(bool isEmpty);
-        void outputTextureReady(GLuint texture, const QSize &size);
 
     public Q_SLOTS:
-        void setShareContext(QOpenGLContext *shareContext);
-        void addPacketReader();
-        void removePacketReader();
-        void setEffects(const QStringList &effects);
-        void setPreview(const QString &preview);
-        bool setState(AkElement::ElementState state) override;
+        void setEffects(const QStringList &effectIds);
+        void setPreview(const QString &effectId);
         void setChainEffects(bool chainEffects);
         void setPreserveNullPlugins(bool preserveNullPlugins);
         void resetEffects();
         void resetPreview();
         void resetChainEffects();
         void resetPreserveNullPlugins();
-        void applyPreview();
         void moveEffect(int from, int to);
         void removeEffect(int index);
         void removeAllEffects();
-        AkPacket iVideoStream(const AkVideoPacket &packet) override;
-        void updateAvailableEffects();
-        static void registerTypes();
+        void applyPreview();
 
-    friend class AkGLPipelinePrivate;
+        static void registerTypes();
 };
 
 Q_DECLARE_METATYPE(AkGLPipeline)
