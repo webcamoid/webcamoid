@@ -142,6 +142,7 @@ class Capture: public QObject
         virtual void resetTorchMode();
         virtual void reset();
         virtual void takePictures(int count, int delayMsecs=0);
+        virtual void updateDevices() = 0;
 };
 
 #endif // CAPTURE_H

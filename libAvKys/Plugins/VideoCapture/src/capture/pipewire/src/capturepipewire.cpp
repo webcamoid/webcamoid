@@ -1377,6 +1377,10 @@ void CapturePipeWire::reset()
     this->resetCameraControls();
 }
 
+void CapturePipeWire::updateDevices()
+{
+}
+
 CapturePipeWirePrivate::CapturePipeWirePrivate(CapturePipeWire *self):
     self(self)
 {

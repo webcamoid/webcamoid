@@ -226,11 +226,12 @@ void AkColorizedImage::setSource(const QString &source)
     if (this->d->m_source == source)
         return;
 
-    this->d->m_mutex.lock();
-    this->d->m_source = source;
-    this->d->m_mutex.unlock();
-    emit this->sourceChanged(source);
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_source = source;
+    }
 
+    emit this->sourceChanged(source);
     QMetaObject::invokeMethod(this, "update");
 }
 
@@ -248,11 +249,12 @@ void AkColorizedImage::setColor(const QColor &color)
     if (this->d->m_color == color)
         return;
 
-    this->d->m_mutex.lock();
-    this->d->m_color = color;
-    this->d->m_mutex.unlock();
-    emit this->colorChanged(color);
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_color = color;
+    }
 
+    emit this->colorChanged(color);
     QMetaObject::invokeMethod(this, "update");
 }
 
@@ -263,7 +265,6 @@ void AkColorizedImage::setFillMode(FillMode fillMode)
 
     this->d->m_fillMode = fillMode;
     emit this->fillModeChanged(this->d->m_fillMode);
-
     QMetaObject::invokeMethod(this, "update");
 }
 
@@ -272,11 +273,12 @@ void AkColorizedImage::setSourceSize(const QSize &sourceSize)
     if (this->d->m_sourceSize == sourceSize)
         return;
 
-    this->d->m_mutex.lock();
-    this->d->m_sourceSize = sourceSize;
-    this->d->m_mutex.unlock();
-    emit this->sourceSizeChanged(this->d->m_sourceSize);
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_sourceSize = sourceSize;
+    }
 
+    emit this->sourceSizeChanged(this->d->m_sourceSize);
     QMetaObject::invokeMethod(this, "update");
 }
 
@@ -287,7 +289,6 @@ void AkColorizedImage::setHorizontalAlignment(AkColorizedImage::HorizontalAlignm
 
     this->d->m_horizontalAlignment = horizontalAlignment;
     emit this->horizontalAlignmentChanged(this->d->m_horizontalAlignment);
-
     QMetaObject::invokeMethod(this, "update");
 }
 
@@ -298,7 +299,6 @@ void AkColorizedImage::setVerticalAlignment(AkColorizedImage::VerticalAlignment 
 
     this->d->m_verticalAlignment = verticalAlignment;
     emit this->verticalAlignmentChanged(this->d->m_verticalAlignment);
-
     QMetaObject::invokeMethod(this, "update");
 }
 
@@ -309,7 +309,6 @@ void AkColorizedImage::setColorize(bool colorize)
 
     this->d->m_colorize = colorize;
     emit this->colorizeChanged(this->d->m_colorize);
-
     QMetaObject::invokeMethod(this, "update");
 }
 
@@ -320,7 +319,6 @@ void AkColorizedImage::setMirror(bool mirror)
 
     this->d->m_mirror = mirror;
     emit this->mirrorChanged(this->d->m_mirror);
-
     QMetaObject::invokeMethod(this, "update");
 }
 
@@ -340,7 +338,6 @@ void AkColorizedImage::setMipmap(bool mipmap)
 
     this->d->m_mipmap = mipmap;
     emit this->mipmapChanged(this->d->m_mipmap);
-
     QMetaObject::invokeMethod(this, "update");
 }
 
@@ -418,9 +415,12 @@ QImage AkColorizedImagePrivate::colorizeImage(const QImage &image)
 {
     QImage colorizedImage(image.size(), image.format());
 
-    this->m_mutex.lock();
-    auto color = this->m_color;
-    this->m_mutex.unlock();
+    QColor color;
+
+    {
+        QMutexLocker locker(&this->m_mutex);
+        color = this->m_color;
+    }
 
     for (int y = 0; y < image.height(); ++y) {
         auto srcLine = reinterpret_cast<const QRgb *>(image.constScanLine(y));
@@ -562,9 +562,12 @@ void AkColorizedImagePrivate::scale(const QSize &size,
 
 bool AkColorizedImagePrivate::load()
 {
-    this->m_mutex.lock();
-    auto source = this->m_source;
-    this->m_mutex.unlock();
+    QString source;
+
+    {
+        QMutexLocker locker(&this->m_mutex);
+        source = this->m_source;
+    }
 
     if (!source.isEmpty()) {
         if (!this->m_cache || source != this->m_origSource) {
@@ -639,9 +642,12 @@ void AkColorizedImagePrivate::loadImage(const QString &source)
         if (!imageProvider)
             return;
 
-        this->m_mutex.lock();
-        auto sourceSize = this->m_sourceSize;
-        this->m_mutex.unlock();
+        QSize sourceSize;
+
+        {
+            QMutexLocker locker(&this->m_mutex);
+            sourceSize = this->m_sourceSize;
+        }
 
         QSize resourceSize = sourceSize.isEmpty()?
                                  self->size().toSize():

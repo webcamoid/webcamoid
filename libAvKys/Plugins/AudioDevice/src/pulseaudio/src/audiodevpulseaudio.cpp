@@ -488,56 +488,44 @@ QString AudioDevPulseAudio::error() const
 
 QString AudioDevPulseAudio::defaultInput()
 {
-    this->d->m_mutex.lock();
-    auto defaultSource = this->d->m_defaultSource;
-    this->d->m_mutex.unlock();
+    QMutexLocker locker(&this->d->m_mutex);
 
-    return defaultSource;
+    return this->d->m_defaultSource;
 }
 
 QString AudioDevPulseAudio::defaultOutput()
 {
-    this->d->m_mutex.lock();
-    auto defaultSink = this->d->m_defaultSink;
-    this->d->m_mutex.unlock();
+    QMutexLocker locker(&this->d->m_mutex);
 
-    return defaultSink;
+    return this->d->m_defaultSink;
 }
 
 QStringList AudioDevPulseAudio::inputs()
 {
-    this->d->m_mutex.lock();
-    auto inputs = this->d->m_sources;
-    this->d->m_mutex.unlock();
+    QMutexLocker locker(&this->d->m_mutex);
 
-    return inputs;
+    return this->d->m_sources;
 }
 
 QStringList AudioDevPulseAudio::outputs()
 {
-    this->d->m_mutex.lock();
-    auto outputs = this->d->m_sinks;
-    this->d->m_mutex.unlock();
+    QMutexLocker locker(&this->d->m_mutex);
 
-    return outputs;
+    return this->d->m_sinks;
 }
 
 QString AudioDevPulseAudio::description(const QString &device)
 {
-    this->d->m_mutex.lock();
-    auto description = this->d->m_devicesDescriptions.value(device);
-    this->d->m_mutex.unlock();
+    QMutexLocker locker(&this->d->m_mutex);
 
-    return description;
+    return this->d->m_devicesDescriptions.value(device);
 }
 
 AkAudioCaps AudioDevPulseAudio::preferredFormat(const QString &device)
 {
-    this->d->m_mutex.lock();
-    auto caps = this->d->m_devicesCaps.value(device);
-    this->d->m_mutex.unlock();
+    QMutexLocker locker(&this->d->m_mutex);
 
-    return caps;
+    return this->d->m_devicesCaps.value(device);
 }
 
 QList<AkAudioCaps::SampleFormat> AudioDevPulseAudio::supportedFormats(const QString &device)
@@ -626,13 +614,10 @@ AkAudioCaps AudioDevPulseAudio::negotiatedCaps() const
 
 QByteArray AudioDevPulseAudio::read()
 {
-    this->d->m_streamMutex.lock();
+    QMutexLocker locker(&this->d->m_streamMutex);
 
-    if (!this->d->m_paSimple) {
-        this->d->m_streamMutex.unlock();
-
+    if (!this->d->m_paSimple)
         return {};
-    }
 
     int error;
 
@@ -641,27 +626,24 @@ QByteArray AudioDevPulseAudio::read()
                               size_t(this->d->m_readBuffer.size()),
                               &error) < 0) {
         this->d->m_error = QString(this->d->paStrerror(error));
-        this->d->m_streamMutex.unlock();
         qCritical() << this->d->m_error;
+        locker.unlock();
+
+        // Emit signal after unlocking mutex
         emit this->errorChanged(this->d->m_error);
 
         return {};
     }
-
-    this->d->m_streamMutex.unlock();
 
     return this->d->m_readBuffer;
 }
 
 bool AudioDevPulseAudio::write(const AkAudioPacket &packet)
 {
-    this->d->m_streamMutex.lock();
+    QMutexLocker locker(&this->d->m_streamMutex);
 
-    if (!this->d->m_paSimple) {
-        this->d->m_streamMutex.unlock();
-
+    if (!this->d->m_paSimple)
         return false;
-    }
 
     int error;
 
@@ -670,14 +652,14 @@ bool AudioDevPulseAudio::write(const AkAudioPacket &packet)
                                packet.size(),
                                &error) < 0) {
         this->d->m_error = QString(this->d->paStrerror(error));
-        this->d->m_streamMutex.unlock();
         qCritical() << this->d->m_error;
+        locker.unlock();
+
+        // Emit signal after unlocking mutex
         emit this->errorChanged(this->d->m_error);
 
         return false;
     }
-
-    this->d->m_streamMutex.unlock();
 
     return true;
 }
@@ -689,7 +671,7 @@ bool AudioDevPulseAudio::uninit()
     QString errorStr;
     bool ok = true;
 
-    this->d->m_streamMutex.lock();
+    QMutexLocker locker(&this->d->m_streamMutex);
 
     if (this->d->m_paSimple) {
         int error;
@@ -706,11 +688,13 @@ bool AudioDevPulseAudio::uninit()
 
     this->d->m_paSimple = nullptr;
     this->d->m_curCaps = AkAudioCaps();
-    this->d->m_streamMutex.unlock();
 
     if (!errorStr.isEmpty()) {
         this->d->m_error = errorStr;
+        locker.unlock();
+        // Emit signal after unlocking mutex
         emit this->errorChanged(this->d->m_error);
+        locker.relock();
     }
 
     this->d->m_readBuffer.clear();
@@ -840,30 +824,30 @@ void AudioDevPulseAudioPrivate::updateDevices()
 
     if (this->m_devicesInfo.sources != this->m_sources) {
         this->m_sources = this->m_devicesInfo.sources;
-        this->m_mutex.unlock();
+        locker.unlock();
         emit self->inputsChanged(this->m_sources);
-        this->m_mutex.lock();
+        locker.relock();
     }
 
     if (this->m_devicesInfo.sinks != this->m_sinks) {
         this->m_sinks = this->m_devicesInfo.sinks;
-        this->m_mutex.unlock();
+        locker.unlock();
         emit self->outputsChanged(this->m_sinks);
-        this->m_mutex.lock();
+        locker.relock();
     }
 
     if (this->m_devicesInfo.defaultSource != this->m_defaultSource) {
         this->m_defaultSource = this->m_devicesInfo.defaultSource;
-        this->m_mutex.unlock();
+        locker.unlock();
         emit self->defaultInputChanged(this->m_defaultSource);
-        this->m_mutex.lock();
+        locker.relock();
     }
 
     if (this->m_devicesInfo.defaultSink != this->m_defaultSink) {
         this->m_defaultSink = this->m_devicesInfo.defaultSink;
-        this->m_mutex.unlock();
+        locker.unlock();
         emit self->defaultOutputChanged(this->m_defaultSink);
-        this->m_mutex.lock();
+        locker.relock();
     }
 }
 

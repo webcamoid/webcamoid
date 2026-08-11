@@ -154,13 +154,4 @@ ColumnLayout {
 
         onCurrentIndexChanged: updateStreams()
     }
-    CheckBox {
-        id: cbSynchronise
-        checked: MultiSrc.sync
-        text: qsTr("Synchronise")
-        Layout.fillWidth: true
-        Accessible.description: text
-
-        onToggled: MultiSrc.sync = checked
-    }
 }

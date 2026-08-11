@@ -572,6 +572,437 @@ bool CaptureDShow::nativeEventFilter(const QByteArray &eventType,
     return false;
 }
 
+bool CaptureDShow::init()
+{
+    this->d->m_localImageControls.clear();
+    this->d->m_localCameraControls.clear();
+
+    qDebug() << "Creating FilterGraph";
+    auto hr = CoCreateInstance(CLSID_FilterGraph,
+                               nullptr,
+                               CLSCTX_INPROC_SERVER,
+                               IID_IGraphBuilder,
+                               reinterpret_cast<void **>(&this->d->m_graph));
+
+    if (FAILED(hr)) {
+        qCritical() << "Error creating FilterGraph instance:"
+                    << this->d->stringFromHResult(hr);
+
+        return false;
+    }
+
+    qDebug() << "Creating camera filter";
+    this->d->m_webcamFilter = this->d->findFilter(this->d->m_device);
+
+    if (!this->d->m_webcamFilter) {
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        qCritical() << "Error creating camera filter.";
+
+        return false;
+    }
+
+    qDebug() << "Adding camera filter to the graph";
+    hr = this->d->m_graph->AddFilter(this->d->m_webcamFilter.data(),
+                                     SOURCE_FILTER_NAME);
+
+    if (FAILED(hr)) {
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
+        qCritical() << "Error adding camera filter to the graph:"
+                    << this->d->stringFromHResult(hr);
+
+        return false;
+    }
+
+    qDebug() << "Creating SampleGrabber instance.";
+    IBaseFilter *grabberFilter = nullptr;
+    hr = CoCreateInstance(CLSID_SampleGrabber,
+                          nullptr,
+                          CLSCTX_INPROC_SERVER,
+                          IID_IBaseFilter,
+                          reinterpret_cast<void **>(&grabberFilter));
+
+    if (FAILED(hr)) {
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
+        qCritical() << "Error creating SampleGrabber instance:"
+                    << this->d->stringFromHResult(hr);
+
+        return false;
+    }
+
+    qDebug() << "Adding sample grabber to the graph.";
+    hr = this->d->m_graph->AddFilter(grabberFilter, L"Grabber");
+
+    if (FAILED(hr)) {
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
+        qCritical() << "Error adding sample grabber to the graph:"
+                    << this->d->stringFromHResult(hr);
+
+        return false;
+    }
+
+    qDebug() << "Querying SampleGrabber interface.";
+    ISampleGrabber *grabberPtr = nullptr;
+    hr = grabberFilter->QueryInterface(IID_ISampleGrabber,
+                                       reinterpret_cast<void **>(&grabberPtr));
+
+    if (FAILED(hr)) {
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
+        qCritical() << "Error querying SampleGrabber interface:"
+                    << this->d->stringFromHResult(hr);
+
+        return false;
+    }
+
+    qDebug() << "Setting sample grabber to one shot.";
+    hr = grabberPtr->SetOneShot(FALSE);
+
+    if (FAILED(hr)) {
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
+        qCritical() << "Error setting sample grabber to one shot:"
+                    << this->d->stringFromHResult(hr);
+
+        return false;
+    }
+
+    qDebug() << "Setting sample grabber to sampling mode.";
+    hr = grabberPtr->SetBufferSamples(TRUE);
+
+    if (FAILED(hr)) {
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
+        qCritical() << "Error setting sample grabber to sampling mode:"
+                    << this->d->stringFromHResult(hr);
+
+        return false;
+    }
+
+    if (this->d->m_ioMethod != IoMethodDirectRead) {
+        int type = this->d->m_ioMethod == IoMethodGrabSample? 0: 1;
+        hr = grabberPtr->SetCallback(&this->d->m_frameGrabber, type);
+    }
+
+    this->d->m_grabber =
+            SampleGrabberPtr(grabberPtr, [] (ISampleGrabber *sampleGrabber) {
+        sampleGrabber->Release();
+    });
+
+    qDebug() << "Connecting filters.";
+
+    if (!this->d->connectFilters(this->d->m_graph,
+                                 this->d->m_webcamFilter.data(),
+                                 grabberFilter)) {
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
+        qCritical() << "Error connecting filters.";
+
+        return false;
+    }
+
+    qDebug() << "Creating NullRenderer instance.";
+    IBaseFilter *nullFilter = nullptr;
+    hr = CoCreateInstance(CLSID_NullRenderer,
+                          nullptr,
+                          CLSCTX_INPROC_SERVER,
+                          IID_IBaseFilter,
+                          reinterpret_cast<void **>(&nullFilter));
+
+    if (FAILED(hr)) {
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
+        qCritical() << "Error creating NullRenderer instance:"
+                    << this->d->stringFromHResult(hr);
+
+        return false;
+    }
+
+    qDebug() << "Adding null filter to the graph.";
+    hr = this->d->m_graph->AddFilter(nullFilter, L"NullFilter");
+
+    if (FAILED(hr)) {
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
+        qCritical() << "Error adding null filter to the graph:"
+                    << this->d->stringFromHResult(hr);
+
+        return false;
+    }
+
+    qDebug() << "Connecting null filter.";
+
+    if (!this->d->connectFilters(this->d->m_graph,
+                                 grabberFilter,
+                                 nullFilter)) {
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
+        qCritical() << "Error connecting null filter.";
+
+        return false;
+    }
+
+    qDebug() << "Reading camera streams.";
+    auto streams = this->streams();
+
+    if (streams.isEmpty()) {
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
+        qCritical() << "Camera streams are empty.";
+
+        return false;
+    }
+
+    qDebug() << "Reading media types.";
+    auto mediaTypes = this->d->listMediaTypes(this->d->m_webcamFilter.data());
+
+    if (mediaTypes.isEmpty()) {
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
+        qCritical() << "Can't get camera media types.";
+
+        return false;
+    }
+
+    qDebug() << "Setting grabber media type.";
+    MediaTypePtr mediaType = streams[0] < mediaTypes.size()?
+                                mediaTypes[streams[0]]:
+                                mediaTypes.first();
+    hr = grabberPtr->SetMediaType(mediaType.data());
+
+    if (FAILED(hr)) {
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
+        qCritical() << "Error setting grabber media type:"
+                    << this->d->stringFromHResult(hr);
+
+        return false;
+    }
+
+    qDebug() << "Setting the media type for the camera filter pins.";
+    auto pins = this->d->enumPins(this->d->m_webcamFilter.data(),
+                                  PINDIR_OUTPUT);
+
+    for (const PinPtr &pin: pins) {
+        IAMStreamConfig *pStreamConfig = nullptr;
+        auto hr =
+                pin->QueryInterface(IID_IAMStreamConfig,
+                                    reinterpret_cast<void **>(&pStreamConfig));
+
+        if (SUCCEEDED(hr))
+            pStreamConfig->SetFormat(mediaType.data());
+
+        if (pStreamConfig)
+            pStreamConfig->Release();
+    }
+
+    qDebug() << "Querying MediaControl interface.";
+    IMediaControl *control = nullptr;
+    hr = this->d->m_graph->QueryInterface(IID_IMediaControl,
+                                          reinterpret_cast<void **>(&control));
+
+    if (FAILED(hr)) {
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
+        qCritical() << "Error querying MediaControl interface:"
+                    << this->d->stringFromHResult(hr);
+
+        return false;
+    }
+
+    this->d->m_id = Ak::id();
+    auto caps = this->d->capsFromMediaType(mediaType);
+
+    switch (caps.type()) {
+    case AkCaps::CapsVideo: {
+        AkVideoCaps videoCaps(caps);
+        this->d->m_timeBase = videoCaps.fps().invert();
+
+        break;
+    }
+    case AkCaps::CapsVideoCompressed: {
+        AkCompressedVideoCaps videoCaps(caps);
+        this->d->m_timeBase = videoCaps.rawCaps().fps().invert();
+
+        break;
+    }
+    default:
+        break;
+    }
+
+    if (this->d->m_curMediaType) {
+        this->d->freeMediaType(*this->d->m_curMediaType);
+        this->d->m_curMediaType = nullptr;
+    }
+
+    qDebug() << "Running the graph.";
+    hr = control->Run();
+
+    if (FAILED(hr)) {
+        control->Release();
+        this->d->m_graph->Release();
+        this->d->m_graph = nullptr;
+        this->d->m_webcamFilter.clear();
+        qCritical() << "Failed to run the graph:"
+                    << this->d->stringFromHResult(hr);
+
+        return false;
+    }
+
+    control->Release();
+
+    qDebug() << "Starting camera capture.";
+
+    return true;
+}
+
+void CaptureDShow::uninit()
+{
+    IMediaControl *control = nullptr;
+
+    if (SUCCEEDED(this->d->m_graph->QueryInterface(IID_IMediaControl,
+                                                   reinterpret_cast<void **>(&control)))) {
+        control->Stop();
+        control->Release();
+    }
+
+    this->d->m_grabber.clear();
+    this->d->m_graph->Release();
+    this->d->m_graph = nullptr;
+    this->d->m_webcamFilter.clear();
+}
+
+void CaptureDShow::setDevice(const QString &device)
+{
+    if (this->d->m_device == device)
+        return;
+
+    this->d->m_device = device;
+
+    if (device.isEmpty()) {
+        this->d->m_controlsMutex.lockForWrite();
+        this->d->m_globalImageControls.clear();
+        this->d->m_globalCameraControls.clear();
+        this->d->m_controlsMutex.unlock();
+    } else {
+        this->d->m_controlsMutex.lockForWrite();
+        auto camera = this->d->findFilterP(device);
+
+        if (camera) {
+            this->d->m_globalImageControls = this->d->imageControls(camera);
+            this->d->m_globalCameraControls =
+                    this->d->cameraControls(camera)
+                    + UvcExtendedControls::controls(camera);
+            camera->Release();
+        }
+
+        this->d->m_controlsMutex.unlock();
+    }
+
+    this->d->m_controlsMutex.lockForRead();
+    auto imageStatus = this->d->controlStatus(this->d->m_globalImageControls);
+    auto cameraStatus = this->d->controlStatus(this->d->m_globalCameraControls);
+    this->d->m_controlsMutex.unlock();
+
+    emit this->deviceChanged(device);
+    emit this->imageControlsChanged(imageStatus);
+    emit this->cameraControlsChanged(cameraStatus);
+}
+
+void CaptureDShow::setStreams(const QList<int> &streams)
+{
+    if (streams.isEmpty())
+        return;
+
+    auto stream = streams[0];
+
+    if (stream < 0)
+        return;
+
+    auto supportedCaps = this->caps(this->d->m_device);
+
+    if (stream >= supportedCaps.length())
+        return;
+
+    QList<int> inputStreams {stream};
+
+    if (this->streams() == inputStreams)
+        return;
+
+    this->d->m_streams = inputStreams;
+    emit this->streamsChanged(inputStreams);
+}
+
+void CaptureDShow::setIoMethod(const QString &ioMethod)
+{
+    IoMethod ioMethodEnum = ioMethodToStr->key(ioMethod, IoMethodGrabSample);
+
+    if (this->d->m_ioMethod == ioMethodEnum)
+        return;
+
+    this->d->m_ioMethod = ioMethodEnum;
+    emit this->ioMethodChanged(ioMethod);
+}
+
+void CaptureDShow::setNBuffers(int nBuffers)
+{
+    Q_UNUSED(nBuffers)
+}
+
+void CaptureDShow::resetDevice()
+{
+    this->setDevice("");
+}
+
+void CaptureDShow::resetStreams()
+{
+    auto supportedCaps = this->caps(this->d->m_device);
+    QList<int> streams;
+
+    if (!supportedCaps.isEmpty())
+        streams << 0;
+
+    this->setStreams(streams);
+}
+
+void CaptureDShow::resetIoMethod()
+{
+    this->setIoMethod("any");
+}
+
+void CaptureDShow::resetNBuffers()
+{
+}
+
+void CaptureDShow::reset()
+{
+    this->resetStreams();
+    this->resetImageControls();
+    this->resetCameraControls();
+}
+
+void CaptureDShow::updateDevices()
+{
+    this->d->updateDevices();
+}
+
 CaptureDShowPrivate::CaptureDShowPrivate(CaptureDShow *self):
     self(self)
 {
@@ -1667,432 +2098,6 @@ void CaptureDShowPrivate::updateDevices()
         this->m_devices = devices;
         emit self->webcamsChanged(this->m_devices);
     }
-}
-
-bool CaptureDShow::init()
-{
-    this->d->m_localImageControls.clear();
-    this->d->m_localCameraControls.clear();
-
-    qDebug() << "Creating FilterGraph";
-    auto hr = CoCreateInstance(CLSID_FilterGraph,
-                               nullptr,
-                               CLSCTX_INPROC_SERVER,
-                               IID_IGraphBuilder,
-                               reinterpret_cast<void **>(&this->d->m_graph));
-
-    if (FAILED(hr)) {
-        qCritical() << "Error creating FilterGraph instance:"
-                    << this->d->stringFromHResult(hr);
-
-        return false;
-    }
-
-    qDebug() << "Creating camera filter";
-    this->d->m_webcamFilter = this->d->findFilter(this->d->m_device);
-
-    if (!this->d->m_webcamFilter) {
-        this->d->m_graph->Release();
-        this->d->m_graph = nullptr;
-        qCritical() << "Error creating camera filter.";
-
-        return false;
-    }
-
-    qDebug() << "Adding camera filter to the graph";
-    hr = this->d->m_graph->AddFilter(this->d->m_webcamFilter.data(),
-                                     SOURCE_FILTER_NAME);
-
-    if (FAILED(hr)) {
-        this->d->m_graph->Release();
-        this->d->m_graph = nullptr;
-        this->d->m_webcamFilter.clear();
-        qCritical() << "Error adding camera filter to the graph:"
-                    << this->d->stringFromHResult(hr);
-
-        return false;
-    }
-
-    qDebug() << "Creating SampleGrabber instance.";
-    IBaseFilter *grabberFilter = nullptr;
-    hr = CoCreateInstance(CLSID_SampleGrabber,
-                          nullptr,
-                          CLSCTX_INPROC_SERVER,
-                          IID_IBaseFilter,
-                          reinterpret_cast<void **>(&grabberFilter));
-
-    if (FAILED(hr)) {
-        this->d->m_graph->Release();
-        this->d->m_graph = nullptr;
-        this->d->m_webcamFilter.clear();
-        qCritical() << "Error creating SampleGrabber instance:"
-                    << this->d->stringFromHResult(hr);
-
-        return false;
-    }
-
-    qDebug() << "Adding sample grabber to the graph.";
-    hr = this->d->m_graph->AddFilter(grabberFilter, L"Grabber");
-
-    if (FAILED(hr)) {
-        this->d->m_graph->Release();
-        this->d->m_graph = nullptr;
-        this->d->m_webcamFilter.clear();
-        qCritical() << "Error adding sample grabber to the graph:"
-                    << this->d->stringFromHResult(hr);
-
-        return false;
-    }
-
-    qDebug() << "Querying SampleGrabber interface.";
-    ISampleGrabber *grabberPtr = nullptr;
-    hr = grabberFilter->QueryInterface(IID_ISampleGrabber,
-                                       reinterpret_cast<void **>(&grabberPtr));
-
-    if (FAILED(hr)) {
-        this->d->m_graph->Release();
-        this->d->m_graph = nullptr;
-        this->d->m_webcamFilter.clear();
-        qCritical() << "Error querying SampleGrabber interface:"
-                    << this->d->stringFromHResult(hr);
-
-        return false;
-    }
-
-    qDebug() << "Setting sample grabber to one shot.";
-    hr = grabberPtr->SetOneShot(FALSE);
-
-    if (FAILED(hr)) {
-        this->d->m_graph->Release();
-        this->d->m_graph = nullptr;
-        this->d->m_webcamFilter.clear();
-        qCritical() << "Error setting sample grabber to one shot:"
-                    << this->d->stringFromHResult(hr);
-
-        return false;
-    }
-
-    qDebug() << "Setting sample grabber to sampling mode.";
-    hr = grabberPtr->SetBufferSamples(TRUE);
-
-    if (FAILED(hr)) {
-        this->d->m_graph->Release();
-        this->d->m_graph = nullptr;
-        this->d->m_webcamFilter.clear();
-        qCritical() << "Error setting sample grabber to sampling mode:"
-                    << this->d->stringFromHResult(hr);
-
-        return false;
-    }
-
-    if (this->d->m_ioMethod != IoMethodDirectRead) {
-        int type = this->d->m_ioMethod == IoMethodGrabSample? 0: 1;
-        hr = grabberPtr->SetCallback(&this->d->m_frameGrabber, type);
-    }
-
-    this->d->m_grabber =
-            SampleGrabberPtr(grabberPtr, [] (ISampleGrabber *sampleGrabber) {
-        sampleGrabber->Release();
-    });
-
-    qDebug() << "Connecting filters.";
-
-    if (!this->d->connectFilters(this->d->m_graph,
-                                 this->d->m_webcamFilter.data(),
-                                 grabberFilter)) {
-        this->d->m_graph->Release();
-        this->d->m_graph = nullptr;
-        this->d->m_webcamFilter.clear();
-        qCritical() << "Error connecting filters.";
-
-        return false;
-    }
-
-    qDebug() << "Creating NullRenderer instance.";
-    IBaseFilter *nullFilter = nullptr;
-    hr = CoCreateInstance(CLSID_NullRenderer,
-                          nullptr,
-                          CLSCTX_INPROC_SERVER,
-                          IID_IBaseFilter,
-                          reinterpret_cast<void **>(&nullFilter));
-
-    if (FAILED(hr)) {
-        this->d->m_graph->Release();
-        this->d->m_graph = nullptr;
-        this->d->m_webcamFilter.clear();
-        qCritical() << "Error creating NullRenderer instance:"
-                    << this->d->stringFromHResult(hr);
-
-        return false;
-    }
-
-    qDebug() << "Adding null filter to the graph.";
-    hr = this->d->m_graph->AddFilter(nullFilter, L"NullFilter");
-
-    if (FAILED(hr)) {
-        this->d->m_graph->Release();
-        this->d->m_graph = nullptr;
-        this->d->m_webcamFilter.clear();
-        qCritical() << "Error adding null filter to the graph:"
-                    << this->d->stringFromHResult(hr);
-
-        return false;
-    }
-
-    qDebug() << "Connecting null filter.";
-
-    if (!this->d->connectFilters(this->d->m_graph,
-                                 grabberFilter,
-                                 nullFilter)) {
-        this->d->m_graph->Release();
-        this->d->m_graph = nullptr;
-        this->d->m_webcamFilter.clear();
-        qCritical() << "Error connecting null filter.";
-
-        return false;
-    }
-
-    qDebug() << "Reading camera streams.";
-    auto streams = this->streams();
-
-    if (streams.isEmpty()) {
-        this->d->m_graph->Release();
-        this->d->m_graph = nullptr;
-        this->d->m_webcamFilter.clear();
-        qCritical() << "Camera streams are empty.";
-
-        return false;
-    }
-
-    qDebug() << "Reading media types.";
-    auto mediaTypes = this->d->listMediaTypes(this->d->m_webcamFilter.data());
-
-    if (mediaTypes.isEmpty()) {
-        this->d->m_graph->Release();
-        this->d->m_graph = nullptr;
-        this->d->m_webcamFilter.clear();
-        qCritical() << "Can't get camera media types.";
-
-        return false;
-    }
-
-    qDebug() << "Setting grabber media type.";
-    MediaTypePtr mediaType = streams[0] < mediaTypes.size()?
-                                mediaTypes[streams[0]]:
-                                mediaTypes.first();
-    hr = grabberPtr->SetMediaType(mediaType.data());
-
-    if (FAILED(hr)) {
-        this->d->m_graph->Release();
-        this->d->m_graph = nullptr;
-        this->d->m_webcamFilter.clear();
-        qCritical() << "Error setting grabber media type:"
-                    << this->d->stringFromHResult(hr);
-
-        return false;
-    }
-
-    qDebug() << "Setting the media type for the camera filter pins.";
-    auto pins = this->d->enumPins(this->d->m_webcamFilter.data(),
-                                  PINDIR_OUTPUT);
-
-    for (const PinPtr &pin: pins) {
-        IAMStreamConfig *pStreamConfig = nullptr;
-        auto hr =
-                pin->QueryInterface(IID_IAMStreamConfig,
-                                    reinterpret_cast<void **>(&pStreamConfig));
-
-        if (SUCCEEDED(hr))
-            pStreamConfig->SetFormat(mediaType.data());
-
-        if (pStreamConfig)
-            pStreamConfig->Release();
-    }
-
-    qDebug() << "Querying MediaControl interface.";
-    IMediaControl *control = nullptr;
-    hr = this->d->m_graph->QueryInterface(IID_IMediaControl,
-                                          reinterpret_cast<void **>(&control));
-
-    if (FAILED(hr)) {
-        this->d->m_graph->Release();
-        this->d->m_graph = nullptr;
-        this->d->m_webcamFilter.clear();
-        qCritical() << "Error querying MediaControl interface:"
-                    << this->d->stringFromHResult(hr);
-
-        return false;
-    }
-
-    this->d->m_id = Ak::id();
-    auto caps = this->d->capsFromMediaType(mediaType);
-
-    switch (caps.type()) {
-    case AkCaps::CapsVideo: {
-        AkVideoCaps videoCaps(caps);
-        this->d->m_timeBase = videoCaps.fps().invert();
-
-        break;
-    }
-    case AkCaps::CapsVideoCompressed: {
-        AkCompressedVideoCaps videoCaps(caps);
-        this->d->m_timeBase = videoCaps.rawCaps().fps().invert();
-
-        break;
-    }
-    default:
-        break;
-    }
-
-    if (this->d->m_curMediaType) {
-        this->d->freeMediaType(*this->d->m_curMediaType);
-        this->d->m_curMediaType = nullptr;
-    }
-
-    qDebug() << "Running the graph.";
-    hr = control->Run();
-
-    if (FAILED(hr)) {
-        control->Release();
-        this->d->m_graph->Release();
-        this->d->m_graph = nullptr;
-        this->d->m_webcamFilter.clear();
-        qCritical() << "Failed to run the graph:"
-                    << this->d->stringFromHResult(hr);
-
-        return false;
-    }
-
-    control->Release();
-
-    qDebug() << "Starting camera capture.";
-
-    return true;
-}
-
-void CaptureDShow::uninit()
-{
-    IMediaControl *control = nullptr;
-
-    if (SUCCEEDED(this->d->m_graph->QueryInterface(IID_IMediaControl,
-                                                   reinterpret_cast<void **>(&control)))) {
-        control->Stop();
-        control->Release();
-    }
-
-    this->d->m_grabber.clear();
-    this->d->m_graph->Release();
-    this->d->m_graph = nullptr;
-    this->d->m_webcamFilter.clear();
-}
-
-void CaptureDShow::setDevice(const QString &device)
-{
-    if (this->d->m_device == device)
-        return;
-
-    this->d->m_device = device;
-
-    if (device.isEmpty()) {
-        this->d->m_controlsMutex.lockForWrite();
-        this->d->m_globalImageControls.clear();
-        this->d->m_globalCameraControls.clear();
-        this->d->m_controlsMutex.unlock();
-    } else {
-        this->d->m_controlsMutex.lockForWrite();
-        auto camera = this->d->findFilterP(device);
-
-        if (camera) {
-            this->d->m_globalImageControls = this->d->imageControls(camera);
-            this->d->m_globalCameraControls =
-                    this->d->cameraControls(camera)
-                    + UvcExtendedControls::controls(camera);
-            camera->Release();
-        }
-
-        this->d->m_controlsMutex.unlock();
-    }
-
-    this->d->m_controlsMutex.lockForRead();
-    auto imageStatus = this->d->controlStatus(this->d->m_globalImageControls);
-    auto cameraStatus = this->d->controlStatus(this->d->m_globalCameraControls);
-    this->d->m_controlsMutex.unlock();
-
-    emit this->deviceChanged(device);
-    emit this->imageControlsChanged(imageStatus);
-    emit this->cameraControlsChanged(cameraStatus);
-}
-
-void CaptureDShow::setStreams(const QList<int> &streams)
-{
-    if (streams.isEmpty())
-        return;
-
-    auto stream = streams[0];
-
-    if (stream < 0)
-        return;
-
-    auto supportedCaps = this->caps(this->d->m_device);
-
-    if (stream >= supportedCaps.length())
-        return;
-
-    QList<int> inputStreams {stream};
-
-    if (this->streams() == inputStreams)
-        return;
-
-    this->d->m_streams = inputStreams;
-    emit this->streamsChanged(inputStreams);
-}
-
-void CaptureDShow::setIoMethod(const QString &ioMethod)
-{
-    IoMethod ioMethodEnum = ioMethodToStr->key(ioMethod, IoMethodGrabSample);
-
-    if (this->d->m_ioMethod == ioMethodEnum)
-        return;
-
-    this->d->m_ioMethod = ioMethodEnum;
-    emit this->ioMethodChanged(ioMethod);
-}
-
-void CaptureDShow::setNBuffers(int nBuffers)
-{
-    Q_UNUSED(nBuffers)
-}
-
-void CaptureDShow::resetDevice()
-{
-    this->setDevice("");
-}
-
-void CaptureDShow::resetStreams()
-{
-    auto supportedCaps = this->caps(this->d->m_device);
-    QList<int> streams;
-
-    if (!supportedCaps.isEmpty())
-        streams << 0;
-
-    this->setStreams(streams);
-}
-
-void CaptureDShow::resetIoMethod()
-{
-    this->setIoMethod("any");
-}
-
-void CaptureDShow::resetNBuffers()
-{
-}
-
-void CaptureDShow::reset()
-{
-    this->resetStreams();
-    this->resetImageControls();
-    this->resetCameraControls();
 }
 
 #include "moc_capturedshow.cpp"

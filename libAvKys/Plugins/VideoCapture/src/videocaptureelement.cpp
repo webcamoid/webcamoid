@@ -55,6 +55,8 @@ inline void waitLoop(const QFuture<T> &loop)
 
         if (eventDispatcher)
             eventDispatcher->processEvents(QEventLoop::AllEvents);
+
+        QThread::msleep(1);
     }
 }
 
@@ -1007,6 +1009,16 @@ bool VideoCaptureElement::setState(AkElement::ElementState state)
     }
 
     return false;
+}
+
+void VideoCaptureElement::updateDevices()
+{
+    this->d->m_mutex.lockForRead();
+    auto capture = this->d->m_capture;
+    this->d->m_mutex.unlock();
+
+    if (capture)
+        capture->updateDevices();
 }
 
 VideoCaptureElementPrivate::VideoCaptureElementPrivate(VideoCaptureElement *self):

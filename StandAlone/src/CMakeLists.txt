@@ -38,13 +38,32 @@ set(QT_COMPONENTS
 
 if (ANDROID)
     list(APPEND QT_COMPONENTS
-         CorePrivate
          Xml)
 endif()
 
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
+
+include(CheckCXXSourceCompiles)
+set(CMAKE_REQUIRED_LIBRARIES Qt${QT_VERSION_MAJOR}::Core)
+check_cxx_source_compiles("
+#include <QJniObject>
+int main() { return 0; }
+" QJNIOBJECT_FOUND)
+
+if (ANDROID AND QJNIOBJECT_FOUND)
+    list(APPEND QT_COMPONENTS
+         CorePrivate)
+    find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
+                 CorePrivate
+                 REQUIRED)
+endif()
+
+if (QJNIOBJECT_FOUND)
+    target_compile_definitions(StandAlone PRIVATE USE_JNI)
+endif()
+
 set(PROJECT_SOURCES
     audioinputs.cpp
     audioinputs.h
@@ -75,6 +94,8 @@ set(PROJECT_SOURCES
     videoeffects.h
     videolayer.cpp
     videolayer.h
+    videolayercompat.cpp
+    videolayercompat.h
     virtualcameras.cpp
     virtualcameras.h
     ../DefaultTheme.qrc
@@ -158,7 +179,7 @@ if (WIN32)
                           ole32)
 endif ()
 
-if (ANDROID)
+if (ANDROID AND QJNIOBJECT_FOUND)
     target_link_libraries(StandAlone
                           PUBLIC
                           log
@@ -184,7 +205,7 @@ if (NOCHECKUPDATES)
     add_definitions(-DDISABLE_UPDATES_CHECK)
 endif ()
 
-if (ANDROID)
+if (ANDROID AND QJNIOBJECT_FOUND)
     if (ENABLE_ANDROID_DEBUGGING)
         add_definitions(-DENABLE_ANDROID_DEBUGGING)
     endif ()
@@ -227,7 +248,7 @@ elseif (UNIX AND NOT (APPLE OR FAKE_APPLE) AND NOT ANDROID)
     endforeach ()
 endif ()
 
-if (ANDROID)
+if (ANDROID AND QJNIOBJECT_FOUND)
     set(ANDROID_PACKAGE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../share/android")
     file(GLOB_RECURSE ANDROID_PACKAGE_TEMPLATES
          ../share/android/*)

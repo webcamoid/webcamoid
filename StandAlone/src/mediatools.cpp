@@ -17,7 +17,6 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <iostream>
 #include <QApplication>
 #include <QDateTime>
 #include <QDesktopServices>
@@ -34,6 +33,7 @@
 #include <QStandardPaths>
 #include <QThread>
 #include <QtConcurrent>
+#include <iostream>
 #include <ak.h>
 #include <akaudiocaps.h>
 #include <akcaps.h>
@@ -42,12 +42,15 @@
 #include <akvideocaps.h>
 
 #ifdef Q_OS_ANDROID
-#include <QJniEnvironment>
-#include <QJniObject>
-#include <QtCore/private/qandroidextras_p.h>
 #include <android/log.h>
 
-#define FLAG_GRANT_READ_URI_PERMISSION 0x1
+    #ifdef USE_JNI
+        #include <QJniEnvironment>
+        #include <QJniObject>
+        #include <QtCore/private/qandroidextras_p.h>
+
+        #define FLAG_GRANT_READ_URI_PERMISSION 0x1
+    #endif
 #endif
 
 #include "mediatools.h"
@@ -64,6 +67,7 @@
 #include "videodisplay.h"
 #include "videoeffects.h"
 #include "videolayer.h"
+#include "videolayercompat.h"
 #include "virtualcameras.h"
 
 #define COMMONS_PROJECT_URL "https://webcamoid.github.io/"
@@ -100,7 +104,7 @@ struct MediaToolsLogger
 
 static MediaToolsLogger globalMediaToolsLogger;
 
-#if defined(Q_OS_ANDROID) && defined(ENABLE_ANDROID_ADS)
+#if defined(Q_OS_ANDROID) && defined(USE_JNI) && defined(ENABLE_ANDROID_ADS)
 struct AdUnit
 {
     MediaTools::AdType type;
@@ -114,6 +118,7 @@ class MediaToolsPrivate
     public:
         MediaTools *self;
         bool m_singleInstance {true};
+        bool m_firstRun {true};
 
 #if QT_CONFIG(sharedmemory)
         QSharedMemory m_singleInstanceSM {
@@ -132,6 +137,7 @@ class MediaToolsPrivate
         UpdatesPtr m_updates;
         VideoEffectsPtr m_videoEffects;
         VideoLayerPtr m_videoLayer;
+        VideoLayerCompatPtr m_videoLayerCompat;
         VirtualCamerasPtr m_virtualCameras;
         DownloadManagerPtr m_downloadManager;
         QMutex m_logMutex;
@@ -140,13 +146,13 @@ class MediaToolsPrivate
         int m_adBannerHeight {0};
         QTime m_lastTimeAdShow;
         bool m_hideControlsOnPointerOut {false};
-        QString m_videoSourceDevice;
-        qint64 m_videoSourceStreamId {-1};
+        QMap<qint64, qint64> m_videoSourceAudioIds;
+        QMap<qint64, QString> m_videoSourceAudioDevices;
 
         // Show interstitial ads every 1 minute
         int m_adTimeDiff {1 * 60};
 
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID) && defined(USE_JNI)
         QMutex m_mutex;
         QJniObject m_callbacks;
         QJniObject m_adManager;
@@ -158,6 +164,7 @@ class MediaToolsPrivate
         int m_windowHeight {0};
 
         explicit MediaToolsPrivate(MediaTools *self);
+        ~MediaToolsPrivate();
         void registerTypes() const;
         void registerNatives();
         bool isSecondInstance();
@@ -166,7 +173,7 @@ class MediaToolsPrivate
         void saveLinks(const AkPluginLinks &links);
         bool setupAds();
 
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID) && defined(USE_JNI)
     #ifdef ENABLE_ANDROID_ADS
         QVector<AdUnit> m_adUnits;
     #endif
@@ -182,7 +189,7 @@ class MediaToolsPrivate
                                   jobject path,
                                   jobject uri);
         QJniObject getUriForFile(const QString &filePath);
-        QString copyUrlToLocal(const QString &urlOrFile) const;
+        QString copyUrlToLocal(const QString &url) const;
 #endif
 };
 
@@ -202,6 +209,11 @@ MediaTools::~MediaTools()
     globalMediaToolsLogger.close();
 
     delete this->d;
+}
+
+bool MediaTools::firstRun() const
+{
+    return this->d->m_firstRun;
 }
 
 int MediaTools::windowWidth() const
@@ -368,7 +380,7 @@ QString MediaTools::readFile(const QString &fileName)
 
 bool MediaTools::sendFile(const QString &fileName, const QString &subject)
 {
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID) && defined(USE_JNI)
     auto uri = this->d->getUriForFile(fileName);
 
     if (!uri.isValid()) {
@@ -440,7 +452,7 @@ bool MediaTools::sendFile(const QString &fileName, const QString &subject)
 
 QString MediaTools::urlToLocalFile(const QString &urlOrFile) const
 {
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID) && defined(USE_JNI)
     if (urlOrFile.startsWith("content://"))
         return this->d->copyUrlToLocal(urlOrFile);
 #endif
@@ -553,37 +565,37 @@ void MediaTools::messageHandler(QtMsgType type,
     {
         QtMsgType type;
         const char *str;
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID)
         int atype;
 #endif
     } mediaToolsLogTypeMap [] = {
         {QtWarningMsg,
          "warning"
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID)
          , ANDROID_LOG_WARN
 #endif
         },
         {QtCriticalMsg,
          "critical"
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID)
          , ANDROID_LOG_ERROR
 #endif
         },
         {QtFatalMsg,
          "fatal"
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID)
          , ANDROID_LOG_FATAL
 #endif
         },
         {QtInfoMsg,
          "info"
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID)
          , ANDROID_LOG_INFO
 #endif
         },
         {QtDebugMsg,
          "debug"
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID)
          , ANDROID_LOG_DEBUG
 #endif
         },
@@ -591,7 +603,7 @@ void MediaTools::messageHandler(QtMsgType type,
 
     const char *msgTypeStr = "debug";
 
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID)
     int aMsgType = ANDROID_LOG_DEBUG;
 #endif
 
@@ -599,7 +611,7 @@ void MediaTools::messageHandler(QtMsgType type,
         if (it->type == type) {
             msgTypeStr = it->str;
 
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID)
             aMsgType = it->atype;
 #endif
 
@@ -612,7 +624,14 @@ void MediaTools::messageHandler(QtMsgType type,
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
 
     auto nowC = std::chrono::system_clock::to_time_t(now);
-    auto localTm = *std::localtime(&nowC);
+    tm localTm;
+    memset(&localTm, 0, sizeof(tm));
+
+#ifdef Q_OS_WIN32
+    localtime_s(&localTm, &nowC);
+#else
+    localtime_r(&nowC, &localTm);
+#endif
 
     char dateTime[1024];
     std::snprintf(dateTime,
@@ -659,13 +678,14 @@ void MediaTools::messageHandler(QtMsgType type,
                        msgTypeStr,
                        qUtf8Printable(msg));
     auto logStr = QString::fromUtf8(log, len);
+    auto mediaTools = globalMediaToolsLogger.m_mediaTools;
 
-    if (globalMediaToolsLogger.m_mediaTools)
-        globalMediaToolsLogger.m_mediaTools->d->m_logMutex.lock();
+    if (mediaTools)
+        mediaTools->d->m_logMutex.lock();
 
     // Print the log to the terminal
 
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID)
     __android_log_print(aMsgType,
                         COMMONS_APPNAME,
                         "[%p, %s (%d)]: %s",
@@ -681,15 +701,12 @@ void MediaTools::messageHandler(QtMsgType type,
     delete [] log;
 
     // Write the log to a file
-
     globalMediaToolsLogger.writeLine(logStr);
 
     // Emit the last message
-
-    if (globalMediaToolsLogger.m_mediaTools) {
-        globalMediaToolsLogger.m_mediaTools->d->m_logMutex.unlock();
-
-        emit globalMediaToolsLogger.m_mediaTools->logUpdated(msgTypeStr, logStr);
+    if (mediaTools) {
+        mediaTools->d->m_logMutex.unlock();
+        emit mediaTools->logUpdated(msgTypeStr, logStr);
     }
 }
 
@@ -753,7 +770,7 @@ bool MediaTools::init(const CliOptions &cliOptions)
     this->d->registerTypes();
     VideoDisplay::registerTypes();
 
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID) && defined(USE_JNI)
     this->d->registerNatives();
 
 #ifdef ENABLE_ANDROID_ADS
@@ -802,6 +819,16 @@ bool MediaTools::init(const CliOptions &cliOptions)
             PluginConfigsPtr(new PluginConfigs(cliOptions, this->d->m_engine));
     this->d->m_videoLayer =
             VideoLayerPtr(new VideoLayer(this->d->m_engine));
+
+    // TEMPORARY, remove once the QML frontend is migrated to the new
+    // multi-source VideoLayer API directly. The old QML tree keeps
+    // talking to "videoLayer" as it always has -- it's just the compat
+    // wrapper underneath now, translating to/from the real backend.
+    this->d->m_videoLayerCompat =
+            VideoLayerCompatPtr(new VideoLayerCompat(this->d->m_videoLayer.data()));
+    this->d->m_engine->rootContext()->setContextProperty(
+                "videoLayer", this->d->m_videoLayerCompat.data());
+
     this->d->m_audioInputs = AudioInputsPtr(new AudioInputs(this->d->m_engine));
     this->d->m_audioOutputs = AudioOutputsPtr(new AudioOutputs(this->d->m_engine));
     this->d->m_videoEffects =
@@ -835,19 +862,70 @@ bool MediaTools::init(const CliOptions &cliOptions)
     AkElement::link(this->d->m_videoLayer.data(),
                     this->d->m_videoEffects.data(),
                     Qt::DirectConnection);
+
+    // Multi-source audio routing: each VideoLayer source may carry its own audio.
     QObject::connect(this->d->m_videoLayer.data(),
                      &VideoLayer::oStream,
                      this->d->m_audioInputs.data(),
                      [this] (const AkPacket &packet) {
-                         if (packet.type() != AkPacket::PacketAudio
-                             || this->d->m_videoSourceStreamId < 0)
+                         if (packet.type() != AkPacket::PacketAudio)
+                             return;
+
+                         auto sourceId = packet.id();
+
+                         if (!this->d->m_videoSourceAudioIds.contains(sourceId))
                              return;
 
                          auto pkt = packet;
-                         pkt.setId(this->d->m_videoSourceStreamId);
+                         pkt.setId(this->d->m_videoSourceAudioIds[sourceId]);
                          this->d->m_audioInputs->iStream(pkt);
                      },
                      Qt::DirectConnection);
+
+    // Synchronize VideoEffects sources and audio inputs when VideoLayer adds/removes.
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::sourceAdded,
+                     this,
+                     [this] (qint64 id, const QString &device) {
+                         if (this->d->m_videoLayer->sourceEnabled(id))
+                             this->d->m_videoEffects->addSource(id);
+
+                         if (this->d->m_videoLayer->deviceType(device) == VideoLayer::InputStream) {
+                             auto description = this->d->m_videoLayer->description(device);
+                             auto streamId = this->d->m_audioInputs->addInput(device, description);
+                             this->d->m_audioOutputs->addSource(id, description);
+                             this->d->m_videoSourceAudioIds[id] = streamId;
+                             this->d->m_videoSourceAudioDevices[id] = device;
+                         }
+                     },
+                     Qt::DirectConnection);
+
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::sourceRemoved,
+                     this,
+                     [this] (qint64 id) {
+                         this->d->m_videoEffects->removeSource(id);
+
+                         if (this->d->m_videoSourceAudioIds.contains(id)) {
+                             auto device = this->d->m_videoSourceAudioDevices.take(id);
+                             this->d->m_audioInputs->removeInput(device);
+                             this->d->m_audioOutputs->removeSource(id);
+                             this->d->m_videoSourceAudioIds.remove(id);
+                         }
+                     },
+                     Qt::DirectConnection);
+
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::sourceEnabledChanged,
+                     this,
+                     [this] (qint64 id, bool enabled) {
+                         if (enabled)
+                             this->d->m_videoEffects->addSource(id);
+                         else
+                             this->d->m_videoEffects->removeSource(id);
+                     },
+                     Qt::DirectConnection);
+
     AkElement::link(this->d->m_videoLayer.data(),
                     this->d->m_audioOutputs.data(),
                     Qt::DirectConnection);
@@ -921,49 +999,6 @@ bool MediaTools::init(const CliOptions &cliOptions)
         this->d->m_downloadManager->clear();
         this->d->m_downloadManager->enqueue(title, fromUrl, toFile);
     });
-    QObject::connect(this->d->m_videoLayer.data(),
-                     &VideoLayer::inputAudioCapsChanged,
-                     this->d->m_audioInputs.data(),
-                     [this] (const AkAudioCaps &audioCaps)
-                     {
-                        Q_UNUSED(audioCaps)
-                        auto stream = this->d->m_videoLayer->videoInput();
-
-                        if (stream.isEmpty()) {
-                            if (!this->d->m_videoSourceDevice.isEmpty()) {
-                                this->d->m_audioInputs->removeInput(this->d->m_videoSourceDevice);
-                                this->d->m_videoSourceDevice.clear();
-                                this->d->m_videoSourceStreamId = -1;
-                            }
-                        } else {
-                            if (this->d->m_videoLayer->deviceType(stream) == VideoLayer::InputStream) {
-                                this->d->m_videoSourceStreamId =
-                                this->d->m_audioInputs->addInput(stream,
-                                                                 this->d->m_videoLayer->description(stream));
-                                this->d->m_videoSourceDevice = stream;
-                            }
-                        }
-                     });
-    QObject::connect(this->d->m_videoLayer.data(),
-                     &VideoLayer::videoInputChanged,
-                     this->d->m_audioInputs.data(),
-                     [this] (const QString &stream)
-                     {
-                        if (stream.isEmpty()) {
-                            if (!this->d->m_videoSourceDevice.isEmpty()) {
-                                this->d->m_audioInputs->removeInput(this->d->m_videoSourceDevice);
-                                this->d->m_videoSourceDevice.clear();
-                                this->d->m_videoSourceStreamId = -1;
-                            }
-                        } else {
-                            if (this->d->m_videoLayer->deviceType(stream) == VideoLayer::InputStream) {
-                                this->d->m_videoSourceStreamId =
-                                this->d->m_audioInputs->addInput(stream,
-                                                                 this->d->m_videoLayer->description(stream));
-                                this->d->m_videoSourceDevice = stream;
-                            }
-                        }
-                     });
     QObject::connect(akPluginManager,
                      &AkPluginManager::pluginsChanged,
                      this->d->m_videoEffects.data(),
@@ -994,13 +1029,22 @@ bool MediaTools::init(const CliOptions &cliOptions)
     });
 
     this->loadConfigs();
-    auto stream = this->d->m_videoLayer->videoInput();
 
-    if (!stream.isEmpty()) {
-        this->d->m_videoSourceStreamId =
-            this->d->m_audioInputs->addInput(stream,
-                                             this->d->m_videoLayer->description(stream));
-        this->d->m_videoSourceDevice = stream;
+    // Synchronize already-loaded sources
+    for (const auto &idVariant: this->d->m_videoLayer->sourceIds()) {
+        auto id = idVariant.toLongLong();
+        auto device = this->d->m_videoLayer->sourceDevice(id);
+
+        if (this->d->m_videoLayer->sourceEnabled(id))
+            this->d->m_videoEffects->addSource(id);
+
+        if (this->d->m_videoLayer->deviceType(device) == VideoLayer::InputStream) {
+            auto description = this->d->m_videoLayer->description(device);
+            auto streamId = this->d->m_audioInputs->addInput(device, description);
+            this->d->m_audioOutputs->addSource(id, description);
+            this->d->m_videoSourceAudioIds[id] = streamId;
+            this->d->m_videoSourceAudioDevices[id] = device;
+        }
     }
 
     this->d->m_virtualCameras->setLatestVCamVersion(this->d->m_updates->latestVersion("VirtualCamera"));
@@ -1146,7 +1190,7 @@ void MediaTools::show()
 
 bool MediaTools::showAd(AdType adType)
 {
-#if defined(Q_OS_ANDROID) && defined(ENABLE_ANDROID_ADS)
+#if defined(Q_OS_ANDROID) && defined(USE_JNI) && defined(ENABLE_ANDROID_ADS)
     auto msTimeDiff = this->d->m_lastTimeAdShow.msecsTo(QTime::currentTime()) / 1000;
 
     if (this->d->m_lastTimeAdShow.isValid()
@@ -1255,7 +1299,12 @@ MediaToolsPrivate::MediaToolsPrivate(MediaTools *self):
     QSettings config;
     config.beginGroup("GeneralConfigs");
     this->m_singleInstance = config.value("singleInstance", true).toBool();
+    this->m_firstRun = config.value("firstRun", true).toBool();
     config.endGroup();
+}
+
+MediaToolsPrivate::~MediaToolsPrivate()
+{
 }
 
 void MediaToolsPrivate::registerTypes() const
@@ -1273,7 +1322,7 @@ void MediaToolsPrivate::registerTypes() const
 
 void MediaToolsPrivate::registerNatives()
 {
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID) && defined(USE_JNI)
     static bool ready = false;
 
     if (ready)
@@ -1367,7 +1416,7 @@ bool MediaToolsPrivate::setupAds()
 {
     bool result = false;
 
-#if defined(Q_OS_ANDROID) && defined(ENABLE_ANDROID_ADS)
+#if defined(Q_OS_ANDROID) && defined(USE_JNI) && defined(ENABLE_ANDROID_ADS)
     QJniObject adUnitIDMap("java/util/HashMap", "()V");
 
     for (auto &unit: this->m_adUnits) {
@@ -1399,7 +1448,7 @@ bool MediaToolsPrivate::setupAds()
     return result;
 }
 
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID) && defined(USE_JNI)
 void MediaToolsPrivate::adBannerSizeChanged(JNIEnv *env,
                                             jobject obj,
                                             jlong userPtr,
@@ -1641,7 +1690,7 @@ bool MediaToolsLogger::writeLine(const QString &msg)
 
 void MediaToolsLogger::close()
 {
-    if (this->m_logFile)
+    if (!this->m_logFile)
         return;
 
     delete this->m_logFile;

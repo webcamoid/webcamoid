@@ -416,6 +416,8 @@ AudioDevJNIAudio::AudioDevJNIAudio(QObject *parent):
 
             if (eventDispatcher)
                 eventDispatcher->processEvents(QEventLoop::AllEvents);
+
+            QThread::msleep(1);
         }
     }
 #endif
@@ -480,13 +482,15 @@ QList<int> AudioDevJNIAudio::supportedSampleRates(const QString &device)
 
 bool AudioDevJNIAudio::init(const QString &device, const AkAudioCaps &caps)
 {
-    QMutexLocker mutexLocker(&this->d->m_mutex);
+    {
+        QMutexLocker locker(&this->d->m_mutex);
 
-    if (this->d->m_curCaps != caps) {
-        this->d->m_curCaps = caps;
-        this->d->m_mutex.unlock();
-        emit this->negotiatedCapsChanged(this->d->m_curCaps);
-        this->d->m_mutex.lock();
+        if (this->d->m_curCaps != caps) {
+            this->d->m_curCaps = caps;
+            locker.unlock();
+            emit this->negotiatedCapsChanged(this->d->m_curCaps);
+            locker.relock();
+        }
     }
 
     this->d->m_bufferSize =

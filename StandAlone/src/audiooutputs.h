@@ -20,7 +20,6 @@
 #ifndef AUDIOOUTPUTS_H
 #define AUDIOOUTPUTS_H
 
-#include <akaudiocaps.h>
 #include <iak/akelement.h>
 
 class AudioOutputsPrivate;
@@ -98,6 +97,18 @@ class AudioOutputs: public QObject
         Q_INVOKABLE QList<int> supportedSampleRates() const;
         Q_INVOKABLE QVariantList supportedFormatsVariant() const;
         Q_INVOKABLE QVariantList supportedChannelLayoutsVariant() const;
+        Q_INVOKABLE qint64 addSource(const QString &description,
+                                     qreal volume = 1.0);
+        Q_INVOKABLE qint64 addSource(qint64 sourceId,
+                                     const QString &description,
+                                     qreal volume = 1.0);
+        Q_INVOKABLE QString sourceDescription(qint64 sourceId) const;
+        Q_INVOKABLE bool removeSource(qint64 sourceId);
+        Q_INVOKABLE void clearSources();
+        Q_INVOKABLE QVariantList sources() const;
+        Q_INVOKABLE qreal sourceVolume(qint64 sourceId) const;
+        Q_INVOKABLE bool setSourceVolume(qint64 sourceId, qreal volume);
+        Q_INVOKABLE bool sourceExists(qint64 sourceId) const;
 
     private:
         AudioOutputsPrivate *d;
@@ -109,6 +120,9 @@ class AudioOutputs: public QObject
         void stateChanged(AkElement::ElementState state);
         void latencyChanged(int latency);
         void volumeChanged(qreal volume);
+        void sourcesChanged(const QVariantList &sources);
+        void sourceAdded(qint64 sourceId);
+        void sourceRemoved(qint64 sourceId);
 
     public slots:
         void setAudioOutput(const QString &audioOutput);

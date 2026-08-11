@@ -222,9 +222,11 @@ void XlibDev::setFps(const AkFrac &fps)
     if (this->d->m_fps == fps)
         return;
 
-    this->d->m_mutex.lock();
-    this->d->m_fps = fps;
-    this->d->m_mutex.unlock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_fps = fps;
+    }
+
     emit this->fpsChanged(fps);
     this->d->m_timer.setInterval(qRound(1.e3 *
                                         this->d->m_fps.invert().value()));
@@ -707,9 +709,12 @@ void XlibDevPrivate::readFrame()
     }
 #endif
 
-    this->m_mutex.lock();
-    auto fps = this->m_fps;
-    this->m_mutex.unlock();
+    AkFrac fps;
+
+    {
+        QMutexLocker locker(&this->m_mutex);
+        fps = this->m_fps;
+    }
 
     AkVideoCaps videoCaps(this->pixelFormat(image->depth, image->bits_per_pixel),
                           image->width,

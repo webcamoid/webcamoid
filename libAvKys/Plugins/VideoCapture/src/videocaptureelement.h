@@ -165,6 +165,7 @@ class VideoCaptureElement: public AkMultimediaSourceElement
         void reset();
         void takePictures(int count, int delayMsecs=0);
         bool setState(AkElement::ElementState state) override;
+        void updateDevices();
 };
 
 Q_DECLARE_METATYPE(VideoCaptureElement::TorchMode)

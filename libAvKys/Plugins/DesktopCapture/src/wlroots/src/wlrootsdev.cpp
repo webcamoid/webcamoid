@@ -470,9 +470,11 @@ void WlrootsDev::setFps(const AkFrac &fps)
     if (this->d->m_fps == fps)
         return;
 
-    this->d->m_mutex.lock();
-    this->d->m_fps = fps;
-    this->d->m_mutex.unlock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_fps = fps;
+    }
+
     emit this->fpsChanged(fps);
 
     if (this->d->m_run) {
@@ -1674,9 +1676,12 @@ void WlrootsDevPrivate::readFrameExtCapture(QElapsedTimer &et)
 
     this->m_consecutiveFailures = 0;
 
-    this->m_mutex.lock();
-    auto fps = this->m_fps;
-    this->m_mutex.unlock();
+    AkFrac fps;
+
+    {
+        QMutexLocker locker(&this->m_mutex);
+        fps = this->m_fps;
+    }
 
     AkVideoCaps videoCaps(this->pixelFormat(session->shmFormat),
                           session->bufferWidth,
@@ -1793,9 +1798,12 @@ void WlrootsDevPrivate::readFrameScreencopy(QElapsedTimer &et)
 
     this->m_consecutiveFailures = 0;
 
-    this->m_mutex.lock();
-    auto fps = this->m_fps;
-    this->m_mutex.unlock();
+    AkFrac fps;
+
+    {
+        QMutexLocker locker(&this->m_mutex);
+        fps = this->m_fps;
+    }
 
     AkVideoCaps videoCaps(this->pixelFormat(this->m_bufferFormat),
                           this->m_bufferWidth,

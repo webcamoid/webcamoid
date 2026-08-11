@@ -68,6 +68,7 @@ class CaptureQt: public Capture
         void resetNBuffers() override;
         void resetTorchMode() override;
         void reset() override;
+        void updateDevices() override;
 };
 
 #endif // CAPTUREQT_H

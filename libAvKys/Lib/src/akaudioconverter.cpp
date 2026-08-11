@@ -894,9 +894,12 @@ bool AkAudioConverter::canConvertFormat(AkAudioCaps::SampleFormat input,
 
 AkAudioPacket AkAudioConverter::convert(const AkAudioPacket &packet)
 {
-    this->d->m_mutex.lock();
-    auto outputCaps = this->d->m_outputCaps;
-    this->d->m_mutex.unlock();
+    AkAudioCaps outputCaps;
+
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        outputCaps = this->d->m_outputCaps;
+    }
 
     if (!outputCaps)
         return packet;
@@ -904,14 +907,15 @@ AkAudioPacket AkAudioConverter::convert(const AkAudioPacket &packet)
     if (packet.size() < 1)
         return {};
 
-    this->d->m_mutex.lock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
 
-    if (packet.caps() != this->d->m_previousCaps) {
-        this->d->m_previousCaps = packet.caps();
-        this->d->m_sampleCorrection = 0;
+        if (packet.caps() != this->d->m_previousCaps) {
+            this->d->m_previousCaps = packet.caps();
+            this->d->m_sampleCorrection = 0;
+        }
     }
 
-    this->d->m_mutex.unlock();
     auto outPacket = this->d->convertFormat(packet);
 
     if (!outPacket)
@@ -967,9 +971,11 @@ void AkAudioConverter::setOutputCaps(const AkAudioCaps &outputCaps)
     if (this->d->m_outputCaps == outputCaps)
         return;
 
-    this->d->m_mutex.lock();
-    this->d->m_outputCaps = outputCaps;
-    this->d->m_mutex.unlock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_outputCaps = outputCaps;
+    }
+
     emit this->outputCapsChanged(outputCaps);
 }
 
@@ -994,10 +1000,9 @@ void AkAudioConverter::resetResampleMethod()
 
 void AkAudioConverter::reset()
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     this->d->m_previousCaps = AkAudioCaps();
     this->d->m_sampleCorrection = 0;
-    this->d->m_mutex.unlock();
 }
 
 void AkAudioConverter::registerTypes()
@@ -1029,9 +1034,12 @@ QDebug operator <<(QDebug debug, AkAudioConverter::ResampleMethod method)
 AkAudioPacket AkAudioConverterPrivate::convertFormat(const AkAudioPacket &packet)
 {
     auto iFormat = packet.caps().format();
-    this->m_mutex.lock();
-    auto oFormat = this->m_outputCaps.format();
-    this->m_mutex.unlock();
+    AkAudioCaps::SampleFormat oFormat;
+
+    {
+        QMutexLocker locker(&this->m_mutex);
+        oFormat = this->m_outputCaps.format();
+    }
 
     if (iFormat == oFormat)
         return packet;
@@ -1058,9 +1066,12 @@ AkAudioPacket AkAudioConverterPrivate::convertFormat(const AkAudioPacket &packet
 
 AkAudioPacket AkAudioConverterPrivate::convertLayout(const AkAudioPacket &packet)
 {
-    this->m_mutex.lock();
-    auto oLayout = this->m_outputCaps.layout();
-    this->m_mutex.unlock();
+    AkAudioCaps::ChannelLayout oLayout;
+
+    {
+        QMutexLocker locker(&this->m_mutex);
+        oLayout = this->m_outputCaps.layout();
+    }
 
     if (packet.caps().layout() == oLayout)
         return packet;
@@ -1070,9 +1081,12 @@ AkAudioPacket AkAudioConverterPrivate::convertLayout(const AkAudioPacket &packet
 
 AkAudioPacket AkAudioConverterPrivate::convertPlanar(const AkAudioPacket &packet)
 {
-    this->m_mutex.lock();
-    auto planar = this->m_outputCaps.planar();
-    this->m_mutex.unlock();
+    bool planar;
+
+    {
+        QMutexLocker locker(&this->m_mutex);
+        planar = this->m_outputCaps.planar();
+    }
 
     if (packet.caps().planar() == planar)
         return packet;
@@ -1089,16 +1103,22 @@ AkAudioPacket AkAudioConverterPrivate::convertPlanar(const AkAudioPacket &packet
 AkAudioPacket AkAudioConverterPrivate::convertSampleRate(const AkAudioPacket &packet)
 {
     auto iSamples = packet.samples();
-    this->m_mutex.lock();
-    auto oSampleRate = this->m_outputCaps.rate();
-    this->m_mutex.unlock();
+    int oSampleRate;
+
+    {
+        QMutexLocker locker(&this->m_mutex);
+        oSampleRate = this->m_outputCaps.rate();
+    }
 
     if (packet.caps().rate() == oSampleRate)
         return packet;
 
-    this->m_mutex.lock();
-    auto sampleCorrection = this->m_sampleCorrection;
-    this->m_mutex.unlock();
+    qreal sampleCorrection;
+
+    {
+        QMutexLocker locker(&this->m_mutex);
+        sampleCorrection = this->m_sampleCorrection;
+    }
 
     auto rSamples = qreal(iSamples)
                     * oSampleRate
@@ -1148,9 +1168,10 @@ AkAudioPacket AkAudioConverterPrivate::convertSampleRate(const AkAudioPacket &pa
                tmpPacket.constPlane(plane),
                qMin(outPacket.planeSize(plane), tmpPacket.planeSize(plane)));
 
-    this->m_mutex.lock();
-    this->m_sampleCorrection = rSamples - samples;
-    this->m_mutex.unlock();
+    {
+        QMutexLocker locker(&this->m_mutex);
+        this->m_sampleCorrection = rSamples - samples;
+    }
 
     return outPacket;
 }

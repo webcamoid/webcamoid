@@ -211,6 +211,8 @@ CaptureQt::CaptureQt(QObject *parent):
 
             if (eventDispatcher)
                 eventDispatcher->processEvents(QEventLoop::AllEvents);
+
+            QThread::msleep(1);
         }
     }
 #endif
@@ -709,6 +711,11 @@ void CaptureQt::reset()
     this->resetStreams();
     this->resetImageControls();
     this->resetCameraControls();
+}
+
+void CaptureQt::updateDevices()
+{
+    this->d->updateDevices();
 }
 
 CaptureQtPrivate::CaptureQtPrivate(CaptureQt *self):

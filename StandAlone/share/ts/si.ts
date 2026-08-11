@@ -882,6 +882,19 @@
     </message>
 </context>
 <context>
+    <name>FirstRunFallbackDialog</name>
+    <message>
+        <location filename="../qml/FirstRunFallbackDialog.qml" line="31"/>
+        <source>Camera not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/FirstRunFallbackDialog.qml" line="41"/>
+        <source>It was not found any connected camera.&lt;br/&gt;Fallingback to the screen capture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>GeneralConfig</name>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="121"/>
@@ -1296,7 +1309,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1226"/>
+        <location filename="../../src/mediatools.cpp" line="1270"/>
         <source>%1/log %2.txt</source>
         <translation>%1/ලොග් %2.txt</translation>
     </message>
@@ -1442,170 +1455,170 @@
         <translation>පූරණය කිරීම වළක්වා ගැනීමට අර්ධ-ඉරි කොමාවෙන් වෙන් කළ මාර්ග ලැයිස්තුව.</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="724"/>
+        <location filename="../../src/videolayer.cpp" line="848"/>
         <source>3GP Video</source>
         <translation>3GP වීඩියෝ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="725"/>
+        <location filename="../../src/videolayer.cpp" line="849"/>
         <source>AVI Video</source>
         <translation>AVI වීඩියෝ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="726"/>
+        <location filename="../../src/videolayer.cpp" line="850"/>
         <source>Windows Bitmap</source>
         <translation>Windows Bitmap</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="727"/>
+        <location filename="../../src/videolayer.cpp" line="851"/>
         <source>Microsoft Windows Cursor</source>
         <translation>Microsoft Windows Cursor</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="729"/>
+        <location filename="../../src/videolayer.cpp" line="853"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
         <translation>Flash වීඩියෝ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="730"/>
+        <location filename="../../src/videolayer.cpp" line="854"/>
         <source>Animated GIF</source>
         <translation>සජීවී GIF</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="731"/>
+        <location filename="../../src/videolayer.cpp" line="855"/>
         <source>Graphic Interchange Format</source>
         <translation>Graphic Interchange Format</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="732"/>
+        <location filename="../../src/videolayer.cpp" line="856"/>
         <source>Apple Icon Image</source>
         <translation>Apple අයිකන රූපය</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="733"/>
+        <location filename="../../src/videolayer.cpp" line="857"/>
         <source>Microsoft Windows Icon</source>
         <translation>Microsoft Windows අයිකනය</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="734"/>
+        <location filename="../../src/videolayer.cpp" line="858"/>
         <source>Joint Photographic Experts Group</source>
         <translation>Joint Photographic Experts Group</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="735"/>
+        <location filename="../../src/videolayer.cpp" line="859"/>
         <source>MKV Video</source>
         <translation>MKV වීඩියෝ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="736"/>
+        <location filename="../../src/videolayer.cpp" line="860"/>
         <source>Animated PNG</source>
         <translation>සජීවී PNG</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="737"/>
+        <location filename="../../src/videolayer.cpp" line="861"/>
         <source>Multiple-image Network Graphics</source>
         <translation>Multiple-image Network Graphics</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="738"/>
+        <location filename="../../src/videolayer.cpp" line="862"/>
         <source>QuickTime Video</source>
         <translation>QuickTime වීඩියෝ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="739"/>
+        <location filename="../../src/videolayer.cpp" line="863"/>
         <source>MP4 Video</source>
         <translation>MP4 වීඩියෝ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="740"/>
+        <location filename="../../src/videolayer.cpp" line="864"/>
         <source>MPEG Video</source>
         <translation>MPEG වීඩියෝ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="741"/>
+        <location filename="../../src/videolayer.cpp" line="865"/>
         <source>Ogg Video</source>
         <translation>Ogg වීඩියෝ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="742"/>
+        <location filename="../../src/videolayer.cpp" line="866"/>
         <source>Portable Bitmap</source>
         <translation>Portable Bitmap</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="743"/>
+        <location filename="../../src/videolayer.cpp" line="867"/>
         <source>Portable Graymap</source>
         <translation>Portable Graymap</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="744"/>
+        <location filename="../../src/videolayer.cpp" line="868"/>
         <source>Portable Network Graphics</source>
         <translation>Portable Network Graphics</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="745"/>
+        <location filename="../../src/videolayer.cpp" line="869"/>
         <source>Portable Pixmap</source>
         <translation>Portable Pixmap</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="747"/>
+        <location filename="../../src/videolayer.cpp" line="871"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
         <translation>RealMedia වීඩියෝ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="748"/>
+        <location filename="../../src/videolayer.cpp" line="872"/>
         <source>Scalable Vector Graphics</source>
         <translation>Scalable Vector Graphics</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="749"/>
+        <location filename="../../src/videolayer.cpp" line="873"/>
         <source>Truevision TGA</source>
         <translation>Truevision TGA</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="750"/>
+        <location filename="../../src/videolayer.cpp" line="874"/>
         <source>Tagged Image File Format</source>
         <translation>Tagged Image File Format</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="751"/>
+        <location filename="../../src/videolayer.cpp" line="875"/>
         <source>DVD Video</source>
         <translation>DVD වීඩියෝ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="752"/>
+        <location filename="../../src/videolayer.cpp" line="876"/>
         <source>Wireless Bitmap</source>
         <translation>Wireless Bitmap</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="753"/>
+        <location filename="../../src/videolayer.cpp" line="877"/>
         <source>WebM Video</source>
         <translation>WebM වීඩියෝ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="754"/>
+        <location filename="../../src/videolayer.cpp" line="878"/>
         <source>WebP</source>
         <translation>WebP</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="756"/>
+        <location filename="../../src/videolayer.cpp" line="880"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
         <translation>Windows Media වීඩියෝ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="757"/>
+        <location filename="../../src/videolayer.cpp" line="881"/>
         <source>X11 Bitmap</source>
         <translation>X11 Bitmap</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="758"/>
+        <location filename="../../src/videolayer.cpp" line="882"/>
         <source>X11 Pixmap</source>
         <translation>X11 Pixmap</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1512"/>
+        <location filename="../../src/recording.cpp" line="1509"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/වීඩියෝ %2.%3</translation>
     </message>
@@ -2198,6 +2211,19 @@
     </message>
 </context>
 <context>
+    <name>VideoInputAddCamera</name>
+    <message>
+        <location filename="../qml/VideoInputAddCamera.qml" line="30"/>
+        <source>Select the camera to add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddCamera.qml" line="55"/>
+        <source>Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>VideoInputAddEdit</name>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="185"/>
@@ -2299,9 +2325,14 @@
 <context>
     <name>VideoInputs</name>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="63"/>
+        <location filename="../qml/VideoInputs.qml" line="56"/>
         <source>Add source</source>
         <translation>මූලාශ්‍රය එක් කරන්න</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="68"/>
+        <source>Add camera</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="76"/>
@@ -2314,27 +2345,22 @@
         <translation>තිර ප්‍රභවය එක් කරන්න</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="83"/>
+        <location filename="../qml/VideoInputs.qml" line="84"/>
         <source>Add window</source>
         <translation>කවුළුව එක් කරන්න</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="91"/>
+        <location filename="../qml/VideoInputs.qml" line="93"/>
         <source>Add media file</source>
         <translation>මාධ්‍ය ගොනුව එක් කරන්න</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="97"/>
+        <location filename="../qml/VideoInputs.qml" line="99"/>
         <source>Add media URL</source>
         <translation>මාධ්‍ය URL එක් කරන්න</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="117"/>
-        <source>No cameras found</source>
-        <translation>කැමරා හමු නොවීය</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputs.qml" line="105"/>
+        <location filename="../qml/VideoInputs.qml" line="107"/>
         <source>Configure source</source>
         <translation>මූලාශ්‍රය වින්‍යාස කරන්න</translation>
     </message>
@@ -2342,12 +2368,12 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="131"/>
+        <location filename="../../src/videolayer.cpp" line="141"/>
         <source>All Image and Video Files</source>
         <translation>සියලුම පිංතූර සහ වීඩියෝ ගොනු</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="168"/>
+        <location filename="../../src/videolayer.cpp" line="178"/>
         <source>All Files</source>
         <translation>සියලුම ගොනු</translation>
     </message>
@@ -2355,12 +2381,12 @@
 <context>
     <name>VideoOptions</name>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="45"/>
+        <location filename="../qml/VideoOptions.qml" line="46"/>
         <source>Sources</source>
         <translation>මූලාශ්‍ර</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="48"/>
+        <location filename="../qml/VideoOptions.qml" line="49"/>
         <source>Outputs</source>
         <translation>ප්‍රතිදාන</translation>
     </message>
@@ -4220,11 +4246,6 @@
         <location filename="../../../libAvKys/Plugins/MultiSrc/src/share/qml/main.qml" line="147"/>
         <source>Subtitles track</source>
         <translation>උපසිරැසි පථය</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/MultiSrc/src/share/qml/main.qml" line="160"/>
-        <source>Synchronise</source>
-        <translation>සමමුහුර්ත කරන්න</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Opacity/share/qml/main.qml" line="28"/>

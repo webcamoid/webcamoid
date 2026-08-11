@@ -18,6 +18,7 @@
  */
 
 #include <cstdarg>
+#include <QElapsedTimer>
 #include <QMap>
 #include <QMutex>
 #include <QRegularExpression>
@@ -158,57 +159,58 @@ QList<int> AudioDevAlsa::supportedSampleRates(const QString &device)
 
 bool AudioDevAlsa::init(const QString &device, const AkAudioCaps &caps)
 {
-    this->d->m_mutex.lock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
 
-    if (this->d->m_deviceCaps != caps) {
-        this->d->m_deviceCaps = caps;
-        this->d->m_mutex.unlock();
-        emit this->negotiatedCapsChanged(this->d->m_deviceCaps);
-        this->d->m_mutex.lock();
-    }
+        if (this->d->m_deviceCaps != caps) {
+            this->d->m_deviceCaps = caps;
+            locker.unlock();
+            emit this->negotiatedCapsChanged(this->d->m_deviceCaps);
+            locker.relock();
+        }
 
-    this->d->m_pcmHnd = nullptr;
-    int error =
-            snd_pcm_open(&this->d->m_pcmHnd,
-                         QString(device)
-                             .remove(QRegularExpression(":Input$|:Output$"))
-                             .toStdString().c_str(),
-                         device.endsWith(":Input")?
-                             SND_PCM_STREAM_CAPTURE: SND_PCM_STREAM_PLAYBACK,
-                         SND_PCM_NONBLOCK);
-
-    if (error < 0) {
-        snd_pcm_close(this->d->m_pcmHnd);
         this->d->m_pcmHnd = nullptr;
-        this->d->m_mutex.unlock();
+        int error =
+                snd_pcm_open(&this->d->m_pcmHnd,
+                             QString(device)
+                                 .remove(QRegularExpression(":Input$|:Output$"))
+                                 .toStdString().c_str(),
+                             device.endsWith(":Input")?
+                                 SND_PCM_STREAM_CAPTURE: SND_PCM_STREAM_PLAYBACK,
+                             SND_PCM_NONBLOCK);
 
-        this->d->m_error = snd_strerror(error);
-        emit this->errorChanged(this->d->m_error);
+        if (error < 0) {
+            snd_pcm_close(this->d->m_pcmHnd);
+            this->d->m_pcmHnd = nullptr;
+            locker.unlock();
 
-        return false;
+            this->d->m_error = snd_strerror(error);
+            emit this->errorChanged(this->d->m_error);
+
+            return false;
+        }
+
+        error = snd_pcm_set_params(this->d->m_pcmHnd,
+                                   sampleFormats().value(caps.format(),
+                                                         SND_PCM_FORMAT_UNKNOWN),
+                                   SND_PCM_ACCESS_RW_INTERLEAVED,
+                                   uint(caps.channels()),
+                                   uint(caps.rate()),
+                                   1,
+                                   uint(1000 * this->latency()));
+
+        if (error < 0) {
+            snd_pcm_close(this->d->m_pcmHnd);
+            this->d->m_pcmHnd = nullptr;
+            locker.unlock();
+
+            this->d->m_error = snd_strerror(error);
+            emit this->errorChanged(this->d->m_error);
+
+            return false;
+        }
     }
 
-    error = snd_pcm_set_params(this->d->m_pcmHnd,
-                               sampleFormats().value(caps.format(),
-                                                     SND_PCM_FORMAT_UNKNOWN),
-                               SND_PCM_ACCESS_RW_INTERLEAVED,
-                               uint(caps.channels()),
-                               uint(caps.rate()),
-                               1,
-                               uint(1000 * this->latency()));
-
-    if (error < 0) {
-        snd_pcm_close(this->d->m_pcmHnd);
-        this->d->m_pcmHnd = nullptr;
-        this->d->m_mutex.unlock();
-
-        this->d->m_error = snd_strerror(error);
-        emit this->errorChanged(this->d->m_error);
-
-        return false;
-    }
-
-    this->d->m_mutex.unlock();
     this->d->m_samples = qMax(this->latency() * caps.rate() / 1000, 1);
 
     return true;
@@ -231,7 +233,18 @@ QByteArray AudioDevAlsa::read()
     QByteArray buffer(int(bufferSize), 0);
     auto data = buffer.data();
 
+    int timeout = 8 * qMax(this->latency(), 1);
+
+    QElapsedTimer elapsed;
+    elapsed.start();
+
     while (samples > 0) {
+        if (elapsed.elapsed() >= timeout) {
+            qWarning() << "AudioDevAlsa: read timeout";
+
+            return {};
+        }
+
         auto rsamples = snd_pcm_readi(this->d->m_pcmHnd,
                                       data,
                                       snd_pcm_uframes_t(samples));
@@ -243,7 +256,12 @@ QByteArray AudioDevAlsa::read()
             samples -= rsamples;
         } else {
             if (rsamples == -EAGAIN) {
-                snd_pcm_wait(this->d->m_pcmHnd, 1000);
+                int remaining = timeout - int(elapsed.elapsed());
+
+                if (remaining <= 0)
+                    return {};
+
+                snd_pcm_wait(this->d->m_pcmHnd, remaining);
 
                 continue;
             }
@@ -265,7 +283,19 @@ bool AudioDevAlsa::write(const AkAudioPacket &packet)
     auto data = packet.constData();
     int dataSize = packet.size();
 
+    int timeout = 8 * qMax(this->latency(), 1);
+
+    QElapsedTimer elapsed;
+    elapsed.start();
+
     while (dataSize > 0) {
+        if (elapsed.elapsed() >= timeout) {
+            qWarning() << "AudioDevAlsa: write timeout, dropping"
+                       << dataSize << "bytes";
+
+            return false;
+        }
+
         auto samples = snd_pcm_bytes_to_frames(this->d->m_pcmHnd, dataSize);
         samples = snd_pcm_writei(this->d->m_pcmHnd,
                                  data,
@@ -278,7 +308,12 @@ bool AudioDevAlsa::write(const AkAudioPacket &packet)
             dataSize -= dataWritten;
         } else {
             if (samples == -EAGAIN) {
-                snd_pcm_wait(this->d->m_pcmHnd, 1000);
+                int remaining = timeout - int(elapsed.elapsed());
+
+                if (remaining <= 0)
+                    return false;
+
+                snd_pcm_wait(this->d->m_pcmHnd, remaining);
 
                 continue;
             }
@@ -561,14 +596,21 @@ void AudioDevAlsaPrivate::updateDevices()
 
     if (snd_device_name_hint(-1, "pcm", &hints) >= 0) {
         for (auto hint = hints; *hint != nullptr; hint++) {
-            QString deviceId = snd_device_name_get_hint(*hint, "NAME");
+            auto namePtr = snd_device_name_get_hint(*hint, "NAME");
+            QString deviceId = namePtr? QString::fromUtf8(namePtr): QString();
+            free(namePtr);
 
             if (deviceId.isEmpty() || deviceId == "null")
                 continue;
 
-            QString description = snd_device_name_get_hint(*hint, "DESC");
+            auto descPtr = snd_device_name_get_hint(*hint, "DESC");
+            QString description = descPtr? QString::fromUtf8(descPtr): QString();
+            free(descPtr);
             description.replace('\n', " - ");
-            QString io = snd_device_name_get_hint(*hint, "IOID");
+
+            auto ioPtr = snd_device_name_get_hint(*hint, "IOID");
+            QString io = ioPtr? QString::fromUtf8(ioPtr): QString();
+            free(ioPtr);
             auto interfaceDevice = deviceId.split(":");
 
             if (interfaceDevice.size() > 1

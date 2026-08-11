@@ -17,26 +17,39 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QMutex>
-#include <QFile>
-#include <QThread>
 #include <QAbstractEventDispatcher>
-#include <QSettings>
-#include <QQuickItem>
+#include <QFile>
+#include <QMap>
+#include <QMutex>
+#include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQmlProperty>
-#include <QQmlApplicationEngine>
+#include <QQuickItem>
+#include <QSettings>
+#include <QThread>
+#include <QThreadPool>
+#include <QFuture>
+#include <QtConcurrent>
+#include <ak.h>
+#include <akaudiocaps.h>
 #include <akaudiopacket.h>
 #include <akcaps.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>
-#include <iak/akelement.h>
 
 #include "audiooutputs.h"
+#include "akaudiomixer.h"
 
 #define MAX_SAMPLE_RATE 512e3
 
 using ObjectPtr = QSharedPointer<QObject>;
+
+struct MixerSource
+{
+    qint64 id;
+    QString description;
+    qreal volume;
+};
 
 class AudioOutputsPrivate
 {
@@ -52,10 +65,27 @@ class AudioOutputsPrivate
         qreal m_volume {1.0};
         QMutex m_mutex;
 
+        // Mixer and sources
+        AkAudioMixer m_mixer;
+        QMap<qint64, MixerSource> m_sources;
+        QMap<qint64, int> m_sourceToSlot;
+        QVector<qint64> m_sourceOrder;
+
+        QThreadPool m_pullThreadPool;
+        QFuture<void> m_pullLoopResult;
+        bool m_pullRun {false};
+
         explicit AudioOutputsPrivate(AudioOutputs *self);
         void loadProperties();
         void saveProperties();
         AkAudioCaps closestCaps(const QString &device) const;
+        void rebuildMixer();
+        void updateMixerState(AkElement::ElementState state);
+        void updateSourceOrder();
+        int getNextSlot() const;
+        void startPullLoop();
+        void stopPullLoop();
+        void pullLoop();
 };
 
 AudioOutputs::AudioOutputs(QQmlApplicationEngine *engine, QObject *parent):
@@ -88,10 +118,13 @@ AudioOutputs::AudioOutputs(QQmlApplicationEngine *engine, QObject *parent):
 AudioOutputs::~AudioOutputs()
 {
     this->resetState();
+    this->d->stopPullLoop();
+    this->d->m_mixer.deallocate();
 
-    this->d->m_mutex.lock();
-    this->d->m_audioOut.clear();
-    this->d->m_mutex.unlock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_audioOut.clear();
+    }
 
     delete this->d;
 }
@@ -205,6 +238,8 @@ void AudioOutputs::setAudioOutput(const QString &audioOutput)
 
         if (eventDispatcher)
             eventDispatcher->processEvents(QEventLoop::AllEvents);
+
+        QThread::msleep(1);
     }
 
     auto state = this->d->m_audioOut->property("state");
@@ -229,6 +264,7 @@ void AudioOutputs::setDeviceCaps(const AkAudioCaps &deviceCaps)
         return;
 
     this->d->m_deviceCaps = deviceCaps;
+    this->d->m_mixer.setOutputCaps(deviceCaps);
     this->d->saveProperties();
     emit this->deviceCapsChanged(deviceCaps);
 }
@@ -241,6 +277,8 @@ bool AudioOutputs::setState(AkElement::ElementState state)
             this->d->m_audioOut->setProperty("caps", this->d->closestCaps(device).toVariant());
             this->d->m_audioOut->setProperty("latency", this->d->m_latency);
         }
+
+        this->d->updateMixerState(state);
 
         return this->d->m_audioOut->setProperty("state", state);
     }
@@ -310,14 +348,28 @@ AkPacket AudioOutputs::iStream(const AkPacket &packet)
     if (packet.caps().type() != AkCaps::CapsAudio)
         return {};
 
-    this->d->m_mutex.lock();
+    if (!this->d->m_sources.isEmpty()) {
+        qint64 sourceId = packet.id();
 
-    if (this->d->m_audioOut) {
-        auto pkt = AkAudioPacket(packet).adjustVolume(this->d->m_volume);
-        this->d->m_audioOut->iStream(pkt);
+        if (!this->d->m_sources.contains(sourceId))
+            return {};
+
+        int slotIndex = this->d->m_sourceToSlot.value(sourceId, -1);
+
+        if (slotIndex >= 0) {
+            AkAudioPacket pkt = packet;
+            pkt.setId(slotIndex);
+            qreal volume = this->d->m_sources[sourceId].volume;
+            this->d->m_mixer.write(pkt.adjustVolume(volume));
+        }
+    } else {
+        QMutexLocker locker(&this->d->m_mutex);
+
+        if (this->d->m_audioOut) {
+            auto pkt = AkAudioPacket(packet).adjustVolume(this->d->m_volume);
+            this->d->m_audioOut->iStream(pkt);
+        }
     }
-
-    this->d->m_mutex.unlock();
 
     return {};
 }
@@ -333,10 +385,166 @@ void AudioOutputs::setQmlEngine(QQmlApplicationEngine *engine)
         engine->rootContext()->setContextProperty("audioOutputs", this);
 }
 
+qint64 AudioOutputs::addSource(const QString &description, qreal volume)
+{
+    return this->addSource(Ak::id(), description, volume);
+}
+
+qint64 AudioOutputs::addSource(qint64 sourceId,
+                               const QString &description,
+                               qreal volume)
+{
+    if (sourceId < 0 || description.isEmpty())
+        return -1;
+
+    if (this->d->m_sources.contains(sourceId))
+        return -1;
+
+    volume = qBound(0.0, volume, 1.0);
+
+    MixerSource source;
+    source.id = sourceId;
+    source.description = description;
+    source.volume = volume;
+
+    this->d->m_sources[sourceId] = source;
+    this->d->updateSourceOrder();
+
+    this->d->rebuildMixer();
+
+    emit this->sourcesChanged(this->sources());
+    emit this->sourceAdded(sourceId);
+
+    return sourceId;
+}
+
+QString AudioOutputs::sourceDescription(qint64 sourceId) const
+{
+    if (!this->d->m_sources.contains(sourceId))
+        return {};
+
+    return this->d->m_sources[sourceId].description;
+}
+
+bool AudioOutputs::removeSource(qint64 sourceId)
+{
+    if (!this->d->m_sources.contains(sourceId))
+        return false;
+
+    this->d->m_sources.remove(sourceId);
+    this->d->m_sourceToSlot.remove(sourceId);
+    this->d->updateSourceOrder();
+
+    this->d->rebuildMixer();
+
+    emit this->sourcesChanged(this->sources());
+    emit this->sourceRemoved(sourceId);
+
+    return true;
+}
+
+void AudioOutputs::clearSources()
+{
+    if (this->d->m_sources.isEmpty())
+        return;
+
+    this->d->m_sources.clear();
+    this->d->m_sourceToSlot.clear();
+    this->d->m_sourceOrder.clear();
+
+    this->d->rebuildMixer();
+
+    emit this->sourcesChanged(this->sources());
+}
+
+QVariantList AudioOutputs::sources() const
+{
+    QVariantList result;
+
+    for (auto &source: this->d->m_sources) {
+        QVariantMap sourceInfo;
+        sourceInfo["id"] = source.id;
+        sourceInfo["description"] = source.description;
+        sourceInfo["volume"] = source.volume;
+        result << sourceInfo;
+    }
+
+    return result;
+}
+
+qreal AudioOutputs::sourceVolume(qint64 sourceId) const
+{
+    if (!this->d->m_sources.contains(sourceId))
+        return 0.0;
+
+    return this->d->m_sources[sourceId].volume;
+}
+
+bool AudioOutputs::setSourceVolume(qint64 sourceId, qreal volume)
+{
+    if (!this->d->m_sources.contains(sourceId))
+        return false;
+
+    volume = qBound(0.0, volume, 1.0);
+    this->d->m_sources[sourceId].volume = volume;
+
+    emit this->sourcesChanged(this->sources());
+
+    return true;
+}
+
+bool AudioOutputs::sourceExists(qint64 sourceId) const
+{
+    return this->d->m_sources.contains(sourceId);
+}
+
 AudioOutputsPrivate::AudioOutputsPrivate(AudioOutputs *self):
     self(self)
 {
 
+}
+
+void AudioOutputsPrivate::startPullLoop()
+{
+    if (this->m_pullRun)
+        return;
+
+    this->m_pullRun = true;
+    this->m_pullLoopResult =
+            QtConcurrent::run(&this->m_pullThreadPool,
+                              &AudioOutputsPrivate::pullLoop,
+                              this);
+}
+
+void AudioOutputsPrivate::stopPullLoop()
+{
+    if (!this->m_pullRun)
+        return;
+
+    this->m_pullRun = false;
+    this->m_pullLoopResult.waitForFinished();
+}
+
+void AudioOutputsPrivate::pullLoop()
+{
+    auto caps = this->m_deviceCaps;
+    int rate = caps.rate() > 0? caps.rate(): 44100;
+    int nSamples = this->m_latency * rate / 1000;
+
+    if (nSamples < 1)
+        nSamples = 1;
+
+    while (this->m_pullRun) {
+        auto packet = this->m_mixer.read(size_t(nSamples));
+
+        if (!this->m_pullRun)
+            break;
+
+        QMutexLocker locker(&this->m_mutex);
+
+        if (this->m_audioOut)
+            this->m_audioOut->iStream(packet.adjustVolume(this->m_volume));
+    }
 }
 
 void AudioOutputsPrivate::loadProperties()
@@ -345,7 +553,7 @@ void AudioOutputsPrivate::loadProperties()
 
     config.beginGroup("AudioConfigs");
 
-    // Restore global caps and latency.
+    // Restore global caps and latency
     auto savedFormat = config.value("format",
                                     int(AkAudioCaps::SampleFormat_s16)).toInt();
     auto savedLayout = config.value("layout",
@@ -390,7 +598,7 @@ AkAudioCaps AudioOutputsPrivate::closestCaps(const QString &device) const
     if (device.isEmpty() || !this->m_audioOut)
         return {};
 
-    // Query supported lists from the device element.
+    // Query supported lists from the device element
     QList<AkAudioCaps::SampleFormat> formats;
     QList<AkAudioCaps::ChannelLayout> layouts;
     QList<int> rates;
@@ -405,7 +613,7 @@ AkAudioCaps AudioOutputsPrivate::closestCaps(const QString &device) const
                               Q_RETURN_ARG(QList<int>, rates),
                               Q_ARG(QString, device));
 
-    // Closest format: match bits per sample.
+    // Closest format: match bits per sample
     auto format = this->m_deviceCaps.format();
 
     if (!formats.contains(format)) {
@@ -422,7 +630,7 @@ AkAudioCaps AudioOutputsPrivate::closestCaps(const QString &device) const
         }
     }
 
-    // Closest layout: prefer stereo, then mono, then first available.
+    // Closest layout: prefer stereo, then mono, then first available
     auto layout = this->m_deviceCaps.layout();
 
     if (!layouts.contains(layout)) {
@@ -434,7 +642,7 @@ AkAudioCaps AudioOutputsPrivate::closestCaps(const QString &device) const
             layout = layouts.first();
     }
 
-    // Closest rate: minimum absolute difference.
+    // Closest rate: minimum absolute difference
     int sampleRate = this->m_deviceCaps.rate();
 
     if (!rates.contains(sampleRate)) {
@@ -454,6 +662,59 @@ AkAudioCaps AudioOutputsPrivate::closestCaps(const QString &device) const
     }
 
     return {format, layout, false, sampleRate};
+}
+
+void AudioOutputsPrivate::rebuildMixer()
+{
+    // Update the inputs number of the mixer
+    int numSources = this->m_sources.size();
+
+    // Stop and reconfigure the mixer.
+    this->stopPullLoop();
+    this->m_mixer.deallocate();
+    this->m_mixer.setInputs(numSources);
+    this->m_mixer.setOutputCaps(this->m_deviceCaps);
+
+    // Update the slots
+    this->m_sourceToSlot.clear();
+
+    for (int i = 0; i < this->m_sourceOrder.size(); ++i)
+        this->m_sourceToSlot[this->m_sourceOrder[i]] = i;
+
+    // If there are sources, restart the pull loop if playing
+    if (numSources > 0) {
+        auto outputState =
+                this->m_audioOut->property("state").value<AkElement::ElementState>();
+
+        if (outputState == AkElement::ElementStatePlaying) {
+            this->m_mixer.setLatency(4 * this->m_latency);
+            this->m_mixer.allocate();
+            this->startPullLoop();
+        }
+    }
+}
+
+void AudioOutputsPrivate::updateMixerState(AkElement::ElementState state)
+{
+    if (this->m_sources.isEmpty())
+        return;
+
+    if (state == AkElement::ElementStatePlaying) {
+        this->m_mixer.setLatency(4 * this->m_latency);
+        this->m_mixer.allocate();
+        this->startPullLoop();
+    } else {
+        this->stopPullLoop();
+        this->m_mixer.deallocate();
+    }
+}
+
+void AudioOutputsPrivate::updateSourceOrder()
+{
+    this->m_sourceOrder.clear();
+
+    for (auto &source: this->m_sources)
+        this->m_sourceOrder << source.id;
 }
 
 #include "moc_audiooutputs.cpp"

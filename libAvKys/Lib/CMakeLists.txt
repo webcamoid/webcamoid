@@ -34,17 +34,31 @@ set(QT_COMPONENTS
     OpenGL
     Widgets)
 
-if (ANDROID)
-    list(APPEND QT_COMPONENTS
-         CorePrivate)
-endif()
-
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
+
+include(CheckCXXSourceCompiles)
+set(CMAKE_REQUIRED_LIBRARIES Qt${QT_VERSION_MAJOR}::Core)
+check_cxx_source_compiles("
+#include <QJniObject>
+int main() { return 0; }
+" QJNIOBJECT_FOUND)
+
+if (ANDROID AND QJNIOBJECT_FOUND)
+    list(APPEND QT_COMPONENTS
+         CorePrivate)
+    find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
+                 CorePrivate
+                 REQUIRED)
+endif()
+
+if (QJNIOBJECT_FOUND)
+    target_compile_definitions(avkys PRIVATE USE_JNI)
+endif()
 
 qt_add_library(avkys
                src/ak.cpp
@@ -183,7 +197,7 @@ target_compile_definitions(avkys PRIVATE AVKYS_LIBRARY)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(avkys PRIVATE ${QT_LIBS})
 
-if (ANDROID)
+if (ANDROID AND QJNIOBJECT_FOUND)
     target_link_libraries(avkys
                           PRIVATE
                           Qt${QT_VERSION_MAJOR}::CorePrivate)

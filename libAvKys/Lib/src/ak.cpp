@@ -76,7 +76,7 @@ class AkPrivate
         virtual ~AkPrivate();
 #endif
 
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID) && defined(USE_JNI)
         static void jniLog(JNIEnv *env,
                            jobject obj,
                            jobject type,
@@ -198,7 +198,7 @@ bool Ak::hasFlatpakVCam()
 #endif
 }
 
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID) && defined(USE_JNI)
 void Ak::registerJniLogFunc(const QString &className)
 {
     static bool jniLogFuncReady = false;
@@ -240,7 +240,7 @@ AkPrivate::~AkPrivate()
 }
 #endif
 
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID) && defined(USE_JNI)
 void AkPrivate::jniLog(JNIEnv *env,
                        jobject obj,
                        jobject type,

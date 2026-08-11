@@ -130,23 +130,19 @@ bool Updates::isEnabled() const
 
 QStringList Updates::components() const
 {
+    QMutexLocker locker(&this->d->m_mutex);
     QStringList components;
-
-    this->d->m_mutex.lock();
 
     for (auto &info: this->d->m_componentsInfo)
         components << info.component;
-
-    this->d->m_mutex.unlock();
 
     return components;
 }
 
 QString Updates::latestVersion(const QString &component) const
 {
+    QMutexLocker locker(&this->d->m_mutex);
     QString version;
-
-    this->d->m_mutex.lock();
 
     for (auto &info: this->d->m_componentsInfo)
         if (info.component == component) {
@@ -155,16 +151,14 @@ QString Updates::latestVersion(const QString &component) const
             break;
         }
 
-    this->d->m_mutex.unlock();
-
     return version;
 }
 
 Updates::ComponentStatus Updates::status(const QString &component,
                                          const QString &currentVersion) const
 {
+    QMutexLocker locker(&this->d->m_mutex);
     Updates::ComponentStatus status = ComponentUpdated;
-    this->d->m_mutex.lock();
 
     for (auto &info: this->d->m_componentsInfo)
         if (info.component == component) {
@@ -185,8 +179,6 @@ Updates::ComponentStatus Updates::status(const QString &component,
 
             break;
         }
-
-    this->d->m_mutex.unlock();
 
     return status;
 }
@@ -228,20 +220,20 @@ void Updates::checkUpdates()
 {
     QList<QPair<QNetworkReply *, QString>> replies;
 
-    this->d->m_mutex.lock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
 
-    for (auto &info: this->d->m_componentsInfo) {
-        if (info.latestVersion.isEmpty()
-            || (this->d->m_checkInterval > 0
-                &&  (this->d->m_lastUpdate.isNull()
-                     || this->d->m_lastUpdate.daysTo(QDateTime::currentDateTime()) >= this->d->m_checkInterval))) {
-            info.data.clear();
-            auto reply = this->d->m_manager.get(QNetworkRequest(QUrl(info.url)));
-            replies << QPair<QNetworkReply *, QString> {reply, info.component};
+        for (auto &info: this->d->m_componentsInfo) {
+            if (info.latestVersion.isEmpty()
+                || (this->d->m_checkInterval > 0
+                    &&  (this->d->m_lastUpdate.isNull()
+                         || this->d->m_lastUpdate.daysTo(QDateTime::currentDateTime()) >= this->d->m_checkInterval))) {
+                info.data.clear();
+                auto reply = this->d->m_manager.get(QNetworkRequest(QUrl(info.url)));
+                replies << QPair<QNetworkReply *, QString> {reply, info.component};
+            }
         }
     }
-
-    this->d->m_mutex.unlock();
 
     for (auto &reply: replies) {
         QObject::connect(reply.first,
@@ -314,28 +306,36 @@ void Updates::watch(const QString &component,
     if (component.isEmpty() || url.isEmpty())
         return;
 
-    this->d->m_mutex.lock();
+    bool found = false;
 
-    for (auto &info: this->d->m_componentsInfo)
-        if (info.component == component) {
-            info.currentVersion = currentVersion;
-            info.url = url;
+    {
+        QMutexLocker locker(&this->d->m_mutex);
 
-            if (info.latestVersion.isEmpty())
-                info.latestVersion = currentVersion;
+        for (auto &info: this->d->m_componentsInfo)
+            if (info.component == component) {
+                info.currentVersion = currentVersion;
+                info.url = url;
 
-            this->d->m_mutex.unlock();
+                if (info.latestVersion.isEmpty())
+                    info.latestVersion = currentVersion;
 
-            return;
-        }
+                found = true;
 
-    this->d->m_mutex.unlock();
+                break;
+            }
+    }
+
+    if (found)
+        return;
 
     qInfo() << "Added component" << component;
-    this->d->m_mutex.lock();
-    this->d->m_componentsInfo
-            << ComponentInfo {component, currentVersion, currentVersion, url};
-    this->d->m_mutex.unlock();
+    
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_componentsInfo
+                << ComponentInfo {component, currentVersion, currentVersion, url};
+    }
+    
     emit this->componentsChanged(this->components());
 }
 
@@ -370,19 +370,20 @@ void UpdatesPrivate::setLatestVersion(const QString &component,
                                       const QString &version)
 {
     bool emitSignal = false;
-    this->m_mutex.lock();
 
-    for (auto &info: this->m_componentsInfo)
-        if (info.component == component) {
-            info.latestVersion = version;
+    {
+        QMutexLocker locker(&this->m_mutex);
 
-            if (info.currentVersion != info.latestVersion)
-                emitSignal = true;
+        for (auto &info: this->m_componentsInfo)
+            if (info.component == component) {
+                info.latestVersion = version;
 
-            break;
-        }
+                if (info.currentVersion != info.latestVersion)
+                    emitSignal = true;
 
-    this->m_mutex.unlock();
+                break;
+            }
+    }
 
     if (emitSignal)
         emit self->newVersionAvailable(component, version);
@@ -391,7 +392,7 @@ void UpdatesPrivate::setLatestVersion(const QString &component,
 void UpdatesPrivate::readData(const QString &component,
                               QNetworkReply *reply)
 {
-    this->m_mutex.lock();
+    QMutexLocker locker(&this->m_mutex);
 
     for (auto &info: this->m_componentsInfo)
         if (info.component == component) {
@@ -399,24 +400,23 @@ void UpdatesPrivate::readData(const QString &component,
 
             break;
         }
-
-    this->m_mutex.unlock();
 }
 
 void UpdatesPrivate::readLatestVersion(const QString &component)
 {
     QByteArray html;
-    this->m_mutex.lock();
 
-    for (auto &info: this->m_componentsInfo)
-        if (info.component == component) {
-            html = info.data;
-            info.data.clear();
+    {
+        QMutexLocker locker(&this->m_mutex);
 
-            break;
-        }
+        for (auto &info: this->m_componentsInfo)
+            if (info.component == component) {
+                html = info.data;
+                info.data.clear();
 
-    this->m_mutex.unlock();
+                break;
+            }
+    }
 
     if (html.isEmpty())
         return;
@@ -546,12 +546,11 @@ void UpdatesPrivate::loadProperties()
             latestVersion = currentVersion;
 
         if (!component.isEmpty() && !url.isEmpty() && !currentVersion.isEmpty()) {
-            this->m_mutex.lock();
+            QMutexLocker locker(&this->m_mutex);
             this->m_componentsInfo << ComponentInfo(component,
                                                     currentVersion,
                                                     latestVersion,
                                                     url);
-            this->m_mutex.unlock();
         }
     }
 
@@ -593,18 +592,20 @@ void UpdatesPrivate::saveLastestVersion()
     config.beginGroup("Updates");
     config.beginWriteArray("updateInfo");
     int i = 0;
-    this->m_mutex.lock();
 
-    for (auto &info: this->m_componentsInfo) {
-        config.setArrayIndex(i);
-        config.setValue("component", info.component);
-        config.setValue("currentVersion", info.currentVersion);
-        config.setValue("latestVersion", info.latestVersion);
-        config.setValue("url", info.url);
-        i++;
+    {
+        QMutexLocker locker(&this->m_mutex);
+
+        for (auto &info: this->m_componentsInfo) {
+            config.setArrayIndex(i);
+            config.setValue("component", info.component);
+            config.setValue("currentVersion", info.currentVersion);
+            config.setValue("latestVersion", info.latestVersion);
+            config.setValue("url", info.url);
+            i++;
+        }
     }
 
-    this->m_mutex.unlock();
     config.endArray();
     config.endGroup();
 }

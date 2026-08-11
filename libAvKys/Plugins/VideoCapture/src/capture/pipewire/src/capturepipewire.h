@@ -63,6 +63,7 @@ class CapturePipeWire: public Capture
         void resetIoMethod() override;
         void resetNBuffers() override;
         void reset() override;
+        void updateDevices() override;
 };
 
 #endif // CAPTUREPIPEWIRE_H

@@ -110,100 +110,79 @@ DesktopCaptureElement::~DesktopCaptureElement()
 
 AkFrac DesktopCaptureElement::fps() const
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     auto screenCapture = this->d->m_screenCapture;
-    this->d->m_mutex.unlock();
 
-    AkFrac fps;
+    if (!screenCapture)
+        return {};
 
-    if (screenCapture)
-        fps = screenCapture->fps();
-
-    return fps;
+    return screenCapture->fps();
 }
 
 QStringList DesktopCaptureElement::medias()
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     auto screenCapture = this->d->m_screenCapture;
-    this->d->m_mutex.unlock();
 
-    QStringList medias;
+    if (!screenCapture)
+        return {};
 
-    if (screenCapture)
-        medias = screenCapture->medias();
-
-    return medias;
+    return screenCapture->medias();
 }
 
 QString DesktopCaptureElement::media() const
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     auto screenCapture = this->d->m_screenCapture;
-    this->d->m_mutex.unlock();
 
-    QString media;
+    if (!screenCapture)
+        return {};
 
-    if (screenCapture)
-        media = screenCapture->media();
-
-    return media;
+    return screenCapture->media();
 }
 
 QList<int> DesktopCaptureElement::streams()
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     auto screenCapture = this->d->m_screenCapture;
-    this->d->m_mutex.unlock();
 
-    QList<int> streams;
+    if (!screenCapture)
+        return {};
 
-    if (screenCapture)
-        streams = screenCapture->streams();
-
-    return streams;
+    return screenCapture->streams();
 }
 
 int DesktopCaptureElement::defaultStream(AkCaps::CapsType type)
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     auto screenCapture = this->d->m_screenCapture;
-    this->d->m_mutex.unlock();
 
-    int stream = 0;
+    if (!screenCapture)
+        return 0;
 
-    if (screenCapture)
-        stream = screenCapture->defaultStream(type);
-
-    return stream;
+    return screenCapture->defaultStream(type);
 }
 
 QString DesktopCaptureElement::description(const QString &media)
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     auto screenCapture = this->d->m_screenCapture;
-    this->d->m_mutex.unlock();
 
-    QString description;
+    if (!screenCapture)
+        return {};
 
-    if (screenCapture)
-        description = screenCapture->description(media);
-
-    return description;
+    return screenCapture->description(media);
 }
 
 AkCaps DesktopCaptureElement::caps(int stream)
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     auto screenCapture = this->d->m_screenCapture;
-    this->d->m_mutex.unlock();
 
-    AkVideoCaps caps;
+    if (!screenCapture)
+        return {};
 
-    if (screenCapture)
-        caps = screenCapture->caps(stream);
-
-    return caps;
+    return screenCapture->caps(stream);
 }
 
 bool DesktopCaptureElement::canCaptureWindows() const
@@ -213,72 +192,57 @@ bool DesktopCaptureElement::canCaptureWindows() const
 
 bool DesktopCaptureElement::canCaptureCursor() const
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     auto screenCapture = this->d->m_screenCapture;
-    this->d->m_mutex.unlock();
 
-    bool canCaptureCursor = false;
+    if (!screenCapture)
+        return false;
 
-    if (screenCapture)
-        canCaptureCursor = screenCapture->canCaptureCursor();
-
-    return canCaptureCursor;
+    return screenCapture->canCaptureCursor();
 }
 
 bool DesktopCaptureElement::canChangeCursorSize() const
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     auto screenCapture = this->d->m_screenCapture;
-    this->d->m_mutex.unlock();
 
-    bool canChangeCursorSize = false;
+    if (!screenCapture)
+        return false;
 
-    if (screenCapture)
-        canChangeCursorSize = screenCapture->canChangeCursorSize();
-
-    return canChangeCursorSize;
+    return screenCapture->canChangeCursorSize();
 }
 
 bool DesktopCaptureElement::showCursor() const
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     auto screenCapture = this->d->m_screenCapture;
-    this->d->m_mutex.unlock();
 
-    bool showCursor = false;
+    if (!screenCapture)
+        return false;
 
-    if (screenCapture)
-        showCursor = screenCapture->showCursor();
-
-    return showCursor;
+    return screenCapture->showCursor();
 }
 
 int DesktopCaptureElement::cursorSize() const
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     auto screenCapture = this->d->m_screenCapture;
-    this->d->m_mutex.unlock();
 
-    int cursorSize = 0;
+    if (!screenCapture)
+        return 0;
 
-    if (screenCapture)
-        cursorSize = screenCapture->cursorSize();
-
-    return cursorSize;
+    return screenCapture->cursorSize();
 }
 
 bool DesktopCaptureElement::isWindow(const QString &media) const
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     auto screenCapture = this->d->m_screenCapture;
-    this->d->m_mutex.unlock();
 
-    bool isWindow = false;
+    if (!screenCapture)
+        return false;
 
-    if (screenCapture)
-        isWindow = screenCapture->isWindow(media);
-
-    return isWindow;
+    return screenCapture->isWindow(media);
 }
 
 QString DesktopCaptureElement::controlInterfaceProvide(const QString &controlId) const
@@ -299,12 +263,13 @@ void DesktopCaptureElement::controlInterfaceConfigure(QQmlContext *context,
 
 void DesktopCaptureElement::setFps(const AkFrac &fps)
 {
-    this->d->m_mutex.lock();
-    auto screenCapture = this->d->m_screenCapture;
-    this->d->m_mutex.unlock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        auto screenCapture = this->d->m_screenCapture;
 
-    if (screenCapture)
-        screenCapture->setFps(fps);
+        if (screenCapture)
+            screenCapture->setFps(fps);
+    }
 
     QSettings settings;
     settings.beginGroup("DesktopCapture");
@@ -314,9 +279,8 @@ void DesktopCaptureElement::setFps(const AkFrac &fps)
 
 void DesktopCaptureElement::resetFps()
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     auto screenCapture = this->d->m_screenCapture;
-    this->d->m_mutex.unlock();
 
     if (screenCapture)
         screenCapture->resetFps();
@@ -324,9 +288,8 @@ void DesktopCaptureElement::resetFps()
 
 void DesktopCaptureElement::setMedia(const QString &media)
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     auto screenCapture = this->d->m_screenCapture;
-    this->d->m_mutex.unlock();
 
     if (screenCapture)
         screenCapture->setMedia(media);
@@ -334,9 +297,8 @@ void DesktopCaptureElement::setMedia(const QString &media)
 
 void DesktopCaptureElement::setShowCursor(bool showCursor)
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     auto screenCapture = this->d->m_screenCapture;
-    this->d->m_mutex.unlock();
 
     if (screenCapture)
         screenCapture->setShowCursor(showCursor);
@@ -344,9 +306,8 @@ void DesktopCaptureElement::setShowCursor(bool showCursor)
 
 void DesktopCaptureElement::setCursorSize(int cursorSize)
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     auto screenCapture = this->d->m_screenCapture;
-    this->d->m_mutex.unlock();
 
     if (screenCapture)
         screenCapture->setCursorSize(cursorSize);
@@ -354,9 +315,8 @@ void DesktopCaptureElement::setCursorSize(int cursorSize)
 
 void DesktopCaptureElement::resetMedia()
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     auto screenCapture = this->d->m_screenCapture;
-    this->d->m_mutex.unlock();
 
     if (screenCapture)
         screenCapture->resetMedia();
@@ -364,9 +324,8 @@ void DesktopCaptureElement::resetMedia()
 
 void DesktopCaptureElement::resetShowCursor()
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     auto screenCapture = this->d->m_screenCapture;
-    this->d->m_mutex.unlock();
 
     if (screenCapture)
         screenCapture->resetShowCursor();
@@ -374,9 +333,8 @@ void DesktopCaptureElement::resetShowCursor()
 
 void DesktopCaptureElement::resetCursorSize()
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     auto screenCapture = this->d->m_screenCapture;
-    this->d->m_mutex.unlock();
 
     if (screenCapture)
         screenCapture->resetCursorSize();
@@ -384,12 +342,13 @@ void DesktopCaptureElement::resetCursorSize()
 
 bool DesktopCaptureElement::setState(AkElement::ElementState state)
 {
-    this->d->m_mutex.lock();
-    auto screenCapture = this->d->m_screenCapture;
-    this->d->m_mutex.unlock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        auto screenCapture = this->d->m_screenCapture;
 
-    if (!screenCapture)
-        return false;
+        if (!screenCapture)
+            return false;
+    }
 
     AkElement::ElementState curState = this->state();
 
@@ -398,11 +357,19 @@ bool DesktopCaptureElement::setState(AkElement::ElementState state)
         switch (state) {
         case AkElement::ElementStatePaused:
             return AkElement::setState(state);
-        case AkElement::ElementStatePlaying:
-            if (!screenCapture->init())
+        case AkElement::ElementStatePlaying: {
+            bool result = false;
+
+            {
+                QMutexLocker locker(&this->d->m_mutex);
+                result = this->d->m_screenCapture->init();
+            }
+
+            if (!result)
                 return false;
 
             return AkElement::setState(state);
+        }
         case AkElement::ElementStateNull:
             break;
         }
@@ -413,11 +380,19 @@ bool DesktopCaptureElement::setState(AkElement::ElementState state)
         switch (state) {
         case AkElement::ElementStateNull:
             return AkElement::setState(state);
-        case AkElement::ElementStatePlaying:
-            if (!screenCapture->init())
+        case AkElement::ElementStatePlaying: {
+            bool result = false;
+
+            {
+                QMutexLocker locker(&this->d->m_mutex);
+                result = this->d->m_screenCapture->init();
+            }
+
+            if (!result)
                 return false;
 
             return AkElement::setState(state);
+        }
         case AkElement::ElementStatePaused:
             break;
         }
@@ -427,10 +402,12 @@ bool DesktopCaptureElement::setState(AkElement::ElementState state)
     case AkElement::ElementStatePlaying: {
         switch (state) {
         case AkElement::ElementStateNull:
-        case AkElement::ElementStatePaused:
-            screenCapture->uninit();
+        case AkElement::ElementStatePaused: {
+            QMutexLocker locker(&this->d->m_mutex);
+            this->d->m_screenCapture->uninit();
 
             return AkElement::setState(state);
+        }
         case AkElement::ElementStatePlaying:
             break;
         }
@@ -444,9 +421,8 @@ bool DesktopCaptureElement::setState(AkElement::ElementState state)
 
 void DesktopCaptureElement::updateDevices()
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     auto screenCapture = this->d->m_screenCapture;
-    this->d->m_mutex.unlock();
 
     if (screenCapture)
         screenCapture->updateDevices();
@@ -472,10 +448,11 @@ void DesktopCaptureElementPrivate::linksChanged(const AkPluginLinks &links)
     auto state = self->state();
     self->setState(AkElement::ElementStateNull);
 
-    this->m_mutex.lock();
-    this->m_screenCapture =
-            akPluginManager->create<ScreenDev>("VideoSource/DesktopCapture/Impl/*");
-    this->m_mutex.unlock();
+    {
+        QMutexLocker locker(&this->m_mutex);
+        this->m_screenCapture =
+                akPluginManager->create<ScreenDev>("VideoSource/DesktopCapture/Impl/*");
+    }
 
     this->m_screenCaptureImpl = links["VideoSource/DesktopCapture/Impl/*"];
 

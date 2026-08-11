@@ -25,7 +25,7 @@
 #include <QStandardPaths>
 #include <QUrl>
 
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID) && defined(USE_JNI)
 #include <QJniObject>
 #include <QJniEnvironment>
 #include <QtCore/private/qandroidextras_p.h>
@@ -54,7 +54,7 @@ class AkMediaGalleryModelPrivate
 
         static bool copyFile(const QUrl &src, const QUrl &dest);
 
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID) && defined(USE_JNI)
         static QJniObject getUriForFile(const QString &filePath);
 #endif
 };
@@ -113,7 +113,7 @@ bool AkMediaGalleryModel::share(const QUrl &src, const QString &message) const
         return false;
     }
 
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID) && defined(USE_JNI)
     auto fileName = src.toLocalFile();
 
     // Crear URI con FileProvider
@@ -199,7 +199,7 @@ bool AkMediaGalleryModel::share(const QStringList &srcPaths,
     if (srcPaths.isEmpty())
         return false;
 
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID) && defined(USE_JNI)
     QJniObject uriList("java/util/ArrayList", "()V");
 
     if (!uriList.isValid()) {
@@ -302,7 +302,7 @@ bool AkMediaGalleryModel::useAs(const QUrl &src, const QString &message) const
     if (!src.isValid())
         return false;
 
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID) && defined(USE_JNI)
     auto fileName = src.toLocalFile();
 
     // Crear URI con FileProvider
@@ -702,7 +702,7 @@ bool AkMediaGalleryModelPrivate::copyFile(const QUrl &src, const QUrl &dest)
     return true;
 }
 
-#ifdef Q_OS_ANDROID
+#if defined(Q_OS_ANDROID) && defined(USE_JNI)
 QJniObject AkMediaGalleryModelPrivate::getUriForFile(const QString &filePath)
 {
     if (!QFileInfo(filePath).exists()) {

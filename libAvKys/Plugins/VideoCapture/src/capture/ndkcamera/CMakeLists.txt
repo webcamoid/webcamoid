@@ -32,17 +32,28 @@ set(QT_COMPONENTS
     Concurrent
     Widgets)
 
-if (ANDROID)
-    list(APPEND QT_COMPONENTS
-         CorePrivate)
-endif()
-
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
+
+include(CheckCXXSourceCompiles)
+set(CMAKE_REQUIRED_LIBRARIES Qt${QT_VERSION_MAJOR}::Core)
+check_cxx_source_compiles("
+#include <QJniObject>
+int main() { return 0; }
+" QJNIOBJECT_FOUND)
+
+if (ANDROID AND QJNIOBJECT_FOUND)
+    list(APPEND QT_COMPONENTS
+         CorePrivate)
+    find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
+                 CorePrivate
+                 REQUIRED)
+endif()
+
 find_library(ANDROIDLIB NAMES android)
 find_library(CAMERA2NDK NAMES camera2ndk)
 find_library(MEDIANDK NAMES mediandk)
@@ -56,7 +67,7 @@ set(SOURCES
     src/plugin.h
     pspec.json)
 
-if (NOT NONDKCAMERA AND ANDROIDLIB AND CAMERA2NDK AND MEDIANDK)
+if (NOT NONDKCAMERA AND ANDROIDLIB AND CAMERA2NDK AND MEDIANDK AND QJNIOBJECT_FOUND)
     qt_add_plugin(VideoCapture_ndkcamera
                   SHARED
                   CLASS_NAME Plugin)
@@ -87,7 +98,7 @@ target_link_libraries(VideoCapture_ndkcamera
                       ${QT_LIBS}
                       avkys)
 
-if (NOT NONDKCAMERA AND ANDROIDLIB AND CAMERA2NDK AND MEDIANDK)
+if (NOT NONDKCAMERA AND ANDROIDLIB AND CAMERA2NDK AND MEDIANDK AND QJNIOBJECT_FOUND)
     target_link_libraries(VideoCapture_ndkcamera
                           PRIVATE
                           Qt${QT_VERSION_MAJOR}::CorePrivate

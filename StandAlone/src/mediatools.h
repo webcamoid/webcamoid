@@ -30,6 +30,9 @@ class CliOptions;
 class MediaTools: public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool firstRun
+               READ firstRun
+               CONSTANT)
     Q_PROPERTY(int windowWidth
                READ windowWidth
                WRITE setWindowWidth
@@ -121,6 +124,7 @@ class MediaTools: public QObject
         MediaTools(QObject *parent=nullptr);
         ~MediaTools();
 
+        Q_INVOKABLE bool firstRun() const;
         Q_INVOKABLE int windowWidth() const;
         Q_INVOKABLE int windowHeight() const;
         Q_INVOKABLE QString applicationName() const;

@@ -462,6 +462,8 @@ CaptureNdkCamera::CaptureNdkCamera(QObject *parent):
 
             if (eventDispatcher)
                 eventDispatcher->processEvents(QEventLoop::AllEvents);
+
+            QThread::msleep(1);
         }
     }
 #endif
@@ -1064,6 +1066,11 @@ void CaptureNdkCamera::reset()
     this->resetStreams();
     this->resetImageControls();
     this->resetCameraControls();
+}
+
+void CaptureNdkCamera::updateDevices()
+{
+    this->d->updateDevices();
 }
 
 CaptureNdkCameraPrivate::CaptureNdkCameraPrivate(CaptureNdkCamera *self):

@@ -17,142 +17,337 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QElapsedTimer>
-#include <QFuture>
+#include <QDebug>
 #include <QMutex>
+#include <QReadLocker>
+#include <QReadWriteLock>
 #include <QQmlEngine>
-#include <QThread>
-#include <QThreadPool>
 #include <QVector>
 #include <QWaitCondition>
-#include <QtConcurrent>
+#include <memory>
+#include <vector>
 
 #include "akaudiomixer.h"
-#include "ak.h"
 #include "akaudioconverter.h"
 #include "akaudiopacket.h"
 #include "akfrac.h"
-#include "akpacket.h"
 #include "akringbuffer.h"
 
-// Ring buffer capacity as a multiple of the computed frame size. 4x gives enough
-// headroom to absorb bursts without overrun while keeping latency low.
-#define RING_BUFFER_MULTIPLIER 4
+#define DEFAULT_LATENCY 25
 
-struct SourceSlot
+class SourceSlot
 {
-    AkAudioConverter converter;
+    public:
+        AkAudioConverter converter;
 
-    // One ring buffer per channel (planar) or a single one (interleaved).
-    QVector<AkRingBuffer<float>> rings;
+        // One ring buffer per channel (planar) or a single one (interleaved).
+        QVector<AkRingBuffer<float>> rings;
+
+        // Back-pressure: one condition per slot. The producer (write) waits
+        // on this when the ring buffers are full. The consumer (read) wakes it
+        // after consuming data.
+        QWaitCondition notFull;
+        QMutex notFullMutex;
+
+        SourceSlot()
+        {
+
+        }
+
+        SourceSlot(const SourceSlot &other):
+            converter(other.converter),
+            rings(other.rings)
+        {
+        }
+
+        SourceSlot &operator =(const SourceSlot &other)
+        {
+            if (this != &other) {
+                this->converter = other.converter;
+                this->rings = other.rings;
+            }
+
+            return *this;
+        }
 };
 
 class AkAudioMixerPrivate
 {
     public:
-        AkAudioMixer *self;
         size_t m_inputs {0};
         AkAudioCaps m_outputCaps;
+        int m_latency {DEFAULT_LATENCY};
+        std::vector<std::unique_ptr<SourceSlot>> m_slots;
+        mutable QReadWriteLock m_slotsLock;
         AkAudioConverter m_outputConverter;
-        int m_latency {25};
-        QVector<SourceSlot> m_slots;
-        QMutex m_slotsMutex;
-
-        // Configured state (may change while thread is running).
-        AkElement::ElementState m_state {AkElement::ElementStateNull};
-
-        // Mix thread synchronisation.
-        QThreadPool m_threadPool;
-        QFuture<void> m_mixLoopResult;
-        QMutex m_mixMutex;
-        QWaitCondition m_mixCond;
-        bool m_run {false};
-
-        explicit AkAudioMixerPrivate(AkAudioMixer *self);
-        ~AkAudioMixerPrivate();
+        qint64 m_pts {0};
 
         static AkAudioCaps mixCaps(const AkAudioCaps &outputCaps);
-        void mixLoop();
-        bool allocateSources();
-        void clearSources();
-        void startMixLoop();
-        void stopMixLoop();
         static void normalizeFrame(AkAudioPacket &packet);
 };
 
 AkAudioMixer::AkAudioMixer(QObject *parent):
     QObject(parent)
 {
-    this->d = new AkAudioMixerPrivate(this);
+    this->d = new AkAudioMixerPrivate;
 }
 
 AkAudioMixer::~AkAudioMixer()
 {
+    this->deallocate();
     delete this->d;
 }
 
 size_t AkAudioMixer::inputs() const
 {
+    QReadLocker locker(&this->d->m_slotsLock);
+
     return this->d->m_inputs;
 }
 
 AkAudioCaps AkAudioMixer::outputCaps() const
 {
+    QReadLocker locker(&this->d->m_slotsLock);
+
     return this->d->m_outputCaps;
 }
 
 int AkAudioMixer::latency() const
 {
+    QReadLocker locker(&this->d->m_slotsLock);
+
     return this->d->m_latency;
 }
 
-AkElement::ElementState AkAudioMixer::state() const
+AkAudioPacket AkAudioMixer::read(size_t samples) const
 {
-    return this->d->m_state;
+    if (samples < 1)
+        return {};
+
+    QReadLocker locker(&this->d->m_slotsLock);
+
+    if (this->d->m_slots.empty())
+        return {};
+
+    const auto mixCaps = AkAudioMixerPrivate::mixCaps(this->d->m_outputCaps);
+    const int channels = mixCaps.channels();
+    const bool planar = mixCaps.planar();
+    const int nSamples = int(samples);
+
+    AkAudioPacket mixPacket(mixCaps, nSamples, true);
+
+    if (planar) {
+        QVector<float> temporary(nSamples, 0.0f);
+
+        for (auto &slot: this->d->m_slots) {
+            for (int channel = 0; channel < channels; ++channel) {
+                auto &ring = slot->rings[channel];
+
+                // read() returns only the samples currently available.
+                // The rest of temporary is already zero (silence).
+                const int read = ring.read(temporary.data(), nSamples);
+
+                if (read < 1)
+                    continue;
+
+                auto output = reinterpret_cast<float *>(mixPacket.plane(channel));
+
+                for (int i = 0; i < read; ++i)
+                    output[i] += temporary[i];
+            }
+
+            // Wake any producer blocked because this slot was full.
+            slot->notFull.wakeAll();
+        }
+    } else {
+        const int totalSamples = nSamples * channels;
+        QVector<float> temporary(totalSamples, 0.0f);
+
+        for (auto &slot: this->d->m_slots) {
+            auto &ring = slot->rings[0];
+
+            const int read = ring.read(temporary.data(), totalSamples);
+
+            if (read < 1)
+                continue;
+
+            auto output = reinterpret_cast<float *>(mixPacket.data());
+
+            for (int i = 0; i < read; ++i)
+                output[i] += temporary[i];
+
+            // Wake any producer blocked because this slot was full.
+            slot->notFull.wakeAll();
+        }
+    }
+
+    AkAudioMixerPrivate::normalizeFrame(mixPacket);
+
+    auto outputPacket = this->d->m_outputConverter.convert(mixPacket);
+
+    if (!outputPacket)
+        return {};
+
+    outputPacket.setPts(this->d->m_pts);
+    outputPacket.setDuration(nSamples);
+    outputPacket.setTimeBase({1, mixCaps.rate()});
+    this->d->m_pts += nSamples;
+
+    return outputPacket;
+}
+
+size_t AkAudioMixer::write(const AkAudioPacket &packet)
+{
+    if (!packet)
+        return 0;
+
+    const qint64 sourceId = packet.id();
+
+    if (sourceId < 0)
+        return 0;
+
+    const int slotIndex = int(sourceId);
+
+    AkAudioPacket mixPacket;
+    bool planar = false;
+    int channels = 0;
+    int nSamples = 0;
+
+    {
+        QReadLocker locker(&this->d->m_slotsLock);
+
+        if (this->d->m_slots.empty())
+            return 0;
+
+        if (slotIndex >= this->d->m_slots.size())
+            return 0;
+
+        auto *slot = this->d->m_slots[slotIndex].get();
+
+        if (!slot)
+            return 0;
+
+        mixPacket = slot->converter.convert(packet);
+
+        if (!mixPacket)
+            return 0;
+
+        planar = mixPacket.caps().planar();
+        channels = mixPacket.caps().channels();
+        nSamples = int(mixPacket.samples());
+
+        if (nSamples < 1)
+            return 0;
+    }
+
+    bool hasSpace = false;
+
+    do {
+        QMutex *mutex = nullptr;
+        QWaitCondition *cond = nullptr;
+
+        {
+            QReadLocker locker(&this->d->m_slotsLock);
+
+            if (slotIndex >= this->d->m_slots.size())
+                return 0;
+
+            auto *slot = this->d->m_slots[slotIndex].get();
+
+            if (!slot)
+                return 0;
+
+            if (planar) {
+                hasSpace = true;
+
+                for (int ch = 0; ch < channels; ++ch)
+                    if (slot->rings[ch].availableWrite() < nSamples) {
+                        hasSpace = false;
+                        break;
+                    }
+            } else {
+                hasSpace = slot->rings[0].availableWrite() >= nSamples * channels;
+            }
+
+            if (!hasSpace) {
+                mutex = &slot->notFullMutex;
+                cond = &slot->notFull;
+            }
+        }
+
+        if (!hasSpace) {
+            QMutexLocker condLocker(mutex);
+            cond->wait(mutex);
+        }
+    } while (!hasSpace);
+
+    {
+        QReadLocker locker(&this->d->m_slotsLock);
+
+        if (slotIndex >= this->d->m_slots.size())
+            return 0;
+
+        auto *slot = this->d->m_slots[slotIndex].get();
+
+        if (!slot)
+            return 0;
+
+        size_t written = 0;
+
+        if (planar) {
+            for (int channel = 0; channel < channels; ++channel) {
+                auto sourceData = reinterpret_cast<const float *>(mixPacket.constPlane(channel));
+                written += slot->rings[channel].write(sourceData, nSamples);
+            }
+        } else {
+            auto sourceData = reinterpret_cast<const float *>(mixPacket.constData());
+            written += slot->rings[0].write(sourceData, nSamples * channels);
+        }
+
+        return written;
+    }
+}
+
+void AkAudioMixer::setInputs(size_t inputs)
+{
+    {
+        QWriteLocker locker(&this->d->m_slotsLock);
+
+        if (this->d->m_inputs == inputs)
+            return;
+
+        this->d->m_inputs = inputs;
+    }
+
+    emit this->inputsChanged(inputs);
 }
 
 void AkAudioMixer::setOutputCaps(const AkAudioCaps &outputCaps)
 {
-    if (this->d->m_outputCaps == outputCaps)
-        return;
+    {
+        QWriteLocker locker(&this->d->m_slotsLock);
 
-    this->d->m_outputCaps = outputCaps;
-    this->d->m_outputConverter.setOutputCaps(outputCaps);
+        if (this->d->m_outputCaps == outputCaps)
+            return;
+
+        this->d->m_outputCaps = outputCaps;
+    }
+
     emit this->outputCapsChanged(outputCaps);
 }
 
 void AkAudioMixer::setLatency(int latency)
 {
-    if (this->d->m_latency == latency)
-        return;
+    {
+        QWriteLocker locker(&this->d->m_slotsLock);
 
-    this->d->m_latency = latency;
-    emit this->latencyChanged(latency);
-}
+        if (this->d->m_latency == latency)
+            return;
 
-bool AkAudioMixer::setState(AkElement::ElementState state)
-{
-    if (this->d->m_state == state)
-        return false;
-
-    if (state == AkElement::ElementStatePlaying) {
-        {
-            QMutexLocker locker(&this->d->m_slotsMutex);
-
-            if (!this->d->allocateSources())
-                return false;
-        }
-
-        this->d->startMixLoop();
-    } else {
-        this->d->stopMixLoop();
-        this->d->clearSources();
+        this->d->m_latency = latency;
     }
 
-    this->d->m_state = state;
-    emit this->stateChanged(state);
-
-    return true;
+    emit this->latencyChanged(latency);
 }
 
 void AkAudioMixer::resetInputs()
@@ -165,89 +360,85 @@ void AkAudioMixer::resetOutputCaps()
     this->setOutputCaps({});
 }
 
-void AkAudioMixer::resetState()
-{
-    this->setState(AkElement::ElementStateNull);
-}
-
 void AkAudioMixer::resetLatency()
 {
-    this->setLatency(25);
+    this->setLatency(DEFAULT_LATENCY);
 }
 
-AkPacket AkAudioMixer::iStream(const AkPacket &packet)
+bool AkAudioMixer::allocate()
 {
-    if (this->d->m_state != AkElement::ElementStatePlaying)
-        return {};
+    this->deallocate();
 
-    AkAudioPacket audioPacket(packet);
+    QWriteLocker locker(&this->d->m_slotsLock);
 
-    if (!audioPacket)
-        return {};
+    if (this->d->m_inputs < 1) {
+        qCritical() << "You must define 1 or more inputs for the Mixer";
 
-    const size_t id = size_t(packet.id());
-
-    QMutexLocker locker(&this->d->m_slotsMutex);
-
-    if (int(id) >= this->d->m_slots.size())
-        return {};
-
-    auto &slot = this->d->m_slots[int(id)];
-
-    // Convert incoming packet to mix format.
-    auto mixPacket = slot.converter.convert(audioPacket);
-
-    if (!mixPacket)
-        return {};
-
-    bool planar   = mixPacket.caps().planar();
-    int  channels = mixPacket.caps().channels();
-    auto samples  = int(mixPacket.samples());
-
-    // Write converted samples into the ring buffer(s).
-    if (planar) {
-        for (int c = 0; c < channels; ++c) {
-            auto src = reinterpret_cast<const float *>(mixPacket.constPlane(c));
-            slot.rings[c].write(src, samples);
-        }
-    } else {
-        auto src = reinterpret_cast<const float *>(mixPacket.constData());
-        slot.rings[0].write(src, samples * channels);
+        return false;
     }
 
-    locker.unlock();
+    if (!this->d->m_outputCaps) {
+        qCritical() << "Mixer output caps not set";
 
-    // Wake the mix thread.
-    this->d->m_mixMutex.lock();
-    this->d->m_mixCond.wakeOne();
-    this->d->m_mixMutex.unlock();
+        return false;
+    }
 
-    return {};
+    auto mixCaps = AkAudioMixerPrivate::mixCaps(this->d->m_outputCaps);
+    int rate = mixCaps.rate();
+
+    if (rate < 1)
+        rate = 44100;
+
+    int channels = mixCaps.channels();
+
+    if (channels < 1)
+        channels = 1;
+
+    bool planar = mixCaps.planar();
+    int nSamples = this->d->m_latency * rate / 1000;
+
+    if (nSamples < 1)
+        nSamples = 1;
+
+    this->d->m_slots.resize(this->d->m_inputs);
+
+    for (auto &slot: this->d->m_slots) {
+        slot = std::make_unique<SourceSlot>();
+        slot->converter.setOutputCaps(mixCaps);
+
+        if (planar) {
+            for (int ch = 0; ch < channels; ++ch)
+                slot->rings << AkRingBuffer<float>(nSamples);
+        } else {
+            slot->rings << AkRingBuffer<float>(nSamples * channels);
+        }
+    }
+
+    this->d->m_outputConverter.setOutputCaps(this->d->m_outputCaps);
+    this->d->m_pts = 0;
+
+    return true;
 }
 
-void AkAudioMixer::setInputs(size_t inputs)
+void AkAudioMixer::deallocate()
 {
-    if (this->d->m_inputs == inputs)
-        return;
+    QWriteLocker locker(&this->d->m_slotsLock);
 
-    this->d->m_inputs = inputs;
-    emit this->inputsChanged(inputs);
+    // Wake any producers blocked in write() before clearing the slots.
+    for (auto &slot: this->d->m_slots)
+        if (slot)
+            slot->notFull.wakeAll();
+
+    // Move to a local variable so slots outlive the write-lock.
+    // This guarantees that any thread still in wait() sees valid
+    // QMutex/QWaitCondition objects until it returns from wait().
+    auto oldSlots = std::move(this->d->m_slots);
 }
 
 void AkAudioMixer::registerTypes()
 {
     qRegisterMetaType<AkAudioMixer>("AkAudioMixer");
     qmlRegisterType<AkAudioMixer>("Ak", 1, 0, "AkAudioMixer");
-}
-
-AkAudioMixerPrivate::AkAudioMixerPrivate(AkAudioMixer *self):
-    self(self)
-{
-}
-
-AkAudioMixerPrivate::~AkAudioMixerPrivate()
-{
-    this->stopMixLoop();
 }
 
 AkAudioCaps AkAudioMixerPrivate::mixCaps(const AkAudioCaps &outputCaps)
@@ -261,179 +452,40 @@ AkAudioCaps AkAudioMixerPrivate::mixCaps(const AkAudioCaps &outputCaps)
             outputCaps.rate()};
 }
 
-bool AkAudioMixerPrivate::allocateSources()
-{
-    if (this->m_inputs < 1) {
-        qCritical() << "You must define 1 or more inputs for the Mixer";
-
-        return false;
-    }
-
-    if (!this->m_outputCaps) {
-        qCritical() << "Mixer output caps not set";
-
-        return false;
-    }
-
-    auto caps     = mixCaps(this->m_outputCaps);
-    int  channels = caps.channels();
-    bool planar   = caps.planar();
-    int  nSamples = this->m_latency * caps.rate() / 1000;
-    int  ringCap  = RING_BUFFER_MULTIPLIER * nSamples;
-
-    this->m_slots.resize(this->m_inputs);
-
-    for (auto &slot: this->m_slots) {
-        slot.converter.setOutputCaps(caps);
-
-        // Allocate one ring per channel for planar, one ring for interleaved.
-        int nRings = planar? channels: 1;
-        int samplesPerRing = planar? ringCap: ringCap * channels;
-        slot.rings.resize(nRings);
-
-        for (auto &ring: slot.rings)
-            ring.allocate(samplesPerRing);
-    }
-
-    return true;
-}
-
-void AkAudioMixerPrivate::clearSources()
-{
-    this->m_slots.clear();
-}
-
-void AkAudioMixerPrivate::startMixLoop()
-{
-    if (this->m_run)
-        return;
-
-    this->m_run = true;
-    this->m_mixLoopResult =
-            QtConcurrent::run(&this->m_threadPool,
-                              &AkAudioMixerPrivate::mixLoop,
-                              this);
-}
-
-void AkAudioMixerPrivate::stopMixLoop()
-{
-    if (!this->m_run)
-        return;
-
-    this->m_run = false;
-    this->m_mixMutex.lock();
-    this->m_mixCond.wakeAll();
-    this->m_mixMutex.unlock();
-    this->m_mixLoopResult.waitForFinished();
-}
-
-void AkAudioMixerPrivate::mixLoop()
-{
-    auto caps     = AkAudioMixerPrivate::mixCaps(this->m_outputCaps);
-    int  channels = caps.channels();
-    bool planar   = caps.planar();
-    int  nSamples = this->m_latency * this->m_outputCaps.rate() / 1000;
-
-    // Duration of one output frame in microseconds.
-    qint64 frameDurationUs = qint64(nSamples) * 1000000LL / caps.rate();
-
-    int tmpSize = planar ? nSamples : channels * nSamples;
-    auto tmp = new float[tmpSize];
-    AkAudioPacket mixPacket(caps, nSamples);
-    qint64 streamId = Ak::id();
-
-    QElapsedTimer et;
-    et.start();
-    qint64 nextWakeUs = et.nsecsElapsed() / 1000;
-
-    while (this->m_run) {
-        // Sleep until either new data arrives or the next frame deadline.
-        qint64 nowUs   = et.nsecsElapsed() / 1000;
-        qint64 sleepMs = (nextWakeUs - nowUs + 999) / 1000;
-
-        if (sleepMs > 0) {
-            this->m_mixMutex.lock();
-            this->m_mixCond.wait(&this->m_mixMutex, ulong(sleepMs));
-            this->m_mixMutex.unlock();
-        }
-
-        if (!this->m_run)
-            break;
-
-        // Not yet time to produce the next frame — go back to sleep.
-        nowUs = et.nsecsElapsed() / 1000;
-
-        if (nowUs < nextWakeUs)
-            continue;
-
-        nextWakeUs += frameDurationUs;
-
-        memset(mixPacket.data(), 0, mixPacket.size());
-
-        this->m_slotsMutex.lock();
-
-        for (auto &slot: this->m_slots) {
-            if (planar) {
-                for (int c = 0; c < channels; ++c) {
-                    // Only mix this channel if enough real samples are available.
-                    // If not, it contributes silence (buffer is already zeroed).
-                    if (slot.rings[c].availableRead() >= nSamples) {
-                        slot.rings[c].read(tmp, nSamples);
-                        auto acc = reinterpret_cast<float *>(mixPacket.plane(c));
-
-                        for (int i = 0; i < nSamples; ++i)
-                            acc[i] += tmp[i];
-                    }
-                }
-            } else {
-                // Interleaved: single ring holds channels * nSamples floats.
-                int needed = channels * nSamples;
-
-                if (slot.rings[0].availableRead() >= needed) {
-                    slot.rings[0].read(tmp, needed);
-                    auto acc = reinterpret_cast<float *>(mixPacket.data());
-
-                    for (int i = 0; i < needed; ++i)
-                        acc[i] += tmp[i];
-                }
-            }
-        }
-
-        this->m_slotsMutex.unlock();
-
-        normalizeFrame(mixPacket);
-
-        // Convert to outputCaps if needed, then emit.
-        auto converted = this->m_outputConverter.convert(mixPacket);
-        converted.setPts(et.elapsed() * caps.rate() / 1000);
-        converted.setDuration(nSamples);
-        converted.setTimeBase({1, caps.rate()});
-        converted.setIndex(0);
-        converted.setId(streamId);
-
-        if (converted)
-            emit this->self->oStream(converted);
-    }
-
-    delete[] tmp;
-}
-
 void AkAudioMixerPrivate::normalizeFrame(AkAudioPacket &packet)
 {
-    auto data = reinterpret_cast<float *>(packet.data());
-    size_t totalSamples = packet.size() / sizeof(float);
+    const auto caps = packet.caps();
+    const int channels = caps.channels();
+    const int nSamples = int(packet.samples());
     float peak = 1.0f;
 
-    for (size_t i = 0; i < totalSamples; ++i) {
-        float value = qAbs(data[i]);
+    if (caps.planar()) {
+        for (int channel = 0; channel < channels; ++channel) {
+            auto data = reinterpret_cast<float *>(packet.plane(channel));
 
-        if (value > peak)
-            peak = value;
-    }
+            for (int i = 0; i < nSamples; ++i)
+                peak = qMax(peak, qAbs(data[i]));
+        }
 
-    if (peak > 1.0f)
+        if (peak > 1.0f) {
+            for (int channel = 0; channel < channels; ++channel) {
+                auto data = reinterpret_cast<float *>(packet.plane(channel));
+
+                for (int i = 0; i < nSamples; ++i)
+                    data[i] /= peak;
+            }
+        }
+    } else {
+        const int totalSamples = nSamples * channels;
+        auto data = reinterpret_cast<float *>(packet.data());
+
         for (int i = 0; i < totalSamples; ++i)
-            data[i] /= peak;
+            peak = qMax(peak, qAbs(data[i]));
+
+        if (peak > 1.0f)
+            for (int i = 0; i < totalSamples; ++i)
+                data[i] /= peak;
+    }
 }
 
 #include "moc_akaudiomixer.cpp"

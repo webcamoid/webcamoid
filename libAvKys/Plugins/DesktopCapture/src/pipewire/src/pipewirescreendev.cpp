@@ -591,9 +591,11 @@ void PipewireScreenDev::setFps(const AkFrac &fps)
     if (this->d->m_fps == fps)
         return;
 
-    this->d->m_mutex.lock();
-    this->d->m_fps = fps;
-    this->d->m_mutex.unlock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_fps = fps;
+    }
+
     emit this->fpsChanged(fps);
 }
 
@@ -994,38 +996,38 @@ void PipewireScreenDevPrivate::initPipewire(int pipewireFd)
     auto minFrameSize = SPA_RECTANGLE(1, 1);
     auto maxFrameSize = SPA_RECTANGLE(8192, 4320);
 
-    this->m_mutex.lock();
-    auto fps = this->m_fps;
-    this->m_mutex.unlock();
+    {
+        QMutexLocker locker(&this->m_mutex);
+        auto fps = this->m_fps;
+        auto defFps = SPA_FRACTION(quint32(fps.num()), quint32(fps.den()));
+        auto minFps = SPA_FRACTION(0, 1);
+        auto maxFps = SPA_FRACTION(1000, 1);
 
-    auto defFps = SPA_FRACTION(quint32(fps.num()), quint32(fps.den()));
-    auto minFps = SPA_FRACTION(0, 1);
-    auto maxFps = SPA_FRACTION(1000, 1);
-
-    params << reinterpret_cast<const spa_pod *>(
-                  spa_pod_builder_add_object(&podBuilder,
-                                             SPA_TYPE_OBJECT_Format ,
-                                                 SPA_PARAM_EnumFormat,
-                                             SPA_FORMAT_mediaType,
-                                                 SPA_POD_Id(SPA_MEDIA_TYPE_video),
-                                             SPA_FORMAT_mediaSubtype,
-                                                 SPA_POD_Id(SPA_MEDIA_SUBTYPE_raw),
-                                             SPA_FORMAT_VIDEO_format,
-                                                 SPA_POD_CHOICE_ENUM_Id(6,
-                                                                        SPA_VIDEO_FORMAT_RGB,
-                                                                        SPA_VIDEO_FORMAT_BGR,
-                                                                        SPA_VIDEO_FORMAT_RGBA,
-                                                                        SPA_VIDEO_FORMAT_BGRA,
-                                                                        SPA_VIDEO_FORMAT_RGBx,
-                                                                        SPA_VIDEO_FORMAT_BGRx),
-                                             SPA_FORMAT_VIDEO_size,
-                                                 SPA_POD_CHOICE_RANGE_Rectangle(&defFrameSize,
-                                                                                &minFrameSize,
-                                                                                &maxFrameSize),
-                                             SPA_FORMAT_VIDEO_framerate,
-                                                 SPA_POD_CHOICE_RANGE_Fraction(&defFps,
-                                                                               &minFps,
-                                                                               &maxFps)));
+        params << reinterpret_cast<const spa_pod *>(
+                      spa_pod_builder_add_object(&podBuilder,
+                                                 SPA_TYPE_OBJECT_Format ,
+                                                     SPA_PARAM_EnumFormat,
+                                                 SPA_FORMAT_mediaType,
+                                                     SPA_POD_Id(SPA_MEDIA_TYPE_video),
+                                                 SPA_FORMAT_mediaSubtype,
+                                                     SPA_POD_Id(SPA_MEDIA_SUBTYPE_raw),
+                                                 SPA_FORMAT_VIDEO_format,
+                                                     SPA_POD_CHOICE_ENUM_Id(6,
+                                                                            SPA_VIDEO_FORMAT_RGB,
+                                                                            SPA_VIDEO_FORMAT_BGR,
+                                                                            SPA_VIDEO_FORMAT_RGBA,
+                                                                            SPA_VIDEO_FORMAT_BGRA,
+                                                                            SPA_VIDEO_FORMAT_RGBx,
+                                                                            SPA_VIDEO_FORMAT_BGRx),
+                                                 SPA_FORMAT_VIDEO_size,
+                                                     SPA_POD_CHOICE_RANGE_Rectangle(&defFrameSize,
+                                                                                    &minFrameSize,
+                                                                                    &maxFrameSize),
+                                                 SPA_FORMAT_VIDEO_framerate,
+                                                     SPA_POD_CHOICE_RANGE_Fraction(&defFps,
+                                                                                   &minFps,
+                                                                                   &maxFps)));
+    }
 
     this->pwStreamConnect(this->m_pwStream,
                           PW_DIRECTION_INPUT,
@@ -1110,9 +1112,8 @@ void PipewireScreenDevPrivate::streamParamChangedEvent(void *userData,
         AkFrac fps(videoInfo.framerate.num, videoInfo.framerate.denom);
 
         if (qCeil(fps.value()) < 1) {
-            self->m_mutex.lock();
+            QMutexLocker locker(&self->m_mutex);
             fps = self->m_fps;
-            self->m_mutex.unlock();
         }
 
         self->m_curCaps = {spaFmtToAk[videoInfo.format],

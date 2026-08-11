@@ -789,6 +789,11 @@ ApplicationWindow {
         height: parent.height
         model: moviesGallery.model
     }
+    FirstRunFallbackDialog {
+        id: firstRunFallbackDialog
+        anchors.centerIn: Overlay.overlay
+        visible: mediaTools.firstRun && videoLayer.cameras.length < 1
+    }
     CaptureSettingsDialog {
         id: captureSettingsDialog
         anchors.centerIn: Overlay.overlay

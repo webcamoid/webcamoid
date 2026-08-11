@@ -447,8 +447,9 @@ void ConvertVideoFFmpegPrivate::dataLoop(ConvertVideoFFmpeg *stream)
 
 void ConvertVideoFFmpegPrivate::deleteFrame(AVFrame *frame)
 {
-    av_freep(&frame->data[0]);
-    frame->data[0] = nullptr;
+    if (!frame)
+        return;
+
     av_frame_unref(frame);
     av_frame_free(&frame);
 }
@@ -615,18 +616,17 @@ AkVideoPacket ConvertVideoFFmpegPrivate::convert(const AVFrame *frame)
 AVFrame *ConvertVideoFFmpegPrivate::copyFrame(AVFrame *frame) const
 {
     auto oFrame = av_frame_alloc();
-    oFrame->width = frame->width;
-    oFrame->height = frame->height;
-    oFrame->format = frame->format;
+
+    if (!oFrame)
+        return nullptr;
+
+    if (av_frame_ref(oFrame, frame) < 0) {
+        av_frame_free(&oFrame);
+
+        return nullptr;
+    }
+
     oFrame->pts = frame->pts;
-    av_image_alloc(oFrame->data,
-                   oFrame->linesize,
-                   oFrame->width,
-                   oFrame->height,
-                   AVPixelFormat(oFrame->format),
-                   1);
-    av_frame_copy(oFrame, frame);
-    av_frame_copy_props(oFrame, frame);
 
     return oFrame;
 }

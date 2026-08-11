@@ -882,6 +882,19 @@
     </message>
 </context>
 <context>
+    <name>FirstRunFallbackDialog</name>
+    <message>
+        <location filename="../qml/FirstRunFallbackDialog.qml" line="31"/>
+        <source>Camera not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/FirstRunFallbackDialog.qml" line="41"/>
+        <source>It was not found any connected camera.&lt;br/&gt;Fallingback to the screen capture.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>GeneralConfig</name>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="28"/>
@@ -1295,7 +1308,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1226"/>
+        <location filename="../../src/mediatools.cpp" line="1270"/>
         <source>%1/log %2.txt</source>
         <translation>%1/log %2.txt</translation>
     </message>
@@ -1399,165 +1412,165 @@
 <context>
     <name>QObject</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="724"/>
+        <location filename="../../src/videolayer.cpp" line="848"/>
         <source>3GP Video</source>
         <translation>3GP 影片</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="725"/>
+        <location filename="../../src/videolayer.cpp" line="849"/>
         <source>AVI Video</source>
         <translation>AVI 影片</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="726"/>
+        <location filename="../../src/videolayer.cpp" line="850"/>
         <source>Windows Bitmap</source>
         <translation>Windows 點陣圖</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="727"/>
+        <location filename="../../src/videolayer.cpp" line="851"/>
         <source>Microsoft Windows Cursor</source>
         <translation>Microsoft Windows 游標</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="729"/>
+        <location filename="../../src/videolayer.cpp" line="853"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
         <translation>Flash 影片</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="730"/>
+        <location filename="../../src/videolayer.cpp" line="854"/>
         <source>Animated GIF</source>
         <translation>動畫 GIF</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="731"/>
+        <location filename="../../src/videolayer.cpp" line="855"/>
         <source>Graphic Interchange Format</source>
         <translation>圖形交換格式</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="732"/>
+        <location filename="../../src/videolayer.cpp" line="856"/>
         <source>Apple Icon Image</source>
         <translation>Apple 圖示圖像</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="733"/>
+        <location filename="../../src/videolayer.cpp" line="857"/>
         <source>Microsoft Windows Icon</source>
         <translation>Microsoft Windows 圖示</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="734"/>
+        <location filename="../../src/videolayer.cpp" line="858"/>
         <source>Joint Photographic Experts Group</source>
         <translation>聯合圖像專家小組</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="735"/>
+        <location filename="../../src/videolayer.cpp" line="859"/>
         <source>MKV Video</source>
         <translation>MKV 影片</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="736"/>
+        <location filename="../../src/videolayer.cpp" line="860"/>
         <source>Animated PNG</source>
         <translation>動畫 PNG</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="737"/>
+        <location filename="../../src/videolayer.cpp" line="861"/>
         <source>Multiple-image Network Graphics</source>
         <translation>多圖像網絡圖形</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="738"/>
+        <location filename="../../src/videolayer.cpp" line="862"/>
         <source>QuickTime Video</source>
         <translation>QuickTime 影片</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="739"/>
+        <location filename="../../src/videolayer.cpp" line="863"/>
         <source>MP4 Video</source>
         <translation>MP4 影片</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="740"/>
+        <location filename="../../src/videolayer.cpp" line="864"/>
         <source>MPEG Video</source>
         <translation>MPEG 影片</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="741"/>
+        <location filename="../../src/videolayer.cpp" line="865"/>
         <source>Ogg Video</source>
         <translation>Ogg 影片</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="742"/>
+        <location filename="../../src/videolayer.cpp" line="866"/>
         <source>Portable Bitmap</source>
         <translation>可攜式點陣圖</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="743"/>
+        <location filename="../../src/videolayer.cpp" line="867"/>
         <source>Portable Graymap</source>
         <translation>可攜式灰階圖</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="744"/>
+        <location filename="../../src/videolayer.cpp" line="868"/>
         <source>Portable Network Graphics</source>
         <translation>可攜式網絡圖形</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="745"/>
+        <location filename="../../src/videolayer.cpp" line="869"/>
         <source>Portable Pixmap</source>
         <translation>可攜式像素圖</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="747"/>
+        <location filename="../../src/videolayer.cpp" line="871"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
         <translation>RealMedia 影片</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="748"/>
+        <location filename="../../src/videolayer.cpp" line="872"/>
         <source>Scalable Vector Graphics</source>
         <translation>可縮放向量圖形</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="749"/>
+        <location filename="../../src/videolayer.cpp" line="873"/>
         <source>Truevision TGA</source>
         <translation>Truevision TGA</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="750"/>
+        <location filename="../../src/videolayer.cpp" line="874"/>
         <source>Tagged Image File Format</source>
         <translation>標籤圖像檔案格式</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="751"/>
+        <location filename="../../src/videolayer.cpp" line="875"/>
         <source>DVD Video</source>
         <translation>DVD 影片</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="752"/>
+        <location filename="../../src/videolayer.cpp" line="876"/>
         <source>Wireless Bitmap</source>
         <translation>無線點陣圖</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="753"/>
+        <location filename="../../src/videolayer.cpp" line="877"/>
         <source>WebM Video</source>
         <translation>WebM 影片</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="756"/>
+        <location filename="../../src/videolayer.cpp" line="880"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
         <translation>Windows Media 影片</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="757"/>
+        <location filename="../../src/videolayer.cpp" line="881"/>
         <source>X11 Bitmap</source>
         <translation>X11 點陣圖</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="758"/>
+        <location filename="../../src/videolayer.cpp" line="882"/>
         <source>X11 Pixmap</source>
         <translation>X11 像素圖</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="754"/>
+        <location filename="../../src/videolayer.cpp" line="878"/>
         <source>WebP</source>
         <translation>WebP</translation>
     </message>
@@ -1604,7 +1617,7 @@
         <translation>開啟新的 %1 實例。</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1512"/>
+        <location filename="../../src/recording.cpp" line="1509"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/影片 %2.%3</translation>
     </message>
@@ -2197,6 +2210,19 @@
     </message>
 </context>
 <context>
+    <name>VideoInputAddCamera</name>
+    <message>
+        <location filename="../qml/VideoInputAddCamera.qml" line="30"/>
+        <source>Select the camera to add</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddCamera.qml" line="55"/>
+        <source>Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>VideoInputAddEdit</name>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="185"/>
@@ -2298,14 +2324,19 @@
 <context>
     <name>VideoInputs</name>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="105"/>
+        <location filename="../qml/VideoInputs.qml" line="107"/>
         <source>Configure source</source>
         <translation>設定來源</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="63"/>
+        <location filename="../qml/VideoInputs.qml" line="56"/>
         <source>Add source</source>
         <translation>新增來源</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="68"/>
+        <source>Add camera</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="76"/>
@@ -2318,35 +2349,30 @@
         <translation>新增螢幕來源</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="83"/>
+        <location filename="../qml/VideoInputs.qml" line="84"/>
         <source>Add window</source>
         <translation>新增視窗</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="91"/>
+        <location filename="../qml/VideoInputs.qml" line="93"/>
         <source>Add media file</source>
         <translation>新增媒體檔案</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="97"/>
+        <location filename="../qml/VideoInputs.qml" line="99"/>
         <source>Add media URL</source>
         <translation>新增媒體 URL</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputs.qml" line="117"/>
-        <source>No cameras found</source>
-        <translation>找不到鏡頭</translation>
     </message>
 </context>
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="131"/>
+        <location filename="../../src/videolayer.cpp" line="141"/>
         <source>All Image and Video Files</source>
         <translation>所有圖像及影片檔案</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="168"/>
+        <location filename="../../src/videolayer.cpp" line="178"/>
         <source>All Files</source>
         <translation>所有檔案</translation>
     </message>
@@ -2354,12 +2380,12 @@
 <context>
     <name>VideoOptions</name>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="45"/>
+        <location filename="../qml/VideoOptions.qml" line="46"/>
         <source>Sources</source>
         <translation>來源</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="48"/>
+        <location filename="../qml/VideoOptions.qml" line="49"/>
         <source>Outputs</source>
         <translation>輸出</translation>
     </message>
@@ -4397,11 +4423,6 @@
         <location filename="../../../libAvKys/Plugins/MultiSrc/src/share/qml/main.qml" line="147"/>
         <source>Subtitles track</source>
         <translation>字幕軌道</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/MultiSrc/src/share/qml/main.qml" line="160"/>
-        <source>Synchronise</source>
-        <translation>同步</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Opacity/share/qml/main.qml" line="28"/>

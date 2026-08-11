@@ -71,6 +71,7 @@ class CaptureV4L2: public Capture
         void resetIoMethod() override;
         void resetNBuffers() override;
         void reset() override;
+        void updateDevices() override;
 };
 
 #endif // CAPTUREV4L2_H

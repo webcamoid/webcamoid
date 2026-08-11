@@ -30,17 +30,27 @@ set(CMAKE_AUTORCC ON)
 set(QT_COMPONENTS
     Widgets)
 
-if (ANDROID)
-    list(APPEND QT_COMPONENTS
-         CorePrivate)
-endif()
-
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
+
+include(CheckCXXSourceCompiles)
+set(CMAKE_REQUIRED_LIBRARIES Qt${QT_VERSION_MAJOR}::Core)
+check_cxx_source_compiles("
+#include <QJniObject>
+int main() { return 0; }
+" QJNIOBJECT_FOUND)
+
+if (ANDROID AND QJNIOBJECT_FOUND)
+    list(APPEND QT_COMPONENTS
+         CorePrivate)
+    find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
+                 CorePrivate
+                 REQUIRED)
+endif()
 
 set(SOURCES
     ../../audiodev.cpp
@@ -51,7 +61,7 @@ set(SOURCES
     plugin.h
     pspec.json)
 
-if (ANDROID)
+if (ANDROID AND QJNIOBJECT_FOUND)
     qt_add_plugin(AudioDevice_androidaudiosrc
                   SHARED
                   CLASS_NAME Plugin)
@@ -83,7 +93,7 @@ target_link_libraries(AudioDevice_androidaudiosrc
                       ${QT_LIBS}
                       avkys)
 
-if (ANDROID)
+if (ANDROID AND QJNIOBJECT_FOUND)
     target_link_libraries(AudioDevice_androidaudiosrc
                           PRIVATE
                           Qt${QT_VERSION_MAJOR}::CorePrivate)

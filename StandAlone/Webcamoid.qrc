@@ -29,6 +29,7 @@
         <file>share/qml/DownloadDialog.qml</file>
         <file>share/qml/DownloadFailedDialog.qml</file>
         <file>share/qml/DownloadSucceededDialog.qml</file>
+        <file>share/qml/FirstRunFallbackDialog.qml</file>
         <file>share/qml/Flash.qml</file>
         <file>share/qml/GeneralConfig.qml</file>
         <file>share/qml/ImageCapture.qml</file>
@@ -68,6 +69,7 @@
         <file>share/qml/VideoEffectsList.qml</file>
         <file>share/qml/VideoFormatItem.qml</file>
         <file>share/qml/VideoFormatOptions.qml</file>
+        <file>share/qml/VideoInputAddCamera.qml</file>
         <file>share/qml/VideoInputAddEdit.qml</file>
         <file>share/qml/VideoInputAddScreen.qml</file>
         <file>share/qml/VideoInputAddWindow.qml</file>

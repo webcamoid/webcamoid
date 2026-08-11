@@ -100,6 +100,8 @@ AudioDevNDKAudio::AudioDevNDKAudio(QObject *parent):
 
             if (eventDispatcher)
                 eventDispatcher->processEvents(QEventLoop::AllEvents);
+
+            QThread::msleep(1);
         }
     }
 #endif

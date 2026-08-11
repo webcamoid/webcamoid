@@ -140,7 +140,6 @@ class AudioInputs: public QObject
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
 
     private slots:
-        void sendPacket(const AkPacket &packet);
         void privInputsChanged(const QStringList &inputs);
 };
 

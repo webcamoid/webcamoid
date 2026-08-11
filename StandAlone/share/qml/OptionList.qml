@@ -30,9 +30,18 @@ Container {
     Accessible.role: Accessible.MenuBar
 
     property bool enableHighlight: true
+    property var clickHandlers: []
 
     function setupChildrens() {
-        for (var i in contentChildren) {
+        // Desconectamos todos los handlers que conectamos la vez anterior
+        for (var j = 0; j < clickHandlers.length; j++) {
+            var entry = clickHandlers[j]
+            if (entry.item && entry.item.onClicked != null)
+                entry.item.onClicked.disconnect(entry.handler)
+        }
+        clickHandlers = []
+
+        for (var i = 0; i < contentChildren.length; i++) {
             contentChildren[i].parent = container
 
             if (enableHighlight && contentChildren[i].highlighted != null)
@@ -40,21 +49,31 @@ Container {
 
             contentChildren[i].width = container.width
 
-            if (contentChildren[i].onClicked != null)
-                contentChildren[i].onClicked.connect((i => () => setCurrentIndex(i))(i))
+            if (contentChildren[i].onClicked != null) {
+                var handler = (idx => () => setCurrentIndex(idx))(i)
+                contentChildren[i].onClicked.connect(handler)
+                clickHandlers.push({ item: contentChildren[i], handler: handler })
+            }
+        }
+    }
 
-            onCurrentIndexChanged.connect((i => function () {
-                let item = itemAt(i)
+    // Un único handler para toda la lista
+    function updateHighlights() {
+        if (!enableHighlight)
+            return
+        for (var i = 0; i < count; i++) {
+            var item = itemAt(i)
+            if (item && item.highlighted != null)
+                item.highlighted = (i == currentIndex)
+        }
+    }
 
-                if (enableHighlight && item && item.highlighted != null)
-                    item.highlighted = i == currentIndex
-            })(i))
-            container.onWidthChanged.connect((i => function () {
-                var obj = itemAt(i)
-
-                if (obj)
-                    obj.width = container.width
-            })(i))
+    // Un único handler para toda la lista
+    function updateWidths() {
+        for (var i = 0; i < count; i++) {
+            var item = itemAt(i)
+            if (item)
+                item.width = container.width
         }
     }
 
@@ -71,8 +90,14 @@ Container {
             incrementCurrentIndex()
     }
 
-    Component.onCompleted: setupChildrens()
+    Component.onCompleted: {
+        setupChildrens()
+        onCurrentIndexChanged.connect(updateHighlights)
+        onWidthChanged.connect(updateWidths)
+    }
+
     onContentChildrenChanged: setupChildrens()
+
     onCurrentItemChanged:
         if (currentItem)
             currentItem.forceActiveFocus()

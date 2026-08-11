@@ -2,7 +2,7 @@
  * Copyright (C) 2026  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
+ // * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  *
@@ -153,10 +153,12 @@ AkGLCompositor::~AkGLCompositor()
 {
     this->setState(AkElement::ElementStateNull);
 
-    QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
+    {
+        QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
 
-    for (auto &source: this->d->m_sources)
-        delete source;
+        for (auto &source: this->d->m_sources)
+            delete source;
+    }
 
     delete this->d;
 }
@@ -236,10 +238,17 @@ bool AkGLCompositor::isEmpty() const
 
 qint64 AkGLCompositor::addSource()
 {
-    auto id = Ak::id();
+    return this->addSource(Ak::id());
+}
 
+qint64 AkGLCompositor::addSource(qint64 id)
+{
     {
         QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
+
+        if (this->d->m_sources.contains(id))
+            return id;
+
         this->d->m_sources[id] = new AkGLCompositorSource;
         this->d->m_zOrderDirty = true;
     }
@@ -260,8 +269,12 @@ void AkGLCompositor::removeSource(qint64 id)
 
     QMutexLocker mutexLocker(&this->d->m_pendingRemovalsMutex);
 
-    if (!this->d->m_pendingRemovals.contains(id))
-        this->d->m_pendingRemovals << id;
+    if (this->d->m_renderThread && this->d->m_renderThread->isRunning()) {
+        if (!this->d->m_pendingRemovals.contains(id))
+            this->d->m_pendingRemovals << id;
+    } else {
+        this->d->m_sources.remove(id);
+    }
 
     this->d->m_zOrderDirty = true;
 }
@@ -611,27 +624,34 @@ void AkGLCompositor::applyPreview()
 
 void AkGLCompositor::setSourceRect(qint64 id, const QRectF &rect)
 {
-    QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
-    auto source = this->d->m_sources.value(id, nullptr);
-
-    if (!source)
-        return;
+    bool changed = false;
 
     {
-        QMutexLocker sourceLocker(&source->mutex);
+        QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
+        auto source = this->d->m_sources.value(id, nullptr);
 
-        if (source->rect == rect)
+        if (!source)
             return;
 
-        source->rect = rect;
+        {
+            QMutexLocker sourceLocker(&source->mutex);
+
+            if (source->rect == rect)
+                return;
+
+            source->rect = rect;
+            changed = true;
+        }
     }
 
-    mutexLocker.unlock();
-    emit this->sourceRectChanged(id, rect);
+    if (changed)
+        emit this->sourceRectChanged(id, rect);
 }
 
 void AkGLCompositor::setSourceZOrder(qint64 id, int zOrder)
 {
+    bool changed = false;
+
     {
         QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
         auto source = this->d->m_sources.value(id, nullptr);
@@ -646,60 +666,74 @@ void AkGLCompositor::setSourceZOrder(qint64 id, int zOrder)
                 return;
 
             source->zOrder = zOrder;
+            changed = true;
         }
 
-        this->d->m_zOrderDirty = true;
+        if (changed)
+            this->d->m_zOrderDirty = true;
     }
 
-    emit this->sourceZOrderChanged(id, zOrder);
+    if (changed)
+        emit this->sourceZOrderChanged(id, zOrder);
 }
 
 void AkGLCompositor::setSourceOpacity(qint64 id, qreal opacity)
 {
-    QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
-    auto source = this->d->m_sources.value(id, nullptr);
-
-    if (!source)
-        return;
+    bool changed = false;
 
     {
-        QMutexLocker sourceLocker(&source->mutex);
+        QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
+        auto source = this->d->m_sources.value(id, nullptr);
 
-        if (qFuzzyCompare(source->opacity, opacity))
+        if (!source)
             return;
 
-        source->opacity = opacity;
+        {
+            QMutexLocker sourceLocker(&source->mutex);
+
+            if (qFuzzyCompare(source->opacity, opacity))
+                return;
+
+            source->opacity = opacity;
+            changed = true;
+        }
     }
 
-    mutexLocker.unlock();
-    emit this->sourceOpacityChanged(id, opacity);
+    if (changed)
+        emit this->sourceOpacityChanged(id, opacity);
 }
 
 void AkGLCompositor::setSourceAspectRatioMode(qint64 id,
                                               Qt::AspectRatioMode mode)
 {
-    QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
-    auto source = this->d->m_sources.value(id, nullptr);
-
-    if (!source)
-        return;
+    bool changed = false;
 
     {
-        QMutexLocker sourceLocker(&source->mutex);
+        QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
+        auto source = this->d->m_sources.value(id, nullptr);
 
-        if (source->aspectRatioMode == mode)
+        if (!source)
             return;
 
-        source->aspectRatioMode = mode;
+        {
+            QMutexLocker sourceLocker(&source->mutex);
+
+            if (source->aspectRatioMode == mode)
+                return;
+
+            source->aspectRatioMode = mode;
+            changed = true;
+        }
     }
 
-    mutexLocker.unlock();
-    emit this->sourceAspectRatioModeChanged(id, mode);
+    if (changed)
+        emit this->sourceAspectRatioModeChanged(id, mode);
 }
 
 void AkGLCompositor::setSourceEffects(qint64 id, const QStringList &effects)
 {
     bool wasEmpty = false;
+    bool isEmpty = effects.isEmpty();
 
     {
         QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
@@ -713,8 +747,6 @@ void AkGLCompositor::setSourceEffects(qint64 id, const QStringList &effects)
     }
 
     emit this->sourceEffectsChanged(id, effects);
-
-    bool isEmpty = effects.isEmpty();
 
     if (wasEmpty != isEmpty)
         emit this->sourceIsEmptyChanged(id, isEmpty);
@@ -734,7 +766,6 @@ void AkGLCompositor::setSourcePreview(qint64 id, const QString &preview)
 
         wasEmpty = source->pipeline.isEmpty();
         source->pipeline.setPreview(preview);
-        mutexLocker.unlock();
         isEmpty = source->pipeline.isEmpty();
     }
 
@@ -746,14 +777,15 @@ void AkGLCompositor::setSourcePreview(qint64 id, const QString &preview)
 
 void AkGLCompositor::setSourceChainEffects(qint64 id, bool chainEffects)
 {
-    QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
-    auto source = this->d->m_sources.value(id, nullptr);
+    {
+        QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
+        auto source = this->d->m_sources.value(id, nullptr);
 
-    if (!source)
-        return;
+        if (!source)
+            return;
 
-    source->pipeline.setChainEffects(chainEffects);
-    mutexLocker.unlock();
+        source->pipeline.setChainEffects(chainEffects);
+    }
 
     emit this->sourceChainEffectsChanged(id, chainEffects);
 }
@@ -761,14 +793,15 @@ void AkGLCompositor::setSourceChainEffects(qint64 id, bool chainEffects)
 void AkGLCompositor::setSourcePreserveNullPlugins(qint64 id,
                                                   bool preserveNullPlugins)
 {
-    QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
-    auto source = this->d->m_sources.value(id, nullptr);
+    {
+        QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
+        auto source = this->d->m_sources.value(id, nullptr);
 
-    if (!source)
-        return;
+        if (!source)
+            return;
 
-    source->pipeline.setPreserveNullPlugins(preserveNullPlugins);
-    mutexLocker.unlock();
+        source->pipeline.setPreserveNullPlugins(preserveNullPlugins);
+    }
 
     emit this->sourcePreserveNullPluginsChanged(id, preserveNullPlugins);
 }
@@ -890,10 +923,12 @@ AkPacket AkGLCompositor::iVideoStream(const AkVideoPacket &videoPacket)
         return {};
 
     auto id = videoPacket.id();
+    AkGLCompositorSource *source = nullptr;
 
-    QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
-    auto source = this->d->m_sources.value(id, nullptr);
-    mutexLocker.unlock();
+    {
+        QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
+        source = this->d->m_sources.value(id, nullptr);
+    }
 
     if (!source) {
         qWarning() << "AkGLCompositor::iStream: packet with unknown source id"
@@ -902,17 +937,27 @@ AkPacket AkGLCompositor::iVideoStream(const AkVideoPacket &videoPacket)
         return {};
     }
 
-    QMutexLocker sourceLocker(&source->mutex);
+    bool firstFrame = false;
 
-    source->converter.begin();
-    auto rgbaPacket = source->converter.convert(videoPacket);
-    source->converter.end();
+    {
+        QMutexLocker sourceLocker(&source->mutex);
 
-    if (!rgbaPacket)
-        return {};
+        source->converter.begin();
+        auto rgbaPacket = source->converter.convert(videoPacket);
+        source->converter.end();
 
-    source->lastPacket = rgbaPacket;
-    source->hasFrame = true;
+        if (!rgbaPacket)
+            return {};
+
+        firstFrame = !source->hasFrame;
+        source->lastPacket = rgbaPacket;
+        source->hasFrame = true;
+    }
+
+    if (firstFrame) {
+        QMutexLocker compositorLocker(&this->d->m_sourcesMutex);
+        this->d->m_zOrderDirty = true;
+    }
 
     return {};
 }
@@ -1004,6 +1049,7 @@ void AkGLCompositorPrivate::renderGL()
     this->initGL();
 
     this->m_pipeline.init(self, this->m_vbo, this->m_ibo);
+    emit self->ready();
 
     this->m_clock.start();
     auto fps = this->m_outputCaps.fps();
@@ -1096,36 +1142,35 @@ void AkGLCompositorPrivate::processPendingRemovals()
 void AkGLCompositorPrivate::processTick()
 {
     this->processPendingRemovals();
-
     this->ensureFboSize(this->m_canvasFbo,
                         this->m_outputCaps.width(),
                         this->m_outputCaps.height());
 
-    QMutexLocker mutexLocker(&this->m_sourcesMutex);
+    {
+        QMutexLocker mutexLocker(&this->m_sourcesMutex);
 
-    for (auto &source: this->m_sources) {
-        QMutexLocker sourceLocker(&source->mutex);
+        for (auto &source: this->m_sources) {
+            QMutexLocker sourceLocker(&source->mutex);
 
-        if (!source->glInitialized) {
-            source->pipeline.init(self, this->m_vbo, this->m_ibo);
-            source->glInitialized = true;
-        }
+            if (!source->glInitialized) {
+                source->pipeline.init(self, this->m_vbo, this->m_ibo);
+                source->glInitialized = true;
+            }
 
-        if (source->hasFrame) {
-            this->uploadSource(source);
-            this->ensureFboSize(source->effectFbo,
-                                source->entryFbo->width(),
-                                source->entryFbo->height());
-            auto pts = source->lastPacket.pts()
-                       * source->lastPacket.timeBase().value();
-            source->pipeline.process(source->entryFbo,
+            if (source->hasFrame) {
+                this->uploadSource(source);
+                this->ensureFboSize(source->effectFbo,
+                                    source->entryFbo->width(),
+                                    source->entryFbo->height());
+                auto pts = source->lastPacket.pts()
+                        * source->lastPacket.timeBase().value();
+                source->pipeline.process(source->entryFbo,
                                         source->effectFbo,
                                         source->lastPacket.id(),
                                         pts);
+            }
         }
     }
-
-    mutexLocker.unlock();
 
     this->compositeSourcesIntoCanvas();
     auto pts = this->m_clock.nsecsElapsed();
@@ -1233,7 +1278,6 @@ void AkGLCompositorPrivate::compositeSourcesIntoCanvas()
 
     for (const auto &snap: std::as_const(this->m_orderedSources)) {
         auto transform = this->computeSourceTransform(snap);
-
         self->glUniformMatrix4fv(this->m_compTransformUniform,
                                  1,
                                  GL_FALSE,

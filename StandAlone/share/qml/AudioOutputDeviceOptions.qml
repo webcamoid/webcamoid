@@ -145,7 +145,7 @@ Dialog {
                     let idx = -1
 
                     for (let i = 0; i < model.count; ++i) {
-                        if (model.get(i).sinkId === audioOutputs.audioOutnput) {
+                        if (model.get(i).sinkId === audioOutputs.audioOutput) {
                             idx = i
 
                             break
@@ -160,7 +160,7 @@ Dialog {
                     let idx = -1
 
                     for (let i = 0; i < model.count; ++i) {
-                        if (model.get(i).sinkId === audioOutputs.audioOutnput) {
+                        if (model.get(i).sinkId === audioOutputs.audioOutput) {
                             idx = i
 
                             break
@@ -293,7 +293,7 @@ Dialog {
     onAccepted: {
         if (cbxAudioOutput.currentIndex >= 0) {
             let output = cbxAudioOutput.model.get(cbxAudioOutput.currentIndex)
-            audioOutputs.audioOutnput = output.sinkId
+            audioOutputs.audioOutput = output.sinkId
         }
 
         let audioCaps = AkAudioCaps.create()

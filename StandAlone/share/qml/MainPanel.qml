@@ -112,6 +112,8 @@ OptionsPanel {
         VideoOptions {
             onOpenErrorDialog: (title, message) =>
                 panel.openErrorDialog(title, message)
+            onOpenVideoInputAddCameraDialog:
+                videoInputAddCamera.open()
             onOpenVideoInputAddScreenDialog:
                 videoInputAddScreen.open()
             onOpenVideoInputAddWindowDialog:
@@ -224,6 +226,10 @@ OptionsPanel {
 
     AudioInputAdd {
         id: audioInputAdd
+        anchors.centerIn: Overlay.overlay
+    }
+    VideoInputAddCamera {
+        id: videoInputAddCamera
         anchors.centerIn: Overlay.overlay
     }
     VideoInputAddScreen {

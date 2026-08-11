@@ -566,6 +566,8 @@ CaptureAndroidCamera::CaptureAndroidCamera(QObject *parent):
 
             if (eventDispatcher)
                 eventDispatcher->processEvents(QEventLoop::AllEvents);
+
+            QThread::msleep(1);
         }
     }
 #endif
@@ -1052,6 +1054,11 @@ void CaptureAndroidCamera::reset()
     this->resetStreams();
     this->resetImageControls();
     this->resetCameraControls();
+}
+
+void CaptureAndroidCamera::updateDevices()
+{
+    this->d->updateDevices();
 }
 
 CaptureAndroidCameraPrivate::CaptureAndroidCameraPrivate(CaptureAndroidCamera *self):

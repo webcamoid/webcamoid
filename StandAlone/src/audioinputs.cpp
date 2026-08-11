@@ -22,6 +22,11 @@
 #include <QSettings>
 #include <QQmlContext>
 #include <QQmlApplicationEngine>
+#include <QThread>
+#include <QThreadPool>
+#include <QFuture>
+#include <QElapsedTimer>
+#include <QtConcurrent>
 #include <ak.h>
 #include <akaudiopacket.h>
 #include <akcaps.h>
@@ -59,6 +64,8 @@ class AudioInputsPrivate
         QVector<AudioSource> m_audioSources;
         QVector<VideoSource> m_videoSources;
 
+        QMap<qint64, int> m_streamToSlot;
+
         AkAudioMixer m_mixer;
         QMutex m_mutex;
         AkElement::ElementState m_inputState  {AkElement::ElementStateNull};
@@ -69,7 +76,11 @@ class AudioInputsPrivate
                                   AkAudioCaps::Layout_stereo,
                                   false,
                                   44100};
-        int m_latency {25};
+                                  int m_latency {25};
+
+        QThreadPool m_pushThreadPool;
+        QFuture<void> m_pushLoopResult;
+        bool m_pushRun {false};
 
         explicit AudioInputsPrivate(AudioInputs *self);
 
@@ -77,13 +88,15 @@ class AudioInputsPrivate
         void loadProperties();
         void saveProperties();
         AkAudioCaps closestCaps(const QString &device) const;
+        void startPushLoop();
+        void stopPushLoop();
+        void pushLoop();
 };
 
 AudioInputs::AudioInputs(QQmlApplicationEngine *engine, QObject *parent):
     QObject(parent)
 {
     this->d = new AudioInputsPrivate(this);
-
     this->setQmlEngine(engine);
 
     // Seed the available inputs list from the AudioDevice element.
@@ -92,13 +105,6 @@ AudioInputs::AudioInputs(QQmlApplicationEngine *engine, QObject *parent):
                          SIGNAL(inputsChanged(QStringList)),
                          this,
                          SLOT(privInputsChanged(QStringList)));
-
-    // Connect mixer output to our oStream.
-    QObject::connect(&this->d->m_mixer,
-                     &AkAudioMixer::oStream,
-                     this,
-                     &AudioInputs::sendPacket,
-                     Qt::DirectConnection);
 
     this->d->loadProperties();
 }
@@ -425,8 +431,10 @@ void AudioInputs::setOutputState(AkElement::ElementState state)
         // Start mixer output.
         if (this->d->m_mixer.inputs() > 0) {
             qDebug() << "Mixer output caps" << this->d->m_deviceCaps;
+            this->d->m_mixer.setLatency(4 * this->d->m_latency);
             this->d->m_mixer.setOutputCaps(this->d->m_deviceCaps);
-            this->d->m_mixer.setState(AkElement::ElementStatePlaying);
+            this->d->m_mixer.allocate();
+            this->d->startPushLoop();
         }
 
         this->d->m_outputState = AkElement::ElementStatePlaying;
@@ -446,7 +454,8 @@ void AudioInputs::setOutputState(AkElement::ElementState state)
             return;
 
         // Stop mixer output.
-        this->d->m_mixer.setState(AkElement::ElementStateNull);
+        this->d->stopPushLoop();
+        this->d->m_mixer.deallocate();
         this->d->m_outputState = AkElement::ElementStateNull;
         emit this->outputStateChanged(this->d->m_outputState);
 
@@ -505,23 +514,35 @@ AkPacket AudioInputs::iStream(const AkPacket &packet)
     if (packet.caps().type() != AkCaps::CapsAudio)
         return {};
 
-    AkAudioPacket pkt;
+    qint64 streamId = packet.id();
+    int slotIndex = -1;
+    qreal volume = 1.0;
+    QString media;
 
     {
         QMutexLocker locker(&this->d->m_mutex);
 
-        if (this->d->m_videoSources.isEmpty())
+        slotIndex = this->d->m_streamToSlot.value(streamId, -1);
+
+        if (slotIndex < 0)
             return {};
 
-        auto volume = this->d->m_videoSources.first().volume;
-        pkt = AkAudioPacket(packet).adjustVolume(volume);
-        pkt.setId(this->d->m_audioSources.size());
+        // Find the VideoSource to get its volume and media name.
+        for (auto &vs: this->d->m_videoSources)
+            if (vs.streamId == streamId) {
+                volume = vs.volume;
+                media = vs.media;
+
+                break;
+            }
     }
 
-    this->d->m_mixer.iStream(pkt);
+    AkAudioPacket pkt = AkAudioPacket(packet).adjustVolume(volume);
+    pkt.setId(slotIndex);
+    this->d->m_mixer.write(pkt);
 
     if (this->d->m_inputState == AkElement::ElementStatePlaying)
-        emit this->vumeter(this->d->m_videoSources.first().media, pkt.volume());
+        emit this->vumeter(media, pkt.volume());
 
     return {};
 }
@@ -535,13 +556,6 @@ void AudioInputs::setQmlEngine(QQmlApplicationEngine *engine)
 
     if (engine)
         engine->rootContext()->setContextProperty("audioInputs", this);
-}
-
-void AudioInputs::sendPacket(const AkPacket &packet)
-{
-    auto pkt = packet;
-    pkt.setIndex(1);
-    emit this->oStream(pkt);
 }
 
 void AudioInputs::privInputsChanged(const QStringList &inputs)
@@ -568,6 +582,62 @@ AudioInputsPrivate::AudioInputsPrivate(AudioInputs *self):
 {
 }
 
+void AudioInputsPrivate::startPushLoop()
+{
+    if (this->m_pushRun)
+        return;
+
+    this->m_pushRun = true;
+    this->m_pushLoopResult =
+            QtConcurrent::run(&this->m_pushThreadPool,
+                              &AudioInputsPrivate::pushLoop,
+                              this);
+}
+
+void AudioInputsPrivate::stopPushLoop()
+{
+    if (!this->m_pushRun)
+        return;
+
+    this->m_pushRun = false;
+    this->m_pushLoopResult.waitForFinished();
+}
+
+void AudioInputsPrivate::pushLoop()
+{
+    auto caps = this->m_deviceCaps;
+    int rate = caps.rate() > 0? caps.rate(): 44100;
+    int nSamples = this->m_latency * rate / 1000;
+
+    if (nSamples < 1)
+        nSamples = 1;
+
+    qint64 totalSamples = 0;
+    QElapsedTimer et;
+    et.start();
+
+    while (this->m_pushRun) {
+        qint64 nowUs = et.nsecsElapsed() / 1000;
+        qint64 targetUs = totalSamples * 1000000LL / rate;
+        qint64 sleepUs = targetUs - nowUs;
+
+        if (sleepUs > 0)
+            QThread::usleep(ulong(sleepUs));
+
+        if (!this->m_pushRun)
+            break;
+
+        auto packet = this->m_mixer.read(size_t(nSamples));
+        totalSamples += nSamples;
+
+        if (packet) {
+            AkPacket pkt = packet;
+            pkt.setIndex(1);
+            emit this->self->oStream(pkt);
+        }
+    }
+}
+
 // Rebuild mixer slots from m_activeSources and restart according to the
 // current inputState / outputState.
 void AudioInputsPrivate::rebuildMixer()
@@ -579,9 +649,14 @@ void AudioInputsPrivate::rebuildMixer()
         if (src.element)
             src.element->setState(AkElement::ElementStateNull);
 
-    this->m_mixer.setState(AkElement::ElementStateNull);
+    bool wasPushing = this->m_pushRun;
+    this->stopPushLoop();
+    this->m_mixer.deallocate();
     this->m_mixer.setInputs(this->m_audioSources.size()
                             + this->m_videoSources.size());
+
+    // Rebuild streamId -> slotIndex mapping for video sources.
+    this->m_streamToSlot.clear();
     int streamIndex = 0;
 
     // Reconnect each element to its mixer slot.
@@ -601,7 +676,7 @@ void AudioInputsPrivate::rebuildMixer()
                              [this, streamIndex, device](const AkPacket &pkt) {
                                  auto p = pkt;
                                  p.setId(streamIndex);
-                                 this->m_mixer.iStream(p);
+                                 this->m_mixer.write(p);
 
                                  if (this->m_inputState == AkElement::ElementStatePlaying)
                                      emit this->self->vumeter(device, AkAudioPacket(pkt).volume());
@@ -612,13 +687,19 @@ void AudioInputsPrivate::rebuildMixer()
         streamIndex++;
     }
 
+    // Map video sources to their slots (after audio sources).
+    for (auto &vs: this->m_videoSources)
+        this->m_streamToSlot[vs.streamId] = streamIndex++;
+
     if (this->m_mixer.inputs() < 1)
         return;
 
     // Restore mixer output if it was running.
-    if (this->m_outputState == AkElement::ElementStatePlaying) {
+    if (this->m_outputState == AkElement::ElementStatePlaying || wasPushing) {
+        this->m_mixer.setLatency(4 * this->m_latency);
         this->m_mixer.setOutputCaps(this->m_deviceCaps);
-        this->m_mixer.setState(AkElement::ElementStatePlaying);
+        this->m_mixer.allocate();
+        this->startPushLoop();
     }
 
     // Restore hardware element capture if inputs were running.

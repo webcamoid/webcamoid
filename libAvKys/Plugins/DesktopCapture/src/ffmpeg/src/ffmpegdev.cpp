@@ -181,9 +181,11 @@ void FFmpegDev::setFps(const AkFrac &fps)
     if (this->d->m_fps == fps)
         return;
 
-    this->d->m_mutex.lock();
-    this->d->m_fps = fps;
-    this->d->m_mutex.unlock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_fps = fps;
+    }
+
     emit this->fpsChanged(fps);
 }
 
@@ -286,10 +288,11 @@ bool FFmpegDev::init()
 
     AVDictionary *inputOptions = nullptr;
 
-    this->d->m_mutex.lock();
-    auto fps = this->d->m_fps;
-    this->d->m_mutex.unlock();
-    av_dict_set(&inputOptions, "framerate", fps.toString().toStdString().c_str(), 0);
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        auto fps = this->d->m_fps;
+        av_dict_set(&inputOptions, "framerate", fps.toString().toStdString().c_str(), 0);
+    }
 
     char showCursorStr[8];
 
@@ -622,7 +625,10 @@ void FFmpegDevPrivate::readPacket()
 
                 if (this->m_threadedRead) {
                     if (!this->m_threadStatus.isRunning()) {
-                        this->m_curPacket = packet;
+                        {
+                            QMutexLocker locker(&this->m_mutex);
+                            this->m_curPacket = packet;
+                        }
 
                         this->m_threadStatus =
                             QtConcurrent::run(&this->m_threadPool,

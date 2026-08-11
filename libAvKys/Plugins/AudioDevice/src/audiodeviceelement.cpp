@@ -114,30 +114,24 @@ AudioDeviceElement::~AudioDeviceElement()
 
 QString AudioDeviceElement::defaultInput()
 {
-    QString defaultInput;
-
-    this->d->m_mutexLib.lock();
+    QMutexLocker locker(&this->d->m_mutexLib);
     auto audioDevice = this->d->m_audioDevice;
-    this->d->m_mutexLib.unlock();
 
-    if (audioDevice)
-        defaultInput = audioDevice->defaultInput();
+    if (!audioDevice)
+        return {};
 
-    return defaultInput;
+    return audioDevice->defaultInput();
 }
 
 QString AudioDeviceElement::defaultOutput()
 {
-    QString defaultOutput;
-
-    this->d->m_mutexLib.lock();
+    QMutexLocker locker(&this->d->m_mutexLib);
     auto audioDevice = this->d->m_audioDevice;
-    this->d->m_mutexLib.unlock();
 
-    if (audioDevice)
-        defaultOutput = audioDevice->defaultOutput();
+    if (!audioDevice)
+        return {};
 
-    return defaultOutput;
+    return audioDevice->defaultOutput();
 }
 
 QStringList AudioDeviceElement::inputs()
@@ -152,16 +146,13 @@ QStringList AudioDeviceElement::outputs()
 
 QString AudioDeviceElement::description(const QString &device)
 {
-    QString description;
-
-    this->d->m_mutexLib.lock();
+    QMutexLocker locker(&this->d->m_mutexLib);
     auto audioDevice = this->d->m_audioDevice;
-    this->d->m_mutexLib.unlock();
 
-    if (audioDevice)
-        description = audioDevice->description(device);
+    if (!audioDevice)
+        return {};
 
-    return description;
+    return audioDevice->description(device);
 }
 
 QString AudioDeviceElement::device() const
@@ -171,14 +162,13 @@ QString AudioDeviceElement::device() const
 
 int AudioDeviceElement::latency() const
 {
-    this->d->m_mutexLib.lock();
+    QMutexLocker locker(&this->d->m_mutexLib);
     auto audioDevice = this->d->m_audioDevice;
-    this->d->m_mutexLib.unlock();
 
-    if (audioDevice)
-        return audioDevice->latency();
+    if (!audioDevice)
+        return 25;
 
-    return 25;
+    return audioDevice->latency();
 }
 
 qreal AudioDeviceElement::volume() const
@@ -193,58 +183,46 @@ AkAudioCaps AudioDeviceElement::caps() const
 
 AkAudioCaps AudioDeviceElement::preferredFormat(const QString &device)
 {
-    AkAudioCaps preferredFormat;
-
-    this->d->m_mutexLib.lock();
+    QMutexLocker locker(&this->d->m_mutexLib);
     auto audioDevice = this->d->m_audioDevice;
-    this->d->m_mutexLib.unlock();
 
-    if (audioDevice)
-        preferredFormat = audioDevice->preferredFormat(device);
+    if (!audioDevice)
+        return {};
 
-    return preferredFormat;
+    return audioDevice->preferredFormat(device);
 }
 
 QList<AkAudioCaps::SampleFormat> AudioDeviceElement::supportedFormats(const QString &device)
 {
-    QList<AkAudioCaps::SampleFormat> supportedFormats;
-
-    this->d->m_mutexLib.lock();
+    QMutexLocker locker(&this->d->m_mutexLib);
     auto audioDevice = this->d->m_audioDevice;
-    this->d->m_mutexLib.unlock();
 
-    if (audioDevice)
-        supportedFormats = audioDevice->supportedFormats(device);
+    if (!audioDevice)
+        return {};
 
-    return supportedFormats;
+    return audioDevice->supportedFormats(device);
 }
 
 QList<AkAudioCaps::ChannelLayout> AudioDeviceElement::supportedChannelLayouts(const QString &device)
 {
-    QList<AkAudioCaps::ChannelLayout> supportedChannelLayouts;
-
-    this->d->m_mutexLib.lock();
+    QMutexLocker locker(&this->d->m_mutexLib);
     auto audioDevice = this->d->m_audioDevice;
-    this->d->m_mutexLib.unlock();
 
-    if (audioDevice)
-        supportedChannelLayouts = audioDevice->supportedChannelLayouts(device);
+    if (!audioDevice)
+        return {};
 
-    return supportedChannelLayouts;
+    return audioDevice->supportedChannelLayouts(device);
 }
 
 QList<int> AudioDeviceElement::supportedSampleRates(const QString &device)
 {
-    QList<int> supportedSampleRates;
-
-    this->d->m_mutexLib.lock();
+    QMutexLocker locker(&this->d->m_mutexLib);
     auto audioDevice = this->d->m_audioDevice;
-    this->d->m_mutexLib.unlock();
 
-    if (audioDevice)
-        supportedSampleRates = audioDevice->supportedSampleRates(device);
+    if (!audioDevice)
+        return {};
 
-    return supportedSampleRates;
+    return audioDevice->supportedSampleRates(device);
 }
 
 AudioDeviceElementPrivate::AudioDeviceElementPrivate(AudioDeviceElement *self):
@@ -262,9 +240,12 @@ AudioDeviceElementPrivate::AudioDeviceElementPrivate(AudioDeviceElement *self):
 
 void AudioDeviceElementPrivate::readFramesLoop()
 {
-    this->m_mutexLib.lock();
-    auto audioDevice = this->m_audioDevice;
-    this->m_mutexLib.unlock();
+    AudioDevPtr audioDevice;
+
+    {
+        QMutexLocker locker(&this->m_mutexLib);
+        audioDevice = this->m_audioDevice;
+    }
 
     if (!audioDevice)
         return;
@@ -339,19 +320,23 @@ void AudioDeviceElementPrivate::linksChanged(const AkPluginLinks &links)
 
     bool isInput = this->m_inputs.contains(this->m_device);
 
-    this->m_mutexLib.lock();
-    auto audioDevice = this->m_audioDevice;
-    this->m_mutexLib.unlock();
+    AudioDevPtr audioDevice;
+
+    {
+        QMutexLocker locker(&this->m_mutexLib);
+        audioDevice = this->m_audioDevice;
+    }
 
     int latency = 25;
 
     if (audioDevice)
         latency = audioDevice->latency();
 
-    this->m_mutexLib.lock();
-    this->m_audioDevice =
-            akPluginManager->create<AudioDev>("AudioSource/AudioDevice/Impl/*");
-    this->m_mutexLib.unlock();
+    {
+        QMutexLocker locker(&this->m_mutexLib);
+        this->m_audioDevice =
+                akPluginManager->create<AudioDev>("AudioSource/AudioDevice/Impl/*");
+    }
 
     this->m_audioDeviceImpl = links["AudioSource/AudioDevice/Impl/*"];
 
@@ -402,26 +387,29 @@ AkPacket AudioDeviceElement::iAudioStream(const AkAudioPacket &packet)
     if (!packet)
         return {};
 
-    this->d->m_mutexLib.lock();
-    auto audioDevice = this->d->m_audioDevice;
-    this->d->m_mutexLib.unlock();
+    AudioDevPtr audioDevice;
+
+    {
+        QMutexLocker locker(&this->d->m_mutexLib);
+        audioDevice = this->d->m_audioDevice;
+    }
 
     if (!audioDevice)
         return {};
 
-    this->d->m_mutex.lock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
 
-    if (this->state() != ElementStatePlaying) {
-        this->d->m_mutex.unlock();
-
-        return {};
+        if (this->state() != ElementStatePlaying)
+            return {};
     }
 
-    this->d->m_mutex.unlock();
+    AkAudioPacket iPacket;
 
-    this->d->m_mutex.lock();
-    auto iPacket = this->d->m_audioConvert.convert(packet);
-    this->d->m_mutex.unlock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        iPacket = this->d->m_audioConvert.convert(packet);
+    }
 
     if (iPacket) {
         if (!qFuzzyCompare(this->d->m_volume, 1.0))
@@ -441,23 +429,23 @@ void AudioDeviceElement::setDevice(const QString &device)
     this->d->m_device = device;
     emit this->deviceChanged(device);
 
-    this->d->m_mutexLib.lock();
-    auto audioDevice = this->d->m_audioDevice;
-    this->d->m_mutexLib.unlock();
-
     AkAudioCaps preferredFormat;
 
-    if (audioDevice)
-        preferredFormat = audioDevice->preferredFormat(device);
+    {
+        QMutexLocker locker(&this->d->m_mutexLib);
+        auto audioDevice = this->d->m_audioDevice;
+
+        if (audioDevice)
+            preferredFormat = audioDevice->preferredFormat(device);
+    }
 
     this->setCaps(preferredFormat);
 }
 
 void AudioDeviceElement::setLatency(int latency)
 {
-    this->d->m_mutexLib.lock();
+    QMutexLocker locker(&this->d->m_mutexLib);
     auto audioDevice = this->d->m_audioDevice;
-    this->d->m_mutexLib.unlock();
 
     if (audioDevice)
         audioDevice->setLatency(latency);
@@ -489,9 +477,8 @@ void AudioDeviceElement::resetDevice()
 
 void AudioDeviceElement::resetLatency()
 {
-    this->d->m_mutexLib.lock();
+    QMutexLocker locker(&this->d->m_mutexLib);
     auto audioDevice = this->d->m_audioDevice;
-    this->d->m_mutexLib.unlock();
 
     if (audioDevice)
         audioDevice->resetLatency();
@@ -510,9 +497,8 @@ void AudioDeviceElement::resetCaps()
 
 void AudioDeviceElement::updateDevices()
 {
-    this->d->m_mutexLib.lock();
+    QMutexLocker locker(&this->d->m_mutexLib);
     auto audioDevice = this->d->m_audioDevice;
-    this->d->m_mutexLib.unlock();
 
     if (audioDevice)
         audioDevice->updateDevices();
@@ -520,9 +506,12 @@ void AudioDeviceElement::updateDevices()
 
 bool AudioDeviceElement::setState(AkElement::ElementState state)
 {
-    this->d->m_mutexLib.lock();
-    auto audioDevice = this->d->m_audioDevice;
-    this->d->m_mutexLib.unlock();
+    AudioDevPtr audioDevice;
+
+    {
+        QMutexLocker locker(&this->d->m_mutexLib);
+        audioDevice = this->d->m_audioDevice;
+    }
 
     if (!audioDevice)
         return false;

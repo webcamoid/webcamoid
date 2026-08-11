@@ -80,111 +80,95 @@ DownloadManager::~DownloadManager()
 
 QStringList DownloadManager::downloads() const
 {
+    QMutexLocker locker(&this->d->m_mutex);
     QStringList downloads;
-    this->d->m_mutex.lock();
 
     for (auto &info: this->d->m_downloads)
         downloads << info.url;
-
-    this->d->m_mutex.unlock();
 
     return downloads;
 }
 
 QString DownloadManager::downloadTitle(const QString &url) const
 {
+    QMutexLocker locker(&this->d->m_mutex);
     QString title;
-    this->d->m_mutex.lock();
 
     for (auto &info: this->d->m_downloads)
         if (info.url == url)
             title = info.title;
-
-    this->d->m_mutex.unlock();
 
     return title;
 }
 
 QString DownloadManager::downloadFile(const QString &url) const
 {
+    QMutexLocker locker(&this->d->m_mutex);
     QString file;
-    this->d->m_mutex.lock();
 
     for (auto &info: this->d->m_downloads)
         if (info.url == url)
             file = info.file.fileName();
-
-    this->d->m_mutex.unlock();
 
     return file;
 }
 
 qint64 DownloadManager::downloadSize(const QString &url) const
 {
+    QMutexLocker locker(&this->d->m_mutex);
     qint64 size = 0;
-    this->d->m_mutex.lock();
 
     for (auto &info: this->d->m_downloads)
         if (info.url == url)
             size = info.size;
-
-    this->d->m_mutex.unlock();
 
     return size;
 }
 
 qint64 DownloadManager::downloadedBytes(const QString &url) const
 {
+    QMutexLocker locker(&this->d->m_mutex);
     qint64 downloaded = 0;
-    this->d->m_mutex.lock();
 
     for (auto &info: this->d->m_downloads)
         if (info.url == url)
             downloaded = info.downloaded;
-
-    this->d->m_mutex.unlock();
 
     return downloaded;
 }
 
 DownloadManager::DownloadStatus DownloadManager::downloadStatus(const QString &url) const
 {
+    QMutexLocker locker(&this->d->m_mutex);
     DownloadStatus status = DownloadStatusFinished;
-    this->d->m_mutex.lock();
 
     for (auto &info: this->d->m_downloads)
         if (info.url == url)
             status = info.status;
-
-    this->d->m_mutex.unlock();
 
     return status;
 }
 
 quint64 DownloadManager::downloadTimeElapsed(const QString &url) const
 {
+    QMutexLocker locker(&this->d->m_mutex);
     quint64 elapsed = 0;
-    this->d->m_mutex.lock();
 
     for (auto &info: this->d->m_downloads)
         if (info.url == url)
             elapsed = info.timeElapsed.elapsed();
-
-    this->d->m_mutex.unlock();
 
     return elapsed;
 }
 
 QString DownloadManager::downloadErrorString(const QString &url) const
 {
+    QMutexLocker locker(&this->d->m_mutex);
     QString errorString = 0;
-    this->d->m_mutex.lock();
 
     for (auto &info: this->d->m_downloads)
         if (info.url == url)
             errorString = info.errorString;
-
-    this->d->m_mutex.unlock();
 
     return errorString;
 }
@@ -227,9 +211,12 @@ inline bool DownloadManager::enqueue(const QString &title,
              << "to"
              << info.file.fileName();
     info.timeElapsed.start();
-    this->d->m_mutex.lock();
-    this->d->m_downloads << info;
-    this->d->m_mutex.unlock();
+    
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_downloads << info;
+    }
+    
     emit this->downloadsChanged(this->downloads());
     emit this->downloadChanged(fromUrl);
 
@@ -238,20 +225,18 @@ inline bool DownloadManager::enqueue(const QString &title,
 
 void DownloadManager::cancel()
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
 
     for (auto &info: this->d->m_downloads)
         if (info.status == DownloadManager::DownloadStatusStarted
             || info.status == DownloadManager::DownloadStatusInProgress) {
             info.abort = true;
         }
-
-    this->d->m_mutex.unlock();
 }
 
 void DownloadManager::cancel(const QString &url)
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
 
     for (auto &info: this->d->m_downloads)
         if (info.url == url) {
@@ -262,30 +247,28 @@ void DownloadManager::cancel(const QString &url)
 
             break;
         }
-
-    this->d->m_mutex.unlock();
 }
 
 void DownloadManager::remove(const QString &url)
 {
-    this->d->m_mutex.lock();
-
-    auto it = std::find_if(this->d->m_downloads.begin(),
-                           this->d->m_downloads.end(),
-                           [url] (const DownloadInfo &info) {
-        return info.url == url
-                && info.status != DownloadStatusStarted
-                && info.status != DownloadStatusInProgress;
-    });
-
     bool changed = false;
 
-    if (it != this->d->m_downloads.end()) {
-        this->d->m_downloads.erase(it);
-        changed = true;
-    }
+    {
+        QMutexLocker locker(&this->d->m_mutex);
 
-    this->d->m_mutex.unlock();
+        auto it = std::find_if(this->d->m_downloads.begin(),
+                               this->d->m_downloads.end(),
+                               [url] (const DownloadInfo &info) {
+            return info.url == url
+                    && info.status != DownloadStatusStarted
+                    && info.status != DownloadStatusInProgress;
+        });
+
+        if (it != this->d->m_downloads.end()) {
+            this->d->m_downloads.erase(it);
+            changed = true;
+        }
+    }
 
     if (changed)
         emit this->downloadsChanged(this->downloads());
@@ -293,23 +276,23 @@ void DownloadManager::remove(const QString &url)
 
 void DownloadManager::clear()
 {
-    QVector<DownloadInfo> downloads;
-    this->d->m_mutex.lock();
-
-    for (auto &info: this->d->m_downloads)
-        if (info.status == DownloadStatusStarted
-            || info.status == DownloadStatusInProgress) {
-            downloads << info;
-        }
-
     bool changed = false;
 
-    if (this->d->m_downloads != downloads) {
-        this->d->m_downloads = downloads;
-        changed = true;
-    }
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        QVector<DownloadInfo> downloads;
 
-    this->d->m_mutex.unlock();
+        for (auto &info: this->d->m_downloads)
+            if (info.status == DownloadStatusStarted
+                || info.status == DownloadStatusInProgress) {
+                downloads << info;
+            }
+
+        if (this->d->m_downloads != downloads) {
+            this->d->m_downloads = downloads;
+            changed = true;
+        }
+    }
 
     if (changed)
         emit this->downloadsChanged(this->downloads());
@@ -338,18 +321,19 @@ void DownloadManagerPrivate::updateProgress(const QString &url,
                                             qint64 bytesTotal)
 {
     bool emitSignal = false;
-    this->m_mutex.lock();
 
-    for (auto &info: this->m_downloads)
-        if (info.url == url) {
-            info.downloaded = bytesReceived;
-            info.size = bytesTotal;
-            emitSignal = true;
+    {
+        QMutexLocker locker(&this->m_mutex);
 
-            break;
-        }
+        for (auto &info: this->m_downloads)
+            if (info.url == url) {
+                info.downloaded = bytesReceived;
+                info.size = bytesTotal;
+                emitSignal = true;
 
-    this->m_mutex.unlock();
+                break;
+            }
+    }
 
     if (emitSignal)
         emit self->downloadChanged(url);
@@ -359,27 +343,28 @@ void DownloadManagerPrivate::downloadFinished(const QString &url,
                                               QNetworkReply *reply)
 {
     bool emitSignals = false;
-    this->m_mutex.lock();
 
-    for (auto &info: this->m_downloads)
-        if (info.url == url) {
-            info.file.close();
+    {
+        QMutexLocker locker(&this->m_mutex);
 
-            if (info.abort)
-                info.status = DownloadManager::DownloadStatusCanceled;
-            else
-                info.status = reply->error() == QNetworkReply::NoError?
-                                  DownloadManager::DownloadStatusFinished:
-                                  DownloadManager::DownloadStatusFailed;
+        for (auto &info: this->m_downloads)
+            if (info.url == url) {
+                info.file.close();
 
-            info.timeElapsed = {};
-            info.errorString = reply->errorString();
-            emitSignals = true;
+                if (info.abort)
+                    info.status = DownloadManager::DownloadStatusCanceled;
+                else
+                    info.status = reply->error() == QNetworkReply::NoError?
+                                      DownloadManager::DownloadStatusFinished:
+                                      DownloadManager::DownloadStatusFailed;
 
-            break;
-        }
+                info.timeElapsed = {};
+                info.errorString = reply->errorString();
+                emitSignals = true;
 
-    this->m_mutex.unlock();
+                break;
+            }
+    }
 
     if (emitSignals) {
         emit self->downloadChanged(url);
@@ -394,19 +379,19 @@ void DownloadManagerPrivate::downloadFile(const QString &url,
 {
     bool isOpen = false;
 
-    this->m_mutex.lock();
+    {
+        QMutexLocker locker(&this->m_mutex);
 
-    for (auto &info: this->m_downloads)
-        if (info.url == url) {
-            isOpen = info.file.isOpen();
+        for (auto &info: this->m_downloads)
+            if (info.url == url) {
+                isOpen = info.file.isOpen();
 
-            if (!isOpen)
-                isOpen = info.file.open(QIODevice::WriteOnly);
+                if (!isOpen)
+                    isOpen = info.file.open(QIODevice::WriteOnly);
 
-            break;
-        }
-
-    this->m_mutex.unlock();
+                break;
+            }
+    }
 
     if (!isOpen || this->abort(url)) {
         reply->abort();
@@ -415,18 +400,19 @@ void DownloadManagerPrivate::downloadFile(const QString &url,
     }
 
     bool emitSignal = false;
-    this->m_mutex.lock();
 
-    for (auto &info: this->m_downloads)
-        if (info.url == url) {
-            info.file.write(reply->readAll());
-            info.status = DownloadManager::DownloadStatusInProgress;
-            emitSignal = true;
+    {
+        QMutexLocker locker(&this->m_mutex);
 
-            break;
-        }
+        for (auto &info: this->m_downloads)
+            if (info.url == url) {
+                info.file.write(reply->readAll());
+                info.status = DownloadManager::DownloadStatusInProgress;
+                emitSignal = true;
 
-    this->m_mutex.unlock();
+                break;
+            }
+    }
 
     if (emitSignal)
         emit self->downloadChanged(url);
@@ -434,14 +420,12 @@ void DownloadManagerPrivate::downloadFile(const QString &url,
 
 bool DownloadManagerPrivate::abort(const QString &url)
 {
+    QMutexLocker locker(&this->m_mutex);
     bool abort = true;
-    this->m_mutex.lock();
 
     for (auto &info: this->m_downloads)
         if (info.url == url)
             abort = info.abort;
-
-    this->m_mutex.unlock();
 
     return abort;
 }

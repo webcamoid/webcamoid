@@ -28,16 +28,14 @@ ScrollView {
 
     readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
 
+    signal openVideoInputAddCameraDialog()
     signal openVideoInputAddScreenDialog()
     signal openVideoInputAddWindowDialog()
     signal openVideoInputAddFileDialog()
     signal openVideoInputAddUrlDialog()
     signal openVideoInputOptions(string videoInput)
 
-    Component.onCompleted: {
-        lblNoWebcams.updateVisibility()
-        devicesList.update()
-    }
+    Component.onCompleted: devicesList.update()
     onVisibleChanged: devicesList.forceActiveFocus()
 
     Connections {
@@ -46,11 +44,6 @@ ScrollView {
         function onInputsChanged()
         {
             devicesList.update()
-        }
-
-        function onVideoInputChanged()
-        {
-            lblNoWebcams.updateVisibility()
         }
     }
 
@@ -72,10 +65,18 @@ ScrollView {
                 margins: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
 
                 MenuItem {
+                    text: qsTr("Add camera")
+                    icon.source: "image://icons/webcam"
+                    enabled: videoLayer.cameras.length > 0
+
+                    onClicked: view.openVideoInputAddCameraDialog()
+                }
+                MenuItem {
                     text: videoLayer.canCaptureWindows?
                             qsTr("Add screen"):
                             qsTr("Add screen source")
                     icon.source: "image://icons/screen"
+                    enabled: videoLayer.screens.length > 0
 
                     onClicked: view.openVideoInputAddScreenDialog()
                 }
@@ -84,6 +85,7 @@ ScrollView {
                     icon.source: "image://icons/window"
                     height: videoLayer.canCaptureWindows? undefined: 0
                     visible: videoLayer.canCaptureWindows
+                    enabled: videoLayer.windows.length > 0
 
                     onClicked: view.openVideoInputAddWindowDialog()
                 }
@@ -109,21 +111,6 @@ ScrollView {
 
             onClicked: view.openVideoInputOptions(videoLayer.videoInput)
         }
-        Label {
-            id: lblNoWebcams
-            height: visible?
-                        AkUnit.create(32 * AkTheme.controlScale, "dp").pixels:
-                        0
-            text: qsTr("No cameras found")
-            verticalAlignment: Text.AlignVCenter
-            Layout.fillWidth: true
-            enabled: false
-
-            function updateVisibility()
-            {
-                visible = videoLayer.devicesByType(VideoLayer.InputCamera).length < 1
-            }
-        }
         OptionList {
             id: devicesList
             Layout.fillWidth: true
@@ -141,12 +128,8 @@ ScrollView {
 
                 let index = devices.indexOf(videoLayer.videoInput)
 
-                if (index < 0) {
-                    if (devices.length == 1)
-                        index = 0
-                    else if (devices.length >= 2)
-                        index = 1
-                }
+                if (index < 0 && devices.length > 0)
+                    index = 0
 
                 updating = true
 

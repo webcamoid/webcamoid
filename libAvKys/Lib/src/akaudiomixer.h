@@ -20,12 +20,13 @@
 #ifndef AKAUDIOMIXER_H
 #define AKAUDIOMIXER_H
 
-#include "akaudiocaps.h"
-#include "iak/akelement.h"
+#include <QObject>
+
+#include "akcommons.h"
 
 class AkAudioMixerPrivate;
+class AkAudioCaps;
 class AkAudioPacket;
-class AkPacket;
 
 class AKCOMMONS_EXPORT AkAudioMixer: public QObject
 {
@@ -45,11 +46,6 @@ class AKCOMMONS_EXPORT AkAudioMixer: public QObject
                WRITE setLatency
                RESET resetLatency
                NOTIFY latencyChanged)
-    Q_PROPERTY(AkElement::ElementState state
-               READ state
-               WRITE setState
-               RESET resetState
-               NOTIFY stateChanged)
 
     public:
         explicit AkAudioMixer(QObject *parent=nullptr);
@@ -60,31 +56,26 @@ class AKCOMMONS_EXPORT AkAudioMixer: public QObject
         Q_INVOKABLE size_t inputs() const;
         Q_INVOKABLE AkAudioCaps outputCaps() const;
         Q_INVOKABLE int latency() const;
-        Q_INVOKABLE AkElement::ElementState state() const;
+        Q_INVOKABLE AkAudioPacket read(size_t samples) const;
+        Q_INVOKABLE size_t write(const AkAudioPacket &packet);
 
     private:
         AkAudioMixerPrivate *d;
 
     Q_SIGNALS:
-        void inputsChanged(size_t nSources);
+        void inputsChanged(size_t inputs);
         void outputCapsChanged(const AkAudioCaps &outputCaps);
         void latencyChanged(int latency);
-        void stateChanged(AkElement::ElementState state);
-        void oStream(const AkPacket &packet);
 
     public Q_SLOTS:
         void setInputs(size_t inputs);
         void setOutputCaps(const AkAudioCaps &outputCaps);
         void setLatency(int latency);
-        bool setState(AkElement::ElementState state);
         void resetInputs();
         void resetOutputCaps();
-        void resetState();
         void resetLatency();
-
-        // Feed a packet. packet.id() must be the slot index in [0, inputs).
-        AkPacket iStream(const AkPacket &packet);
-
+        bool allocate();
+        void deallocate();
         static void registerTypes();
 };
 

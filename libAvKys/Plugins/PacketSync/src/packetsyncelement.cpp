@@ -37,6 +37,8 @@ inline void waitLoop(const QFuture<T> &loop)
 
         if (eventDispatcher)
             eventDispatcher->processEvents(QEventLoop::AllEvents);
+
+        QThread::msleep(1);
     }
 }
 

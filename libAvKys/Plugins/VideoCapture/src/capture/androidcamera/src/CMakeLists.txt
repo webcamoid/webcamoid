@@ -32,17 +32,27 @@ set(QT_COMPONENTS
     Gui
     Widgets)
 
-if (ANDROID)
-    list(APPEND QT_COMPONENTS
-         CorePrivate)
-endif()
-
 find_package(QT NAMES Qt${QT_VERSION_MAJOR} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
+
+include(CheckCXXSourceCompiles)
+set(CMAKE_REQUIRED_LIBRARIES Qt${QT_VERSION_MAJOR}::Core)
+check_cxx_source_compiles("
+#include <QJniObject>
+int main() { return 0; }
+" QJNIOBJECT_FOUND)
+
+if (ANDROID AND QJNIOBJECT_FOUND)
+    list(APPEND QT_COMPONENTS
+         CorePrivate)
+    find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
+                 CorePrivate
+                 REQUIRED)
+endif()
 
 set(SOURCES
     ../../../capture.cpp
@@ -53,7 +63,7 @@ set(SOURCES
     plugin.h
     pspec.json)
 
-if (ANDROID)
+if (ANDROID AND QJNIOBJECT_FOUND)
     qt_add_plugin(VideoCapture_androidcamerasrc
                   SHARED
                   CLASS_NAME Plugin)
@@ -85,7 +95,7 @@ target_link_libraries(VideoCapture_androidcamerasrc
                       ${QT_LIBS}
                       avkys)
 
-if (ANDROID)
+if (ANDROID AND QJNIOBJECT_FOUND)
     install(TARGETS VideoCapture_androidcamerasrc
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})

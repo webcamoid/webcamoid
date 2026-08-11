@@ -38,6 +38,13 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 find_library(NDKMEDIA NAMES mediandk)
 
+include(CheckCXXSourceCompiles)
+set(CMAKE_REQUIRED_LIBRARIES Qt${QT_VERSION_MAJOR}::Core)
+check_cxx_source_compiles("
+#include <QJniObject>
+int main() { return 0; }
+" QJNIOBJECT_FOUND)
+
 set(SOURCES
     src/videoencoderndkmedia.cpp
     src/videoencoderndkmedia.h
@@ -45,7 +52,7 @@ set(SOURCES
     src/videoencoderndkmediaelement.h
     pspec.json)
 
-if (NOT NONDKMEDIA AND NDKMEDIA)
+if (NOT NONDKMEDIA AND NDKMEDIA AND QJNIOBJECT_FOUND)
     qt_add_plugin(VideoEncoder_ndkmedia
                   SHARED
                   CLASS_NAME VideoEncoderNDKMedia)
@@ -74,11 +81,8 @@ target_link_libraries(VideoEncoder_ndkmedia
                       ${QT_LIBS}
                       avkys)
 
-if (NOT NONDKMEDIA AND NDKMEDIA)
+if (NOT NONDKMEDIA AND NDKMEDIA AND QJNIOBJECT_FOUND)
     target_link_libraries(VideoEncoder_ndkmedia ${NDKMEDIA})
-endif ()
-
-if (NOT NONDKMEDIA AND NDKMEDIA)
     install(TARGETS VideoEncoder_ndkmedia
             LIBRARY DESTINATION ${AKPLUGINSDIR}
             RUNTIME DESTINATION ${AKPLUGINSDIR})

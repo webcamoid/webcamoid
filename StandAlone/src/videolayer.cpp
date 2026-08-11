@@ -1,5 +1,5 @@
 /* Webcamoid, camera capture application.
- * Copyright (C) 2016  Gonzalo Exequiel Pedone
+ * Copyright (C) 2026  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
  */
 
 #include <QDir>
+#include <QDebug>
 #include <QFile>
 #include <QFileInfo>
 #include <QImageReader>
@@ -27,8 +28,6 @@
 #include <QQuickItem>
 #include <QSettings>
 #include <QStandardPaths>
-#include <QtConcurrent>
-
 #include <ak.h>
 #include <akaudiocaps.h>
 #include <akcaps.h>
@@ -40,39 +39,43 @@
 
 #include "videolayer.h"
 
-using ObjectPtr = QSharedPointer<QObject>;
+struct VideoLayerSource
+{
+    QString device;
+    AkElementPtr element;
+    qint64 id {0};
+    bool enabled {true};
+    VideoLayer::InputType type {VideoLayer::InputUnknown};
+    AkAudioCaps audioCaps;
+    AkVideoCaps videoCaps;
+    QString label;
+    QString lastError;
+};
 
 class VideoLayerPrivate
 {
     public:
         VideoLayer *self;
         QQmlApplicationEngine *m_engine {nullptr};
-        QString m_videoInput;
-        QStringList m_inputs;
-        QStringList m_sources;
+        QStringList m_availableCameras;
         QStringList m_availableScreens;
         QStringList m_availableWindows;
-        QStringList m_screens;
-        QStringList m_windows;
-        QMap<QString, QString> m_images;
-        QMap<QString, QString> m_uris;
         QStringList m_supportedFileFormats;
         QStringList m_supportedImageFormats;
         QMap<QString, QString> m_formatsDescription;
-        AkAudioCaps m_inputAudioCaps;
-        AkVideoCaps m_inputVideoCaps;
-        AkElementPtr m_cameraCapture {akPluginManager->create<AkElement>("VideoSource/CameraCapture")};
-        AkElementPtr m_screenCapture {akPluginManager->create<AkElement>("VideoSource/DesktopCapture")};
-        AkElementPtr m_imageCapture {akPluginManager->create<AkElement>("VideoSource/ImageSrc")};
-        AkElementPtr m_uriCapture {akPluginManager->create<AkElement>("MultimediaSource/MultiSrc")};
-        AkElement::ElementState m_state {AkElement::ElementStateNull};
+        AkElement::ElementState m_globalState {AkElement::ElementStateNull};
         bool m_playOnStart {true};
         bool m_outputsAsInputs {false};
+        bool m_firstRun {true};
+
+        // Dedicated discovery instances
+        AkElementPtr m_cameraDiscovery {akPluginManager->create<AkElement>("VideoSource/CameraCapture")};
+        AkElementPtr m_screenDiscovery {akPluginManager->create<AkElement>("VideoSource/DesktopCapture")};
+
+        QMap<qint64, VideoLayerSource> m_activeSources;
 
         explicit VideoLayerPrivate(VideoLayer *self);
-        void connectSignals();
-        AkElementPtr sourceElement(const QString &stream) const;
-        QString sourceId(const QString &stream) const;
+        void connectDiscoverySignals();
         QStringList cameras() const;
         QStringList screens() const;
         QStringList windows() const;
@@ -82,14 +85,15 @@ class VideoLayerPrivate
                            const AkElementPtr &element,
                            const QString &pluginId,
                            const QString &name) const;
-        void setInputAudioCaps(const AkAudioCaps &audioCaps);
-        void setInputVideoCaps(const AkVideoCaps &videoCaps);
         void loadProperties();
-        static QString sanitizeKey(const QString &key);
-        void saveVideoInput(const QString &videoInput);
+        void trySetupFirstRunDevice();
         void saveSources();
         void savePlayOnStart(bool playOnStart);
         void saveOutputsAsInputs(bool outputsAsInputs);
+        AkElementPtr createCaptureElement(VideoLayer::InputType type) const;
+        QString pluginIdForType(VideoLayer::InputType type) const;
+        VideoLayer::InputType classifyByExtension(const QString &device) const;
+        void pruneDisconnectedSources();
 };
 
 VideoLayer::VideoLayer(QQmlApplicationEngine *engine, QObject *parent):
@@ -97,13 +101,19 @@ VideoLayer::VideoLayer(QQmlApplicationEngine *engine, QObject *parent):
 {
     this->d = new VideoLayerPrivate(this);
     this->setQmlEngine(engine);
-    this->d->connectSignals();
+    this->d->connectDiscoverySignals();
     this->d->loadProperties();
 }
 
 VideoLayer::~VideoLayer()
 {
     this->setState(AkElement::ElementStateNull);
+
+    for (auto &source: this->d->m_activeSources)
+        if (source.element)
+            source.element->setState(AkElement::ElementStateNull);
+
+    this->d->m_activeSources.clear();
     delete this->d;
 }
 
@@ -170,24 +180,9 @@ QStringList VideoLayer::videoSourceFileFilters() const
     return filters;
 }
 
-QString VideoLayer::videoInput() const
+QStringList VideoLayer::cameras() const
 {
-    return this->d->m_videoInput;
-}
-
-QStringList VideoLayer::inputs() const
-{
-    return this->d->m_inputs;
-}
-
-AkAudioCaps VideoLayer::inputAudioCaps() const
-{
-    return this->d->m_inputAudioCaps;
-}
-
-AkVideoCaps VideoLayer::inputVideoCaps() const
-{
-    return this->d->m_inputVideoCaps;
+    return this->d->m_availableCameras;
 }
 
 QStringList VideoLayer::screens() const
@@ -202,10 +197,10 @@ QStringList VideoLayer::windows() const
 
 bool VideoLayer::canCaptureWindows() const
 {
-    if (!this->d->m_screenCapture)
+    if (!this->d->m_screenDiscovery)
         return false;
 
-    return this->d->m_screenCapture->property("canCaptureWindows").toBool();
+    return this->d->m_screenDiscovery->property("canCaptureWindows").toBool();
 }
 
 QStringList VideoLayer::supportedFileFormats() const
@@ -215,31 +210,7 @@ QStringList VideoLayer::supportedFileFormats() const
 
 AkElement::ElementState VideoLayer::state() const
 {
-    return this->d->m_state;
-}
-
-bool VideoLayer::isTorchSupported() const
-{
-    if (!this->d->m_cameraCapture)
-        return false;
-
-    return this->d->m_cameraCapture->property("isTorchSupported").toBool();
-}
-
-VideoLayer::TorchMode VideoLayer::torchMode() const
-{
-    if (!this->d->m_cameraCapture)
-        return Torch_Off;
-
-    return this->d->m_cameraCapture->property("torchMode").value<TorchMode>();
-}
-
-VideoLayer::PermissionStatus VideoLayer::cameraPermissionStatus() const
-{
-    if (!this->d->m_cameraCapture)
-        return PermissionStatus_Granted;
-
-    return this->d->m_cameraCapture->property("permissionStatus").value<PermissionStatus>();
+    return this->d->m_globalState;
 }
 
 bool VideoLayer::playOnStart() const
@@ -254,36 +225,39 @@ bool VideoLayer::outputsAsInputs() const
 
 VideoLayer::InputType VideoLayer::deviceType(const QString &device) const
 {
-    if (this->d->cameras().contains(device))
+    if (this->d->m_availableCameras.contains(device))
         return InputCamera;
 
     if (this->d->m_availableScreens.contains(device)
         || this->d->m_availableWindows.contains(device))
         return InputScreen;
 
-    if (this->d->m_images.contains(device))
-        return InputImage;
+    for (const auto &source: this->d->m_activeSources)
+        if (source.device == device)
+            return source.type;
 
-    if (this->d->m_uris.contains(device))
-        return InputStream;
-
-    return InputUnknown;
+    return this->d->classifyByExtension(device);
 }
 
 QStringList VideoLayer::devicesByType(InputType type) const
 {
     switch (type) {
     case InputCamera:
-        return this->d->cameras();
+        return this->d->m_availableCameras;
 
     case InputScreen:
-        return this->d->m_screens + this->d->m_windows;
+        return this->d->m_availableScreens + this->d->m_availableWindows;
 
     case InputImage:
-        return this->d->m_images.keys();
+    case InputStream: {
+        QStringList devices;
 
-    case InputStream:
-        return this->d->m_uris.keys();
+        for (const auto &source: this->d->m_activeSources)
+            if (source.type == type)
+                devices << source.device;
+
+        return devices;
+    }
 
     default:
         break;
@@ -294,46 +268,42 @@ QStringList VideoLayer::devicesByType(InputType type) const
 
 QString VideoLayer::description(const QString &device) const
 {
-    if (this->d->cameras().contains(device))
+    auto type = this->deviceType(device);
+
+    switch (type) {
+    case InputCamera:
         return this->d->cameraDescription(device);
 
-    if (this->d->m_availableScreens.contains(device)
-        || this->d->m_availableWindows.contains(device)) {
+    case InputScreen:
         return this->d->screenDescription(device);
+
+    case InputImage:
+    case InputStream: {
+        for (const auto &source: this->d->m_activeSources)
+            if (source.device == device && !source.label.isEmpty())
+                return source.label;
+
+        return QFileInfo(device).fileName();
     }
 
-    if (this->d->m_images.contains(device))
-        return this->d->m_images.value(device);
-
-    if (this->d->m_uris.contains(device))
-        return this->d->m_uris.value(device);
+    default:
+        break;
+    }
 
     return {};
 }
 
-QString VideoLayer::inputError() const
+bool VideoLayer::embedControls(const QString &where,
+                               qint64 id,
+                               const QString &name) const
 {
-    auto source = this->d->sourceElement(this->d->m_videoInput);
+    if (!this->d->m_activeSources.contains(id))
+        return false;
 
-    if (!source)
-        return {};
+    auto &source = this->d->m_activeSources[id];
+    auto pluginId = this->d->pluginIdForType(source.type);
 
-    QString error;
-    QMetaObject::invokeMethod(source.data(),
-                              "error",
-                              Q_RETURN_ARG(QString, error));
-
-    return error;
-}
-
-bool VideoLayer::embedInputControls(const QString &where,
-                                    const QString &device,
-                                    const QString &name) const
-{
-    auto element = this->d->sourceElement(device);
-    auto id = this->d->sourceId(device);
-
-    return this->d->embedControls(where, element, id, name);
+    return this->d->embedControls(where, source.element, pluginId, name);
 }
 
 void VideoLayer::removeInterface(const QString &where) const
@@ -357,172 +327,302 @@ void VideoLayer::removeInterface(const QString &where) const
     }
 }
 
-void VideoLayer::setInputStream(const QString &stream,
-                                const QString &description)
+QVariantList VideoLayer::sourceIds() const
 {
-    if (stream.isEmpty()
-        || description.isEmpty()
-        || this->d->m_uris.value(stream) == description
-        || this->d->m_images.value(stream) == description) {
-        return;
+    QVariantList ids;
+
+    for (auto it = this->d->m_activeSources.keyBegin();
+         it != this->d->m_activeSources.keyEnd();
+         ++it)
+        ids << QVariant::fromValue(*it);
+
+    return ids;
+}
+
+QString VideoLayer::sourceDevice(qint64 id) const
+{
+    if (!this->d->m_activeSources.contains(id))
+        return {};
+
+    return this->d->m_activeSources[id].device;
+}
+
+QString VideoLayer::sourceLabel(qint64 id) const
+{
+    if (!this->d->m_activeSources.contains(id))
+        return {};
+
+    return this->d->m_activeSources[id].label;
+}
+
+bool VideoLayer::sourceEnabled(qint64 id) const
+{
+    if (!this->d->m_activeSources.contains(id))
+        return false;
+
+    return this->d->m_activeSources[id].enabled;
+}
+
+AkAudioCaps VideoLayer::sourceAudioCaps(qint64 id) const
+{
+    if (!this->d->m_activeSources.contains(id))
+        return {};
+
+    return this->d->m_activeSources[id].audioCaps;
+}
+
+AkVideoCaps VideoLayer::sourceVideoCaps(qint64 id) const
+{
+    if (!this->d->m_activeSources.contains(id))
+        return {};
+
+    return this->d->m_activeSources[id].videoCaps;
+}
+
+QString VideoLayer::sourceError(qint64 id) const
+{
+    if (!this->d->m_activeSources.contains(id))
+        return {};
+
+    // "error" only exists as a signal (error(QString)) on the capture
+    // elements, not a queryable getter -- we cache the last value we
+    // received from it instead of trying to invoke a nonexistent method.
+    return this->d->m_activeSources[id].lastError;
+}
+
+VideoLayer::InputType VideoLayer::sourceType(qint64 id) const
+{
+    if (!this->d->m_activeSources.contains(id))
+        return InputUnknown;
+
+    return this->d->m_activeSources[id].type;
+}
+
+bool VideoLayer::isTorchSupported(qint64 id) const
+{
+    if (!this->d->m_activeSources.contains(id))
+        return false;
+
+    auto &source = this->d->m_activeSources[id];
+
+    if (source.type != InputCamera || !source.element)
+        return false;
+
+    return source.element->property("isTorchSupported").toBool();
+}
+
+VideoLayer::TorchMode VideoLayer::torchMode(qint64 id) const
+{
+    if (!this->d->m_activeSources.contains(id))
+        return Torch_Off;
+
+    auto &source = this->d->m_activeSources[id];
+
+    if (source.type != InputCamera || !source.element)
+        return Torch_Off;
+
+    return source.element->property("torchMode").value<TorchMode>();
+}
+
+VideoLayer::PermissionStatus VideoLayer::cameraPermissionStatus(qint64 id) const
+{
+    if (!this->d->m_activeSources.contains(id))
+        return PermissionStatus_Granted;
+
+    auto &source = this->d->m_activeSources[id];
+
+    if (source.type != InputCamera || !source.element)
+        return PermissionStatus_Granted;
+
+    return source.element->property("permissionStatus").value<PermissionStatus>();
+}
+
+qint64 VideoLayer::addSource(const QString &device)
+{
+    for (const auto &source: this->d->m_activeSources)
+        if (source.device == device)
+            return source.id;
+
+    auto type = this->deviceType(device);
+
+    if (type == InputUnknown) {
+        qWarning() << "Unknown input type for" << device;
+
+        return -1;
     }
 
-    QFileInfo fileInfo(stream);
+    auto element = this->d->createCaptureElement(type);
 
-    if (!fileInfo.exists())
-        return;
+    if (!element) {
+        qWarning() << "Failed to create capture element for" << device;
 
-    auto suffix = fileInfo.suffix().toLower();
+        return -1;
+    }
 
-    if (!this->d->m_supportedFileFormats.contains(suffix))
-        return;
+    if (type == InputStream)
+        element->setProperty("loop", true);
 
-    if (this->d->m_supportedImageFormats.contains(suffix))
-        this->d->m_images[stream] = description;
+    element->setProperty("media", device);
+
+    qint64 id = Ak::id();
+
+    VideoLayerSource source;
+    source.device = device;
+    source.element = element;
+    source.id = id;
+    source.type = type;
+    source.enabled = true;
+
+    // Tag every outgoing packet with this source's id before forwarding.
+    QObject::connect(element.data(), &AkElement::oStream,
+                     this, [this, id](const AkPacket &packet) {
+                         auto pkt = packet;
+                         pkt.setId(id);
+                         emit this->oStream(pkt);
+                     }, Qt::DirectConnection);
+
+    // "error"/"errorChanged" and "streamsChanged" are NOT declared on
+    // AkElement itself (only stateChanged/oStream are) -- they're
+    // plugin-specific, so they need the old string-based connect, same as
+    // the camera-only signals below. The handlers recover which source
+    // fired via a stashed property, since a lambda can't be the target of
+    // this connect style.
+    element->setProperty("__sourceId", id);
+
+    // VideoCaptureElement (camera) exposes this as a property (errorChanged
+    // notify) instead of a plain "error" signal like the other three
+    // capture plugins -- different signal name, same (QString) payload,
+    // same handler either way.
+    if (type == InputCamera)
+        QObject::connect(element.data(),
+                         SIGNAL(errorChanged(QString)),
+                         this,
+                         SLOT(handleSourceError(QString)));
     else
-        this->d->m_uris[stream] = description;
+        QObject::connect(element.data(),
+                         SIGNAL(error(QString)),
+                         this,
+                         SLOT(handleSourceError(QString)));
 
-    if (!this->d->m_sources.contains(stream))
-        this->d->m_sources << stream;
+    QObject::connect(element.data(),
+                     SIGNAL(streamsChanged(QList<int>)),
+                     this,
+                     SLOT(handleStreamsChanged(QList<int>)));
 
-    this->updateInputs();
-    this->d->saveSources();
-}
-
-void VideoLayer::removeInputStream(const QString &stream)
-{
-    if (stream.isEmpty()
-        || (!this->d->m_images.contains(stream)
-            && !this->d->m_uris.contains(stream)))
-        return;
-
-    this->d->m_images.remove(stream);
-    this->d->m_uris.remove(stream);
-    this->d->m_sources.removeAll(stream);
-    this->updateInputs();
-    this->d->saveSources();
-
-#ifdef Q_OS_ANDROID
-    if (QFile::exists(stream))
-        QFile::remove(stream);
-#endif
-}
-
-bool VideoLayer::addScreenSource(const QString &source)
-{
-    if (this->d->m_sources.contains(source))
-        return false;
-
-    if (this->d->m_availableScreens.contains(source)) {
-        if (!this->d->m_screens.contains(source))
-            this->d->m_screens << source;
-    } else if (this->d->m_availableWindows.contains(source)) {
-        if (!this->d->m_windows.contains(source))
-            this->d->m_windows << source;
-    } else {
-        return false;
+    if (type == InputCamera) {
+        QObject::connect(element.data(),
+                         SIGNAL(isTorchSupportedChanged(bool)),
+                         this,
+                         SLOT(handleIsTorchSupportedChanged(bool)));
+        QObject::connect(element.data(),
+                         SIGNAL(torchModeChanged(TorchMode)),
+                         this,
+                         SLOT(handleTorchModeChanged(TorchMode)));
+        QObject::connect(element.data(),
+                         SIGNAL(permissionStatusChanged(PermissionStatus)),
+                         this,
+                         SLOT(handlePermissionStatusChanged(PermissionStatus)));
     }
 
-    this->d->m_sources << source;
-    this->updateInputs();
-    this->d->saveSources();
+    this->d->m_activeSources[id] = source;
 
-    return true;
+    this->d->saveSources();
+    emit this->sourceAdded(id, device);
+
+    if (this->d->m_globalState == AkElement::ElementStatePlaying)
+        element->setState(AkElement::ElementStatePlaying);
+
+    return id;
 }
 
-void VideoLayer::removeScreenSource(const QString &source)
+void VideoLayer::removeSource(qint64 id)
 {
-    this->d->m_screens.removeAll(source);
-    this->d->m_windows.removeAll(source);
-    this->d->m_sources.removeAll(source);
-    this->updateInputs();
-    this->d->saveSources();
-}
-
-void VideoLayer::setVideoInput(const QString &videoInput)
-{
-    if (this->d->m_videoInput == videoInput)
+    if (!this->d->m_activeSources.contains(id))
         return;
 
-    this->d->m_videoInput = videoInput;
-    emit this->videoInputChanged(videoInput);
-    this->d->saveVideoInput(videoInput);
-    this->updateCaps();
+    auto source = this->d->m_activeSources.take(id);
+
+    if (source.element) {
+        source.element->setState(AkElement::ElementStateNull);
+        QObject::disconnect(source.element.data(), nullptr, this, nullptr);
+    }
+
+    this->d->saveSources();
+    emit this->sourceRemoved(id);
+}
+
+void VideoLayer::setSourceEnabled(qint64 id, bool enabled)
+{
+    if (!this->d->m_activeSources.contains(id))
+        return;
+
+    auto &source = this->d->m_activeSources[id];
+
+    if (source.enabled == enabled)
+        return;
+
+    source.enabled = enabled;
+    this->d->saveSources();
+    emit this->sourceEnabledChanged(id, enabled);
+
+    if (source.element) {
+        if (enabled && this->d->m_globalState == AkElement::ElementStatePlaying)
+            auto ok = source.element->setState(AkElement::ElementStatePlaying);
+        else if (!enabled)
+            source.element->setState(AkElement::ElementStateNull);
+    }
+}
+
+void VideoLayer::setSourceLabel(qint64 id, const QString &label)
+{
+    if (!this->d->m_activeSources.contains(id))
+        return;
+
+    auto &source = this->d->m_activeSources[id];
+
+    if (source.type != InputImage && source.type != InputStream)
+        return;
+
+    if (source.label == label)
+        return;
+
+    source.label = label;
+    this->d->saveSources();
+    emit this->sourceLabelChanged(id, label);
 }
 
 void VideoLayer::setState(AkElement::ElementState state)
 {
-    if (this->d->m_state == state)
+    if (this->d->m_globalState == state)
         return;
 
-    AkElementPtr source;
+    this->d->m_globalState = state;
+    emit this->stateChanged(state);
 
-    if (this->d->cameras().contains(this->d->m_videoInput)) {
-        if (this->d->m_screenCapture)
-            this->d->m_screenCapture->setState(AkElement::ElementStateNull);
+    for (auto &source: this->d->m_activeSources) {
+        if (!source.element)
+            continue;
 
-        if (this->d->m_imageCapture)
-            this->d->m_imageCapture->setState(AkElement::ElementStateNull);
-
-        if (this->d->m_uriCapture)
-            this->d->m_uriCapture->setState(AkElement::ElementStateNull);
-
-        source = this->d->m_cameraCapture;
-    } else if (this->d->m_screens.contains(this->d->m_videoInput)
-               || this->d->m_windows.contains(this->d->m_videoInput)) {
-        if (this->d->m_cameraCapture)
-            this->d->m_cameraCapture->setState(AkElement::ElementStateNull);
-
-        if (this->d->m_imageCapture)
-            this->d->m_imageCapture->setState(AkElement::ElementStateNull);
-
-        if (this->d->m_uriCapture)
-            this->d->m_uriCapture->setState(AkElement::ElementStateNull);
-
-        source = this->d->m_screenCapture;
-    } else if (this->d->m_images.contains(this->d->m_videoInput)) {
-        if (this->d->m_cameraCapture)
-            this->d->m_cameraCapture->setState(AkElement::ElementStateNull);
-
-        if (this->d->m_screenCapture)
-            this->d->m_screenCapture->setState(AkElement::ElementStateNull);
-
-        if (this->d->m_uriCapture)
-            this->d->m_uriCapture->setState(AkElement::ElementStateNull);
-
-        source = this->d->m_imageCapture;
-    } else if (this->d->m_uris.contains(this->d->m_videoInput)) {
-        if (this->d->m_cameraCapture)
-            this->d->m_cameraCapture->setState(AkElement::ElementStateNull);
-
-        if (this->d->m_screenCapture)
-            this->d->m_screenCapture->setState(AkElement::ElementStateNull);
-
-        if (this->d->m_imageCapture)
-            this->d->m_imageCapture->setState(AkElement::ElementStateNull);
-
-        source = this->d->m_uriCapture;
-    }
-
-    if (source) {
-        if (source->setState(state)
-            || source->state() != this->d->m_state) {
-            auto state = source->state();
-            this->d->m_state = state;
-            emit this->stateChanged(state);
-        }
-    } else {
-        if (this->d->m_state != AkElement::ElementStateNull) {
-            this->d->m_state = AkElement::ElementStateNull;
-            emit this->stateChanged(AkElement::ElementStateNull);
+        if (state == AkElement::ElementStatePlaying) {
+            if (source.enabled)
+                auto ok = source.element->setState(state);
+        } else {
+            source.element->setState(state);
         }
     }
 }
 
-void VideoLayer::setTorchMode(TorchMode mode)
+void VideoLayer::setTorchMode(qint64 id, TorchMode mode)
 {
-    if (this->d->m_cameraCapture)
-        this->d->m_cameraCapture->setProperty("torchMode", mode);
+    if (!this->d->m_activeSources.contains(id))
+        return;
+
+    auto &source = this->d->m_activeSources[id];
+
+    if (source.type != InputCamera || !source.element)
+        return;
+
+    source.element->setProperty("torchMode", mode);
 }
 
 void VideoLayer::setPlayOnStart(bool playOnStart)
@@ -542,12 +642,7 @@ void VideoLayer::setOutputsAsInputs(bool outputsAsInputs)
 
     this->d->m_outputsAsInputs = outputsAsInputs;
     emit this->outputsAsInputsChanged(this->d->m_outputsAsInputs);
-    this->updateInputs();
-}
-
-void VideoLayer::resetVideoInput()
-{
-    this->setVideoInput({});
+    this->d->saveOutputsAsInputs(outputsAsInputs);
 }
 
 void VideoLayer::resetState()
@@ -555,9 +650,9 @@ void VideoLayer::resetState()
     this->setState(AkElement::ElementStateNull);
 }
 
-void VideoLayer::resetTorchMode()
+void VideoLayer::resetTorchMode(qint64 id)
 {
-    this->setTorchMode(Torch_Off);
+    this->setTorchMode(id, Torch_Off);
 }
 
 void VideoLayer::resetPlayOnStart()
@@ -578,7 +673,6 @@ void VideoLayer::setQmlEngine(QQmlApplicationEngine *engine)
     this->d->m_engine = engine;
 
     if (engine) {
-        engine->rootContext()->setContextProperty("videoLayer", this);
         qRegisterMetaType<InputType>("VideoInputType");
         qRegisterMetaType<TorchMode>("TorchMode");
         qRegisterMetaType<PermissionStatus>("PermissionStatus");
@@ -588,133 +682,163 @@ void VideoLayer::setQmlEngine(QQmlApplicationEngine *engine)
 
 void VideoLayer::updateInputs()
 {
-    QStringList inputs;
-
-    if (this->d->m_screenCapture)
-        QMetaObject::invokeMethod(this->d->m_screenCapture.data(),
+    if (this->d->m_cameraDiscovery)
+        QMetaObject::invokeMethod(this->d->m_cameraDiscovery.data(),
                                   "updateDevices");
 
-    // List the virtual camera outputs
-    QStringList videoOutputs;
-    QStringList videoOutputsDescription;
-    auto cameraOutput = akPluginManager->create<AkElement>("VideoSink/VirtualCamera");
+    if (this->d->m_screenDiscovery)
+        QMetaObject::invokeMethod(this->d->m_screenDiscovery.data(),
+                                  "updateDevices");
 
-    if (cameraOutput && !this->d->m_outputsAsInputs) {
-        videoOutputs = cameraOutput->property("medias").toStringList();
-
-        for (auto &output: videoOutputs) {
-            QString description;
-            QMetaObject::invokeMethod(cameraOutput.data(),
-                                      "description",
-                                      Q_RETURN_ARG(QString, description),
-                                      Q_ARG(QString, output));
-            videoOutputsDescription << output;
-        }
-    }
-
-    // Read cameras
-    for (const auto &camera: this->d->cameras()) {
-        auto description = this->d->cameraDescription(camera);
-
-        // Do not include the virtual camera outputs to prevent self blocking.
-        if (!videoOutputs.contains(camera)
-            && !videoOutputsDescription.contains(description))
-            inputs << camera;
-    }
-
-    // Append other sources bellow the cameras
-    inputs << this->d->m_sources;
-
-    // Update the available screens
-    auto availableScreens = this->d->screens();
-
-    if  (availableScreens != this->d->m_availableScreens) {
-        this->d->m_availableScreens = availableScreens;
-        emit this->screensChanged(this->d->m_availableScreens);
-    }
-
-    // Update the available windows
-    auto availableWindows = this->d->windows();
-
-    if  (availableWindows != this->d->m_availableWindows) {
-        this->d->m_availableWindows = availableWindows;
-        emit this->windowsChanged(this->d->m_availableWindows);
-    }
-
-    // Update inputs
-    if (inputs != this->d->m_inputs) {
-        this->d->m_inputs = inputs;
-        emit this->inputsChanged(this->d->m_inputs);
-
-        if (!this->d->m_inputs.contains(this->d->m_videoInput))
-            this->setVideoInput(this->d->m_inputs.value(0));
-    }
+    this->handleDevicesChanged();
 }
 
-void VideoLayer::updateCaps()
+void VideoLayer::handleDevicesChanged()
 {
-    auto state = this->state();
-    this->setState(AkElement::ElementStateNull);
-    auto source = this->d->sourceElement(this->d->m_videoInput);
+    auto availableCameras = this->d->cameras();
+    bool emitCamerasChanged = false;
+
+    if (availableCameras != this->d->m_availableCameras) {
+        this->d->m_availableCameras = availableCameras;
+        emitCamerasChanged = true;
+    }
+
+    auto availableScreens = this->d->screens();
+    bool emitScreensChanged = false;
+
+    if (availableScreens != this->d->m_availableScreens) {
+        this->d->m_availableScreens = availableScreens;
+        emitScreensChanged = true;
+    }
+
+    auto availableWindows = this->d->windows();
+    bool emitWindowsChanged = false;
+
+    if (availableWindows != this->d->m_availableWindows) {
+        this->d->m_availableWindows = availableWindows;
+        emitWindowsChanged = true;
+    }
+
+    this->d->pruneDisconnectedSources();
+
+    if (emitCamerasChanged)
+        emit this->camerasChanged(this->d->m_availableCameras);
+
+    if (emitScreensChanged)
+        emit this->screensChanged(this->d->m_availableScreens);
+
+    if (emitWindowsChanged)
+        emit this->windowsChanged(this->d->m_availableWindows);
+
+    if (this->d->m_firstRun)
+        this->d->trySetupFirstRunDevice();
+}
+
+void VideoLayer::updateSourceCaps(qint64 id)
+{
+    if (!this->d->m_activeSources.contains(id))
+        return;
+
+    auto &source = this->d->m_activeSources[id];
+
+    if (!source.element)
+        return;
 
     AkCaps audioCaps;
     AkCaps videoCaps;
 
-    if (source) {
-        // Set the resource to play.
-        source->setProperty("media", this->d->m_videoInput);
+    QList<int> streams;
+    QMetaObject::invokeMethod(source.element.data(),
+                              "streams",
+                              Q_RETURN_ARG(QList<int>, streams));
 
-        // Update output caps.
-        QList<int> streams;
-        QMetaObject::invokeMethod(source.data(),
-                                  "streams",
-                                  Q_RETURN_ARG(QList<int>, streams));
+    if (streams.isEmpty()) {
+        int audioStream = -1;
+        int videoStream = -1;
 
-        if (streams.isEmpty()) {
-            int audioStream = -1;
-            int videoStream = -1;
+        QMetaObject::invokeMethod(source.element.data(),
+                                  "defaultStream",
+                                  Q_RETURN_ARG(int, audioStream),
+                                  Q_ARG(AkCaps::CapsType, AkCaps::CapsAudio));
+        QMetaObject::invokeMethod(source.element.data(),
+                                  "defaultStream",
+                                  Q_RETURN_ARG(int, videoStream),
+                                  Q_ARG(AkCaps::CapsType, AkCaps::CapsVideo));
 
-            // Find the defaults audio and video streams.
-            QMetaObject::invokeMethod(source.data(),
-                                      "defaultStream",
-                                      Q_RETURN_ARG(int, audioStream),
-                                      Q_ARG(AkCaps::CapsType, AkCaps::CapsAudio));
-            QMetaObject::invokeMethod(source.data(),
-                                      "defaultStream",
-                                      Q_RETURN_ARG(int, videoStream),
-                                      Q_ARG(AkCaps::CapsType, AkCaps::CapsVideo));
+        if (audioStream >= 0)
+            QMetaObject::invokeMethod(source.element.data(),
+                                      "caps",
+                                      Q_RETURN_ARG(AkCaps, audioCaps),
+                                      Q_ARG(int, audioStream));
 
-            // Read streams caps.
-            if (audioStream >= 0)
-                QMetaObject::invokeMethod(source.data(),
-                                          "caps",
-                                          Q_RETURN_ARG(AkCaps, audioCaps),
-                                          Q_ARG(int, audioStream));
+        if (videoStream >= 0)
+            QMetaObject::invokeMethod(source.element.data(),
+                                      "caps",
+                                      Q_RETURN_ARG(AkCaps, videoCaps),
+                                      Q_ARG(int, videoStream));
+    } else {
+        for (auto &stream: streams) {
+            AkCaps caps;
+            QMetaObject::invokeMethod(source.element.data(),
+                                      "caps",
+                                      Q_RETURN_ARG(AkCaps, caps),
+                                      Q_ARG(int, stream));
 
-            if (videoStream >= 0)
-                QMetaObject::invokeMethod(source.data(),
-                                          "caps",
-                                          Q_RETURN_ARG(AkCaps, videoCaps),
-                                          Q_ARG(int, videoStream));
-        } else {
-            for (auto &stream: streams) {
-                AkCaps caps;
-                QMetaObject::invokeMethod(source.data(),
-                                          "caps",
-                                          Q_RETURN_ARG(AkCaps, caps),
-                                          Q_ARG(int, stream));
-
-                if (caps.type() == AkCaps::CapsAudio)
-                    audioCaps = caps;
-                else if (caps.type() == AkCaps::CapsVideo)
-                    videoCaps = caps;
-            }
+            if (caps.type() == AkCaps::CapsAudio)
+                audioCaps = caps;
+            else if (caps.type() == AkCaps::CapsVideo)
+                videoCaps = caps;
         }
     }
 
-    this->setState(state);
-    this->d->setInputAudioCaps(audioCaps);
-    this->d->setInputVideoCaps(videoCaps);
+    AkAudioCaps newAudioCaps(audioCaps);
+    AkVideoCaps newVideoCaps(videoCaps);
+
+    if (source.audioCaps != newAudioCaps) {
+        source.audioCaps = newAudioCaps;
+        emit this->sourceAudioCapsChanged(id, newAudioCaps);
+    }
+
+    if (source.videoCaps != newVideoCaps) {
+        source.videoCaps = newVideoCaps;
+        emit this->sourceVideoCapsChanged(id, newVideoCaps);
+    }
+}
+
+void VideoLayer::handleSourceError(const QString &error)
+{
+    auto id = this->sender()->property("__sourceId").toLongLong();
+
+    if (!this->d->m_activeSources.contains(id))
+        return;
+
+    this->d->m_activeSources[id].lastError = error;
+    emit this->sourceErrorChanged(id, error);
+}
+
+void VideoLayer::handleStreamsChanged(const QList<int> &streams)
+{
+    Q_UNUSED(streams)
+    auto id = this->sender()->property("__sourceId").toLongLong();
+    this->updateSourceCaps(id);
+}
+
+void VideoLayer::handleIsTorchSupportedChanged(bool torchSupported)
+{
+    auto id = this->sender()->property("__sourceId").toLongLong();
+    emit this->isTorchSupportedChanged(id, torchSupported);
+}
+
+void VideoLayer::handleTorchModeChanged(TorchMode mode)
+{
+    auto id = this->sender()->property("__sourceId").toLongLong();
+    emit this->torchModeChanged(id, mode);
+}
+
+void VideoLayer::handlePermissionStatusChanged(PermissionStatus status)
+{
+    auto id = this->sender()->property("__sourceId").toLongLong();
+    emit this->cameraPermissionStatusChanged(id, status);
 }
 
 VideoLayerPrivate::VideoLayerPrivate(VideoLayer *self):
@@ -779,151 +903,45 @@ VideoLayerPrivate::VideoLayerPrivate(VideoLayer *self):
 
     auto supportedImageFormats = QImageReader::supportedImageFormats();
     supportedImageFormats.removeAll("pdf");
+    this->m_supportedImageFormats =
+            QStringList(supportedImageFormats.begin(),
+                       supportedImageFormats.end());
     this->m_supportedFileFormats =
-        supportedVideoFormats + QStringList(supportedImageFormats.begin(),
-                                            supportedImageFormats.end());
+        supportedVideoFormats + this->m_supportedImageFormats;
+
+    this->m_availableCameras = this->cameras();
+    this->m_availableScreens = this->screens();
+    this->m_availableWindows = this->windows();
 }
 
-void VideoLayerPrivate::connectSignals()
+void VideoLayerPrivate::connectDiscoverySignals()
 {
-    if (this->m_cameraCapture) {
-        QObject::connect(this->m_cameraCapture.data(),
-                         SIGNAL(oStream(AkPacket)),
-                         self,
-                         SIGNAL(oStream(AkPacket)),
-                         Qt::DirectConnection);
-        QObject::connect(this->m_cameraCapture.data(),
+    if (this->m_cameraDiscovery) {
+        QObject::connect(this->m_cameraDiscovery.data(),
                          SIGNAL(mediasChanged(QStringList)),
                          self,
-                         SLOT(updateInputs()));
-        QObject::connect(this->m_cameraCapture.data(),
-                         SIGNAL(errorChanged(QString)),
-                         self,
-                         SIGNAL(inputErrorChanged(QString)));
-        QObject::connect(this->m_cameraCapture.data(),
-                         SIGNAL(streamsChanged(QList<int>)),
-                         self,
-                         SLOT(updateCaps()));
-        QObject::connect(this->m_cameraCapture.data(),
-                         SIGNAL(isTorchSupportedChanged(bool)),
-                         self,
-                         SIGNAL(isTorchSupportedChanged(bool)));
-        QObject::connect(this->m_cameraCapture.data(),
-                         SIGNAL(torchModeChanged(TorchMode)),
-                         self,
-                         SIGNAL(torchModeChanged(TorchMode)));
-        QObject::connect(this->m_cameraCapture.data(),
-                         SIGNAL(permissionStatusChanged(PermissionStatus)),
-                         self,
-                         SIGNAL(cameraPermissionStatusChanged(PermissionStatus)));
+                         SLOT(handleDevicesChanged()));
     }
 
-    if (this->m_screenCapture) {
-        QObject::connect(this->m_screenCapture.data(),
-                         SIGNAL(oStream(AkPacket)),
-                         self,
-                         SIGNAL(oStream(AkPacket)),
-                         Qt::DirectConnection);
-        QObject::connect(this->m_screenCapture.data(),
+    if (this->m_screenDiscovery) {
+        QObject::connect(this->m_screenDiscovery.data(),
                          SIGNAL(mediasChanged(QStringList)),
                          self,
-                         SLOT(updateInputs()));
-        QObject::connect(this->m_screenCapture.data(),
-                         SIGNAL(error(QString)),
-                         self,
-                         SIGNAL(inputErrorChanged(QString)));
-        QObject::connect(this->m_screenCapture.data(),
-                         SIGNAL(streamsChanged(QList<int>)),
-                         self,
-                         SLOT(updateCaps()));
-        QObject::connect(this->m_screenCapture.data(),
+                         SLOT(handleDevicesChanged()));
+        QObject::connect(this->m_screenDiscovery.data(),
                          SIGNAL(canCaptureWindowsChanged(bool)),
                          self,
                          SIGNAL(canCaptureWindowsChanged(bool)));
     }
-
-    if (this->m_imageCapture) {
-        QObject::connect(this->m_imageCapture.data(),
-                         SIGNAL(oStream(AkPacket)),
-                         self,
-                         SIGNAL(oStream(AkPacket)),
-                         Qt::DirectConnection);
-        QObject::connect(this->m_imageCapture.data(),
-                         SIGNAL(error(QString)),
-                         self,
-                         SIGNAL(inputErrorChanged(QString)));
-        QObject::connect(this->m_imageCapture.data(),
-                         SIGNAL(streamsChanged(QList<int>)),
-                         self,
-                         SLOT(updateCaps()));
-        this->m_supportedImageFormats =
-                this->m_imageCapture->property("supportedFormats").toStringList();
-    }
-
-    if (this->m_uriCapture) {
-        this->m_uriCapture->setProperty("loop", true);
-
-        QObject::connect(this->m_uriCapture.data(),
-                         SIGNAL(oStream(AkPacket)),
-                         self,
-                         SIGNAL(oStream(AkPacket)),
-                         Qt::DirectConnection);
-        QObject::connect(this->m_uriCapture.data(),
-                         SIGNAL(error(QString)),
-                         self,
-                         SIGNAL(inputErrorChanged(QString)));
-        QObject::connect(this->m_uriCapture.data(),
-                         SIGNAL(streamsChanged(QList<int>)),
-                         self,
-                         SLOT(updateCaps()));
-    }
-}
-
-AkElementPtr VideoLayerPrivate::sourceElement(const QString &stream) const
-{
-    if (this->cameras().contains(stream))
-        return this->m_cameraCapture;
-
-    if (this->m_screens.contains(stream)
-        || this->m_windows.contains(stream)) {
-        return this->m_screenCapture;
-    }
-
-    if (this->m_images.contains(stream))
-        return this->m_imageCapture;
-
-    if (this->m_uris.contains(stream))
-        return this->m_uriCapture;
-
-    return {};
-}
-
-QString VideoLayerPrivate::sourceId(const QString &stream) const
-{
-    if (this->cameras().contains(stream))
-        return {"VideoSource/CameraCapture"};
-
-    if (this->m_screens.contains(stream)
-        || this->m_windows.contains(stream)) {
-        return {"VideoSource/DesktopCapture"};
-    }
-
-    if (this->m_images.contains(stream))
-        return {"VideoSource/ImageSrc"};
-
-    if (this->m_uris.contains(stream))
-        return {"MultimediaSource/MultiSrc"};
-
-    return {};
 }
 
 QStringList VideoLayerPrivate::cameras() const
 {
-    if (!this->m_cameraCapture)
+    if (!this->m_cameraDiscovery)
         return {};
 
     QStringList cameras;
-    QMetaObject::invokeMethod(this->m_cameraCapture.data(),
+    QMetaObject::invokeMethod(this->m_cameraDiscovery.data(),
                               "medias",
                               Q_RETURN_ARG(QStringList, cameras));
 
@@ -932,19 +950,18 @@ QStringList VideoLayerPrivate::cameras() const
 
 QStringList VideoLayerPrivate::screens() const
 {
-    if (!this->m_screenCapture)
+    if (!this->m_screenDiscovery)
         return {};
 
     QStringList screens;
-
     QStringList medias;
-    QMetaObject::invokeMethod(this->m_screenCapture.data(),
+    QMetaObject::invokeMethod(this->m_screenDiscovery.data(),
                               "medias",
                               Q_RETURN_ARG(QStringList, medias));
 
     for (const auto &media: medias) {
         bool isWindow = false;
-        QMetaObject::invokeMethod(this->m_screenCapture.data(),
+        QMetaObject::invokeMethod(this->m_screenDiscovery.data(),
                                   "isWindow",
                                   Q_RETURN_ARG(bool, isWindow),
                                   Q_ARG(QString, media));
@@ -958,19 +975,18 @@ QStringList VideoLayerPrivate::screens() const
 
 QStringList VideoLayerPrivate::windows() const
 {
-    if (!this->m_screenCapture)
+    if (!this->m_screenDiscovery)
         return {};
 
     QStringList windows;
-
     QStringList medias;
-    QMetaObject::invokeMethod(this->m_screenCapture.data(),
+    QMetaObject::invokeMethod(this->m_screenDiscovery.data(),
                               "medias",
                               Q_RETURN_ARG(QStringList, medias));
 
     for (const auto &media: medias) {
         bool isWindow = false;
-        QMetaObject::invokeMethod(this->m_screenCapture.data(),
+        QMetaObject::invokeMethod(this->m_screenDiscovery.data(),
                                   "isWindow",
                                   Q_RETURN_ARG(bool, isWindow),
                                   Q_ARG(QString, media));
@@ -984,11 +1000,11 @@ QStringList VideoLayerPrivate::windows() const
 
 QString VideoLayerPrivate::cameraDescription(const QString &camera) const
 {
-    if (!this->m_cameraCapture)
+    if (!this->m_cameraDiscovery)
         return {};
 
     QString description;
-    QMetaObject::invokeMethod(this->m_cameraCapture.data(),
+    QMetaObject::invokeMethod(this->m_cameraDiscovery.data(),
                               "description",
                               Q_RETURN_ARG(QString, description),
                               Q_ARG(QString, camera));
@@ -998,11 +1014,11 @@ QString VideoLayerPrivate::cameraDescription(const QString &camera) const
 
 QString VideoLayerPrivate::screenDescription(const QString &desktop) const
 {
-    if (!this->m_screenCapture)
+    if (!this->m_screenDiscovery)
         return {};
 
     QString description;
-    QMetaObject::invokeMethod(this->m_screenCapture.data(),
+    QMetaObject::invokeMethod(this->m_screenDiscovery.data(),
                               "description",
                               Q_RETURN_ARG(QString, description),
                               Q_ARG(QString, desktop));
@@ -1015,7 +1031,7 @@ bool VideoLayerPrivate::embedControls(const QString &where,
                                       const QString &pluginId,
                                       const QString &name) const
 {
-    if (!element)
+    if (!element || !this->m_engine)
         return false;
 
     auto controlInterface = element->controlInterface(this->m_engine, pluginId);
@@ -1027,16 +1043,16 @@ bool VideoLayerPrivate::embedControls(const QString &where,
         controlInterface->setObjectName(name);
 
     for (auto &obj: this->m_engine->rootObjects()) {
-        // First, find where to embed the UI.
         auto item = obj->findChild<QQuickItem *>(where);
 
         if (!item)
             continue;
 
-        // Create an item with the plugin context.
         auto interfaceItem = qobject_cast<QQuickItem *>(controlInterface);
 
-        // Finally, embed the plugin item UI in the desired place.
+        if (!interfaceItem)
+            continue;
+
         interfaceItem->setParentItem(item);
 
         return true;
@@ -1045,91 +1061,99 @@ bool VideoLayerPrivate::embedControls(const QString &where,
     return false;
 }
 
-void VideoLayerPrivate::setInputAudioCaps(const AkAudioCaps &inputAudioCaps)
-{
-    if (this->m_inputAudioCaps == inputAudioCaps)
-        return;
-
-    this->m_inputAudioCaps = inputAudioCaps;
-    emit self->inputAudioCapsChanged(inputAudioCaps);
-}
-
-void VideoLayerPrivate::setInputVideoCaps(const AkVideoCaps &inputVideoCaps)
-{
-    if (this->m_inputVideoCaps == inputVideoCaps)
-        return;
-
-    this->m_inputVideoCaps = inputVideoCaps;
-    emit self->inputVideoCapsChanged(inputVideoCaps);
-}
-
 void VideoLayerPrivate::loadProperties()
 {
     QSettings config;
 
     config.beginGroup("StreamConfigs");
-    this->m_videoInput = config.value("stream").toString();
     this->m_playOnStart = config.value("playOnStart", true).toBool();
+    this->m_outputsAsInputs = config.value("outputsAsInputs", false).toBool();
+    config.endGroup();
 
-    // Read media URIs and files
+    config.beginGroup("GeneralConfigs");
+    this->m_firstRun = config.value("firstRun", true).toBool();
+    config.endGroup();
+
+    self->updateInputs();
+
+    config.beginGroup("StreamConfigs");
     int size = config.beginReadArray("sources");
 
     for (int i = 0; i < size; i++) {
         config.setArrayIndex(i);
-        auto source = config.value("source").toString();
-        auto description = config.value("description").toString();
+        auto device = config.value("source").toString();
+        auto label = config.value("description").toString();
+        auto enabled = config.value("enabled", true).toBool();
+        auto deviceType = self->deviceType(device);
 
-        if (source.startsWith("screen://")) {
-            if (!this->screens().contains(source))
-                continue;
+        if (device.isEmpty())
+            continue;
 
-            this->m_screens << source;
-        } else if (source.startsWith("window://")) {
-            if (!this->windows().contains(source))
-                continue;
+        auto id = self->addSource(device);
 
-            this->m_windows << source;
-        } else {
-            QFileInfo fileInfo(source);
+        if (id < 0)
+            continue;
 
-            if (!fileInfo.exists())
-                continue;
+        self->setSourceEnabled(id, enabled);
 
-            auto suffix = fileInfo.suffix().toLower();
-
-            if (!this->m_supportedFileFormats.contains(suffix))
-                continue;
-
-            if (this->m_supportedImageFormats.contains(suffix))
-                this->m_images[source] = description;
-            else
-                this->m_uris[source] = description;
+        if (label.isEmpty()
+            && (deviceType == VideoLayer::InputImage
+                || deviceType == VideoLayer::InputStream)) {
+            label = QFileInfo(device).baseName();
         }
 
-        this->m_sources << source;
+        self->setSourceLabel(id, label);
     }
 
     config.endArray();
     config.endGroup();
 
-    self->updateInputs();
-    self->updateCaps();
+    if (this->m_firstRun)
+        this->trySetupFirstRunDevice();
 }
 
-QString VideoLayerPrivate::sanitizeKey(const QString &key)
+void VideoLayerPrivate::trySetupFirstRunDevice()
 {
-    QString sanitized(key);
+    if (!this->m_firstRun)
+        return;
 
-    return sanitized.replace(" ", "_")
-                    .replace(".", "_")
-                    .replace(",", "_");
-}
+    auto availableCameras = this->cameras();
+    QString device;
 
-void VideoLayerPrivate::saveVideoInput(const QString &videoInput)
-{
+    if (!availableCameras.isEmpty()) {
+        device = availableCameras.first();
+    } else {
+        auto availableScreens = this->screens();
+
+        if (!availableScreens.isEmpty())
+            device = availableScreens.first();
+    }
+
+    if (device.isEmpty())
+        return;
+
+    // Only add if nothing was already restored/added for this device.
+    bool alreadyActive = false;
+
+    for (const auto &source: this->m_activeSources)
+        if (source.device == device) {
+            alreadyActive = true;
+
+            break;
+        }
+
+    if (!alreadyActive) {
+        auto id = self->addSource(device);
+
+        if (id >= 0)
+            self->setSourceEnabled(id, true);
+    }
+
+    this->m_firstRun = false;
+
     QSettings config;
-    config.beginGroup("StreamConfigs");
-    config.setValue("stream", videoInput);
+    config.beginGroup("GeneralConfigs");
+    config.setValue("firstRun", false);
     config.endGroup();
 }
 
@@ -1141,10 +1165,11 @@ void VideoLayerPrivate::saveSources()
 
     int i = 0;
 
-    for (const auto &source: this->m_sources) {
+    for (const auto &source: this->m_activeSources) {
         config.setArrayIndex(i);
-        config.setValue("source", source);
-        config.setValue("description", self->description(source));
+        config.setValue("source", source.device);
+        config.setValue("description", source.label);
+        config.setValue("enabled", source.enabled);
         i++;
     }
 
@@ -1163,9 +1188,80 @@ void VideoLayerPrivate::savePlayOnStart(bool playOnStart)
 void VideoLayerPrivate::saveOutputsAsInputs(bool outputsAsInputs)
 {
     QSettings config;
-    config.beginGroup("VirtualCamera");
-    config.setValue("loopback", outputsAsInputs);
+    config.beginGroup("StreamConfigs");
+    config.setValue("outputsAsInputs", outputsAsInputs);
     config.endGroup();
+}
+
+AkElementPtr VideoLayerPrivate::createCaptureElement(VideoLayer::InputType type) const
+{
+    QString pluginId = this->pluginIdForType(type);
+
+    if (pluginId.isEmpty())
+        return {};
+
+    return akPluginManager->create<AkElement>(pluginId);
+}
+
+QString VideoLayerPrivate::pluginIdForType(VideoLayer::InputType type) const
+{
+    switch (type) {
+    case VideoLayer::InputCamera:
+        return "VideoSource/CameraCapture";
+    case VideoLayer::InputScreen:
+        return "VideoSource/DesktopCapture";
+    case VideoLayer::InputImage:
+        return "VideoSource/ImageSrc";
+    case VideoLayer::InputStream:
+        return "MultimediaSource/MultiSrc";
+    default:
+        return {};
+    }
+}
+
+VideoLayer::InputType VideoLayerPrivate::classifyByExtension(const QString &device) const
+{
+    auto suffix = QFileInfo(device).suffix().toLower();
+
+    if (suffix.isEmpty())
+        return VideoLayer::InputUnknown;
+
+    if (this->m_supportedImageFormats.contains(suffix))
+        return VideoLayer::InputImage;
+
+    if (this->m_supportedFileFormats.contains(suffix))
+        return VideoLayer::InputStream;
+
+    return VideoLayer::InputUnknown;
+}
+
+void VideoLayerPrivate::pruneDisconnectedSources()
+{
+    // Create a list of all disconnected sources
+    QList<qint64> sourcesToRemove;
+
+    for (auto it = this->m_activeSources.begin(); it != this->m_activeSources.end(); ++it) {
+        const auto &source = it.value();
+        bool shouldRemove = false;
+
+        if (source.type == VideoLayer::InputCamera) {
+            // Remove unnavailable cameras
+            if (!this->m_availableCameras.contains(source.device))
+                shouldRemove = true;
+        } else if (source.type == VideoLayer::InputScreen) {
+            // Remove unnavailable screens
+            if (!this->m_availableScreens.contains(source.device)
+                && !this->m_availableWindows.contains(source.device))
+                shouldRemove = true;
+        }
+
+        if (shouldRemove)
+            sourcesToRemove.append(it.key());
+    }
+
+    // Remove all disconnected sources
+    for (auto id: sourcesToRemove)
+        self->removeSource(id);
 }
 
 #include "moc_videolayer.cpp"

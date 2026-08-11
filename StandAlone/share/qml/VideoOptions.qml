@@ -25,6 +25,7 @@ ColumnLayout {
     id: videoOptions
 
     signal openErrorDialog(string title, string message)
+    signal openVideoInputAddCameraDialog()
     signal openVideoInputAddScreenDialog()
     signal openVideoInputAddWindowDialog()
     signal openVideoInputAddFileDialog()
@@ -58,6 +59,8 @@ ColumnLayout {
         clip: true
 
         VideoInputs {
+            onOpenVideoInputAddCameraDialog:
+                videoOptions.openVideoInputAddCameraDialog()
             onOpenVideoInputAddScreenDialog:
                 videoOptions.openVideoInputAddScreenDialog()
             onOpenVideoInputAddWindowDialog:

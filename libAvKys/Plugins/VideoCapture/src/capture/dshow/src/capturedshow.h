@@ -79,6 +79,7 @@ class CaptureDShow:
         void resetIoMethod() override;
         void resetNBuffers() override;
         void reset() override;
+        void updateDevices() override;
 };
 
 #endif // CAPTUREDSHOW_H

@@ -691,55 +691,45 @@ QString AudioDevPipeWire::error() const
 
 QString AudioDevPipeWire::defaultInput()
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     auto defaultSource = this->d->m_defaultSource;
 
     if (defaultSource.isEmpty())
         defaultSource = this->d->m_sources.values().value(0);
-
-    this->d->m_mutex.unlock();
 
     return defaultSource;
 }
 
 QString AudioDevPipeWire::defaultOutput()
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
     auto defaultSink = this->d->m_defaultSink;
 
     if (defaultSink.isEmpty())
         defaultSink = this->d->m_sinks.values().value(0);
-
-    this->d->m_mutex.unlock();
 
     return defaultSink;
 }
 
 QStringList AudioDevPipeWire::inputs()
 {
-    this->d->m_mutex.lock();
-    auto inputs = this->d->m_sources.values();
-    this->d->m_mutex.unlock();
+    QMutexLocker locker(&this->d->m_mutex);
 
-    return inputs;
+    return this->d->m_sources.values();
 }
 
 QStringList AudioDevPipeWire::outputs()
 {
-    this->d->m_mutex.lock();
-    auto outputs = this->d->m_sinks.values();
-    this->d->m_mutex.unlock();
+    QMutexLocker locker(&this->d->m_mutex);
 
-    return outputs;
+    return this->d->m_sinks.values();
 }
 
 QString AudioDevPipeWire::description(const QString &device)
 {
-    this->d->m_mutex.lock();
-    auto description = this->d->m_pinDescriptionMap.value(device);
-    this->d->m_mutex.unlock();
+    QMutexLocker locker(&this->d->m_mutex);
 
-    return description;
+    return this->d->m_pinDescriptionMap.value(device);
 }
 
 AkAudioCaps AudioDevPipeWire::preferredFormat(const QString &device)
@@ -760,21 +750,21 @@ AkAudioCaps AudioDevPipeWire::preferredFormat(const QString &device)
 
     AkAudioCaps caps;
 
-    this->d->m_mutex.lock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
 
-    if (this->d->m_sinks.values().contains(device)) {
-        auto layout = channelLayouts.contains(AkAudioCaps::Layout_stereo)?
-                          AkAudioCaps::Layout_stereo:
-                          channelLayouts.first();
-        caps = {format, layout, false, 48000};
-    } else if (this->d->m_sources.values().contains(device)) {
-        auto layout = channelLayouts.contains(AkAudioCaps::Layout_mono)?
-                          AkAudioCaps::Layout_mono:
-                          channelLayouts.first();
-        caps = {format, layout, false, 48000};
+        if (this->d->m_sinks.values().contains(device)) {
+            auto layout = channelLayouts.contains(AkAudioCaps::Layout_stereo)?
+                              AkAudioCaps::Layout_stereo:
+                              channelLayouts.first();
+            caps = {format, layout, false, 48000};
+        } else if (this->d->m_sources.values().contains(device)) {
+            auto layout = channelLayouts.contains(AkAudioCaps::Layout_mono)?
+                              AkAudioCaps::Layout_mono:
+                              channelLayouts.first();
+            caps = {format, layout, false, 48000};
+        }
     }
-
-    this->d->m_mutex.unlock();
 
     return caps;
 }
@@ -783,13 +773,13 @@ QList<AkAudioCaps::SampleFormat> AudioDevPipeWire::supportedFormats(const QStrin
 {
     QList<AkAudioCaps::SampleFormat> formats;
 
-    this->d->m_mutex.lock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
 
-    for (auto &format: this->d->m_formats.value(device))
-        if (!formats.contains(format.format))
-            formats << format.format;
-
-    this->d->m_mutex.unlock();
+        for (auto &format: this->d->m_formats.value(device))
+            if (!formats.contains(format.format))
+                formats << format.format;
+    }
 
     return formats;
 }
@@ -798,13 +788,13 @@ QList<AkAudioCaps::ChannelLayout> AudioDevPipeWire::supportedChannelLayouts(cons
 {
     QList<AkAudioCaps::ChannelLayout> layouts;
 
-    this->d->m_mutex.lock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
 
-    for (auto &format: this->d->m_formats.value(device))
-        if (!layouts.contains(format.layout))
-            layouts << format.layout;
-
-    this->d->m_mutex.unlock();
+        for (auto &format: this->d->m_formats.value(device))
+            if (!layouts.contains(format.layout))
+                layouts << format.layout;
+    }
 
     return layouts;
 }
@@ -826,11 +816,12 @@ bool AudioDevPipeWire::init(const QString &device, const AkAudioCaps &caps)
 
     this->d->m_curDevice = device;
 
-    this->d->m_mutex.lock();
-    this->d->m_isCapture = std::find(this->d->m_sources.cbegin(),
-                                     this->d->m_sources.cend(),
-                                     device) != this->d->m_sources.cend();
-    this->d->m_mutex.unlock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_isCapture = std::find(this->d->m_sources.cbegin(),
+                                         this->d->m_sources.cend(),
+                                         device) != this->d->m_sources.cend();
+    }
 
     this->d->m_pwStreamLoop =
         this->d->pwThreadLoopNew("PipeWire audio loop", nullptr);

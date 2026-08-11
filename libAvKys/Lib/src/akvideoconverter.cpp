@@ -8550,8 +8550,14 @@ AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
     }
 
     if (fc.fastConvertion) {
+        if (!fc.srcWidthOffsetX || !fc.dstWidthOffsetX)
+            return {};
+
         this->convertFast8bits(fc, packet, fc.outputFrame);
     } else {
+        if (!fc.srcWidth || !fc.dstWidthOffsetX)
+            return {};
+
         switch (fc.convertDataTypes) {
         DEFINE_CONVERT_FUNC(8 , 8 )
         DEFINE_CONVERT_FUNC(8 , 16)
@@ -8638,7 +8644,7 @@ FrameConvertParameters::FrameConvertParameters(const FrameConvertParameters &oth
     maskAo(other.maskAo),
     alphaMask(other.alphaMask)
 {
-    auto oWidth = this->outputCaps.width();
+    auto oWidth  = this->outputCaps.width();
     auto oHeight = this->outputCaps.height();
 
     size_t oWidthDataSize = sizeof(int) * oWidth;
@@ -8880,7 +8886,7 @@ FrameConvertParameters &FrameConvertParameters::operator =(const FrameConvertPar
         this->clearBuffers();
         this->clearDlBuffers();
 
-        auto oWidth = this->outputCaps.width();
+        auto oWidth  = this->outputCaps.width();
         auto oHeight = this->outputCaps.height();
 
         size_t oWidthDataSize = sizeof(int) * oWidth;

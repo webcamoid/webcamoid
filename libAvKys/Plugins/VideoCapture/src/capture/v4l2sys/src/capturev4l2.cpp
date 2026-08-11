@@ -987,6 +987,11 @@ void CaptureV4L2::reset()
     this->resetCameraControls();
 }
 
+void CaptureV4L2::updateDevices()
+{
+    this->d->updateDevices();
+}
+
 CaptureV4L2Private::CaptureV4L2Private(CaptureV4L2 *self):
     self(self)
 {

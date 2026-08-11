@@ -30,7 +30,7 @@ class Plugin: public QObject, public AkPlugin
 
     public:
         bool canLoad() override;
-        QObject *create();
+        QObject *create() override;
 };
 
 #endif // PLUGIN_H

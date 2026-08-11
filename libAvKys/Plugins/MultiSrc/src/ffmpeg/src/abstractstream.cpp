@@ -39,6 +39,8 @@ inline void waitLoop(const QFuture<T> &loop)
 
         if (eventDispatcher)
             eventDispatcher->processEvents(QEventLoop::AllEvents);
+
+        QThread::msleep(1);
     }
 }
 
@@ -251,8 +253,14 @@ bool AbstractStream::hasAudioRef() const
 
 void AbstractStream::packetEnqueue(AVPacket *packet)
 {
-    if (!this->d->m_runPacketLoop)
+    if (!this->d->m_runPacketLoop) {
+        if (packet) {
+            av_packet_unref(packet);
+            av_packet_free(&packet);
+        }
+
         return;
+    }
 
     this->d->m_packetMutex.lock();
 
@@ -337,14 +345,16 @@ void AbstractStream::processData(AVSubtitle *subtitle)
 
 void AbstractStream::flush()
 {
-    this->d->m_dataMutex.lock();
-    this->d->m_packets.clear();
-    this->d->m_dataMutex.unlock();
+    {
+        QMutexLocker packetLocker(&this->d->m_packetMutex);
+        this->d->m_packets.clear();
+    }
 
-    this->d->m_dataMutex.lock();
-    this->d->m_frames.clear();
-    this->d->m_subtitles.clear();
-    this->d->m_dataMutex.unlock();
+    {
+        QMutexLocker dataLocker(&this->d->m_dataMutex);
+        this->d->m_frames.clear();
+        this->d->m_subtitles.clear();
+    }
 }
 
 bool AbstractStream::setState(AkElement::ElementState state)
@@ -385,9 +395,22 @@ bool AbstractStream::setState(AkElement::ElementState state)
         switch (state) {
         case AkElement::ElementStateNull: {
             this->d->m_runPacketLoop = false;
+
+            {
+                QMutexLocker locker(&this->d->m_packetMutex);
+                this->d->m_packetQueueNotEmpty.wakeAll();
+            }
+
             waitLoop(this->d->m_packetLoopResult);
 
             this->d->m_run = false;
+
+            {
+                QMutexLocker locker(&this->d->m_dataMutex);
+                this->d->m_dataQueueNotEmpty.wakeAll();
+                this->d->m_dataQueueNotFull.wakeAll();
+            }
+
             waitLoop(this->d->m_dataLoopResult);
 
             if (this->d->m_codecOptions)
@@ -427,9 +450,22 @@ bool AbstractStream::setState(AkElement::ElementState state)
         switch (state) {
         case AkElement::ElementStateNull: {
             this->d->m_runPacketLoop = false;
+
+            {
+                QMutexLocker locker(&this->d->m_packetMutex);
+                this->d->m_packetQueueNotEmpty.wakeAll();
+            }
+
             waitLoop(this->d->m_packetLoopResult);
 
             this->d->m_run = false;
+
+            {
+                QMutexLocker locker(&this->d->m_dataMutex);
+                this->d->m_dataQueueNotEmpty.wakeAll();
+                this->d->m_dataQueueNotFull.wakeAll();
+            }
+
             waitLoop(this->d->m_dataLoopResult);
 
             if (this->d->m_codecOptions)
@@ -556,7 +592,7 @@ void AbstractStreamPrivate::readData()
 
         FramePtr frame;
 
-        if (gotFrame) {
+        if (gotFrame && !this->m_frames.isEmpty()) {
             frame = this->m_frames.dequeue();
 
             if (this->m_frames.size() < self->m_maxData)
@@ -565,13 +601,11 @@ void AbstractStreamPrivate::readData()
 
         this->m_dataMutex.unlock();
 
-        if (gotFrame) {
-            if (frame) {
-                self->processData(frame.data());
-            } else {
-                emit self->eof();
-                this->m_run = false;
-            }
+        if (frame) {
+            self->processData(frame.data());
+        } else if (gotFrame && !frame) {
+            emit self->eof();
+            this->m_run = false;
         }
 
         break;
@@ -586,7 +620,7 @@ void AbstractStreamPrivate::readData()
 
         SubtitlePtr subtitle;
 
-        if (gotSubtitle) {
+        if (gotSubtitle && !this->m_subtitles.isEmpty()) {
             subtitle = this->m_subtitles.dequeue();
 
             if (this->m_subtitles.size() < self->m_maxData)
@@ -595,13 +629,11 @@ void AbstractStreamPrivate::readData()
 
         this->m_dataMutex.unlock();
 
-        if (gotSubtitle) {
-            if (subtitle)
-                self->processData(subtitle.data());
-            else {
-                emit self->eof();
-                this->m_run = false;
-            }
+        if (subtitle) {
+            self->processData(subtitle.data());
+        } else if (gotSubtitle && !subtitle) {
+            emit self->eof();
+            this->m_run = false;
         }
 
         break;
@@ -625,8 +657,6 @@ void AbstractStreamPrivate::deleteFrame(AVFrame *frame)
     if (!frame)
         return;
 
-    av_freep(&frame->data[0]);
-    frame->data[0] = nullptr;
     av_frame_unref(frame);
     av_frame_free(&frame);
 }

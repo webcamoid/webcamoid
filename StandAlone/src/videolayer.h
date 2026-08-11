@@ -1,5 +1,5 @@
 /* Webcamoid, camera capture application.
- * Copyright (C) 2016  Gonzalo Exequiel Pedone
+ * Copyright (C) 2026  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,26 +34,12 @@ using VideoLayerPtr = QSharedPointer<VideoLayer>;
 class VideoLayer: public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QString inputError
-               READ inputError
-               NOTIFY inputErrorChanged)
     Q_PROPERTY(QStringList videoSourceFileFilters
                READ videoSourceFileFilters
                CONSTANT)
-    Q_PROPERTY(QString videoInput
-               READ videoInput
-               WRITE setVideoInput
-               RESET resetVideoInput
-               NOTIFY videoInputChanged)
-    Q_PROPERTY(QStringList inputs
-               READ inputs
-               NOTIFY inputsChanged)
-    Q_PROPERTY(AkAudioCaps inputAudioCaps
-               READ inputAudioCaps
-               NOTIFY inputAudioCapsChanged)
-    Q_PROPERTY(AkVideoCaps inputVideoCaps
-               READ inputVideoCaps
-               NOTIFY inputVideoCapsChanged)
+    Q_PROPERTY(QStringList cameras
+               READ cameras
+               NOTIFY camerasChanged)
     Q_PROPERTY(QStringList screens
                READ screens
                NOTIFY screensChanged)
@@ -71,17 +57,6 @@ class VideoLayer: public QObject
                WRITE setState
                RESET resetState
                NOTIFY stateChanged)
-    Q_PROPERTY(bool isTorchSupported
-               READ isTorchSupported
-               NOTIFY isTorchSupportedChanged)
-    Q_PROPERTY(TorchMode torchMode
-               READ torchMode
-               WRITE setTorchMode
-               RESET resetTorchMode
-               NOTIFY torchModeChanged)
-    Q_PROPERTY(PermissionStatus cameraPermissionStatus
-               READ cameraPermissionStatus
-               NOTIFY cameraPermissionStatusChanged)
     Q_PROPERTY(bool playOnStart
                READ playOnStart
                WRITE setPlayOnStart
@@ -103,15 +78,13 @@ class VideoLayer: public QObject
         };
         Q_ENUM(InputType)
 
-        enum TorchMode
-        {
+        enum TorchMode {
             Torch_Off,
             Torch_On,
         };
         Q_ENUM(TorchMode)
 
-        enum PermissionStatus
-        {
+        enum PermissionStatus {
             PermissionStatus_Undetermined,
             PermissionStatus_Granted,
             PermissionStatus_Denied,
@@ -122,70 +95,96 @@ class VideoLayer: public QObject
                    QObject *parent=nullptr);
         ~VideoLayer();
 
+        // Discovery (unchanged concept, reads from dedicated instances)
         Q_INVOKABLE QStringList videoSourceFileFilters() const;
-        Q_INVOKABLE QString videoInput() const;
-        Q_INVOKABLE QStringList inputs() const;
-        Q_INVOKABLE AkAudioCaps inputAudioCaps() const;
-        Q_INVOKABLE AkVideoCaps inputVideoCaps() const;
+        Q_INVOKABLE QStringList cameras() const;
         Q_INVOKABLE QStringList screens() const;
         Q_INVOKABLE QStringList windows() const;
         Q_INVOKABLE bool canCaptureWindows() const;
         Q_INVOKABLE QStringList supportedFileFormats() const;
-        Q_INVOKABLE AkElement::ElementState state() const;
-        Q_INVOKABLE bool isTorchSupported() const;
-        Q_INVOKABLE TorchMode torchMode() const;
-        Q_INVOKABLE PermissionStatus cameraPermissionStatus() const;
-        Q_INVOKABLE bool playOnStart() const;
-        Q_INVOKABLE bool outputsAsInputs() const;
         Q_INVOKABLE InputType deviceType(const QString &device) const;
         Q_INVOKABLE QStringList devicesByType(InputType type) const;
         Q_INVOKABLE QString description(const QString &device) const;
-        Q_INVOKABLE QString inputError() const;
-        Q_INVOKABLE bool embedInputControls(const QString &where,
-                                            const QString &device,
-                                            const QString &name={}) const;
+
+        // Global state -- the "instant play/stop everything" master switch.
+        Q_INVOKABLE AkElement::ElementState state() const;
+        Q_INVOKABLE bool playOnStart() const;
+        Q_INVOKABLE bool outputsAsInputs() const;
+
+        // Per-source queries. NOTE: no per-source state getter/setter --
+        // effective playback = enabled(id) && state() == Playing. Only
+        // "enabled" is independently controllable per source.
+        Q_INVOKABLE QVariantList sourceIds() const;
+        Q_INVOKABLE QString sourceDevice(qint64 id) const;
+        Q_INVOKABLE QString sourceLabel(qint64 id) const;
+        Q_INVOKABLE bool sourceEnabled(qint64 id) const;
+        Q_INVOKABLE AkAudioCaps sourceAudioCaps(qint64 id) const;
+        Q_INVOKABLE AkVideoCaps sourceVideoCaps(qint64 id) const;
+        Q_INVOKABLE QString sourceError(qint64 id) const;
+        Q_INVOKABLE InputType sourceType(qint64 id) const;
+
+        // Camera-specific per-source
+        Q_INVOKABLE bool isTorchSupported(qint64 id) const;
+        Q_INVOKABLE TorchMode torchMode(qint64 id) const;
+        Q_INVOKABLE PermissionStatus cameraPermissionStatus(qint64 id) const;
+
+        Q_INVOKABLE bool embedControls(const QString &where,
+                                       qint64 id,
+                                       const QString &name={}) const;
         Q_INVOKABLE void removeInterface(const QString &where) const;
 
     private:
         VideoLayerPrivate *d;
 
     signals:
-        void videoInputChanged(const QString &videoInput);
-        void inputsChanged(const QStringList &inputs);
-        void inputAudioCapsChanged(const AkAudioCaps &inputAudioCaps);
-        void inputVideoCapsChanged(const AkVideoCaps &inputVideoCaps);
+        void camerasChanged(const QStringList &cameras);
         void screensChanged(const QStringList &screens);
         void windowsChanged(const QStringList &windows);
         void canCaptureWindowsChanged(bool canCaptureWindows);
         void stateChanged(AkElement::ElementState state);
-        void isTorchSupportedChanged(bool torchSupported);
-        void torchModeChanged(TorchMode mode);
-        void cameraPermissionStatusChanged(PermissionStatus status);
         void playOnStartChanged(bool playOnStart);
         void outputsAsInputsChanged(bool outputsAsInputs);
+
+        // Per-source signals
+        void sourceAdded(qint64 id, const QString &device);
+        void sourceRemoved(qint64 id);
+        void sourceEnabledChanged(qint64 id, bool enabled);
+        void sourceLabelChanged(qint64 id, const QString &label);
+        void sourceAudioCapsChanged(qint64 id, const AkAudioCaps &audioCaps);
+        void sourceVideoCapsChanged(qint64 id, const AkVideoCaps &videoCaps);
+        void sourceErrorChanged(qint64 id, const QString &error);
+        void isTorchSupportedChanged(qint64 id, bool torchSupported);
+        void torchModeChanged(qint64 id, TorchMode mode);
+        void cameraPermissionStatusChanged(qint64 id, PermissionStatus status);
+
+        // oStream carries the source id in the packet
         void oStream(const AkPacket &packet);
-        void inputErrorChanged(const QString &inputError);
 
     public slots:
-        void setInputStream(const QString &stream, const QString &description);
-        void removeInputStream(const QString &stream);
-        bool addScreenSource(const QString &source);
-        void removeScreenSource(const QString &source);
-        void setVideoInput(const QString &videoInput);
+        qint64 addSource(const QString &device);
+        void removeSource(qint64 id);
+        void setSourceEnabled(qint64 id, bool enabled);
+        void setSourceLabel(qint64 id, const QString &label);
+
         void setState(AkElement::ElementState state);
-        void setTorchMode(TorchMode mode);
+        void setTorchMode(qint64 id, TorchMode mode);
         void setPlayOnStart(bool playOnStart);
         void setOutputsAsInputs(bool outputsAsInputs);
-        void resetVideoInput();
         void resetState();
-        void resetTorchMode();
+        void resetTorchMode(qint64 id);
         void resetPlayOnStart();
         void resetOutputsAsInputs();
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
         void updateInputs();
 
     private slots:
-        void updateCaps();
+        void updateSourceCaps(qint64 id);
+        void handleDevicesChanged();
+        void handleSourceError(const QString &error);
+        void handleStreamsChanged(const QList<int> &streams);
+        void handleIsTorchSupportedChanged(bool torchSupported);
+        void handleTorchModeChanged(TorchMode mode);
+        void handlePermissionStatusChanged(PermissionStatus status);
 
         friend class VideoLayerPrivate;
 };

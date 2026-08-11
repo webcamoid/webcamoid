@@ -1022,7 +1022,7 @@ void Recording::resetPhotoTimeout()
 
 void Recording::takePhoto()
 {
-    this->d->m_mutex.lock();
+    QMutexLocker locker(&this->d->m_mutex);
 
     this->d->m_videoConverter.begin();
     auto src = this->d->m_videoConverter.convert(this->d->m_curPacket);
@@ -1039,8 +1039,6 @@ void Recording::takePhoto()
         auto dstLine = this->d->m_photo.scanLine(y);
         memcpy(dstLine, srcLine, lineSize);
     }
-
-    this->d->m_mutex.unlock();
 }
 
 void Recording::savePhoto(const QString &fileName)
@@ -1094,9 +1092,8 @@ bool Recording::copyToClipboard()
 AkPacket Recording::iStream(const AkPacket &packet)
 {
     if (packet.type() == AkPacket::PacketVideo) {
-        this->d->m_mutex.lock();
+        QMutexLocker locker(&this->d->m_mutex);
         this->d->m_curPacket = packet;
-        this->d->m_mutex.unlock();
     }
 
     if (this->d->m_isRecording) {

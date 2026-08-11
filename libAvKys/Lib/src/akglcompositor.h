@@ -102,6 +102,7 @@ class AKCOMMONS_EXPORT AkGLCompositor:
 
         // Sources management.
         Q_INVOKABLE qint64 addSource();
+        Q_INVOKABLE qint64 addSource(qint64 id);
         Q_INVOKABLE void removeSource(qint64 id);
         Q_INVOKABLE QVariantList sourceIds() const;
 
@@ -129,6 +130,7 @@ class AKCOMMONS_EXPORT AkGLCompositor:
         void outputCapsChanged(const AkVideoCaps &outputCaps);
         void canvasColorChanged(QRgb canvasColor);
         void availableEffectsChanged(const QStringList &availableEffects);
+        void ready();
 
         // Output pipeline signals
         void effectsChanged(const QStringList &effects);

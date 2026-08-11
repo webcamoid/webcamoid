@@ -272,7 +272,7 @@ AkPacket VideoStreamPrivate::convert(AVFrame *iFrame)
                      iFrame->width,
                      iFrame->height,
                      this->fps());
-    AkVideoPacket oPacket(caps);
+    AkVideoPacket oPacket(caps, true);
 
     for (int plane = 0; plane < nPlanes; ++plane) {
         auto planeData = oFrame.data[plane];
@@ -307,24 +307,17 @@ AkPacket VideoStreamPrivate::convert(AVFrame *iFrame)
 AVFrame *VideoStreamPrivate::copyFrame(AVFrame *frame) const
 {
     auto oFrame = av_frame_alloc();
-    oFrame->width = frame->width;
-    oFrame->height = frame->height;
-    oFrame->format = frame->format;
-    oFrame->pts = frame->best_effort_timestamp;
 
-    av_image_alloc(oFrame->data,
-                   oFrame->linesize,
-                   oFrame->width,
-                   oFrame->height,
-                   AVPixelFormat(oFrame->format),
-                   1);
-    av_image_copy(oFrame->data,
-                  oFrame->linesize,
-                  const_cast<const uint8_t **>(frame->data),
-                  frame->linesize,
-                  AVPixelFormat(oFrame->format),
-                  oFrame->width,
-                  oFrame->height);
+    if (!oFrame)
+        return nullptr;
+
+    if (av_frame_ref(oFrame, frame) < 0) {
+        av_frame_free(&oFrame);
+
+        return nullptr;
+    }
+
+    oFrame->pts = frame->pts;
 
     return oFrame;
 }

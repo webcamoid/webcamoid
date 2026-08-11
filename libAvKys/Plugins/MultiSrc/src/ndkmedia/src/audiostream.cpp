@@ -22,6 +22,7 @@
 #include <QVariant>
 #include <QVector>
 #include <QMap>
+#include <QThread>
 #include <akaudiocaps.h>
 #include <akaudioconverter.h>
 #include <akaudiopacket.h>

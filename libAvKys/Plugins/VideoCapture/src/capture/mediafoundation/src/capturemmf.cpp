@@ -909,6 +909,11 @@ void CaptureMMF::reset()
     this->resetCameraControls();
 }
 
+void CaptureMMF::updateDevices()
+{
+    this->d->updateDevices();
+}
+
 CaptureMMFPrivate::CaptureMMFPrivate(CaptureMMF *self):
     self(self)
 {

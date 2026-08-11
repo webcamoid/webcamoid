@@ -518,17 +518,21 @@ bool VideoEncoderFFmpegElementPrivate::isAvailable(const QString &codec) const
         const char *codec;
         bool isAvailable;
     } ffmpegVideoEncAvailableCodecs[32];
+
     static size_t ffmpegVideoEncAvailableCodecsSize = 0;
 
+    auto codecStd = codec.toStdString();
+
     for (size_t i = 0; i < ffmpegVideoEncAvailableCodecsSize; ++i)
-        if (ffmpegVideoEncAvailableCodecs[i].codec == codec) {
-            qDebug() << (ffmpegVideoEncAvailableCodecs[i].isAvailable? "Available": "Not available");
+        if (strcmp(ffmpegVideoEncAvailableCodecs[i].codec,
+                   codecStd.c_str()) == 0) {
+            qDebug() << (ffmpegVideoEncAvailableCodecs[i].isAvailable?
+                             "Available": "Not available");
 
             return ffmpegVideoEncAvailableCodecs[i].isAvailable;
         }
 
-    auto encoder =
-            avcodec_find_encoder_by_name(codec.toStdString().c_str());
+    auto encoder = avcodec_find_encoder_by_name(codecStd.c_str());
 
     if (!encoder) {
         qDebug() << "Not available";
@@ -573,46 +577,62 @@ bool VideoEncoderFFmpegElementPrivate::isAvailable(const QString &codec) const
         context->time_base = {context->framerate.den, context->framerate.num};
         context->bit_rate = 1500000;
         context->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+
         isAvailable = avcodec_open2(context, encoder, nullptr) >= 0;
 
-        auto frame = av_frame_alloc();
-        av_image_alloc(frame->data,
-                       frame->linesize,
-                       context->width,
-                       context->height,
-                       preferredFormat,
-                       0);
-        frame->format = context->pix_fmt;
-        frame->width = context->width;
-        frame->height = context->height;
-        frame->pts = 0;
+        if (isAvailable) {
+            auto frame = av_frame_alloc();
 
-    #if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 30, 100)
-        frame->duration = 1;
-    #else
-        frame->pkt_duration = 1;
-    #endif
+            if (frame) {
+                int imgResult = av_image_alloc(frame->data,
+                                               frame->linesize,
+                                               context->width,
+                                               context->height,
+                                               preferredFormat,
+                                               0);
 
-        frame->time_base = {context->framerate.den, context->framerate.num};
-        avcodec_send_frame(context, frame);
-        av_freep(&frame->data[0]);
-        av_frame_free(&frame);
+                if (imgResult >= 0) {
+                    frame->format = context->pix_fmt;
+                    frame->width = context->width;
+                    frame->height = context->height;
+                    frame->pts = 0;
 
-        if (avcodec_send_frame(context, nullptr) >= 0) {
-            auto packet = av_packet_alloc();
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 30, 100)
+                    frame->duration = 1;
+#else
+                    frame->pkt_duration = 1;
+#endif
 
-            while (avcodec_receive_packet(context, packet) >= 0) {
+                    frame->time_base = {context->framerate.den,
+                                        context->framerate.num};
+
+                    avcodec_send_frame(context, frame);
+                    av_freep(&frame->data[0]);
+                }
+
+                av_frame_free(&frame);
             }
 
-            av_packet_free(&packet);
+            if (avcodec_send_frame(context, nullptr) >= 0) {
+                auto packet = av_packet_alloc();
+
+                if (packet) {
+                    while (avcodec_receive_packet(context, packet) >= 0) {
+                    }
+
+                    av_packet_free(&packet);
+                }
+            }
         }
 
         avcodec_free_context(&context);
     }
 
-    auto i = ffmpegVideoEncAvailableCodecsSize++;
-    ffmpegVideoEncAvailableCodecs[i].codec = encoder->name;
-    ffmpegVideoEncAvailableCodecs[i].isAvailable = isAvailable;
+    if (ffmpegVideoEncAvailableCodecsSize < 32) {
+        auto i = ffmpegVideoEncAvailableCodecsSize++;
+        ffmpegVideoEncAvailableCodecs[i].codec = encoder->name;
+        ffmpegVideoEncAvailableCodecs[i].isAvailable = isAvailable;
+    }
 
     qDebug() << (isAvailable? "Available": "Not available");
 

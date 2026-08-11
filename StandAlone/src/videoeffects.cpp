@@ -23,6 +23,8 @@
 #include <QQmlContext>
 #include <QQmlProperty>
 #include <QQmlApplicationEngine>
+#include <QRectF>
+#include <ak.h>
 #include <akfrac.h>
 #include <akglcompositor.h>
 #include <akpacket.h>
@@ -40,7 +42,6 @@ class VideoEffectsPrivate
         AkGLCompositor m_glCompositor;
         QMutex m_mutex;
         AkElement::ElementState m_state {AkElement::ElementStateNull};
-        quint64 m_sourceId {0};
 
         explicit VideoEffectsPrivate(VideoEffects *self);
         void updateChainEffects();
@@ -62,17 +63,12 @@ VideoEffects::VideoEffects(QQmlApplicationEngine *engine, QObject *parent):
     this->d->updateChainEffects();
     this->d->updateEffects();
     this->d->m_glCompositor.addPacketReader();
-
-    this->d->m_sourceId = this->d->m_glCompositor.addSource();
-    this->d->m_glCompositor.setSourceRect(this->d->m_sourceId,
-                                           QRectF(0.0, 0.0, 1.0, 1.0));
 }
 
 VideoEffects::~VideoEffects()
 {
     this->setState(AkElement::ElementStateNull);
     this->d->m_glCompositor.removePacketReader();
-    this->d->m_glCompositor.removeSource(this->d->m_sourceId);
     this->d->saveEffectsProperties();
     delete this->d;
 }
@@ -209,14 +205,307 @@ void VideoEffects::removeInterface(const QString &where) const
     }
 }
 
+qint64 VideoEffects::addSource()
+{
+    return this->addSource(Ak::id());
+}
+
+qint64 VideoEffects::addSource(qint64 id)
+{
+    if (id < 0)
+        return id;
+
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_glCompositor.addSource(id);
+        this->d->m_glCompositor.setSourcePreserveNullPlugins(id, true);
+        this->d->m_glCompositor.setSourceRect(id, QRectF(0.0, 0.0, 1.0, 1.0));
+    }
+
+    return id;
+}
+
+void VideoEffects::removeSource(qint64 id)
+{
+    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_glCompositor.removeSource(id);
+}
+
+QVariantList VideoEffects::sourceIds() const
+{
+    return this->d->m_glCompositor.sourceIds();
+}
+
+QRectF VideoEffects::sourceRect(qint64 id) const
+{
+    return this->d->m_glCompositor.sourceRect(id);
+}
+
+int VideoEffects::sourceZOrder(qint64 id) const
+{
+    return this->d->m_glCompositor.sourceZOrder(id);
+}
+
+qreal VideoEffects::sourceOpacity(qint64 id) const
+{
+    return this->d->m_glCompositor.sourceOpacity(id);
+}
+
+Qt::AspectRatioMode VideoEffects::sourceAspectRatioMode(qint64 id) const
+{
+    return this->d->m_glCompositor.sourceAspectRatioMode(id);
+}
+
+QStringList VideoEffects::sourceEffects(qint64 id) const
+{
+    return this->d->m_glCompositor.sourceEffects(id);
+}
+
+QString VideoEffects::sourcePreview(qint64 id) const
+{
+    return this->d->m_glCompositor.sourcePreview(id);
+}
+
+AkVideoEffectPtr VideoEffects::sourceElementAt(qint64 id, int index) const
+{
+    return this->d->m_glCompositor.sourceElementAt(id, index);
+}
+
+AkVideoEffectPtr VideoEffects::sourcePreviewElement(qint64 id) const
+{
+    return this->d->m_glCompositor.sourcePreviewElement(id);
+}
+
+AkPluginInfo VideoEffects::sourceEffectInfo(qint64 id, int index) const
+{
+    return this->d->m_glCompositor.sourceEffectInfo(id, index);
+}
+
+bool VideoEffects::sourceChainEffects(qint64 id) const
+{
+    return this->d->m_glCompositor.sourceChainEffects(id);
+}
+
+bool VideoEffects::sourcePreserveNullPlugins(qint64 id) const
+{
+    return this->d->m_glCompositor.sourcePreserveNullPlugins(id);
+}
+
+bool VideoEffects::sourceIsEmpty(qint64 id) const
+{
+    return this->d->m_glCompositor.sourceIsEmpty(id);
+}
+
+bool VideoEffects::embedControls(const QString &where,
+                                 qint64 id,
+                                 int effectIndex,
+                                 const QString &name) const
+{
+    auto element = this->d->m_glCompositor.sourceElementAt(id, effectIndex);
+
+    if (!element)
+        return false;
+
+    auto pluginId =
+            this->d->m_glCompositor.sourceEffectInfo(id, effectIndex).id();
+    auto interface = element->controlInterface(this->d->m_engine, pluginId);
+
+    if (!interface)
+        return false;
+
+    if (!name.isEmpty())
+        interface->setObjectName(name);
+
+    for (auto &obj: this->d->m_engine->rootObjects()) {
+        auto item = obj->findChild<QQuickItem *>(where);
+
+        if (!item)
+            continue;
+
+        auto interfaceItem = qobject_cast<QQuickItem *>(interface);
+
+        if (!interfaceItem)
+            continue;
+
+        interfaceItem->setParentItem(item);
+
+        return true;
+    }
+
+    return false;
+}
+
+bool VideoEffects::embedPreviewControls(const QString &where,
+                                        qint64 id,
+                                        const QString &name) const
+{
+    auto glPreview = this->d->m_glCompositor.sourcePreviewElement(id);
+
+    if (!glPreview)
+        return false;
+
+    auto info = this->d->m_glCompositor.effectInfo(
+                    this->d->m_glCompositor.sourcePreview(id));
+    auto interface = glPreview->controlInterface(this->d->m_engine, info.id());
+
+    if (!interface)
+        return false;
+
+    if (!name.isEmpty())
+        interface->setObjectName(name);
+
+    for (auto &obj: this->d->m_engine->rootObjects()) {
+        auto item = obj->findChild<QQuickItem *>(where);
+
+        if (!item)
+            continue;
+
+        auto interfaceItem = qobject_cast<QQuickItem *>(interface);
+
+        if (!interfaceItem)
+            continue;
+
+        interfaceItem->setParentItem(item);
+
+        return true;
+    }
+
+    return false;
+}
+
+void VideoEffects::setSourceRect(qint64 id, const QRectF &rect)
+{
+    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_glCompositor.setSourceRect(id, rect);
+}
+
+void VideoEffects::setSourceZOrder(qint64 id, int zOrder)
+{
+    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_glCompositor.setSourceZOrder(id, zOrder);
+}
+
+void VideoEffects::setSourceOpacity(qint64 id, qreal opacity)
+{
+    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_glCompositor.setSourceOpacity(id, opacity);
+}
+
+void VideoEffects::setSourceAspectRatioMode(qint64 id,
+                                            Qt::AspectRatioMode mode)
+{
+    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_glCompositor.setSourceAspectRatioMode(id, mode);
+}
+
+void VideoEffects::setSourceEffects(qint64 id, const QStringList &effects)
+{
+    if (this->sourceEffects(id) == effects)
+        return;
+
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_glCompositor.setSourceEffects(id, effects);
+    }
+}
+
+void VideoEffects::setSourcePreview(qint64 id, const QString &preview)
+{
+    if (this->sourcePreview(id) == preview)
+        return;
+
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_glCompositor.setSourcePreview(id, preview);
+    }
+}
+
+void VideoEffects::setSourceChainEffects(qint64 id, bool chainEffects)
+{
+    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_glCompositor.setSourceChainEffects(id, chainEffects);
+}
+
+void VideoEffects::setSourcePreserveNullPlugins(qint64 id, bool preserveNullPlugins)
+{
+    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_glCompositor.setSourcePreserveNullPlugins(id, preserveNullPlugins);
+}
+
+void VideoEffects::resetSourceEffects(qint64 id)
+{
+    this->setSourceEffects(id, {});
+}
+
+void VideoEffects::resetSourcePreview(qint64 id)
+{
+    this->setSourcePreview(id, {});
+}
+
+void VideoEffects::resetSourceChainEffects(qint64 id)
+{
+    this->setSourceChainEffects(id, false);
+}
+
+void VideoEffects::resetSourcePreserveNullPlugins(qint64 id)
+{
+    this->setSourcePreserveNullPlugins(id, true);
+}
+
+void VideoEffects::moveSourceEffect(qint64 id, int from, int to)
+{
+    auto totalEffects = this->d->m_glCompositor.sourceEffects(id).size();
+
+    if (from == to
+        || from < 0
+        || from >= totalEffects
+        || to < 0
+        || to > totalEffects)
+        return;
+
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_glCompositor.moveSourceEffect(id, from, to);
+    }
+}
+
+void VideoEffects::removeSourceEffect(qint64 id, int index)
+{
+    if (index < 0 || index >= this->d->m_glCompositor.sourceEffects(id).size())
+        return;
+
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_glCompositor.removeSourceEffect(id, index);
+    }
+}
+
+void VideoEffects::removeAllSourceEffects(qint64 id)
+{
+    if (this->d->m_glCompositor.sourceIsEmpty(id))
+        return;
+
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_glCompositor.removeAllSourceEffects(id);
+    }
+}
+
+void VideoEffects::applySourcePreview(qint64 id)
+{
+    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_glCompositor.applySourcePreview(id);
+}
+
 void VideoEffects::setEffects(const QStringList &effects)
 {
     if (this->effects() == effects)
         return;
 
-    this->d->m_mutex.lock();
-    this->d->m_glCompositor.setEffects(effects);
-    this->d->m_mutex.unlock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_glCompositor.setEffects(effects);
+    }
 
     emit this->effectsChanged(effects);
     this->d->saveEffects();
@@ -228,17 +517,18 @@ void VideoEffects::setPreview(const QString &preview)
     if (this->d->m_glCompositor.preview() == preview)
         return;
 
-    this->d->m_mutex.lock();
-    auto state = this->d->m_state;
-    this->d->m_glCompositor.setState(AkElement::ElementStateNull);
-    this->d->unlinkPreview();
-    this->d->m_glCompositor.setPreview(preview);
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        auto state = this->d->m_state;
+        this->d->m_glCompositor.setState(AkElement::ElementStateNull);
+        this->d->unlinkPreview();
+        this->d->m_glCompositor.setPreview(preview);
 
-    if (!preview.isEmpty())
-        this->d->linkPreview();
+        if (!preview.isEmpty())
+            this->d->linkPreview();
 
-    this->d->m_glCompositor.setState(state);
-    this->d->m_mutex.unlock();
+        this->d->m_glCompositor.setState(state);
+    }
 
     emit this->previewChanged(preview);
 }
@@ -248,19 +538,21 @@ void VideoEffects::setState(AkElement::ElementState state)
     if (this->d->m_state == state)
         return;
 
-    this->d->m_mutex.lock();
-    this->d->m_glCompositor.setState(state);
-    this->d->m_state = state;
-    this->d->m_mutex.unlock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_glCompositor.setState(state);
+        this->d->m_state = state;
+    }
 
     emit this->stateChanged(state);
 }
 
 void VideoEffects::setChainEffects(bool chainEffects)
 {
-    this->d->m_mutex.lock();
-    this->d->m_glCompositor.setChainEffects(chainEffects);
-    this->d->m_mutex.unlock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_glCompositor.setChainEffects(chainEffects);
+    }
 
     this->d->saveChainEffects(chainEffects);
 }
@@ -294,17 +586,19 @@ void VideoEffects::sendPacket(const AkPacket &packet)
 
 void VideoEffects::applyPreview()
 {
-    this->d->m_mutex.lock();
     bool applied = false;
-    auto effectsId = this->d->m_glCompositor.effects();
+    QStringList effectsId;
 
-    if (!this->d->m_glCompositor.preview().isEmpty()) {
-        this->d->unlinkPreview();
-        this->d->m_glCompositor.applyPreview();
-        applied = true;
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        effectsId = this->d->m_glCompositor.effects();
+
+        if (!this->d->m_glCompositor.preview().isEmpty()) {
+            this->d->unlinkPreview();
+            this->d->m_glCompositor.applyPreview();
+            applied = true;
+        }
     }
-
-    this->d->m_mutex.unlock();
 
     if (applied)
         emit this->previewChanged({});
@@ -328,9 +622,10 @@ void VideoEffects::moveEffect(int from, int to)
         || to > totalEffects)
         return;
 
-    this->d->m_mutex.lock();
-    this->d->m_glCompositor.moveEffect(from, to);
-    this->d->m_mutex.unlock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_glCompositor.moveEffect(from, to);
+    }
 
     emit this->effectsChanged(this->effects());
     this->d->saveEffects();
@@ -341,9 +636,10 @@ void VideoEffects::removeEffect(int index)
     if (index < 0 || index >= this->d->m_glCompositor.effects().size())
         return;
 
-    this->d->m_mutex.lock();
-    this->d->m_glCompositor.removeEffect(index);
-    this->d->m_mutex.unlock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_glCompositor.removeEffect(index);
+    }
 
     emit this->effectsChanged(this->effects());
     this->d->saveEffects();
@@ -354,9 +650,10 @@ void VideoEffects::removeAllEffects()
     if (this->d->m_glCompositor.isEmpty())
         return;
 
-    this->d->m_mutex.lock();
-    this->d->m_glCompositor.removeAllEffects();
-    this->d->m_mutex.unlock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_glCompositor.removeAllEffects();
+    }
 
     emit this->effectsChanged({});
     this->d->saveEffects();
@@ -394,11 +691,11 @@ AkPacket VideoEffects::iStream(const AkPacket &packet)
                            inputCaps.height(),
                            inputCaps.fps());
 
-    this->d->m_mutex.lock();
-    this->d->m_glCompositor.setOutputCaps(outputCaps);
-    videoPacket.setId(qint64(this->d->m_sourceId));
-    this->d->m_glCompositor.iStream(videoPacket);
-    this->d->m_mutex.unlock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_glCompositor.setOutputCaps(outputCaps);
+        this->d->m_glCompositor.iStream(videoPacket);
+    }
 
     return {};
 }
@@ -421,6 +718,54 @@ VideoEffectsPrivate::VideoEffectsPrivate(VideoEffects *self):
                      &AkGLCompositor::chainEffectsChanged,
                      self,
                      &VideoEffects::chainEffectsChanged);
+    QObject::connect(&this->m_glCompositor,
+                     &AkGLCompositor::ready,
+                     self,
+                     &VideoEffects::ready);
+
+    // Sources management.
+    QObject::connect(&this->m_glCompositor,
+                     &AkGLCompositor::sourceAdded,
+                     self,
+                     &VideoEffects::sourceAdded,
+                     Qt::DirectConnection);
+    QObject::connect(&this->m_glCompositor,
+                     &AkGLCompositor::sourceRemoved,
+                     self,
+                     &VideoEffects::sourceRemoved,
+                     Qt::DirectConnection);
+    QObject::connect(&this->m_glCompositor,
+                     &AkGLCompositor::sourceRectChanged,
+                     self,
+                     &VideoEffects::sourceRectChanged);
+    QObject::connect(&this->m_glCompositor,
+                     &AkGLCompositor::sourceZOrderChanged,
+                     self,
+                     &VideoEffects::sourceZOrderChanged);
+    QObject::connect(&this->m_glCompositor,
+                     &AkGLCompositor::sourceOpacityChanged,
+                     self,
+                     &VideoEffects::sourceOpacityChanged);
+    QObject::connect(&this->m_glCompositor,
+                     &AkGLCompositor::sourceAspectRatioModeChanged,
+                     self,
+                     &VideoEffects::sourceAspectRatioModeChanged);
+    QObject::connect(&this->m_glCompositor,
+                     &AkGLCompositor::sourceEffectsChanged,
+                     self,
+                     &VideoEffects::sourceEffectsChanged);
+    QObject::connect(&this->m_glCompositor,
+                     &AkGLCompositor::sourcePreviewChanged,
+                     self,
+                     &VideoEffects::sourcePreviewChanged);
+    QObject::connect(&this->m_glCompositor,
+                     &AkGLCompositor::sourceChainEffectsChanged,
+                     self,
+                     &VideoEffects::sourceChainEffectsChanged);
+    QObject::connect(&this->m_glCompositor,
+                     &AkGLCompositor::sourceIsEmptyChanged,
+                     self,
+                     &VideoEffects::sourceIsEmptyChanged);
 }
 
 void VideoEffectsPrivate::updateChainEffects()

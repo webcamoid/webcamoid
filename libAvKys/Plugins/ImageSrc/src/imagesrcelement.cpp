@@ -85,33 +85,27 @@ ImageSrcElement::~ImageSrcElement()
 
 QStringList ImageSrcElement::medias()
 {
-    QStringList medias;
-    this->d->m_imageReaderMutex.lockForRead();
+    QReadLocker locker(&this->d->m_imageReaderMutex);
+    auto fileName = this->d->m_imageReader.fileName();
 
-    if (!this->d->m_imageReader.fileName().isEmpty())
-        medias << this->d->m_imageReader.fileName();
+    if (fileName.isEmpty())
+        return {};
 
-    this->d->m_imageReaderMutex.unlock();
-
-    return medias;
+    return {fileName};
 }
 
 QString ImageSrcElement::media() const
 {
-    this->d->m_imageReaderMutex.lockForRead();
-    auto fileName = this->d->m_imageReader.fileName();
-    this->d->m_imageReaderMutex.unlock();
+    QReadLocker locker(&this->d->m_imageReaderMutex);
 
-    return fileName;
+    return this->d->m_imageReader.fileName();
 }
 
 QList<int> ImageSrcElement::streams()
 {
-    this->d->m_imageReaderMutex.lockForRead();
-    auto isFileNameEmpty = this->d->m_imageReader.fileName().isEmpty();
-    this->d->m_imageReaderMutex.unlock();
+    QReadLocker locker(&this->d->m_imageReaderMutex);
 
-    if (isFileNameEmpty)
+    if (this->d->m_imageReader.fileName().isEmpty())
         return {};
 
     return {0};
@@ -127,9 +121,8 @@ int ImageSrcElement::defaultStream(AkCaps::CapsType type)
 
 QString ImageSrcElement::description(const QString &media)
 {
-    this->d->m_imageReaderMutex.lockForRead();
+    QReadLocker locker(&this->d->m_imageReaderMutex);
     auto fileName = this->d->m_imageReader.fileName();
-    this->d->m_imageReaderMutex.unlock();
 
     if (media.isEmpty() || fileName != media)
         return {};
@@ -139,34 +132,34 @@ QString ImageSrcElement::description(const QString &media)
 
 AkCaps ImageSrcElement::caps(int stream)
 {
-    this->d->m_imageReaderMutex.lockForRead();
-    auto isFileNameEmpty = this->d->m_imageReader.fileName().isEmpty();
-    this->d->m_imageReaderMutex.unlock();
-
-    if (stream != 0 || isFileNameEmpty)
+    if (stream != 0)
         return {};
 
-    this->d->m_imageReaderMutex.lockForRead();
-    auto size = this->d->m_imageReader.size();
-    this->d->m_imageReaderMutex.unlock();
+    QSize size;
 
-    this->d->m_fpsMutex.lockForRead();
+    {
+        QReadLocker readerLocker(&this->d->m_imageReaderMutex);
+
+        if (this->d->m_imageReader.fileName().isEmpty())
+            return {};
+
+        size = this->d->m_imageReader.size();
+    }
+
+    QReadLocker fpsLocker(&this->d->m_fpsMutex);
     AkVideoCaps caps(AkVideoCaps::Format_rgb24,
                      size.width(),
                      size.height(),
                      this->d->m_fps);
-    this->d->m_fpsMutex.unlock();
 
     return caps;
 }
 
 bool ImageSrcElement::isAnimated() const
 {
-    this->d->m_imageReaderMutex.lockForRead();
-    auto supportsAnimation = this->d->m_imageReader.supportsAnimation();
-    this->d->m_imageReaderMutex.unlock();
+    QReadLocker locker(&this->d->m_imageReaderMutex);
 
-    return supportsAnimation;
+    return this->d->m_imageReader.supportsAnimation();
 }
 
 bool ImageSrcElement::forceFps() const
@@ -176,11 +169,9 @@ bool ImageSrcElement::forceFps() const
 
 AkFrac ImageSrcElement::fps() const
 {
-    this->d->m_fpsMutex.lockForRead();
-    auto fps = this->d->m_fps;
-    this->d->m_fpsMutex.unlock();
+    QReadLocker locker(&this->d->m_fpsMutex);
 
-    return fps;
+    return this->d->m_fps;
 }
 
 QStringList ImageSrcElement::supportedFormats() const
@@ -220,16 +211,14 @@ void ImageSrcElement::setForceFps(bool forceFps)
 
 void ImageSrcElement::setFps(const AkFrac &fps)
 {
-    this->d->m_fpsMutex.lockForWrite();
+    {
+        QWriteLocker locker(&this->d->m_fpsMutex);
 
-    if (this->d->m_fps == fps) {
-        this->d->m_fpsMutex.unlock();
+        if (this->d->m_fps == fps)
+            return;
 
-        return;
+        this->d->m_fps = fps;
     }
-
-    this->d->m_fps = fps;
-    this->d->m_fpsMutex.unlock();
 
     QSettings settings;
     settings.beginGroup("ImageSrc");
@@ -251,9 +240,12 @@ void ImageSrcElement::resetFps()
 
 void ImageSrcElement::setMedia(const QString &media)
 {
-    this->d->m_imageReaderMutex.lockForRead();
-    auto fileName = this->d->m_imageReader.fileName();
-    this->d->m_imageReaderMutex.unlock();
+    QString fileName;
+
+    {
+        QReadLocker locker(&this->d->m_imageReaderMutex);
+        fileName = this->d->m_imageReader.fileName();
+    }
 
     if (fileName == media)
         return;
@@ -261,21 +253,29 @@ void ImageSrcElement::setMedia(const QString &media)
     auto state = this->state();
     this->setState(AkElement::ElementStateNull);
 
-    this->d->m_imageReaderMutex.lockForWrite();
-    auto size = this->d->m_imageReader.size();
-    auto isAnimation = this->d->m_imageReader.supportsAnimation();
-    this->d->m_imageReader.setFileName(media);
-    this->d->m_imageReaderMutex.unlock();
+    QSize size;
+    bool isAnimation = false;
+
+    {
+        QWriteLocker locker(&this->d->m_imageReaderMutex);
+        size = this->d->m_imageReader.size();
+        isAnimation = this->d->m_imageReader.supportsAnimation();
+        this->d->m_imageReader.setFileName(media);
+    }
 
     if (!media.isEmpty())
         this->setState(state);
 
     emit this->mediaChanged(media);
 
-    this->d->m_imageReaderMutex.lockForRead();
-    auto curSize = this->d->m_imageReader.size();
-    auto curIsAnimation = this->d->m_imageReader.supportsAnimation();
-    this->d->m_imageReaderMutex.unlock();
+    QSize curSize;
+    bool curIsAnimation = false;
+
+    {
+        QReadLocker locker(&this->d->m_imageReaderMutex);
+        curSize = this->d->m_imageReader.size();
+        curIsAnimation = this->d->m_imageReader.supportsAnimation();
+    }
 
     if (size != curSize)
         emit this->sizeChanged(curSize);
@@ -291,12 +291,12 @@ void ImageSrcElement::resetMedia()
 
 bool ImageSrcElement::setState(AkElement::ElementState state)
 {
-    this->d->m_imageReaderMutex.lockForRead();
-    auto isFileNameEmpty = this->d->m_imageReader.fileName().isEmpty();
-    this->d->m_imageReaderMutex.unlock();
+    {
+        QReadLocker locker(&this->d->m_imageReaderMutex);
 
-    if (isFileNameEmpty)
-        return false;
+        if (this->d->m_imageReader.fileName().isEmpty())
+            return false;
+    }
 
     auto curState = this->state();
 
@@ -370,14 +370,21 @@ void ImageSrcElementPrivate::readFrame()
     qreal delayDiff = 0.0;
 
     while (this->m_run) {
-        this->m_fpsMutex.lockForRead();
-        auto fps = this->m_fps;
-        this->m_fpsMutex.unlock();
+        AkFrac fps;
 
-        this->m_imageReaderMutex.lockForRead();
-        auto image = this->m_imageReader.read();
-        auto error = this->m_imageReader.errorString();
-        this->m_imageReaderMutex.unlock();
+        {
+            QReadLocker locker(&this->m_fpsMutex);
+            fps = this->m_fps;
+        }
+
+        QImage image;
+        QString error;
+
+        {
+            QReadLocker locker(&this->m_imageReaderMutex);
+            image = this->m_imageReader.read();
+            error = this->m_imageReader.errorString();
+        }
 
         if (image.isNull()) {
             qDebug() << "Error reading image:" << error;
@@ -423,15 +430,20 @@ void ImageSrcElementPrivate::readFrame()
                                       packet);
         }
 
-        this->m_imageReaderMutex.lockForRead();
-        auto isLastFrame =
-                this->m_imageReader.currentImageNumber() >= this->m_imageReader.imageCount() - 1;
-        this->m_imageReaderMutex.unlock();
+        bool isLastFrame = false;
+
+        {
+            QReadLocker locker(&this->m_imageReaderMutex);
+            isLastFrame = this->m_imageReader.currentImageNumber() >= this->m_imageReader.imageCount() - 1;
+        }
 
         if (isLastFrame) {
-            this->m_imageReaderMutex.lockForRead();
-            auto supportsAnimation = this->m_imageReader.supportsAnimation();
-            this->m_imageReaderMutex.unlock();
+            bool supportsAnimation = false;
+
+            {
+                QReadLocker locker(&this->m_imageReaderMutex);
+                supportsAnimation = this->m_imageReader.supportsAnimation();
+            }
 
             if (!supportsAnimation) {
                 auto delay = (1000 / fps).value() + delayDiff;
@@ -439,20 +451,24 @@ void ImageSrcElementPrivate::readFrame()
                 QThread::msleep(qRound(delay));
             }
 
-            this->m_imageReaderMutex.lockForWrite();
-            auto fileName = this->m_imageReader.fileName();
-            this->m_imageReader.setFileName({});
-            this->m_imageReader.setFileName(fileName);
-            this->m_imageReaderMutex.unlock();
+            {
+                QWriteLocker locker(&this->m_imageReaderMutex);
+                auto fileName = this->m_imageReader.fileName();
+                this->m_imageReader.setFileName({});
+                this->m_imageReader.setFileName(fileName);
+            }
         } else {
             if (this->m_forceFps) {
                 auto delay = (1000 / fps).value() + delayDiff;
                 delayDiff = delay - qRound(delay);
                 QThread::msleep(qRound(delay));
             } else {
-                this->m_imageReaderMutex.lockForRead();
-                auto delay = this->m_imageReader.nextImageDelay();
-                this->m_imageReaderMutex.unlock();
+                int delay = 0;
+
+                {
+                    QReadLocker locker(&this->m_imageReaderMutex);
+                    delay = this->m_imageReader.nextImageDelay();
+                }
 
                 if (delay > 0)
                     QThread::msleep(delay);

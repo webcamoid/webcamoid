@@ -21,10 +21,12 @@
 #define VIDEOEFFECTS_H
 
 #include <iak/akelement.h>
+#include <iak/akvideoeffect.h>
 
 class VideoEffectsPrivate;
 class VideoEffects;
 class QQmlApplicationEngine;
+class QRectF;
 class AkPluginInfo;
 
 using VideoEffectsPtr = QSharedPointer<VideoEffects>;
@@ -61,6 +63,7 @@ class VideoEffects: public QObject
                      QObject *parent=nullptr);
         ~VideoEffects();
 
+        // Global output pipeline
         Q_INVOKABLE QStringList availableEffects() const;
         Q_INVOKABLE QStringList effects() const;
         Q_INVOKABLE QString preview() const;
@@ -75,10 +78,44 @@ class VideoEffects: public QObject
                                               const QString &name={}) const;
         Q_INVOKABLE void removeInterface(const QString &where) const;
 
+        // Source management
+        Q_INVOKABLE qint64 addSource();
+        Q_INVOKABLE qint64 addSource(qint64 id);
+        Q_INVOKABLE void removeSource(qint64 id);
+        Q_INVOKABLE QVariantList sourceIds() const;
+
+        // Source layout
+        Q_INVOKABLE QRectF sourceRect(qint64 id) const;
+        Q_INVOKABLE int sourceZOrder(qint64 id) const;
+        Q_INVOKABLE qreal sourceOpacity(qint64 id) const;
+        Q_INVOKABLE Qt::AspectRatioMode sourceAspectRatioMode(qint64 id) const;
+
+        // Source effect pipeline
+        Q_INVOKABLE QStringList sourceEffects(qint64 id) const;
+        Q_INVOKABLE QString sourcePreview(qint64 id) const;
+        Q_INVOKABLE AkVideoEffectPtr sourceElementAt(qint64 id, int index) const;
+        Q_INVOKABLE AkVideoEffectPtr sourcePreviewElement(qint64 id) const;
+        Q_INVOKABLE AkPluginInfo sourceEffectInfo(qint64 id, int index) const;
+        Q_INVOKABLE bool sourceChainEffects(qint64 id) const;
+        Q_INVOKABLE bool sourcePreserveNullPlugins(qint64 id) const;
+        Q_INVOKABLE bool sourceIsEmpty(qint64 id) const;
+
+        // Source UI embedding
+        Q_INVOKABLE bool embedControls(const QString &where,
+                                       qint64 id,
+                                       int effectIndex,
+                                       const QString &name={}) const;
+        Q_INVOKABLE bool embedPreviewControls(const QString &where,
+                                              qint64 id,
+                                              const QString &name={}) const;
+
     private:
         VideoEffectsPrivate *d;
 
     signals:
+        void ready();
+
+        // Global output pipeline
         void availableEffectsChanged(const QStringList &availableEffects);
         void effectsChanged(const QStringList &effects);
         void previewChanged(const QString &preview);
@@ -86,7 +123,21 @@ class VideoEffects: public QObject
         void stateChanged(AkElement::ElementState state);
         void chainEffectsChanged(bool chainEffects);
 
+        // Per-source signals
+        void sourceAdded(qint64 id);
+        void sourceRemoved(qint64 id);
+        void sourceRectChanged(qint64 id, const QRectF &rect);
+        void sourceZOrderChanged(qint64 id, int zOrder);
+        void sourceOpacityChanged(qint64 id, qreal opacity);
+        void sourceAspectRatioModeChanged(qint64 id, Qt::AspectRatioMode mode);
+        void sourceEffectsChanged(qint64 id, const QStringList &effects);
+        void sourcePreviewChanged(qint64 id, const QString &preview);
+        void sourceChainEffectsChanged(qint64 id, bool chainEffects);
+        void sourcePreserveNullPluginsChanged(qint64 id, bool preserveNullPlugins);
+        void sourceIsEmptyChanged(qint64 id, bool isEmpty);
+
     public slots:
+        // Global output pipeline
         void setEffects(const QStringList &effects);
         void setPreview(const QString &preview);
         void setState(AkElement::ElementState state);
@@ -103,6 +154,26 @@ class VideoEffects: public QObject
         void updateAvailableEffects();
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
         AkPacket iStream(const AkPacket &packet);
+
+        // Source layout
+        void setSourceRect(qint64 id, const QRectF &rect);
+        void setSourceZOrder(qint64 id, int zOrder);
+        void setSourceOpacity(qint64 id, qreal opacity);
+        void setSourceAspectRatioMode(qint64 id, Qt::AspectRatioMode mode);
+
+        // Source effect pipeline
+        void setSourceEffects(qint64 id, const QStringList &effects);
+        void setSourcePreview(qint64 id, const QString &preview);
+        void setSourceChainEffects(qint64 id, bool chainEffects);
+        void setSourcePreserveNullPlugins(qint64 id, bool preserveNullPlugins);
+        void resetSourceEffects(qint64 id);
+        void resetSourcePreview(qint64 id);
+        void resetSourceChainEffects(qint64 id);
+        void resetSourcePreserveNullPlugins(qint64 id);
+        void moveSourceEffect(qint64 id, int from, int to);
+        void removeSourceEffect(qint64 id, int index);
+        void removeAllSourceEffects(qint64 id);
+        void applySourcePreview(qint64 id);
 };
 
 #endif // VIDEOEFFECTS_H

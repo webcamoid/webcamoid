@@ -210,9 +210,11 @@ void QtScreenDev::setFps(const AkFrac &fps)
     if (this->d->m_fps == fps)
         return;
 
-    this->d->m_mutex.lock();
-    this->d->m_fps = fps;
-    this->d->m_mutex.unlock();
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_fps = fps;
+    }
+
     emit this->fpsChanged(fps);
 }
 
