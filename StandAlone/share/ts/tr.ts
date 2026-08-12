@@ -886,12 +886,12 @@
     <message>
         <location filename="../qml/FirstRunFallbackDialog.qml" line="31"/>
         <source>Camera not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Kamera bulunamadı</translation>
     </message>
     <message>
         <location filename="../qml/FirstRunFallbackDialog.qml" line="41"/>
         <source>It was not found any connected camera.&lt;br/&gt;Fallingback to the screen capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bağlı herhangi bir kamera bulunamadı.&lt;br/&gt;Ekran görüntüsü yakalama kullanılıyor.</translation>
     </message>
 </context>
 <context>
@@ -2214,12 +2214,12 @@
     <message>
         <location filename="../qml/VideoInputAddCamera.qml" line="30"/>
         <source>Select the camera to add</source>
-        <translation type="unfinished"></translation>
+        <translation>Eklenecek kamerayı seçin</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddCamera.qml" line="55"/>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Kamera</translation>
     </message>
 </context>
 <context>
@@ -2331,7 +2331,7 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="68"/>
         <source>Add camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Kamera ekle</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="76"/>
