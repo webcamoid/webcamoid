@@ -92,6 +92,8 @@ QObject *AkPluginManager::create(const QString &pluginId,
         return nullptr;
 
     QPluginLoader pluginLoader(pluginInfo.path());
+    pluginLoader.setLoadHints(QLibrary::PreventUnloadHint
+                              | QLibrary::ResolveAllSymbolsHint);
 
     if (!pluginLoader.load()) {
         qDebug() << "Error loading plugin "
@@ -365,10 +367,12 @@ void AkPluginManager::scanPlugins()
                         this->d->m_pluginsList << AkPluginInfo {pluginInfo};
                     } else {
                         QPluginLoader loader(pluginPath);
+                        loader.setLoadHints(QLibrary::PreventUnloadHint
+                                            | QLibrary::ResolveAllSymbolsHint);
 
                         if (loader.load()) {
                             auto plugin =
-                                    qobject_cast<AkPlugin *>(pluginLoader.instance());
+                                    qobject_cast<AkPlugin *>(loader.instance());
 
                             if (plugin && plugin->canLoad()) {
                                 pluginInfo["path"] = pluginPath;

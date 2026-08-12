@@ -61,7 +61,7 @@ if (ANDROID AND QJNIOBJECT_FOUND)
 endif()
 
 if (QJNIOBJECT_FOUND)
-    target_compile_definitions(StandAlone PRIVATE USE_JNI)
+    add_definitions(-DUSE_JNI)
 endif()
 
 set(PROJECT_SOURCES

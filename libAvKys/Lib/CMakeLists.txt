@@ -57,7 +57,7 @@ if (ANDROID AND QJNIOBJECT_FOUND)
 endif()
 
 if (QJNIOBJECT_FOUND)
-    target_compile_definitions(avkys PRIVATE USE_JNI)
+    add_definitions(-DUSE_JNI)
 endif()
 
 qt_add_library(avkys
