@@ -63,9 +63,11 @@ class AkGLCompositorSource
         bool glInitialized {false};
 };
 
+using AkGLCompositorSourcePtr = QSharedPointer<AkGLCompositorSource>;
+
 struct SourceSnapshot
 {
-    AkGLCompositorSource *source;
+    AkGLCompositorSourcePtr source;
     QRectF rect;
     qreal opacity;
     Qt::AspectRatioMode aspectRatioMode;
@@ -108,7 +110,7 @@ class AkGLCompositorPrivate
         QOpenGLFramebufferObject *m_effectFbo {nullptr};
         AkVideoPacket m_outputPacket;
         QMutex m_sourcesMutex;
-        QHash<qint64, AkGLCompositorSource *> m_sources;
+        QHash<qint64, AkGLCompositorSourcePtr> m_sources;
         QMutex m_pendingRemovalsMutex;
         QVector<qint64> m_pendingRemovals;
         QMutex m_stopMutex;
@@ -122,6 +124,11 @@ class AkGLCompositorPrivate
         QMutex m_packetMutex;
         qint64 m_id {-1};
 
+        quint8 *m_uploadBuffer {nullptr};
+        size_t m_uploadBufferSize {0};
+        quint8 *m_readbackBuffer {nullptr};
+        size_t m_readbackBufferSize {0};
+
         explicit AkGLCompositorPrivate(AkGLCompositor *self);
         void startRenderThread();
         void stopRenderThread();
@@ -130,7 +137,7 @@ class AkGLCompositorPrivate
         void uninitGL();
         void processPendingRemovals();
         void processTick();
-        void uploadSource(AkGLCompositorSource *source);
+        void uploadSource(AkGLCompositorSourcePtr source);
         void compositeSourcesIntoCanvas();
         void readAndEmit(qint64 pts);
         void blitTexture(GLuint tex, int width, int height);
@@ -152,13 +159,6 @@ AkGLCompositor::AkGLCompositor(QObject *parent):
 AkGLCompositor::~AkGLCompositor()
 {
     this->setState(AkElement::ElementStateNull);
-
-    {
-        QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
-
-        for (auto &source: this->d->m_sources)
-            delete source;
-    }
 
     delete this->d;
 }
@@ -249,7 +249,7 @@ qint64 AkGLCompositor::addSource(qint64 id)
         if (this->d->m_sources.contains(id))
             return id;
 
-        this->d->m_sources[id] = new AkGLCompositorSource;
+        this->d->m_sources[id] = AkGLCompositorSourcePtr::create();
         this->d->m_zOrderDirty = true;
     }
 
@@ -923,7 +923,7 @@ AkPacket AkGLCompositor::iVideoStream(const AkVideoPacket &videoPacket)
         return {};
 
     auto id = videoPacket.id();
-    AkGLCompositorSource *source = nullptr;
+    AkGLCompositorSourcePtr source;
 
     {
         QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
@@ -1093,6 +1093,16 @@ void AkGLCompositorPrivate::renderGL()
 
     delete this->m_surface;
     this->m_surface = nullptr;
+
+    if (this->m_uploadBuffer) {
+        delete [] this->m_uploadBuffer;
+        this->m_uploadBuffer = nullptr;
+    }
+
+    if (this->m_readbackBuffer) {
+        delete [] this->m_readbackBuffer;
+        this->m_readbackBuffer = nullptr;
+    }
 }
 
 void AkGLCompositorPrivate::processPendingRemovals()
@@ -1110,7 +1120,7 @@ void AkGLCompositorPrivate::processPendingRemovals()
     }
 
     for (auto id: pending) {
-        AkGLCompositorSource *source = nullptr;
+        AkGLCompositorSourcePtr source;
 
         {
             QMutexLocker mutexLocker(&this->m_sourcesMutex);
@@ -1131,7 +1141,6 @@ void AkGLCompositorPrivate::processPendingRemovals()
 
         delete source->entryFbo;
         delete source->effectFbo;
-        delete source;
 
         emit self->sourceRemoved(id);
     }
@@ -1190,7 +1199,7 @@ void AkGLCompositorPrivate::processTick()
         this->readAndEmit(pts / 1000);
 }
 
-void AkGLCompositorPrivate::uploadSource(AkGLCompositorSource *source)
+void AkGLCompositorPrivate::uploadSource(AkGLCompositorSourcePtr source)
 {
     auto &packet = source->lastPacket;
     int width = packet.caps().width();
@@ -1214,14 +1223,39 @@ void AkGLCompositorPrivate::uploadSource(AkGLCompositorSource *source)
     }
 
     size_t packetLineSize = packet.lineSize(0);
-    GLint rowLength = GLint(packetLineSize / 4);
+    size_t srcLineSize = size_t(width) * 4;
 
     source->uploadTex->bind();
-    self->glPixelStorei(GL_UNPACK_ROW_LENGTH, rowLength);
-    self->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
-                          GL_RGBA, GL_UNSIGNED_BYTE,
-                          packet.constData());
-    self->glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+
+    if (packetLineSize == srcLineSize) {
+        self->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
+                              GL_RGBA, GL_UNSIGNED_BYTE,
+                              packet.constData());
+    } else {
+        size_t uploadBufferSize = srcLineSize * height;
+
+        if (this->m_uploadBufferSize != uploadBufferSize) {
+            if (this->m_uploadBuffer)
+                delete [] this->m_uploadBuffer;
+
+            this->m_uploadBuffer = new quint8 [uploadBufferSize];
+            this->m_uploadBufferSize = uploadBufferSize;
+        }
+
+        auto src = reinterpret_cast<const quint8 *>(packet.constData());
+        auto dst = this->m_uploadBuffer;
+        size_t copyLineSize = qMin<size_t>(srcLineSize, packetLineSize);
+
+        for (int y = 0; y < height; ++y)
+            memcpy(dst + y * srcLineSize,
+                   src + y * packetLineSize,
+                   copyLineSize);
+
+            self->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
+                                  GL_RGBA, GL_UNSIGNED_BYTE,
+                                  dst);
+    }
+
     source->uploadTex->release();
 
     this->ensureFboSize(source->entryFbo, width, height);
@@ -1368,15 +1402,39 @@ void AkGLCompositorPrivate::readAndEmit(qint64 pts)
     this->m_outputPacket.setTimeBase({1, 1'000'000});
 
     size_t packetLineSize = this->m_outputPacket.lineSize(0);
-    GLint packRowLength = GLint(packetLineSize / 4);
+    int outWidth = outSize.width();
+    int outHeight = outSize.height();
 
     this->m_effectFbo->bind();
-    self->glPixelStorei(GL_PACK_ROW_LENGTH, packRowLength);
-    self->glReadPixels(0, 0,
-                       outSize.width(), outSize.height(),
-                       GL_RGBA, GL_UNSIGNED_BYTE,
-                       this->m_outputPacket.data());
-    self->glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+    size_t outLineSize =  4 * outWidth;
+
+    if (packetLineSize == outLineSize) {
+        self->glReadPixels(0, 0, outWidth, outHeight,
+                           GL_RGBA, GL_UNSIGNED_BYTE,
+                           this->m_outputPacket.data());
+    } else {
+        size_t readbackBufferSize = outLineSize * outHeight;
+
+        if (this->m_readbackBufferSize != readbackBufferSize) {
+            if (this->m_readbackBuffer)
+                delete [] this->m_readbackBuffer;
+
+            this->m_readbackBuffer = new quint8 [readbackBufferSize];
+            this->m_readbackBufferSize = readbackBufferSize;
+        }
+
+        self->glReadPixels(0, 0, outWidth, outHeight,
+                           GL_RGBA, GL_UNSIGNED_BYTE,
+                           this->m_readbackBuffer);
+        auto dst = reinterpret_cast<quint8 *>(this->m_outputPacket.data());
+        size_t copyBytes = qMin<size_t>(outLineSize, packetLineSize);
+
+        for (int y = 0; y < outHeight; ++y)
+            memcpy(dst + y * packetLineSize,
+                   this->m_readbackBuffer + y * outLineSize,
+                   copyBytes);
+    }
+
     this->m_effectFbo->release();
 
     this->m_outputConverter.setOutputCaps(this->m_outputCaps);
