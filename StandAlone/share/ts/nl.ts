@@ -348,78 +348,78 @@
     <message>
         <location filename="../qml/CanvasConfig.qml" line="28"/>
         <source>Canvas</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvas</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="92"/>
         <source>Orientation</source>
-        <translation type="unfinished"></translation>
+        <translation>Oriëntatie</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="93"/>
         <source>Lanscape</source>
-        <translation type="unfinished"></translation>
+        <translation>Horizontaal</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="93"/>
         <source>Portrait</source>
-        <translation type="unfinished"></translation>
+        <translation>Verticaal</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="108"/>
         <location filename="../qml/CanvasConfig.qml" line="127"/>
         <source>Canvas resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvasgrootte</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="166"/>
         <source>Custom</source>
-        <translation type="unfinished">Aangepast</translation>
+        <translation>Aangepast</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="170"/>
         <source>%1×%2 @ %3 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1×%2 @ %3 fps</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="292"/>
         <source>Canvas color</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvaskleur</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="294"/>
         <source>Choose the canvas color</source>
-        <translation type="unfinished"></translation>
+        <translation>Kies de canvaskleur</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="181"/>
         <source>Advanced settings</source>
-        <translation type="unfinished">Geavanceerde instellingen</translation>
+        <translation>Geavanceerde instellingen</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="29"/>
         <source>Configure the composition canvas resolution, frame rate, and color.</source>
-        <translation type="unfinished"></translation>
+        <translation>Stel de canvasgrootte, -kleur en framesnelheid in.</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="192"/>
         <source>Canvas size</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvasgrootte</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="210"/>
         <source>Width</source>
-        <translation type="unfinished">Breedte</translation>
+        <translation>Breedte</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="239"/>
         <source>Height</source>
-        <translation type="unfinished">Hoogte</translation>
+        <translation>Hoogte</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="268"/>
         <source>Frame rate</source>
-        <translation type="unfinished">Framerate</translation>
+        <translation>Framesnelheid</translation>
     </message>
 </context>
 <context>
@@ -965,12 +965,12 @@
     <message>
         <location filename="../qml/FirstRunFallbackDialog.qml" line="31"/>
         <source>Camera not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Geen camera aangetroffen</translation>
     </message>
     <message>
         <location filename="../qml/FirstRunFallbackDialog.qml" line="41"/>
         <source>It was not found any connected camera.&lt;br/&gt;Fallingback to the screen capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Er is geen aangekoppelde camera aangetroffen.&lt;br/&gt;Schermopname wordt gebruikt.</translation>
     </message>
 </context>
 <context>
@@ -1316,12 +1316,12 @@
     <message>
         <location filename="../qml/MainPanel.qml" line="32"/>
         <source>Canvas effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvaseffecten</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="33"/>
         <source>Source effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Broneffecten</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="35"/>
@@ -2294,12 +2294,12 @@
     <message>
         <location filename="../qml/VideoInputAddCamera.qml" line="30"/>
         <source>Select the camera to add</source>
-        <translation type="unfinished"></translation>
+        <translation>Kies de toe te voegen camera</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddCamera.qml" line="55"/>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Camera</translation>
     </message>
 </context>
 <context>
@@ -2307,44 +2307,44 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="91"/>
         <source>Edit media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>Media-bestandsbron bewerken</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="95"/>
         <source>Edit media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>Media-url-bron bewerken</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="99"/>
         <source>Add media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>Media-bestandsbron toevoegen</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="100"/>
         <source>Add media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>Media-url-bron toevoegen</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="133"/>
         <location filename="../qml/VideoInputAddEdit.qml" line="180"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Beschrijving</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="139"/>
         <location filename="../qml/VideoInputAddEdit.qml" line="186"/>
         <source>Source title</source>
-        <translation type="unfinished"></translation>
+        <translation>Brontitel</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="149"/>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Locatie</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="159"/>
         <source>File path</source>
-        <translation type="unfinished"></translation>
+        <translation>Bestandslocatie</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="160"/>
