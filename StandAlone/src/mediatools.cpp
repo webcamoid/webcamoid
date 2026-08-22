@@ -67,7 +67,6 @@
 #include "videodisplay.h"
 #include "videoeffects.h"
 #include "videolayer.h"
-#include "videolayercompat.h"
 #include "virtualcameras.h"
 
 #define COMMONS_PROJECT_URL "https://webcamoid.github.io/"
@@ -137,7 +136,6 @@ class MediaToolsPrivate
         UpdatesPtr m_updates;
         VideoEffectsPtr m_videoEffects;
         VideoLayerPtr m_videoLayer;
-        VideoLayerCompatPtr m_videoLayerCompat;
         VirtualCamerasPtr m_virtualCameras;
         DownloadManagerPtr m_downloadManager;
         QMutex m_logMutex;
@@ -819,16 +817,6 @@ bool MediaTools::init(const CliOptions &cliOptions)
             PluginConfigsPtr(new PluginConfigs(cliOptions, this->d->m_engine));
     this->d->m_videoLayer =
             VideoLayerPtr(new VideoLayer(this->d->m_engine));
-
-    // TEMPORARY, remove once the QML frontend is migrated to the new
-    // multi-source VideoLayer API directly. The old QML tree keeps
-    // talking to "videoLayer" as it always has -- it's just the compat
-    // wrapper underneath now, translating to/from the real backend.
-    this->d->m_videoLayerCompat =
-            VideoLayerCompatPtr(new VideoLayerCompat(this->d->m_videoLayer.data()));
-    this->d->m_engine->rootContext()->setContextProperty(
-                "videoLayer", this->d->m_videoLayerCompat.data());
-
     this->d->m_audioInputs = AudioInputsPtr(new AudioInputs(this->d->m_engine));
     this->d->m_audioOutputs = AudioOutputsPtr(new AudioOutputs(this->d->m_engine));
     this->d->m_videoEffects =
@@ -887,8 +875,11 @@ bool MediaTools::init(const CliOptions &cliOptions)
                      &VideoLayer::sourceAdded,
                      this,
                      [this] (qint64 id, const QString &device) {
-                         if (this->d->m_videoLayer->sourceEnabled(id))
-                             this->d->m_videoEffects->addSource(id);
+                        if (this->d->m_videoLayer->sourceEnabled(id)){
+                            this->d->m_videoEffects->addSource(id, device);
+                            auto zorder = this->d->m_videoLayer->sourceZOrder(id);
+                            this->d->m_videoEffects->setSourceZOrder(id, zorder);
+                        }
 
                          if (this->d->m_videoLayer->deviceType(device) == VideoLayer::InputStream) {
                              auto description = this->d->m_videoLayer->description(device);
@@ -919,10 +910,13 @@ bool MediaTools::init(const CliOptions &cliOptions)
                      &VideoLayer::sourceEnabledChanged,
                      this,
                      [this] (qint64 id, bool enabled) {
-                         if (enabled)
+                         if (enabled) {
                              this->d->m_videoEffects->addSource(id);
-                         else
+                             auto zorder = this->d->m_videoLayer->sourceZOrder(id);
+                             this->d->m_videoEffects->setSourceZOrder(id, zorder);
+                         } else {
                              this->d->m_videoEffects->removeSource(id);
+                         }
                      },
                      Qt::DirectConnection);
 
@@ -950,6 +944,10 @@ bool MediaTools::init(const CliOptions &cliOptions)
     AkElement::link(this->d->m_audioInputs.data(),
                     this->d->m_localStreaming.data(),
                     Qt::DirectConnection);
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::sourceZOrderChanged,
+                     this->d->m_videoEffects.data(),
+                     &VideoEffects::setSourceZOrder);
     QObject::connect(this->d->m_videoLayer.data(),
                      &VideoLayer::stateChanged,
                      this->d->m_videoEffects.data(),
@@ -1035,8 +1033,11 @@ bool MediaTools::init(const CliOptions &cliOptions)
         auto id = idVariant.toLongLong();
         auto device = this->d->m_videoLayer->sourceDevice(id);
 
-        if (this->d->m_videoLayer->sourceEnabled(id))
-            this->d->m_videoEffects->addSource(id);
+        if (this->d->m_videoLayer->sourceEnabled(id)) {
+            this->d->m_videoEffects->addSource(id, device);
+            auto zorder = this->d->m_videoLayer->sourceZOrder(id);
+            this->d->m_videoEffects->setSourceZOrder(id, zorder);
+        }
 
         if (this->d->m_videoLayer->deviceType(device) == VideoLayer::InputStream) {
             auto description = this->d->m_videoLayer->description(device);

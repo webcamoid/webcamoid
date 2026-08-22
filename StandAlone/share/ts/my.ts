@@ -344,6 +344,85 @@
     </message>
 </context>
 <context>
+    <name>CanvasConfig</name>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="28"/>
+        <source>Canvas</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="92"/>
+        <source>Orientation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="93"/>
+        <source>Lanscape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="93"/>
+        <source>Portrait</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="108"/>
+        <location filename="../qml/CanvasConfig.qml" line="127"/>
+        <source>Canvas resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="166"/>
+        <source>Custom</source>
+        <translation type="unfinished">စိတ်ကြိုက်</translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="170"/>
+        <source>%1×%2 @ %3 FPS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="292"/>
+        <source>Canvas color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="294"/>
+        <source>Choose the canvas color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="181"/>
+        <source>Advanced settings</source>
+        <translation type="unfinished">အဆင့်မြင့် ပြင်ဆင်မှုများ</translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="29"/>
+        <source>Configure the composition canvas resolution, frame rate, and color.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="192"/>
+        <source>Canvas size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="210"/>
+        <source>Width</source>
+        <translation type="unfinished">အကျယ်</translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="239"/>
+        <source>Height</source>
+        <translation type="unfinished">အမြင့်</translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="268"/>
+        <source>Frame rate</source>
+        <translation type="unfinished">ဖရိမ်နှုန်း</translation>
+    </message>
+</context>
+<context>
     <name>CaptureSettingsDialog</name>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="32"/>
@@ -1235,32 +1314,37 @@
         <translation>ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../qml/MainPanel.qml" line="31"/>
-        <source>Effects</source>
-        <translation>အကျိုးသက်ရောက်မှုများ</translation>
+        <location filename="../qml/MainPanel.qml" line="32"/>
+        <source>Canvas effects</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="33"/>
+        <source>Source effects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/MainPanel.qml" line="35"/>
         <source>Video Source Options</source>
         <translation>ဗီဒီယိုမူရင်းရွေးချယ်စရာများ</translation>
     </message>
     <message>
-        <location filename="../qml/MainPanel.qml" line="35"/>
+        <location filename="../qml/MainPanel.qml" line="37"/>
         <source>Virtual Camera Options</source>
         <translation>အမြင်သီးခြားကင်မရာ ရွေးချယ်စရာများ</translation>
     </message>
     <message>
-        <location filename="../qml/MainPanel.qml" line="37"/>
+        <location filename="../qml/MainPanel.qml" line="39"/>
         <source>Streaming Platform Options</source>
         <translation>စတရီးမင်း ပလက်ဖောင်း ရွေးချယ်စရာများ</translation>
     </message>
     <message>
-        <location filename="../qml/MainPanel.qml" line="39"/>
+        <location filename="../qml/MainPanel.qml" line="41"/>
         <source>Local Streaming Options</source>
         <translation>ဒေသတွင်း စတရီးမင်း ရွေးချယ်စရာများ</translation>
     </message>
     <message>
-        <location filename="../qml/MainPanel.qml" line="40"/>
+        <location filename="../qml/MainPanel.qml" line="42"/>
         <source>%1 options</source>
         <translation>%1 ရွေးချယ်စရာများ</translation>
     </message>
@@ -1308,7 +1392,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1270"/>
+        <location filename="../../src/mediatools.cpp" line="1271"/>
         <source>%1/log %2.txt</source>
         <translation>%1/log %2.txt</translation>
     </message>
@@ -1459,165 +1543,165 @@
         <translation>%1/ဗီဒီယို %2.%3</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="848"/>
+        <location filename="../../src/videolayer.cpp" line="942"/>
         <source>3GP Video</source>
         <translation>3GP ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="849"/>
+        <location filename="../../src/videolayer.cpp" line="943"/>
         <source>AVI Video</source>
         <translation>AVI ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="850"/>
+        <location filename="../../src/videolayer.cpp" line="944"/>
         <source>Windows Bitmap</source>
         <translation>ဝင်းဒိုးဘစ်တ်မပ်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="851"/>
+        <location filename="../../src/videolayer.cpp" line="945"/>
         <source>Microsoft Windows Cursor</source>
         <translation>မိုက်ခရိုဆော့ဖ်ဝင်းဒိုးကာဆာ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="853"/>
+        <location filename="../../src/videolayer.cpp" line="947"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
         <translation>Flash ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="854"/>
+        <location filename="../../src/videolayer.cpp" line="948"/>
         <source>Animated GIF</source>
         <translation>ရွေ့လျားနေသော GIF</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="855"/>
+        <location filename="../../src/videolayer.cpp" line="949"/>
         <source>Graphic Interchange Format</source>
         <translation>ဂရပ်ဖစ်ဖလှယ်ရေးဖော်မတ်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="856"/>
+        <location filename="../../src/videolayer.cpp" line="950"/>
         <source>Apple Icon Image</source>
         <translation>အက်ပဲအိုင်ကွန်ပုံ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="857"/>
+        <location filename="../../src/videolayer.cpp" line="951"/>
         <source>Microsoft Windows Icon</source>
         <translation>မိုက်ခရိုဆော့ဖ်ဝင်းဒိုးအိုင်ကွန်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="858"/>
+        <location filename="../../src/videolayer.cpp" line="952"/>
         <source>Joint Photographic Experts Group</source>
         <translation>ပုံရိပ်ကျွမ်းကျင်သူများအဖွဲ့</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="859"/>
+        <location filename="../../src/videolayer.cpp" line="953"/>
         <source>MKV Video</source>
         <translation>MKV ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="860"/>
+        <location filename="../../src/videolayer.cpp" line="954"/>
         <source>Animated PNG</source>
         <translation>ရွေ့လျားနေသော PNG</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="861"/>
+        <location filename="../../src/videolayer.cpp" line="955"/>
         <source>Multiple-image Network Graphics</source>
         <translation>ပုံစုံကွန်ရက်ဂရပ်ဖစ်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="862"/>
+        <location filename="../../src/videolayer.cpp" line="956"/>
         <source>QuickTime Video</source>
         <translation>QuickTime ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="863"/>
+        <location filename="../../src/videolayer.cpp" line="957"/>
         <source>MP4 Video</source>
         <translation>MP4 ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="864"/>
+        <location filename="../../src/videolayer.cpp" line="958"/>
         <source>MPEG Video</source>
         <translation>MPEG ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="865"/>
+        <location filename="../../src/videolayer.cpp" line="959"/>
         <source>Ogg Video</source>
         <translation>Ogg ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="866"/>
+        <location filename="../../src/videolayer.cpp" line="960"/>
         <source>Portable Bitmap</source>
         <translation>သယ်ယူနိုင်သောဘစ်တ်မပ်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="867"/>
+        <location filename="../../src/videolayer.cpp" line="961"/>
         <source>Portable Graymap</source>
         <translation>သယ်ယူနိုင်သောမီးခိုးရောင်မပ်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="868"/>
+        <location filename="../../src/videolayer.cpp" line="962"/>
         <source>Portable Network Graphics</source>
         <translation>သယ်ယူနိုင်သောကွန်ရက်ဂရပ်ဖစ်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="869"/>
+        <location filename="../../src/videolayer.cpp" line="963"/>
         <source>Portable Pixmap</source>
         <translation>သယ်ယူနိုင်သောပစ်မပ်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="871"/>
+        <location filename="../../src/videolayer.cpp" line="965"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
         <translation>RealMedia ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="872"/>
+        <location filename="../../src/videolayer.cpp" line="966"/>
         <source>Scalable Vector Graphics</source>
         <translation>စကေးချိန်ညှိနိုင်သောဗက်တာဂရပ်ဖစ်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="873"/>
+        <location filename="../../src/videolayer.cpp" line="967"/>
         <source>Truevision TGA</source>
         <translation>Truevision TGA</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="874"/>
+        <location filename="../../src/videolayer.cpp" line="968"/>
         <source>Tagged Image File Format</source>
         <translation>တက်ခ်လုပ်ထားသောပုံဖိုင်ဖော်မတ်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="875"/>
+        <location filename="../../src/videolayer.cpp" line="969"/>
         <source>DVD Video</source>
         <translation>DVD ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="876"/>
+        <location filename="../../src/videolayer.cpp" line="970"/>
         <source>Wireless Bitmap</source>
         <translation>ဝါယာလက်ဘစ်တ်မပ်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="877"/>
+        <location filename="../../src/videolayer.cpp" line="971"/>
         <source>WebM Video</source>
         <translation>WebM ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="878"/>
+        <location filename="../../src/videolayer.cpp" line="972"/>
         <source>WebP</source>
         <translation>WebP</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="880"/>
+        <location filename="../../src/videolayer.cpp" line="974"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
         <translation>ဝင်းဒိုးမီဒီယာဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="881"/>
+        <location filename="../../src/videolayer.cpp" line="975"/>
         <source>X11 Bitmap</source>
         <translation>X11 ဘစ်တ်မပ်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="882"/>
+        <location filename="../../src/videolayer.cpp" line="976"/>
         <source>X11 Pixmap</source>
         <translation>X11 ပစ်မပ်</translation>
     </message>
@@ -1633,42 +1717,37 @@
 <context>
     <name>SettingsMenu</name>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="60"/>
+        <location filename="../qml/SettingsMenu.qml" line="64"/>
         <source>Video</source>
         <translation>ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="66"/>
+        <location filename="../qml/SettingsMenu.qml" line="70"/>
         <source>Audio</source>
         <translation>အသံ</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="72"/>
-        <source>Effects</source>
-        <translation>အကျိုးသက်ရောက်မှုများ</translation>
-    </message>
-    <message>
-        <location filename="../qml/SettingsMenu.qml" line="78"/>
+        <location filename="../qml/SettingsMenu.qml" line="76"/>
         <source>Preferences</source>
         <translation>နှစ်သက်ရာများ</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="84"/>
+        <location filename="../qml/SettingsMenu.qml" line="82"/>
         <source>Donate</source>
         <translation>လှူဒါန်းပါ</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="90"/>
+        <location filename="../qml/SettingsMenu.qml" line="88"/>
         <source>Help</source>
         <translation>အကူအညီ</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="96"/>
+        <location filename="../qml/SettingsMenu.qml" line="94"/>
         <source>About</source>
         <translation>အကြောင်း</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="103"/>
+        <location filename="../qml/SettingsMenu.qml" line="101"/>
         <source>Play sources</source>
         <translation>မူရင်းများကိုဖွင့်ပါ</translation>
     </message>
@@ -1686,163 +1765,163 @@
         <translation>ပလက်ဖောင်းများစွာသို့ ဗီဒီယိုစတရီးမင်းကို ပြင်ဆင်ပါ။</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="122"/>
-        <location filename="../qml/Streaming.qml" line="147"/>
+        <location filename="../qml/Streaming.qml" line="133"/>
+        <location filename="../qml/Streaming.qml" line="158"/>
         <source>Streaming quality</source>
         <translation>စတရီးမင်း အရည်အသွေး</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="200"/>
+        <location filename="../qml/Streaming.qml" line="211"/>
         <source>Custom</source>
         <translation>စိတ်ကြိုက်</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="203"/>
+        <location filename="../qml/Streaming.qml" line="214"/>
         <source>Video quality: %1×%2 %3 FPS</source>
         <translation>ဗီဒီယိုအရည်အသွေး- %1×%2 %3 FPS</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="204"/>
+        <location filename="../qml/Streaming.qml" line="215"/>
         <source>Video bitrate: %1 Mbps</source>
         <translation>ဗီဒီယို ဘစ်နှုန်း- %1 Mbps</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="205"/>
+        <location filename="../qml/Streaming.qml" line="216"/>
         <source>Audio sample rate: %1 kHz</source>
         <translation>အသံ နမူနာနှုန်း- %1 kHz</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="206"/>
+        <location filename="../qml/Streaming.qml" line="217"/>
         <source>Audio bitrate: %1 kbps</source>
         <translation>အသံ ဘစ်နှုန်း- %1 kbps</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="214"/>
+        <location filename="../qml/Streaming.qml" line="225"/>
         <source>Advanced settings</source>
         <translation>အဆင့်မြင့် ပြင်ဆင်မှုများ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="229"/>
+        <location filename="../qml/Streaming.qml" line="240"/>
         <source>Video quality</source>
         <translation>ဗီဒီယိုအရည်အသွေး</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="247"/>
+        <location filename="../qml/Streaming.qml" line="258"/>
         <source>Output width</source>
         <translation>ထုတ်လုပ်မှုအကျယ်</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="270"/>
+        <location filename="../qml/Streaming.qml" line="281"/>
         <source>Output height</source>
         <translation>ထုတ်လုပ်မှုအမြင့်</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="293"/>
+        <location filename="../qml/Streaming.qml" line="304"/>
         <source>Output frame rate</source>
         <translation>ထုတ်လုပ်မှု ဖရိမ်နှုန်း</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="316"/>
+        <location filename="../qml/Streaming.qml" line="327"/>
         <source>Video bitrate (kbps)</source>
         <translation>ဗီဒီယို ဘစ်နှုန်း (kbps)</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="336"/>
+        <location filename="../qml/Streaming.qml" line="347"/>
         <source>Keyframes stride (ms)</source>
         <translation>သော့ချက်ဖရိမ်ခြေလှမ်း (မီလီစက္ကန့်)</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="353"/>
+        <location filename="../qml/Streaming.qml" line="364"/>
         <source>Video codec</source>
         <translation>ဗီဒီယိုကိုဒက်</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="436"/>
+        <location filename="../qml/Streaming.qml" line="447"/>
         <source>Audio quality</source>
         <translation>အသံအရည်အသွေး</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="454"/>
+        <location filename="../qml/Streaming.qml" line="465"/>
         <source>Sample rate</source>
         <translation>နမူနာနှုန်း</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="477"/>
+        <location filename="../qml/Streaming.qml" line="488"/>
         <source>Audio bitrate (kbps)</source>
         <translation>အသံ ဘစ်နှုန်း (kbps)</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="498"/>
+        <location filename="../qml/Streaming.qml" line="509"/>
         <source>Audio codec</source>
         <translation>အသံကိုဒက်</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="521"/>
+        <location filename="../qml/Streaming.qml" line="532"/>
         <source>Streaming platform settings</source>
         <translation>စတရီးမင်း ပလက်ဖောင်း ပြင်ဆင်မှုများ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="532"/>
+        <location filename="../qml/Streaming.qml" line="543"/>
         <source>Platform</source>
         <translation>ပလက်ဖောင်း</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="540"/>
+        <location filename="../qml/Streaming.qml" line="551"/>
         <source>Add platform</source>
         <translation>ပလက်ဖောင်းထည့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="547"/>
+        <location filename="../qml/Streaming.qml" line="558"/>
         <source>Remove platform</source>
         <translation>ပလက်ဖောင်းဖယ်ရှားပါ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="561"/>
+        <location filename="../qml/Streaming.qml" line="572"/>
         <source>Website</source>
         <translation>ဝဘ်ဆိုဒ်</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="581"/>
+        <location filename="../qml/Streaming.qml" line="592"/>
         <source>Visit website</source>
         <translation>ဝဘ်ဆိုဒ်သို့ဝင်ရောက်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="596"/>
+        <location filename="../qml/Streaming.qml" line="607"/>
         <source>Streaming URL</source>
         <translation>စတရီးမင်း URL</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="627"/>
+        <location filename="../qml/Streaming.qml" line="638"/>
         <source>Hide streaming URL</source>
         <translation>စတရီးမင်း URL ကိုဝှက်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="628"/>
+        <location filename="../qml/Streaming.qml" line="639"/>
         <source>Show streaming URL</source>
         <translation>စတရီးမင်း URL ကိုပြပါ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="647"/>
+        <location filename="../qml/Streaming.qml" line="658"/>
         <source>Streaming key</source>
         <translation>စတရီးမင်း ကီး</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="680"/>
+        <location filename="../qml/Streaming.qml" line="691"/>
         <source>Hide streaming key</source>
         <translation>စတရီးမင်း ကီးကိုဝှက်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="681"/>
+        <location filename="../qml/Streaming.qml" line="692"/>
         <source>Show streaming key</source>
         <translation>စတရီးမင်း ကီးကိုပြပါ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="700"/>
+        <location filename="../qml/Streaming.qml" line="711"/>
         <source>Streaming configuration help</source>
         <translation>စတရီးမင်း ပြင်ဆင်မှု အကူအညီ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="712"/>
+        <location filename="../qml/Streaming.qml" line="723"/>
         <source>Get streaming key</source>
         <translation>စတရီးမင်း ကီးကိုရယူပါ</translation>
     </message>
@@ -1858,57 +1937,57 @@
 <context>
     <name>StreamingPlatformOptions</name>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="60"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="71"/>
         <source>Remove</source>
         <translation>ဖယ်ရှား</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="72"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="83"/>
         <source>Website</source>
         <translation>ဝဘ်ဆိုဒ်</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="92"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="103"/>
         <source>Visit website</source>
         <translation>ဝဘ်ဆိုဒ်သို့ဝင်ရောက်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="107"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="118"/>
         <source>Streaming URL</source>
         <translation>စတရီးမင်း URL</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="138"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="149"/>
         <source>Hide streaming URL</source>
         <translation>စတရီးမင်း URL ကိုဝှက်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="139"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="150"/>
         <source>Show streaming URL</source>
         <translation>စတရီးမင်း URL ကိုပြပါ</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="158"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="169"/>
         <source>Streaming key</source>
         <translation>စတရီးမင်း ကီး</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="191"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="202"/>
         <source>Hide streaming key</source>
         <translation>စတရီးမင်း ကီးကိုဝှက်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="192"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="203"/>
         <source>Show streaming key</source>
         <translation>စတရီးမင်း ကီးကိုပြပါ</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="211"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="222"/>
         <source>Streaming configuration help</source>
         <translation>စတရီးမင်း ပြင်ဆင်မှု အကူအညီ</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="223"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="234"/>
         <source>Get streaming key</source>
         <translation>စတရီးမင်း ကီးကိုရယူပါ</translation>
     </message>
@@ -2149,12 +2228,12 @@
 <context>
     <name>VideoEffectOptions</name>
     <message>
-        <location filename="../qml/VideoEffectOptions.qml" line="56"/>
+        <location filename="../qml/VideoEffectOptions.qml" line="96"/>
         <source>Remove</source>
         <translation>ဖယ်ရှား</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectOptions.qml" line="61"/>
+        <location filename="../qml/VideoEffectOptions.qml" line="101"/>
         <source>Remove %1 video effect</source>
         <translation>%1 ဗီဒီယိုအကျိုးသက်ရောက်မှုကိုဖယ်ရှားပါ</translation>
     </message>
@@ -2167,12 +2246,12 @@
         <translation>ဗီဒီယိုအကျိုးသက်ရောက်မှုထည့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="69"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="114"/>
         <source>Effect</source>
         <translation>အကျိုးသက်ရောက်မှု</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="133"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="178"/>
         <source>Chain effect</source>
         <extracomment>Apply the effect over the other effects.</extracomment>
         <translation>ကွင်းဆက်အကျိုးသက်ရောက်မှု</translation>
@@ -2181,12 +2260,12 @@
 <context>
     <name>VideoEffectsList</name>
     <message>
-        <location filename="../qml/VideoEffectsList.qml" line="50"/>
+        <location filename="../qml/VideoEffectsList.qml" line="94"/>
         <source>Add effect</source>
         <translation>အကျိုးသက်ရောက်မှုထည့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsList.qml" line="57"/>
+        <location filename="../qml/VideoEffectsList.qml" line="101"/>
         <source>Remove all effects</source>
         <translation>အကျိုးသက်ရောက်မှုအားလုံးဖယ်ရှားပါ</translation>
     </message>
@@ -2225,61 +2304,61 @@
 <context>
     <name>VideoInputAddEdit</name>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="185"/>
-        <source>URL</source>
-        <translation>URL</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="124"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="169"/>
-        <source>Description</source>
-        <translation>ဖော်ပြချက်</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="82"/>
-        <source>Edit media file source</source>
-        <translation>မီဒီယာဖိုင်မူရင်းကို တည်းဖြတ်ပါ</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="86"/>
-        <source>Edit media URL source</source>
-        <translation>မီဒီယာ URL မူရင်းကို တည်းဖြတ်ပါ</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="90"/>
-        <source>Add media file source</source>
-        <translation>မီဒီယာဖိုင်မူရင်း ထည့်ပါ</translation>
-    </message>
-    <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="91"/>
+        <source>Edit media file source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="95"/>
+        <source>Edit media URL source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="99"/>
+        <source>Add media file source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="100"/>
         <source>Add media URL source</source>
-        <translation>မီဒီယာ URL မူရင်း ထည့်ပါ</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="130"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="175"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="133"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="180"/>
+        <source>Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="139"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="186"/>
         <source>Source title</source>
-        <translation>မူရင်းခေါင်းစဉ်</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="140"/>
-        <source>Path</source>
-        <translation>လမ်းကြောင်း</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="148"/>
-        <source>File path</source>
-        <translation>ဖိုင်လမ်းကြောင်း</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="149"/>
-        <source>Search file to use as source</source>
-        <translation>မူရင်းအဖြစ်အသုံးပြုရန်ဖိုင်ရှာဖွေပါ</translation>
+        <source>Path</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="234"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="159"/>
+        <source>File path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="160"/>
+        <source>Search file to use as source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="196"/>
+        <source>URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="254"/>
         <source>Choose the file to add as source</source>
-        <translation>မူရင်းအဖြစ်ထည့်ရန် ဖိုင်ကိုရွေးချယ်ပါ</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2311,68 +2390,118 @@
 <context>
     <name>VideoInputOptions</name>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="61"/>
+        <location filename="../qml/VideoInputOptions.qml" line="65"/>
         <source>Edit</source>
         <translation>တည်းဖြတ်</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="74"/>
+        <location filename="../qml/VideoInputOptions.qml" line="77"/>
         <source>Remove</source>
         <translation>ဖယ်ရှား</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputOptions.qml" line="92"/>
+        <source>Manage source effects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputOptions.qml" line="104"/>
+        <source>Opacity</source>
+        <translation type="unfinished">မတောက်ပမှု</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputOptions.qml" line="120"/>
+        <source>Source opacity</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>VideoInputs</name>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="107"/>
-        <source>Configure source</source>
-        <translation>မူရင်းကိုပြင်ဆင်ပါ</translation>
+        <location filename="../qml/VideoInputs.qml" line="97"/>
+        <source>Camera</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="56"/>
+        <location filename="../qml/VideoInputs.qml" line="99"/>
+        <source>Screen</source>
+        <translation type="unfinished">မျက်နှာပြင်</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="101"/>
+        <source>Image</source>
+        <translation type="unfinished">ပုံ</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="103"/>
+        <source>Video</source>
+        <translation type="unfinished">ဗီဒီယို</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="105"/>
+        <source>Unknown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="124"/>
         <source>Add source</source>
         <translation>မူရင်းထည့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="68"/>
+        <location filename="../qml/VideoInputs.qml" line="136"/>
         <source>Add camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="76"/>
+        <location filename="../qml/VideoInputs.qml" line="144"/>
         <source>Add screen</source>
         <translation>မျက်နှာပြင်ထည့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="77"/>
+        <location filename="../qml/VideoInputs.qml" line="145"/>
         <source>Add screen source</source>
         <translation>မျက်နှာပြင်မူရင်းထည့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="84"/>
+        <location filename="../qml/VideoInputs.qml" line="152"/>
         <source>Add window</source>
         <translation>ဝင်းဒိုးထည့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="93"/>
+        <location filename="../qml/VideoInputs.qml" line="161"/>
         <source>Add media file</source>
         <translation>မီဒီယာဖိုင်ထည့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="99"/>
+        <location filename="../qml/VideoInputs.qml" line="167"/>
         <source>Add media URL</source>
         <translation>မီဒီယာ URL ထည့်ပါ</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="183"/>
+        <source>Manage canvas effects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="175"/>
+        <source>Edit layout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="379"/>
+        <source>Source %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="141"/>
+        <location filename="../../src/videolayer.cpp" line="142"/>
         <source>All Image and Video Files</source>
         <translation>ပုံနှင့်ဗီဒီယိုဖိုင်အားလုံး</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="178"/>
+        <location filename="../../src/videolayer.cpp" line="179"/>
         <source>All Files</source>
         <translation>ဖိုင်အားလုံး</translation>
     </message>
@@ -2380,12 +2509,12 @@
 <context>
     <name>VideoOptions</name>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="46"/>
+        <location filename="../qml/VideoOptions.qml" line="48"/>
         <source>Sources</source>
         <translation>မူရင်းများ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="49"/>
+        <location filename="../qml/VideoOptions.qml" line="51"/>
         <source>Outputs</source>
         <translation>ထုတ်လုပ်မှုများ</translation>
     </message>
@@ -2799,32 +2928,32 @@
         <translation>တောက်ပမှု</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="28"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="29"/>
         <source>Number of scratches</source>
         <translation>ခြစ်ရာများအရေအတွက်</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="45"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="47"/>
         <source>Aging intensity</source>
         <translation>သက်တမ်းရင့်အောင် ပြုလုပ်မှု ပြင်းအား</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="64"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="67"/>
         <source>Dust density</source>
         <translation>ဖုန်မှုန့် သိပ်သည်းဆ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="83"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="87"/>
         <source>Scratch density</source>
         <translation>ခြစ်ရာ သိပ်သည်းဆ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="102"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="107"/>
         <source>Scratch brightness</source>
         <translation>ခြစ်ရာ တောက်ပမှု</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="121"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="127"/>
         <source>Pits density</source>
         <translation>အက်ကွဲကြောင်း သိပ်သည်းဆ</translation>
     </message>
@@ -4706,135 +4835,135 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="46"/>
+        <location filename="../qml/main.qml" line="53"/>
         <source>Daily Build</source>
         <translation>နေ့စဉ်တည်ဆောက်မှု</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="60"/>
+        <location filename="../qml/main.qml" line="67"/>
         <source>%1/Picture %2.%3</source>
         <translation>%1/ပုံ %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="258"/>
+        <location filename="../qml/main.qml" line="255"/>
         <source>Main menu</source>
         <translation>အဓိကမီနူး</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="264"/>
+        <location filename="../qml/main.qml" line="261"/>
         <source>Open main menu</source>
         <translation>အဓိကမီနူးဖွင့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="295"/>
+        <location filename="../qml/main.qml" line="291"/>
         <source>Start streaming</source>
         <translation>စတရီးမင်းစတင်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="295"/>
+        <location filename="../qml/main.qml" line="291"/>
         <source>Stop streaming</source>
         <translation>စတရီးမင်းရပ်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="300"/>
+        <location filename="../qml/main.qml" line="296"/>
         <source>You must add at least one streaming platform to the video outputs</source>
         <translation>ဗီဒီယိုထုတ်လုပ်မှုများသို့ စတရီးမင်းပလက်ဖောင်း အနည်းဆုံးတစ်ခု ထည့်သွင်းရပါမည်။</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="302"/>
+        <location filename="../qml/main.qml" line="298"/>
         <source>The following platforms are not configured:&lt;br/&gt;&lt;br/&gt;%1</source>
         <translation>အောက်ပါပလက်ဖောင်းများကို ပြင်ဆင်ထားခြင်းမရှိပါ-&lt;br/&gt;&lt;br/&gt;%1</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="336"/>
+        <location filename="../qml/main.qml" line="332"/>
         <source>Capture options</source>
         <translation>ဖမ်းယူရေးရွေးချယ်စရာများ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="342"/>
+        <location filename="../qml/main.qml" line="338"/>
         <source>Open capture options menu</source>
         <translation>ဖမ်းယူရေးရွေးချယ်စရာမီနူးဖွင့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="373"/>
+        <location filename="../qml/main.qml" line="369"/>
         <source>Open last photo</source>
         <translation>နောက်ဆုံးဓာတ်ပုံဖွင့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="384"/>
+        <location filename="../qml/main.qml" line="380"/>
         <source>Open last photo taken</source>
         <translation>နောက်ဆုံးရိုက်ထားသောဓာတ်ပုံဖွင့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="415"/>
-        <location filename="../qml/main.qml" line="418"/>
+        <location filename="../qml/main.qml" line="411"/>
+        <location filename="../qml/main.qml" line="414"/>
         <source>Take a photo</source>
         <translation>ဓာတ်ပုံရိုက်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="419"/>
+        <location filename="../qml/main.qml" line="415"/>
         <source>Image capture mode</source>
         <translation>ပုံဖမ်းယူမုဒ်</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="422"/>
+        <location filename="../qml/main.qml" line="418"/>
         <source>Make a capture and save it to an image file</source>
         <translation>ဖမ်းယူပြီး ပုံဖိုင်တစ်ခုထဲသိမ်းဆည်းပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="423"/>
+        <location filename="../qml/main.qml" line="419"/>
         <source>Put %1 in image capture mode</source>
         <translation>%1 ကို ပုံဖမ်းယူမုဒ်ထဲထည့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="472"/>
-        <location filename="../qml/main.qml" line="478"/>
+        <location filename="../qml/main.qml" line="468"/>
+        <location filename="../qml/main.qml" line="474"/>
         <source>Record video</source>
         <translation>ဗီဒီယိုမှတ်တမ်းတင်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="473"/>
-        <location filename="../qml/main.qml" line="479"/>
+        <location filename="../qml/main.qml" line="469"/>
+        <location filename="../qml/main.qml" line="475"/>
         <source>Stop video recording</source>
         <translation>ဗီဒီယိုမှတ်တမ်းတင်ခြင်းရပ်</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="476"/>
+        <location filename="../qml/main.qml" line="472"/>
         <source>Video capture mode</source>
         <translation>ဗီဒီယိုဖမ်းယူမုဒ်</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="482"/>
+        <location filename="../qml/main.qml" line="478"/>
         <source>Put %1 in video recording mode</source>
         <translation>%1 ကို ဗီဒီယိုမှတ်တမ်းတင်မုဒ်ထဲထည့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="484"/>
+        <location filename="../qml/main.qml" line="480"/>
         <source>Start recording to a video file</source>
         <translation>ဗီဒီယိုဖိုင်တစ်ခုသို့မှတ်တမ်းတင်ရန်စတင်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="485"/>
+        <location filename="../qml/main.qml" line="481"/>
         <source>Stop current video recording</source>
         <translation>လက်ရှိဗီဒီယိုမှတ်တမ်းတင်ခြင်းရပ်</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="512"/>
+        <location filename="../qml/main.qml" line="525"/>
         <source>Open last video</source>
         <translation>နောက်ဆုံးဗီဒီယိုဖွင့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="524"/>
+        <location filename="../qml/main.qml" line="537"/>
         <source>Open last recorded video</source>
         <translation>နောက်ဆုံးမှတ်တမ်းတင်ထားသောဗီဒီယိုဖွင့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="760"/>
+        <location filename="../qml/main.qml" line="792"/>
         <source>Installing virtual camera</source>
         <translation>အမြင်သီးခြားကင်မရာတပ်ဆင်နေသည်</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="761"/>
+        <location filename="../qml/main.qml" line="793"/>
         <source>Running commands</source>
         <translation>အမိန့်များကိုလုပ်ဆောင်နေသည်</translation>
     </message>

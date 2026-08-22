@@ -62,7 +62,13 @@ QImage IconsProvider::requestImage(const QString &id,
                                    QSize *size,
                                    const QSize &requestedSize)
 {
-    auto iconSize = this->d->nearestSize(requestedSize);
+    QSize iconSize;
+
+    if (requestedSize.isValid())
+        iconSize = this->d->nearestSize(requestedSize);
+    else if (!this->d->m_availableSizes.isEmpty())
+        iconSize = this->d->m_availableSizes.last();
+
     *size = iconSize;
 
     if (iconSize.isEmpty())
@@ -83,7 +89,13 @@ QPixmap IconsProvider::requestPixmap(const QString &id,
                                      QSize *size,
                                      const QSize &requestedSize)
 {
-    auto iconSize = this->d->nearestSize(requestedSize);
+    QSize iconSize;
+
+    if (requestedSize.isValid())
+        iconSize = this->d->nearestSize(requestedSize);
+    else if (!this->d->m_availableSizes.isEmpty())
+        iconSize = this->d->m_availableSizes.last();
+
     *size = iconSize;
 
     if (iconSize.isEmpty())
@@ -151,6 +163,8 @@ QList<QSize> IconsProviderPrivate::availableSizes(const QString &iconsPath,
     }
 
     theme.endGroup();
+
+    std::sort(availableSizes.begin(), availableSizes.end());
 
     return availableSizes;
 }

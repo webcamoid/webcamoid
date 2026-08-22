@@ -21,6 +21,7 @@
         <file>share/qml/AudioOptions.qml</file>
         <file>share/qml/AudioOutputDeviceOptions.qml</file>
         <file>share/qml/AudioOutputs.qml</file>
+        <file>share/qml/CanvasConfig.qml</file>
         <file>share/qml/ColorSchemeAddEdit.qml</file>
         <file>share/qml/ColorSchemes.qml</file>
         <file>share/qml/Commons.qml</file>

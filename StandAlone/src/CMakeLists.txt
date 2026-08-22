@@ -94,8 +94,6 @@ set(PROJECT_SOURCES
     videoeffects.h
     videolayer.cpp
     videolayer.h
-    videolayercompat.cpp
-    videolayercompat.h
     virtualcameras.cpp
     virtualcameras.h
     ../DefaultTheme.qrc

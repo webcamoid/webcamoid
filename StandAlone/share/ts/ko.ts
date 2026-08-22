@@ -344,6 +344,85 @@
     </message>
 </context>
 <context>
+    <name>CanvasConfig</name>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="28"/>
+        <source>Canvas</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="92"/>
+        <source>Orientation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="93"/>
+        <source>Lanscape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="93"/>
+        <source>Portrait</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="108"/>
+        <location filename="../qml/CanvasConfig.qml" line="127"/>
+        <source>Canvas resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="166"/>
+        <source>Custom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="170"/>
+        <source>%1×%2 @ %3 FPS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="292"/>
+        <source>Canvas color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="294"/>
+        <source>Choose the canvas color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="181"/>
+        <source>Advanced settings</source>
+        <translation type="unfinished">고급 설정</translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="29"/>
+        <source>Configure the composition canvas resolution, frame rate, and color.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="192"/>
+        <source>Canvas size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="210"/>
+        <source>Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="239"/>
+        <source>Height</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="268"/>
+        <source>Frame rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>CaptureSettingsDialog</name>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="32"/>
@@ -1235,32 +1314,37 @@
         <translation>비디오</translation>
     </message>
     <message>
-        <location filename="../qml/MainPanel.qml" line="31"/>
-        <source>Effects</source>
-        <translation>이펙트</translation>
+        <location filename="../qml/MainPanel.qml" line="32"/>
+        <source>Canvas effects</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="33"/>
+        <source>Source effects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/MainPanel.qml" line="35"/>
         <source>Video Source Options</source>
         <translation>비디오 입력 옵션</translation>
     </message>
     <message>
-        <location filename="../qml/MainPanel.qml" line="35"/>
+        <location filename="../qml/MainPanel.qml" line="37"/>
         <source>Virtual Camera Options</source>
         <translation>가상 카메라 옵션</translation>
     </message>
     <message>
-        <location filename="../qml/MainPanel.qml" line="37"/>
+        <location filename="../qml/MainPanel.qml" line="39"/>
         <source>Streaming Platform Options</source>
         <translation>스트리밍 플랫폼 옵션</translation>
     </message>
     <message>
-        <location filename="../qml/MainPanel.qml" line="39"/>
+        <location filename="../qml/MainPanel.qml" line="41"/>
         <source>Local Streaming Options</source>
         <translation>로컬 스트리밍 옵션</translation>
     </message>
     <message>
-        <location filename="../qml/MainPanel.qml" line="40"/>
+        <location filename="../qml/MainPanel.qml" line="42"/>
         <source>%1 options</source>
         <translation>%1 옵션</translation>
     </message>
@@ -1308,7 +1392,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1270"/>
+        <location filename="../../src/mediatools.cpp" line="1271"/>
         <source>%1/log %2.txt</source>
         <translation>%1/로그 %2.txt</translation>
     </message>
@@ -1454,165 +1538,165 @@
         <translation>불러오지 않을 경로 목록을 세미콜론으로 구분.</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="848"/>
+        <location filename="../../src/videolayer.cpp" line="942"/>
         <source>3GP Video</source>
         <translation>3GP 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="849"/>
+        <location filename="../../src/videolayer.cpp" line="943"/>
         <source>AVI Video</source>
         <translation>AVI 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="850"/>
+        <location filename="../../src/videolayer.cpp" line="944"/>
         <source>Windows Bitmap</source>
         <translation>Windows 비트맵</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="851"/>
+        <location filename="../../src/videolayer.cpp" line="945"/>
         <source>Microsoft Windows Cursor</source>
         <translation>마이크로소프트 Windows 커서</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="853"/>
+        <location filename="../../src/videolayer.cpp" line="947"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
         <translation>플래시 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="854"/>
+        <location filename="../../src/videolayer.cpp" line="948"/>
         <source>Animated GIF</source>
         <translation>움직이는 GIF</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="855"/>
+        <location filename="../../src/videolayer.cpp" line="949"/>
         <source>Graphic Interchange Format</source>
         <translation>그래픽 교환 형식</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="856"/>
+        <location filename="../../src/videolayer.cpp" line="950"/>
         <source>Apple Icon Image</source>
         <translation>Apple 아이콘 이미지</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="857"/>
+        <location filename="../../src/videolayer.cpp" line="951"/>
         <source>Microsoft Windows Icon</source>
         <translation>마이크로소프트 Windows 아이콘</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="858"/>
+        <location filename="../../src/videolayer.cpp" line="952"/>
         <source>Joint Photographic Experts Group</source>
         <translation>공동 사진 전문가 그룹</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="859"/>
+        <location filename="../../src/videolayer.cpp" line="953"/>
         <source>MKV Video</source>
         <translation>MKV 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="860"/>
+        <location filename="../../src/videolayer.cpp" line="954"/>
         <source>Animated PNG</source>
         <translation>움직이는 PNG</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="861"/>
+        <location filename="../../src/videolayer.cpp" line="955"/>
         <source>Multiple-image Network Graphics</source>
         <translation>다중 이미지 네트워크 그래픽</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="862"/>
+        <location filename="../../src/videolayer.cpp" line="956"/>
         <source>QuickTime Video</source>
         <translation>QuickTime 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="863"/>
+        <location filename="../../src/videolayer.cpp" line="957"/>
         <source>MP4 Video</source>
         <translation>MP4 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="864"/>
+        <location filename="../../src/videolayer.cpp" line="958"/>
         <source>MPEG Video</source>
         <translation>MPEG 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="865"/>
+        <location filename="../../src/videolayer.cpp" line="959"/>
         <source>Ogg Video</source>
         <translation>Ogg 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="866"/>
+        <location filename="../../src/videolayer.cpp" line="960"/>
         <source>Portable Bitmap</source>
         <translation>휴대용 비트맵</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="867"/>
+        <location filename="../../src/videolayer.cpp" line="961"/>
         <source>Portable Graymap</source>
         <translation>휴대용 그레이맵</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="868"/>
+        <location filename="../../src/videolayer.cpp" line="962"/>
         <source>Portable Network Graphics</source>
         <translation>휴대용 네트워크 그래픽</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="869"/>
+        <location filename="../../src/videolayer.cpp" line="963"/>
         <source>Portable Pixmap</source>
         <translation>휴대용 픽스맵</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="871"/>
+        <location filename="../../src/videolayer.cpp" line="965"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
         <translation>RealMedia 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="872"/>
+        <location filename="../../src/videolayer.cpp" line="966"/>
         <source>Scalable Vector Graphics</source>
         <translation>확장 가능한 벡터 그래픽</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="873"/>
+        <location filename="../../src/videolayer.cpp" line="967"/>
         <source>Truevision TGA</source>
         <translation>Truevision TGA</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="874"/>
+        <location filename="../../src/videolayer.cpp" line="968"/>
         <source>Tagged Image File Format</source>
         <translation>태그 이미지 파일 형식</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="875"/>
+        <location filename="../../src/videolayer.cpp" line="969"/>
         <source>DVD Video</source>
         <translation>DVD 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="876"/>
+        <location filename="../../src/videolayer.cpp" line="970"/>
         <source>Wireless Bitmap</source>
         <translation>무선 비트맵</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="877"/>
+        <location filename="../../src/videolayer.cpp" line="971"/>
         <source>WebM Video</source>
         <translation>WebM 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="878"/>
+        <location filename="../../src/videolayer.cpp" line="972"/>
         <source>WebP</source>
         <translation>WebP</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="880"/>
+        <location filename="../../src/videolayer.cpp" line="974"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
         <translation>Windows 미디어 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="881"/>
+        <location filename="../../src/videolayer.cpp" line="975"/>
         <source>X11 Bitmap</source>
         <translation>X11 비트맵</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="882"/>
+        <location filename="../../src/videolayer.cpp" line="976"/>
         <source>X11 Pixmap</source>
         <translation>X11 픽스맵</translation>
     </message>
@@ -1633,42 +1717,37 @@
 <context>
     <name>SettingsMenu</name>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="60"/>
+        <location filename="../qml/SettingsMenu.qml" line="64"/>
         <source>Video</source>
         <translation>비디오</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="66"/>
+        <location filename="../qml/SettingsMenu.qml" line="70"/>
         <source>Audio</source>
         <translation>오디오</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="72"/>
-        <source>Effects</source>
-        <translation>이펙트</translation>
-    </message>
-    <message>
-        <location filename="../qml/SettingsMenu.qml" line="78"/>
+        <location filename="../qml/SettingsMenu.qml" line="76"/>
         <source>Preferences</source>
         <translation>환경설정</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="84"/>
+        <location filename="../qml/SettingsMenu.qml" line="82"/>
         <source>Donate</source>
         <translation>기부</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="90"/>
+        <location filename="../qml/SettingsMenu.qml" line="88"/>
         <source>Help</source>
         <translation>도움말</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="96"/>
+        <location filename="../qml/SettingsMenu.qml" line="94"/>
         <source>About</source>
         <translation>정보</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="103"/>
+        <location filename="../qml/SettingsMenu.qml" line="101"/>
         <source>Play sources</source>
         <translation>입력 재생</translation>
     </message>
@@ -1686,163 +1765,163 @@
         <translation>다양한 플랫폼으로 비디오 스트리밍 구성.</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="122"/>
-        <location filename="../qml/Streaming.qml" line="147"/>
+        <location filename="../qml/Streaming.qml" line="133"/>
+        <location filename="../qml/Streaming.qml" line="158"/>
         <source>Streaming quality</source>
         <translation>스트리밍 품질</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="200"/>
+        <location filename="../qml/Streaming.qml" line="211"/>
         <source>Custom</source>
         <translation>사용자 정의</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="203"/>
+        <location filename="../qml/Streaming.qml" line="214"/>
         <source>Video quality: %1×%2 %3 FPS</source>
         <translation>비디오 품질: %1×%2 %3 FPS</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="204"/>
+        <location filename="../qml/Streaming.qml" line="215"/>
         <source>Video bitrate: %1 Mbps</source>
         <translation>비디오 비트레이트: %1 Mbps</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="205"/>
+        <location filename="../qml/Streaming.qml" line="216"/>
         <source>Audio sample rate: %1 kHz</source>
         <translation>오디오 샘플 레이트: %1 kHz</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="206"/>
+        <location filename="../qml/Streaming.qml" line="217"/>
         <source>Audio bitrate: %1 kbps</source>
         <translation>오디오 비트레이트: %1 kbps</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="214"/>
+        <location filename="../qml/Streaming.qml" line="225"/>
         <source>Advanced settings</source>
         <translation>고급 설정</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="229"/>
+        <location filename="../qml/Streaming.qml" line="240"/>
         <source>Video quality</source>
         <translation>비디오 품질</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="247"/>
+        <location filename="../qml/Streaming.qml" line="258"/>
         <source>Output width</source>
         <translation>출력 너비</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="270"/>
+        <location filename="../qml/Streaming.qml" line="281"/>
         <source>Output height</source>
         <translation>출력 높이</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="293"/>
+        <location filename="../qml/Streaming.qml" line="304"/>
         <source>Output frame rate</source>
         <translation>출력 프레임 레이트</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="316"/>
+        <location filename="../qml/Streaming.qml" line="327"/>
         <source>Video bitrate (kbps)</source>
         <translation>비디오 비트레이트 (kbps)</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="336"/>
+        <location filename="../qml/Streaming.qml" line="347"/>
         <source>Keyframes stride (ms)</source>
         <translation>키프레임 간격 (ms)</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="353"/>
+        <location filename="../qml/Streaming.qml" line="364"/>
         <source>Video codec</source>
         <translation>비디오 코덱</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="436"/>
+        <location filename="../qml/Streaming.qml" line="447"/>
         <source>Audio quality</source>
         <translation>오디오 품질</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="454"/>
+        <location filename="../qml/Streaming.qml" line="465"/>
         <source>Sample rate</source>
         <translation>샘플 레이트</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="477"/>
+        <location filename="../qml/Streaming.qml" line="488"/>
         <source>Audio bitrate (kbps)</source>
         <translation>오디오 비트레이트 (kbps)</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="498"/>
+        <location filename="../qml/Streaming.qml" line="509"/>
         <source>Audio codec</source>
         <translation>오디오 코덱</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="521"/>
+        <location filename="../qml/Streaming.qml" line="532"/>
         <source>Streaming platform settings</source>
         <translation>스트리밍 플랫폼 설정</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="532"/>
+        <location filename="../qml/Streaming.qml" line="543"/>
         <source>Platform</source>
         <translation>플랫폼</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="540"/>
+        <location filename="../qml/Streaming.qml" line="551"/>
         <source>Add platform</source>
         <translation>플랫폼 추가</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="547"/>
+        <location filename="../qml/Streaming.qml" line="558"/>
         <source>Remove platform</source>
         <translation>플랫폼 제거</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="561"/>
+        <location filename="../qml/Streaming.qml" line="572"/>
         <source>Website</source>
         <translation>웹사이트</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="581"/>
+        <location filename="../qml/Streaming.qml" line="592"/>
         <source>Visit website</source>
         <translation>웹사이트 방문</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="596"/>
+        <location filename="../qml/Streaming.qml" line="607"/>
         <source>Streaming URL</source>
         <translation>스트리밍 URL</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="627"/>
+        <location filename="../qml/Streaming.qml" line="638"/>
         <source>Hide streaming URL</source>
         <translation>스트리밍 URL 숨기기</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="628"/>
+        <location filename="../qml/Streaming.qml" line="639"/>
         <source>Show streaming URL</source>
         <translation>스트리밍 URL 표시</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="647"/>
+        <location filename="../qml/Streaming.qml" line="658"/>
         <source>Streaming key</source>
         <translation>스트리밍 키</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="680"/>
+        <location filename="../qml/Streaming.qml" line="691"/>
         <source>Hide streaming key</source>
         <translation>스트리밍 키 숨기기</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="681"/>
+        <location filename="../qml/Streaming.qml" line="692"/>
         <source>Show streaming key</source>
         <translation>스트리밍 키 표시</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="700"/>
+        <location filename="../qml/Streaming.qml" line="711"/>
         <source>Streaming configuration help</source>
         <translation>스트리밍 구성 도움말</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="712"/>
+        <location filename="../qml/Streaming.qml" line="723"/>
         <source>Get streaming key</source>
         <translation>스트리밍 키 가져오기</translation>
     </message>
@@ -1858,57 +1937,57 @@
 <context>
     <name>StreamingPlatformOptions</name>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="60"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="71"/>
         <source>Remove</source>
         <translation>제거</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="72"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="83"/>
         <source>Website</source>
         <translation>웹사이트</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="92"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="103"/>
         <source>Visit website</source>
         <translation>웹사이트 방문</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="107"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="118"/>
         <source>Streaming URL</source>
         <translation>스트리밍 URL</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="138"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="149"/>
         <source>Hide streaming URL</source>
         <translation>스트리밍 URL 숨기기</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="139"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="150"/>
         <source>Show streaming URL</source>
         <translation>스트리밍 URL 표시</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="158"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="169"/>
         <source>Streaming key</source>
         <translation>스트리밍 키</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="191"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="202"/>
         <source>Hide streaming key</source>
         <translation>스트리밍 키 숨기기</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="192"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="203"/>
         <source>Show streaming key</source>
         <translation>스트리밍 키 표시</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="211"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="222"/>
         <source>Streaming configuration help</source>
         <translation>스트리밍 구성 도움말</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="223"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="234"/>
         <source>Get streaming key</source>
         <translation>스트리밍 키 가져오기</translation>
     </message>
@@ -2149,12 +2228,12 @@
 <context>
     <name>VideoEffectOptions</name>
     <message>
-        <location filename="../qml/VideoEffectOptions.qml" line="56"/>
+        <location filename="../qml/VideoEffectOptions.qml" line="96"/>
         <source>Remove</source>
         <translation>삭제</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectOptions.qml" line="61"/>
+        <location filename="../qml/VideoEffectOptions.qml" line="101"/>
         <source>Remove %1 video effect</source>
         <translation>%1 비디오 효과 제거</translation>
     </message>
@@ -2167,12 +2246,12 @@
         <translation>비디오 효과 추가</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="69"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="114"/>
         <source>Effect</source>
         <translation>효과</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="133"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="178"/>
         <source>Chain effect</source>
         <extracomment>Apply the effect over the other effects.</extracomment>
         <translation>연결 효과</translation>
@@ -2181,12 +2260,12 @@
 <context>
     <name>VideoEffectsList</name>
     <message>
-        <location filename="../qml/VideoEffectsList.qml" line="50"/>
+        <location filename="../qml/VideoEffectsList.qml" line="94"/>
         <source>Add effect</source>
         <translation>효과 추가</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsList.qml" line="57"/>
+        <location filename="../qml/VideoEffectsList.qml" line="101"/>
         <source>Remove all effects</source>
         <translation>모든 효과 제거</translation>
     </message>
@@ -2225,61 +2304,61 @@
 <context>
     <name>VideoInputAddEdit</name>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="185"/>
-        <source>URL</source>
-        <translation>URL</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="124"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="169"/>
-        <source>Description</source>
-        <translation>설명</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="82"/>
-        <source>Edit media file source</source>
-        <translation>미디어 파일 소스 편집</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="86"/>
-        <source>Edit media URL source</source>
-        <translation>미디어 URL 소스 편집</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="90"/>
-        <source>Add media file source</source>
-        <translation>미디어 파일 소스 추가</translation>
-    </message>
-    <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="91"/>
+        <source>Edit media file source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="95"/>
+        <source>Edit media URL source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="99"/>
+        <source>Add media file source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="100"/>
         <source>Add media URL source</source>
-        <translation>미디어 URL 소스 추가</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="130"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="175"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="133"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="180"/>
+        <source>Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="139"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="186"/>
         <source>Source title</source>
-        <translation>입력 제목</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="140"/>
-        <source>Path</source>
-        <translation>경로</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="148"/>
-        <source>File path</source>
-        <translation>파일 경로</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="149"/>
-        <source>Search file to use as source</source>
-        <translation>입력으로 사용할 파일 검색</translation>
+        <source>Path</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="234"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="159"/>
+        <source>File path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="160"/>
+        <source>Search file to use as source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="196"/>
+        <source>URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="254"/>
         <source>Choose the file to add as source</source>
-        <translation>입력으로 추가할 파일 선택</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2311,68 +2390,118 @@
 <context>
     <name>VideoInputOptions</name>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="61"/>
+        <location filename="../qml/VideoInputOptions.qml" line="65"/>
         <source>Edit</source>
         <translation>편집</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="74"/>
+        <location filename="../qml/VideoInputOptions.qml" line="77"/>
         <source>Remove</source>
         <translation>제거</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputOptions.qml" line="92"/>
+        <source>Manage source effects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputOptions.qml" line="104"/>
+        <source>Opacity</source>
+        <translation type="unfinished">불투명도</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputOptions.qml" line="120"/>
+        <source>Source opacity</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>VideoInputs</name>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="56"/>
+        <location filename="../qml/VideoInputs.qml" line="97"/>
+        <source>Camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="99"/>
+        <source>Screen</source>
+        <translation type="unfinished">화면</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="101"/>
+        <source>Image</source>
+        <translation type="unfinished">이미지</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="103"/>
+        <source>Video</source>
+        <translation type="unfinished">비디오</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="105"/>
+        <source>Unknown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="124"/>
         <source>Add source</source>
         <translation>입력 추가</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="68"/>
+        <location filename="../qml/VideoInputs.qml" line="136"/>
         <source>Add camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="76"/>
+        <location filename="../qml/VideoInputs.qml" line="144"/>
         <source>Add screen</source>
         <translation>화면 추가</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="77"/>
+        <location filename="../qml/VideoInputs.qml" line="145"/>
         <source>Add screen source</source>
         <translation>화면 소스 추가</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="84"/>
+        <location filename="../qml/VideoInputs.qml" line="152"/>
         <source>Add window</source>
         <translation>창 추가</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="93"/>
+        <location filename="../qml/VideoInputs.qml" line="161"/>
         <source>Add media file</source>
         <translation>미디어 파일 추가</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="99"/>
+        <location filename="../qml/VideoInputs.qml" line="167"/>
         <source>Add media URL</source>
         <translation>미디어 URL 추가</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="107"/>
-        <source>Configure source</source>
-        <translation>입력 구성</translation>
+        <location filename="../qml/VideoInputs.qml" line="183"/>
+        <source>Manage canvas effects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="175"/>
+        <source>Edit layout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="379"/>
+        <source>Source %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="141"/>
+        <location filename="../../src/videolayer.cpp" line="142"/>
         <source>All Image and Video Files</source>
         <translation>모든 이미지 및 비디오 파일</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="178"/>
+        <location filename="../../src/videolayer.cpp" line="179"/>
         <source>All Files</source>
         <translation>모든 파일</translation>
     </message>
@@ -2380,12 +2509,12 @@
 <context>
     <name>VideoOptions</name>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="46"/>
+        <location filename="../qml/VideoOptions.qml" line="48"/>
         <source>Sources</source>
         <translation>입력</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="49"/>
+        <location filename="../qml/VideoOptions.qml" line="51"/>
         <source>Outputs</source>
         <translation>출력</translation>
     </message>
@@ -2782,32 +2911,32 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="28"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="29"/>
         <source>Number of scratches</source>
         <translation>긁힌 자국의 갯수</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="45"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="47"/>
         <source>Aging intensity</source>
         <translation>노후화 강도</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="64"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="67"/>
         <source>Dust density</source>
         <translation>먼지 밀도</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="83"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="87"/>
         <source>Scratch density</source>
         <translation>긁힘 밀도</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="102"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="107"/>
         <source>Scratch brightness</source>
         <translation>긁힘 밝기</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="121"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="127"/>
         <source>Pits density</source>
         <translation>패임 밀도</translation>
     </message>
@@ -4706,135 +4835,135 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="46"/>
+        <location filename="../qml/main.qml" line="53"/>
         <source>Daily Build</source>
         <translation>일일 빌드</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="60"/>
+        <location filename="../qml/main.qml" line="67"/>
         <source>%1/Picture %2.%3</source>
         <translation>%1/사진 %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="258"/>
+        <location filename="../qml/main.qml" line="255"/>
         <source>Main menu</source>
         <translation>메인 메뉴</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="264"/>
+        <location filename="../qml/main.qml" line="261"/>
         <source>Open main menu</source>
         <translation>메인 메뉴 열기</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="295"/>
+        <location filename="../qml/main.qml" line="291"/>
         <source>Start streaming</source>
         <translation>스트리밍 시작</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="295"/>
+        <location filename="../qml/main.qml" line="291"/>
         <source>Stop streaming</source>
         <translation>스트리밍 중지</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="300"/>
+        <location filename="../qml/main.qml" line="296"/>
         <source>You must add at least one streaming platform to the video outputs</source>
         <translation>비디오 출력에 최소 하나의 스트리밍 플랫폼을 추가해야 합니다</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="302"/>
+        <location filename="../qml/main.qml" line="298"/>
         <source>The following platforms are not configured:&lt;br/&gt;&lt;br/&gt;%1</source>
         <translation>다음 플랫폼이 구성되지 않았습니다:&lt;br/&gt;&lt;br/&gt;%1</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="336"/>
+        <location filename="../qml/main.qml" line="332"/>
         <source>Capture options</source>
         <translation>캡처 옵션</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="342"/>
+        <location filename="../qml/main.qml" line="338"/>
         <source>Open capture options menu</source>
         <translation>캡처 옵션 메뉴 열기</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="373"/>
+        <location filename="../qml/main.qml" line="369"/>
         <source>Open last photo</source>
         <translation>마지막 사진 열기</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="384"/>
+        <location filename="../qml/main.qml" line="380"/>
         <source>Open last photo taken</source>
         <translation>찍은 마지막 사진 열기</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="415"/>
-        <location filename="../qml/main.qml" line="418"/>
+        <location filename="../qml/main.qml" line="411"/>
+        <location filename="../qml/main.qml" line="414"/>
         <source>Take a photo</source>
         <translation>사진 찍기</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="419"/>
+        <location filename="../qml/main.qml" line="415"/>
         <source>Image capture mode</source>
         <translation>이미지 캡처 모드</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="422"/>
+        <location filename="../qml/main.qml" line="418"/>
         <source>Make a capture and save it to an image file</source>
         <translation>캡처를 만들어 이미지 파일로 저장</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="423"/>
+        <location filename="../qml/main.qml" line="419"/>
         <source>Put %1 in image capture mode</source>
         <translation>%1을 이미지 캡처 모드로 설정</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="472"/>
-        <location filename="../qml/main.qml" line="478"/>
+        <location filename="../qml/main.qml" line="468"/>
+        <location filename="../qml/main.qml" line="474"/>
         <source>Record video</source>
         <translation>비디오 녹화</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="473"/>
-        <location filename="../qml/main.qml" line="479"/>
+        <location filename="../qml/main.qml" line="469"/>
+        <location filename="../qml/main.qml" line="475"/>
         <source>Stop video recording</source>
         <translation>비디오 녹화 중지</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="476"/>
+        <location filename="../qml/main.qml" line="472"/>
         <source>Video capture mode</source>
         <translation>비디오 캡처 모드</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="482"/>
+        <location filename="../qml/main.qml" line="478"/>
         <source>Put %1 in video recording mode</source>
         <translation>%1을 비디오 녹화 모드로 설정</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="484"/>
+        <location filename="../qml/main.qml" line="480"/>
         <source>Start recording to a video file</source>
         <translation>비디오 파일로 녹화 시작</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="485"/>
+        <location filename="../qml/main.qml" line="481"/>
         <source>Stop current video recording</source>
         <translation>현재 비디오 녹화 중지</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="512"/>
+        <location filename="../qml/main.qml" line="525"/>
         <source>Open last video</source>
         <translation>마지막 비디오 열기</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="524"/>
+        <location filename="../qml/main.qml" line="537"/>
         <source>Open last recorded video</source>
         <translation>녹화된 마지막 비디오 열기</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="760"/>
+        <location filename="../qml/main.qml" line="792"/>
         <source>Installing virtual camera</source>
         <translation>가상 카메라 설치 중</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="761"/>
+        <location filename="../qml/main.qml" line="793"/>
         <source>Running commands</source>
         <translation>명령 실행 중</translation>
     </message>

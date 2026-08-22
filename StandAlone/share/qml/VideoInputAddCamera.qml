@@ -82,7 +82,7 @@ Dialog {
     onAccepted: {
         if (cbxCamera.currentIndex >= 0) {
             let camera = cbxCamera.model.get(cbxCamera.currentIndex)
-            videoLayer.addCameraSource(camera.sourceId)
+            videoLayer.addSource(camera.sourceId)
         }
     }
 }

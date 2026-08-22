@@ -30,7 +30,19 @@ ApplicationWindow {
     visibility: visible? Window.FullScreen: Window.Hidden
 
     property int timeout: 1500
-    property bool isHardwareFlash: videoLayer.isTorchSupported
+    readonly property bool isHardwareFlash: {
+        let ids = videoLayer.sourceIds
+
+        for (let i = 0; i < ids.length; i++) {
+            let id = ids[i]
+
+            if (videoLayer.sourceType(id) == VideoLayer.InputCamera
+                && videoLayer.isTorchSupported(id))
+                return true
+        }
+
+        return false
+    }
 
     signal shotStarted()
     signal triggered()

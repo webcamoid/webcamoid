@@ -34,6 +34,7 @@ Dialog {
                 wdgMainWidget.height: wdgMainWidget.height * 0.75
     modal: true
 
+    property int sourceId: -1
     property real physicalWidth: wdgMainWidget.width / Screen.pixelDensity
     property real physicalHeight: wdgMainWidget.height / Screen.pixelDensity
     property bool editMode: false
@@ -62,20 +63,28 @@ Dialog {
 
     function defaultDescription(url)
     {
-        return videoLayer.inputs.indexOf(url) < 0?
-                    mediaTools.fileNameFromUri(url):
-                    videoLayer.description(url)
+        let ids = videoLayer.sourceIds
+
+        for (let i = 0; i < ids.length; i++)
+            if (videoLayer.sourceDevice(ids[i]) === url)
+                return videoLayer.sourceLabel(ids[i])
+
+        return mediaTools.fileNameFromUri(url)
     }
 
-    function openOptions(device)
+    function openOptions(sourceId)
     {
-        addEdit.editMode = device != ""
-        fileDescription.text = videoLayer.description(device)
+        addEdit.sourceId = sourceId
+        fileDescription.text = addEdit.sourceId >= 0?
+                                    videoLayer.sourceLabel(addEdit.sourceId):
+                                    ""
         urlDescription.text = fileDescription.text
         filePath.labelText = ""
         urlPath.text = ""
 
-        if (device) {
+        if (addEdit.sourceId >= 0) {
+            let device = videoLayer.sourceDevice(addEdit.sourceId)
+
             if (addEdit.isFile(device)) {
                 addEdit.mediaType = VideoInputAddEdit.MediaType.FileMedia
                 filePath.labelText = device
@@ -129,8 +138,8 @@ Dialog {
                         id: fileDescription
                         placeholderText: qsTr("Source title")
                         Accessible.name: txtDescriptionFile.text
-                        text: addEdit.editMode?
-                                  videoLayer.description(videoLayer.videoInput):
+                        text: addEdit.sourceId >= 0?
+                                  videoLayer.sourceLabel(addEdit.sourceId):
                                   ""
                         selectByMouse: true
                         Layout.fillWidth: true
@@ -144,7 +153,9 @@ Dialog {
                     AK.ActionTextField {
                         id: filePath
                         icon.source: "image://icons/search"
-                        labelText: addEdit.editMode? videoLayer.videoInput: ""
+                        labelText: addEdit.sourceId >= 0?
+                                        videoLayer.sourceDevice(addEdit.sourceId):
+                                        ""
                         placeholderText: qsTr("File path")
                         buttonText: qsTr("Search file to use as source")
                         Layout.fillWidth: true
@@ -174,8 +185,8 @@ Dialog {
                         id: urlDescription
                         placeholderText: qsTr("Source title")
                         Accessible.name: txtDescriptionUrl.text
-                        text: addEdit.editMode?
-                                  videoLayer.description(videoLayer.videoInput):
+                        text: addEdit.sourceId >= 0?
+                                  videoLayer.sourceLabel(addEdit.sourceId):
                                   ""
                         selectByMouse: true
                         Layout.fillWidth: true
@@ -190,7 +201,9 @@ Dialog {
                         id: urlPath
                         placeholderText: "https://example-site.com/video.webm"
                         Accessible.name: txtUrl.text
-                        text: addEdit.editMode? videoLayer.videoInput: ""
+                        text: addEdit.sourceId >= 0?
+                                    videoLayer.sourceDevice(addEdit.sourceId):
+                                    ""
                         selectByMouse: true
                         Layout.fillWidth: true
                     }
@@ -218,14 +231,21 @@ Dialog {
             if (description.length < 1)
                 description = addEdit.defaultDescription(uri)
 
-            if (editMode)
-                videoLayer.removeInputStream(videoLayer.videoInput)
+            let oldUri = addEdit.sourceId >= 0?
+                            videoLayer.sourceDevice(addEdit.sourceId):
+                            ""
 
-            videoLayer.setInputStream(uri, description)
-            videoLayer.videoInput = uri
+            if (oldUri !== uri)
+                videoLayer.removeSource(addEdit.sourceId)
 
-            if (editMode)
+            let id = addEdit.sourceId >= 0 && oldUri === uri?
+                        addEdit.sourceId:
+                        videoLayer.addSource(uri)
+
+            if (id >= 0) {
+                videoLayer.setSourceLabel(id, description)
                 addEdit.edited()
+            }
         }
     }
 

@@ -20,6 +20,7 @@
 #ifndef VIDEOEFFECTS_H
 #define VIDEOEFFECTS_H
 
+#include <qrgb.h>
 #include <iak/akelement.h>
 #include <iak/akvideoeffect.h>
 
@@ -28,12 +29,23 @@ class VideoEffects;
 class QQmlApplicationEngine;
 class QRectF;
 class AkPluginInfo;
+class AkVideoCaps;
 
 using VideoEffectsPtr = QSharedPointer<VideoEffects>;
 
 class VideoEffects: public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(AkVideoCaps outputCaps
+               READ outputCaps
+               WRITE setOutputCaps
+               RESET resetOutputCaps
+               NOTIFY outputCapsChanged)
+    Q_PROPERTY(QRgb canvasColor
+               READ canvasColor
+               WRITE setCanvasColor
+               RESET resetCanvasColor
+               NOTIFY canvasColorChanged)
     Q_PROPERTY(QStringList availableEffects
                READ availableEffects
                NOTIFY availableEffectsChanged)
@@ -64,6 +76,8 @@ class VideoEffects: public QObject
         ~VideoEffects();
 
         // Global output pipeline
+        Q_INVOKABLE AkVideoCaps outputCaps() const;
+        Q_INVOKABLE QRgb canvasColor() const;
         Q_INVOKABLE QStringList availableEffects() const;
         Q_INVOKABLE QStringList effects() const;
         Q_INVOKABLE QString preview() const;
@@ -80,7 +94,7 @@ class VideoEffects: public QObject
 
         // Source management
         Q_INVOKABLE qint64 addSource();
-        Q_INVOKABLE qint64 addSource(qint64 id);
+        Q_INVOKABLE qint64 addSource(qint64 id, const QString &device={});
         Q_INVOKABLE void removeSource(qint64 id);
         Q_INVOKABLE QVariantList sourceIds() const;
 
@@ -116,6 +130,8 @@ class VideoEffects: public QObject
         void ready();
 
         // Global output pipeline
+        void outputCapsChanged(const AkVideoCaps &outputCaps);
+        void canvasColorChanged(QRgb canvasColor);
         void availableEffectsChanged(const QStringList &availableEffects);
         void effectsChanged(const QStringList &effects);
         void previewChanged(const QString &preview);
@@ -138,10 +154,14 @@ class VideoEffects: public QObject
 
     public slots:
         // Global output pipeline
+        void setOutputCaps(const AkVideoCaps &outputCaps);
+        void setCanvasColor(QRgb canvasColor);
         void setEffects(const QStringList &effects);
         void setPreview(const QString &preview);
         void setState(AkElement::ElementState state);
         void setChainEffects(bool chainEffects);
+        void resetOutputCaps();
+        void resetCanvasColor();
         void resetEffects();
         void resetPreview();
         void resetState();

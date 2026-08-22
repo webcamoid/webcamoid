@@ -103,6 +103,7 @@ class VideoLayer: public QObject
         Q_INVOKABLE bool canCaptureWindows() const;
         Q_INVOKABLE QStringList supportedFileFormats() const;
         Q_INVOKABLE InputType deviceType(const QString &device) const;
+        Q_INVOKABLE InputType deviceType(qint64 id) const;
         Q_INVOKABLE QStringList devicesByType(InputType type) const;
         Q_INVOKABLE QString description(const QString &device) const;
 
@@ -118,6 +119,7 @@ class VideoLayer: public QObject
         Q_INVOKABLE QString sourceDevice(qint64 id) const;
         Q_INVOKABLE QString sourceLabel(qint64 id) const;
         Q_INVOKABLE bool sourceEnabled(qint64 id) const;
+        Q_INVOKABLE int sourceZOrder(qint64 id) const;
         Q_INVOKABLE AkAudioCaps sourceAudioCaps(qint64 id) const;
         Q_INVOKABLE AkVideoCaps sourceVideoCaps(qint64 id) const;
         Q_INVOKABLE QString sourceError(qint64 id) const;
@@ -150,6 +152,7 @@ class VideoLayer: public QObject
         void sourceRemoved(qint64 id);
         void sourceEnabledChanged(qint64 id, bool enabled);
         void sourceLabelChanged(qint64 id, const QString &label);
+        void sourceZOrderChanged(qint64 id, int zOrder);
         void sourceAudioCapsChanged(qint64 id, const AkAudioCaps &audioCaps);
         void sourceVideoCapsChanged(qint64 id, const AkVideoCaps &videoCaps);
         void sourceErrorChanged(qint64 id, const QString &error);
@@ -165,7 +168,7 @@ class VideoLayer: public QObject
         void removeSource(qint64 id);
         void setSourceEnabled(qint64 id, bool enabled);
         void setSourceLabel(qint64 id, const QString &label);
-
+        void setSourceZOrder(qint64 id, int zOrder);
         void setState(AkElement::ElementState state);
         void setTorchMode(qint64 id, TorchMode mode);
         void setPlayOnStart(bool playOnStart);

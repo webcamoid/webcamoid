@@ -33,6 +33,17 @@ AK.MenuOption {
     property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     property int rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+    readonly property bool hasActiveScreenSource: {
+        let ids = videoLayer.sourceIds
+
+        for (let i = 0; i < ids.length; i++) {
+            if (videoLayer.sourceEnabled(ids[i])
+                && videoLayer.sourceType(ids[i]) == VideoLayer.InputScreen)
+                return true
+        }
+
+        return false
+    }
 
     ScrollView {
         id: scrollView
@@ -615,7 +626,7 @@ AK.MenuOption {
                     readOnly: streaming.platformNeedsKey(layout.currentPlatform)
                     echoMode: streaminhUrlLayout.isStreaminhUrlVisible
                               && (streaming.state != AkElement.ElementStatePlaying
-                                  || videoLayer.deviceType(videoLayer.videoInput) != VideoLayer.InputScreen)?
+                                  || root.hasActiveScreenSource)?
                                 TextInput.Normal:
                                 TextInput.Password
                     Layout.fillWidth: true
@@ -632,7 +643,7 @@ AK.MenuOption {
                     flat: true
                     display: AbstractButton.IconOnly
                     enabled: streaming.state != AkElement.ElementStatePlaying
-                             || videoLayer.deviceType(videoLayer.videoInput) != VideoLayer.InputScreen
+                             || root.hasActiveScreenSource
                     implicitWidth: implicitHeight
                     ToolTip.visible: hovered
                     ToolTip.text: text
@@ -668,7 +679,7 @@ AK.MenuOption {
                     Layout.fillWidth: true
                     echoMode: keyLayout.isKeyVisible
                               && (streaming.state != AkElement.ElementStatePlaying
-                                  || videoLayer.deviceType(videoLayer.videoInput) != VideoLayer.InputScreen)?
+                                  || root.hasActiveScreenSource)?
                                 TextInput.Normal:
                                 TextInput.Password
 
@@ -685,7 +696,7 @@ AK.MenuOption {
                     flat: true
                     display: AbstractButton.IconOnly
                     enabled: streaming.state != AkElement.ElementStatePlaying
-                             || videoLayer.deviceType(videoLayer.videoInput) != VideoLayer.InputScreen
+                             || root.hasActiveScreenSource
                     implicitWidth: implicitHeight
                     ToolTip.visible: hovered
                     ToolTip.text: text

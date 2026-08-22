@@ -26,20 +26,30 @@ ScrollView {
     id: view
     clip: true
 
+    property int sourceId: -1
     property int effectIndex: -1
 
     readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+    readonly property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    readonly property int rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    readonly property bool isSource: sourceId >= 0
     readonly property string effectDescription: description(effectIndex)
 
     signal effectRemoved()
 
     function description(effectIndex)
     {
-        if (effectIndex < 0 || effectIndex >= videoEffects.effects.length)
+        let effects = view.isSource?
+                        videoEffects.sourceEffects(view.sourceId):
+                        videoEffects.effects
+
+        if (effectIndex < 0 || effectIndex >= effects.length)
             return ""
 
-        let effect = videoEffects.effects[effectIndex]
-        let info = AkPluginInfo.create(videoEffects.effectInfo(effect))
+        let effect = effects[effectIndex]
+        let info = view.isSource?
+                       AkPluginInfo.create(videoEffects.sourceEffectInfo(view.sourceId, effectIndex)):
+                       AkPluginInfo.create(videoEffects.effectInfo(effect))
 
         if (!info)
             return ""
@@ -47,22 +57,57 @@ ScrollView {
         return info.description
     }
 
+    function updateControls()
+    {
+        videoEffects.removeInterface("itmEffectControls")
+
+        if (view.sourceId >= 0)
+            videoEffects.embedControls("itmEffectControls",
+                                        view.sourceId,
+                                        view.effectIndex)
+        else
+            videoEffects.embedControls("itmEffectControls", view.effectIndex)
+    }
+
     ColumnLayout {
         width: view.width
-        spacing: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
         layoutDirection: view.rtl? Qt.RightToLeft: Qt.LeftToRight
+
+        Label {
+            id: deviceInfo
+            text: {
+                if (!view.isSource)
+                    return ""
+
+                return "<b>" + videoLayer.sourceLabel(view.sourceId) + "</b>"
+                       + "<br/><i>" + videoLayer.sourceDevice(view.sourceId) + "</i>"
+            }
+            elide: Label.ElideRight
+            height: view.isSource? undefined: 0
+            visible: view.isSource
+            Layout.fillWidth: true
+            Layout.leftMargin: view.leftMargin
+            Layout.rightMargin: view.rightMargin
+            Layout.bottomMargin:
+            AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+        }
 
         Button {
             text: qsTr("Remove")
             icon.source: "image://icons/no"
             flat: true
-            Layout.leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-            Layout.rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            Layout.leftMargin: view.leftMargin
+            Layout.rightMargin: view.rightMargin
             Accessible.description: qsTr("Remove %1 video effect").arg(view.effectDescription)
 
             onClicked: {
                 videoEffects.removeInterface("itmEffectControls")
-                videoEffects.removeEffect(view.effectIndex)
+
+                if (view.isSource)
+                    videoEffects.removeSourceEffect(view.sourceId, view.effectIndex)
+                else
+                    videoEffects.removeEffect(view.effectIndex)
+
                 view.effectRemoved()
             }
         }
@@ -70,17 +115,11 @@ ScrollView {
             id: itmEffectControls
             objectName: "itmEffectControls"
             width: view.width
-            Layout.leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-            Layout.rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            Layout.leftMargin: view.leftMargin
+            Layout.rightMargin: view.rightMargin
         }
     }
 
-    onEffectIndexChanged: {
-        videoEffects.removeInterface("itmEffectControls")
-
-        if (effectIndex < 0 || effectIndex >= videoEffects.effects.length)
-            return
-
-        videoEffects.embedControls("itmEffectControls", effectIndex)
-    }
+    onEffectIndexChanged: view.updateControls()
+    onSourceIdChanged: view.updateControls()
 }

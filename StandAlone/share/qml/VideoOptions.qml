@@ -31,12 +31,14 @@ ColumnLayout {
     signal openVideoInputAddFileDialog()
     signal openVideoInputAddUrlDialog()
     signal openVideoOutputAddEditDialog(string videoOutput)
-    signal openVideoInputOptions(string videoInput)
+    signal openVideoInputOptions(int sourceId)
+    signal openCanvasVideoEffectsDialog()
     signal openVirtualCameraOptions(string videoOutput)
     signal openStreamingPlatformOptions(string videoOutput)
     signal openLocalStreamingOptions()
     signal openVCamDownloadDialog()
     signal openVCamManualDownloadDialog()
+    signal enterEditLayoutMode()
 
     TabBar {
         id: tabBar
@@ -69,8 +71,12 @@ ColumnLayout {
                 videoOptions.openVideoInputAddFileDialog()
             onOpenVideoInputAddUrlDialog:
                 videoOptions.openVideoInputAddUrlDialog()
-            onOpenVideoInputOptions: videoInput =>
-                videoOptions.openVideoInputOptions(videoInput)
+            onOpenVideoInputOptions: sourceId =>
+                videoOptions.openVideoInputOptions(sourceId)
+            onOpenCanvasVideoEffectsDialog:
+                videoOptions.openCanvasVideoEffectsDialog()
+            onEnterEditLayoutMode:
+                videoOptions.enterEditLayoutMode()
         }
         VideoOutputs {
             onOpenErrorDialog: (title, message) =>

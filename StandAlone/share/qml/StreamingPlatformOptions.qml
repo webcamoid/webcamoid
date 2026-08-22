@@ -30,6 +30,17 @@ ScrollView {
     property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     property int rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+    readonly property bool hasActiveScreenSource: {
+        let ids = videoLayer.sourceIds
+
+        for (let i = 0; i < ids.length; i++) {
+            if (videoLayer.sourceEnabled(ids[i])
+                && videoLayer.sourceType(ids[i]) == VideoLayer.InputScreen)
+                return true
+        }
+
+        return false
+    }
 
     signal videoOutputRemoved()
 
@@ -126,7 +137,7 @@ ScrollView {
                 readOnly: streaming.platformNeedsKey(view.videoOutput)
                 echoMode: streaminhUrlLayout.isStreaminhUrlVisible
                           && (streaming.state != AkElement.ElementStatePlaying
-                              || videoLayer.deviceType(videoLayer.videoInput) != VideoLayer.InputScreen)?
+                              || view.hasActiveScreenSource)?
                             TextInput.Normal:
                             TextInput.Password
                 Layout.fillWidth: true
@@ -143,7 +154,7 @@ ScrollView {
                 flat: true
                 display: AbstractButton.IconOnly
                 enabled: streaming.state != AkElement.ElementStatePlaying
-                         || videoLayer.deviceType(videoLayer.videoInput) != VideoLayer.InputScreen
+                         || view.hasActiveScreenSource
                 implicitWidth: implicitHeight
                 ToolTip.visible: hovered
                 ToolTip.text: text
@@ -179,7 +190,7 @@ ScrollView {
                 Layout.fillWidth: true
                 echoMode: keyLayout.isKeyVisible
                           && (streaming.state != AkElement.ElementStatePlaying
-                              || videoLayer.deviceType(videoLayer.videoInput) != VideoLayer.InputScreen)?
+                              || view.hasActiveScreenSource)?
                             TextInput.Normal:
                             TextInput.Password
 
@@ -196,7 +207,7 @@ ScrollView {
                 flat: true
                 display: AbstractButton.IconOnly
                 enabled: streaming.state != AkElement.ElementStatePlaying
-                         || videoLayer.deviceType(videoLayer.videoInput) != VideoLayer.InputScreen
+                         || view.hasActiveScreenSource
                 implicitWidth: implicitHeight
                 ToolTip.visible: hovered
                 ToolTip.text: text

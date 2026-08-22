@@ -36,12 +36,57 @@ Dialog {
     leftPadding: 0
     rightPadding: 0
 
+    property int sourceId: -1
+
+    readonly property bool isSource: sourceId >= 0
+
+    function activeChainEffects() {
+        if (videoEffectsDialog.isSource)
+            return videoEffects.sourceChainEffects(videoEffectsDialog.sourceId)
+
+        return videoEffects.chainEffects
+    }
+
+    function setActiveChainEffects(value) {
+        if (videoEffectsDialog.isSource)
+            videoEffects.setSourceChainEffects(videoEffectsDialog.sourceId,
+                                               value)
+        else
+            videoEffects.chainEffects = value
+    }
+
+    function setActivePreview(effect) {
+        if (videoEffectsDialog.isSource)
+            videoEffects.setSourcePreview(videoEffectsDialog.sourceId, effect)
+        else
+            videoEffects.preview = effect
+    }
+
+    function clearActivePreview() {
+        videoEffectsDialog.setActivePreview("")
+    }
+
+    function embedActivePreviewControls(where) {
+        if (videoEffectsDialog.isSource)
+            videoEffects.embedPreviewControls(where,
+                                              videoEffectsDialog.sourceId)
+        else
+            videoEffects.embedPreviewControls(where)
+    }
+
+    function applyActivePreview() {
+        if (videoEffectsDialog.isSource)
+            videoEffects.applySourcePreview(videoEffectsDialog.sourceId)
+        else
+            videoEffects.applyPreview()
+    }
+
     Connections {
         target: mediaTools
 
         function onInterfaceLoaded()
         {
-            videoEffects.preview = ""
+            videoEffectsDialog.clearActivePreview()
         }
     }
 
@@ -92,7 +137,7 @@ Dialog {
 
                 function updatePreview() {
                     if (count < 1) {
-                        videoEffects.preview = ""
+                        videoEffectsDialog.clearActivePreview()
 
                         return
                     }
@@ -101,11 +146,11 @@ Dialog {
                         Math.min(Math.max(0, currentIndex), count - 1)
 
                     var option = model.get(currentIndex)
-                    videoEffects.preview = option.effect
+                    videoEffectsDialog.setActivePreview(option.effect)
                     videoEffects.removeInterface("itmEffectPreviewControls")
 
                     if (videoEffectsDialog.visible)
-                        videoEffects.embedPreviewControls("itmEffectPreviewControls")
+                        videoEffectsDialog.embedActivePreviewControls("itmEffectPreviewControls")
                 }
 
                 Component.onCompleted: update()
@@ -131,10 +176,10 @@ Dialog {
             Switch {
                 //: Apply the effect over the other effects.
                 text: qsTr("Chain effect")
-                checked: videoEffects.chainEffects
+                checked: videoEffectsDialog.activeChainEffects()
                 Layout.fillWidth: true
 
-                onCheckedChanged: videoEffects.chainEffects = checked
+                onCheckedChanged: videoEffectsDialog.setActiveChainEffects(checked)
             }
             ColumnLayout {
                 id: itmEffectControls
@@ -150,11 +195,11 @@ Dialog {
             cbkEffects.updatePreview()
             cbkEffects.forceActiveFocus()
         } else {
-            videoEffects.preview = ""
+            videoEffectsDialog.clearActivePreview()
         }
     }
-    onAccepted: videoEffects.applyPreview()
-    onRejected: videoEffects.preview = ""
+    onAccepted: videoEffectsDialog.applyActivePreview()
+    onRejected: videoEffectsDialog.clearActivePreview()
 
     header: Item {
         id: rectangle

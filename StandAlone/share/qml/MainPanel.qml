@@ -28,7 +28,9 @@ OptionsPanel {
            layout.currentIndex < 2?
                qsTr("Video"):
            layout.currentIndex < 3?
-               qsTr("Effects"):
+               videoEffectsList.sourceId < 0?
+                    qsTr("Canvas effects"):
+                    qsTr("Source effects"):
            layout.currentIndex < 4?
                qsTr("Video Source Options"):
            layout.currentIndex < 5?
@@ -41,7 +43,7 @@ OptionsPanel {
     edge: Qt.RightEdge
 
     signal openErrorDialog(string title, string message)
-    signal openVideoEffectsDialog()
+    signal openVideoEffectsDialog(int sourceId)
     signal openLocalStreamingAdvancedDialog()
 
     function previousPage()
@@ -69,17 +71,6 @@ OptionsPanel {
     {
         let co = layout.currentIndex != 1
         layout.currentIndex = 1
-
-        if (co)
-            closeAndOpen()
-        else
-            open()
-    }
-
-    function openVideoEffects()
-    {
-        let co = layout.currentIndex != 2
-        layout.currentIndex = 2
 
         if (co)
             closeAndOpen()
@@ -120,11 +111,11 @@ OptionsPanel {
                 videoInputAddWindow.open()
             onOpenVideoInputAddFileDialog: {
                 videoInputAddEdit.mediaType = VideoInputAddEdit.MediaType.FileMedia
-                videoInputAddEdit.openOptions("")
+                videoInputAddEdit.openOptions(-1)
             }
             onOpenVideoInputAddUrlDialog: {
                 videoInputAddEdit.mediaType = VideoInputAddEdit.MediaType.UrlMedia
-                videoInputAddEdit.openOptions("")
+                videoInputAddEdit.openOptions(-1)
             }
             onOpenVideoOutputAddEditDialog: videoOutput =>
                 videoOutputAddEdit.openOptions(videoOutput)
@@ -132,6 +123,11 @@ OptionsPanel {
                 closeAndOpen()
                 layout.currentIndex = 3
                 videoInputOptions.setInput(videoInput)
+            }
+            onOpenCanvasVideoEffectsDialog: {
+                closeAndOpen()
+                videoEffectsList.sourceId = -1
+                layout.currentIndex = 2
             }
             onOpenVirtualCameraOptions: function (videoOutput) {
                 closeAndOpen()
@@ -151,10 +147,20 @@ OptionsPanel {
             onOpenVCamManualDownloadDialog: vcamManualDownload.open()
         }
         VideoEffectsList {
-            onOpenVideoEffectsDialog: panel.openVideoEffectsDialog()
-            onOpenVideoEffectOptions: function (effectIndex) {
+            id: videoEffectsList
+
+            function closeOption()
+            {
+                closeAndOpen()
+                layout.currentIndex = sourceId < 0? 1: 3
+            }
+
+            onOpenVideoEffectsDialog: sourceId =>
+                panel.openVideoEffectsDialog(sourceId)
+            onOpenVideoEffectOptions: function (sourceId, effectIndex) {
                 closeAndOpen()
                 layout.currentIndex = 7
+                effectOptions.sourceId = sourceId
                 effectOptions.effectIndex = effectIndex
             }
         }
@@ -170,6 +176,11 @@ OptionsPanel {
             onOpenVideoInputAddEditDialog: videoInput =>
                 videoInputAddEdit.openOptions(videoInput)
             onVideoInputRemoved: closeOption()
+            onOpenSourceVideoEffectsDialog: function (videoInput) {
+                closeAndOpen()
+                videoEffectsList.sourceId = videoInput
+                layout.currentIndex = 2
+            }
         }
         VirtualCameraOptions {
             id: virtualCameraOptions

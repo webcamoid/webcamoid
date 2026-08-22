@@ -28,18 +28,26 @@ Menu {
 
     signal openVideoSettings()
     signal openAudioSettings()
-    signal openVideoEffectsPanel()
     signal openSettings()
     signal openDonationsDialog()
     signal openAboutDialog()
 
-    Component.onCompleted: {
-        if (videoLayer.playOnStart) {
-            if (videoLayer.cameraPermissionStatus == VideoLayer.PermissionStatus_Granted
-                || videoLayer.deviceType(videoLayer.videoInput) != VideoLayer.InputCamera) {
-                videoLayer.state = AkElement.ElementStatePlaying;
+    function allCamerasGranted() {
+        let ids = videoLayer.sourceIds
+        let hasPermission = true
+
+        for (let i = 0; i < ids.length; i++)
+            if (videoLayer.sourceType(ids[i]) == VideoLayer.InputCamera
+                && videoLayer.cameraPermissionStatus(ids[i]) != VideoLayer.PermissionStatus_Granted) {
+                hasPermission = false
             }
-        }
+
+        return hasPermission
+    }
+
+    Component.onCompleted: {
+        if (videoLayer.playOnStart && allCamerasGranted())
+            videoLayer.state = AkElement.ElementStatePlaying
     }
 
     Connections {
@@ -47,12 +55,8 @@ Menu {
 
         function onCameraPermissionStatusChanged(status)
         {
-            if (videoLayer.playOnStart) {
-                if (status == VideoLayer.PermissionStatus_Granted
-                    || videoLayer.deviceType(videoLayer.videoInput) != VideoLayer.InputCamera) {
-                    videoLayer.state = AkElement.ElementStatePlaying;
-                }
-            }
+            if (videoLayer.playOnStart && settingsMenu.allCamerasGranted())
+                videoLayer.state = AkElement.ElementStatePlaying
         }
     }
 
@@ -67,12 +71,6 @@ Menu {
         icon.source: "image://icons/sound"
 
         onClicked: settingsMenu.openAudioSettings()
-    }
-    MenuItem {
-        text: qsTr("Effects")
-        icon.source: "image://icons/video-effects"
-
-        onClicked: settingsMenu.openVideoEffectsPanel()
     }
     MenuItem {
         text: qsTr("Preferences")

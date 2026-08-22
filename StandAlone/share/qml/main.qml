@@ -27,11 +27,7 @@ import Webcamoid
 
 ApplicationWindow {
     id: wdgMainWidget
-    title: mediaTools.applicationName
-           + " "
-           + version()
-           + " - "
-           + videoLayer.description(videoLayer.videoInput)
+    title: mediaTools.applicationName + " " + version()
     visible: true
     width: mediaTools.windowWidth
     height: mediaTools.windowHeight
@@ -39,6 +35,17 @@ ApplicationWindow {
     readonly property string filePrefix: Ak.platform() == "windows"?
                                              "file:///":
                                              "file://"
+    readonly property bool hasActiveCameraSource: {
+        let ids = videoLayer.sourceIds
+
+        for (let i = 0; i < ids.length; i++) {
+            if (videoLayer.sourceEnabled(ids[i])
+                && videoLayer.sourceType(ids[i]) == VideoLayer.InputCamera)
+                return true
+        }
+
+        return false
+    }
 
     function version()
     {
@@ -122,16 +129,6 @@ ApplicationWindow {
 
     Connections {
         target: videoLayer
-
-        function onVideoInputChanged(videoInput)
-        {
-            if (recording.state == AkElement.ElementStatePlaying
-                && recording.useFlash
-                && flash.isHardwareFlash
-                && videoLayer.deviceType(videoInput) == VideoLayer.InputCamera) {
-                videoLayer.torchMode = VideoLayer.Torch_On
-            }
-        }
 
         function onStateChanged(state)
         {
@@ -271,7 +268,6 @@ ApplicationWindow {
 
                     onOpenAudioSettings: mainPanel.openAudioSettings()
                     onOpenVideoSettings: mainPanel.openVideoSettings()
-                    onOpenVideoEffectsPanel: mainPanel.openVideoEffects()
                     onOpenSettings: {
                         mediaTools.showAd(MediaTools.AdType_Interstitial);
                         settingsDialog.open();
@@ -352,8 +348,8 @@ ApplicationWindow {
                         mediaTools.showAd(MediaTools.AdType_Interstitial);
                         snapshotToClipboard();
                     }
-                    onOpenCaptureSettings: settingsDialog.openAtIndex(0)
-                    onOpenRecordingSettings: settingsDialog.openAtIndex(1)
+                    onOpenCaptureSettings: settingsDialog.openAtIndex(1)
+                    onOpenRecordingSettings: settingsDialog.openAtIndex(2)
                 }
             }
         }
@@ -433,7 +429,7 @@ ApplicationWindow {
                         mediaTools.showAd(MediaTools.AdType_Interstitial);
 
                         if (!recording.useFlash
-                            || videoLayer.deviceType(videoLayer.videoInput) != VideoLayer.InputCamera) {
+                            || !wdgMainWidget.hasActiveCameraSource) {
                             savePhoto()
 
                             return
@@ -494,14 +490,31 @@ ApplicationWindow {
 
                         if (recording.useVideoFlash
                             && flash.isHardwareFlash
-                            && videoLayer.deviceType(videoLayer.videoInput) == VideoLayer.InputCamera) {
-                            videoLayer.torchMode = VideoLayer.Torch_On
+                            && wdgMainWidget.hasActiveCameraSource) {
+                            let ids = videoLayer.sourceIds
+
+                            for (let i = 0; i < ids.length; i++) {
+                                let id = ids[i]
+
+                                if (videoLayer.sourceType(id) == VideoLayer.InputCamera
+                                    && videoLayer.isTorchSupported(id))
+                                    videoLayer.setTorchMode(id, VideoLayer.Torch_On)
+                            }
                         }
 
                         recording.state = AkElement.ElementStatePlaying
                     } else {
+                        let ids = videoLayer.sourceIds
+
+                        for (let i = 0; i < ids.length; i++) {
+                            let id = ids[i]
+
+                            if (videoLayer.sourceType(id) == VideoLayer.InputCamera
+                                && videoLayer.isTorchSupported(id))
+                                videoLayer.setTorchMode(id, VideoLayer.Torch_Off)
+                        }
+
                         recording.state = AkElement.ElementStateNull
-                        videoLayer.torchMode = VideoLayer.Torch_Off
                         moviesGallery.model.reload()
                         videoPreviewSaveAnimation.start()
                     }
@@ -635,8 +648,9 @@ ApplicationWindow {
 
         onOpenErrorDialog: (title, message) =>
             videoOutputError.openError(title, message)
-        onOpenVideoEffectsDialog: {
+        onOpenVideoEffectsDialog: function (sourceId) {
             mediaTools.showAd(MediaTools.AdType_Interstitial);
+            videoEffectsDialog.sourceId = sourceId
             videoEffectsDialog.open()
         }
         onOpenLocalStreamingAdvancedDialog: localStreamingAdvanced.open()
@@ -742,17 +756,35 @@ ApplicationWindow {
         id: flash
 
         onShotStarted: {
-            if (isHardwareFlash)
-                videoLayer.torchMode = VideoLayer.Torch_On
-            else if (Ak.platform() == "android")
+            if (isHardwareFlash) {
+                let ids = videoLayer.sourceIds
+
+                for (let i = 0; i < ids.length; i++) {
+                    let id = ids[i]
+
+                    if (videoLayer.sourceType(id) == VideoLayer.InputCamera
+                        && videoLayer.isTorchSupported(id))
+                        videoLayer.setTorchMode(id, VideoLayer.Torch_On)
+                }
+            } else if (Ak.platform() == "android") {
                 flashRectangle.visible = true
+            }
         }
         onTriggered: savePhoto()
         onShotFinished: {
-            if (isHardwareFlash)
-                videoLayer.torchMode = VideoLayer.Torch_Off
-            else if (Ak.platform() == "android")
+            if (isHardwareFlash) {
+                let ids = videoLayer.sourceIds
+
+                for (let i = 0; i < ids.length; i++) {
+                    let id = ids[i]
+
+                    if (videoLayer.sourceType(id) == VideoLayer.InputCamera
+                        && videoLayer.isTorchSupported(id))
+                        videoLayer.setTorchMode(id, VideoLayer.Torch_Off)
+                }
+            } else if (Ak.platform() == "android") {
                 flashRectangle.visible = false
+            }
         }
     }
     RunCommandDialog {

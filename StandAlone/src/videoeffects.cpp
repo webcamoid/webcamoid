@@ -34,6 +34,9 @@
 #include "videoeffects.h"
 #include "videodisplay.h"
 
+#define DEFAULT_WIDTH  1280
+#define DEFAULT_HEIGHT 720
+
 class VideoEffectsPrivate
 {
     public:
@@ -41,15 +44,25 @@ class VideoEffectsPrivate
         QQmlApplicationEngine *m_engine {nullptr};
         AkGLCompositor m_glCompositor;
         QMutex m_mutex;
+        QMap<qint64, QString> m_sourceDevices;
         AkElement::ElementState m_state {AkElement::ElementStateNull};
 
         explicit VideoEffectsPrivate(VideoEffects *self);
+        QString encodeDevice(const QString &device) const;
+        void updateOutputCaps();
+        void updateCanvasColor();
         void updateChainEffects();
         void updateEffects();
         void updateEffectsProperties();
+        void updateSourceEffects(qint64 id, const QString &device);
+        void updateSourceEffectsProperties(qint64 id, const QString &device);
+        void saveOutputCaps(const AkVideoCaps &caps);
+        void saveCanvasColor(QRgb canvasColor);
         void saveChainEffects(bool chainEffects);
         void saveEffects();
         void saveEffectsProperties();
+        void saveSourceEffects(qint64 id, const QString &device);
+        void saveSourceEffectsProperties(qint64 id, const QString &device);
         void linkPreview();
         void unlinkPreview();
 };
@@ -60,6 +73,8 @@ VideoEffects::VideoEffects(QQmlApplicationEngine *engine, QObject *parent):
     this->d = new VideoEffectsPrivate(this);
     this->setQmlEngine(engine);
     this->updateAvailableEffects();
+    this->d->updateOutputCaps();
+    this->d->updateCanvasColor();
     this->d->updateChainEffects();
     this->d->updateEffects();
     this->d->m_glCompositor.addPacketReader();
@@ -70,7 +85,24 @@ VideoEffects::~VideoEffects()
     this->setState(AkElement::ElementStateNull);
     this->d->m_glCompositor.removePacketReader();
     this->d->saveEffectsProperties();
+
+    for (auto it = this->d->m_sourceDevices.begin();
+         it != this->d->m_sourceDevices.end();
+         ++it) {
+        this->d->saveSourceEffectsProperties(it.key(), it.value());
+    }
+
     delete this->d;
+}
+
+AkVideoCaps VideoEffects::outputCaps() const
+{
+    return this->d->m_glCompositor.outputCaps();
+}
+
+QRgb VideoEffects::canvasColor() const
+{
+    return this->d->m_glCompositor.canvasColor();
 }
 
 QStringList VideoEffects::availableEffects() const
@@ -210,16 +242,22 @@ qint64 VideoEffects::addSource()
     return this->addSource(Ak::id());
 }
 
-qint64 VideoEffects::addSource(qint64 id)
+qint64 VideoEffects::addSource(qint64 id, const QString &device)
 {
     if (id < 0)
         return id;
 
     {
         QMutexLocker locker(&this->d->m_mutex);
+
         this->d->m_glCompositor.addSource(id);
         this->d->m_glCompositor.setSourcePreserveNullPlugins(id, true);
         this->d->m_glCompositor.setSourceRect(id, QRectF(0.0, 0.0, 1.0, 1.0));
+
+        if (!device.isEmpty()) {
+            this->d->m_sourceDevices[id] = device;
+            this->d->updateSourceEffects(id, device);
+        }
     }
 
     return id;
@@ -228,6 +266,13 @@ qint64 VideoEffects::addSource(qint64 id)
 void VideoEffects::removeSource(qint64 id)
 {
     QMutexLocker locker(&this->d->m_mutex);
+    auto device = this->d->m_sourceDevices.value(id);
+
+    if (!device.isEmpty()) {
+        this->d->saveSourceEffectsProperties(id, device);
+        this->d->m_sourceDevices.remove(id);
+    }
+
     this->d->m_glCompositor.removeSource(id);
 }
 
@@ -344,8 +389,7 @@ bool VideoEffects::embedPreviewControls(const QString &where,
     if (!glPreview)
         return false;
 
-    auto info = this->d->m_glCompositor.effectInfo(
-                    this->d->m_glCompositor.sourcePreview(id));
+    auto info = this->d->m_glCompositor.effectInfo(this->d->m_glCompositor.sourcePreview(id));
     auto interface = glPreview->controlInterface(this->d->m_engine, info.id());
 
     if (!interface)
@@ -406,6 +450,10 @@ void VideoEffects::setSourceEffects(qint64 id, const QStringList &effects)
     {
         QMutexLocker locker(&this->d->m_mutex);
         this->d->m_glCompositor.setSourceEffects(id, effects);
+        auto device = this->d->m_sourceDevices.value(id);
+
+        if (!device.isEmpty())
+            this->d->saveSourceEffects(id, device);
     }
 }
 
@@ -416,7 +464,15 @@ void VideoEffects::setSourcePreview(qint64 id, const QString &preview)
 
     {
         QMutexLocker locker(&this->d->m_mutex);
+        auto state = this->d->m_state;
+        this->d->m_glCompositor.setState(AkElement::ElementStateNull);
+        this->d->unlinkPreview();
         this->d->m_glCompositor.setSourcePreview(id, preview);
+
+        if (!preview.isEmpty())
+            this->d->linkPreview();
+
+        this->d->m_glCompositor.setState(state);
     }
 }
 
@@ -466,6 +522,10 @@ void VideoEffects::moveSourceEffect(qint64 id, int from, int to)
     {
         QMutexLocker locker(&this->d->m_mutex);
         this->d->m_glCompositor.moveSourceEffect(id, from, to);
+        auto device = this->d->m_sourceDevices.value(id);
+
+        if (!device.isEmpty())
+            this->d->saveSourceEffects(id, device);
     }
 }
 
@@ -477,6 +537,10 @@ void VideoEffects::removeSourceEffect(qint64 id, int index)
     {
         QMutexLocker locker(&this->d->m_mutex);
         this->d->m_glCompositor.removeSourceEffect(id, index);
+        auto device = this->d->m_sourceDevices.value(id);
+
+        if (!device.isEmpty())
+            this->d->saveSourceEffects(id, device);
     }
 }
 
@@ -488,6 +552,10 @@ void VideoEffects::removeAllSourceEffects(qint64 id)
     {
         QMutexLocker locker(&this->d->m_mutex);
         this->d->m_glCompositor.removeAllSourceEffects(id);
+        auto device = this->d->m_sourceDevices.value(id);
+
+        if (!device.isEmpty())
+            this->d->saveSourceEffects(id, device);
     }
 }
 
@@ -495,6 +563,38 @@ void VideoEffects::applySourcePreview(qint64 id)
 {
     QMutexLocker locker(&this->d->m_mutex);
     this->d->m_glCompositor.applySourcePreview(id);
+    auto device = this->d->m_sourceDevices.value(id);
+
+    if (!device.isEmpty())
+        this->d->saveSourceEffects(id, device);
+}
+
+void VideoEffects::setOutputCaps(const AkVideoCaps &outputCaps)
+{
+    if (this->d->m_glCompositor.outputCaps() == outputCaps)
+        return;
+
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_glCompositor.setOutputCaps(outputCaps);
+        this->d->saveOutputCaps(outputCaps);
+    }
+
+    emit this->outputCapsChanged(outputCaps);
+}
+
+void VideoEffects::setCanvasColor(QRgb canvasColor)
+{
+    if (this->d->m_glCompositor.canvasColor() == canvasColor)
+        return;
+
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_glCompositor.setCanvasColor(canvasColor);
+        this->d->saveCanvasColor(canvasColor);
+    }
+
+    emit this->canvasColorChanged(canvasColor);
 }
 
 void VideoEffects::setEffects(const QStringList &effects)
@@ -555,6 +655,16 @@ void VideoEffects::setChainEffects(bool chainEffects)
     }
 
     this->d->saveChainEffects(chainEffects);
+}
+
+void VideoEffects::resetOutputCaps()
+{
+    this->setOutputCaps(AkVideoCaps());
+}
+
+void VideoEffects::resetCanvasColor()
+{
+    this->setCanvasColor(qRgba(0, 0, 0, 0));
 }
 
 void VideoEffects::resetEffects()
@@ -685,15 +795,8 @@ AkPacket VideoEffects::iStream(const AkPacket &packet)
     if (!videoPacket)
         return {};
 
-    auto inputCaps = videoPacket.caps();
-    AkVideoCaps outputCaps(AkVideoCaps::Format_rgba,
-                           inputCaps.width(),
-                           inputCaps.height(),
-                           inputCaps.fps());
-
     {
         QMutexLocker locker(&this->d->m_mutex);
-        this->d->m_glCompositor.setOutputCaps(outputCaps);
         this->d->m_glCompositor.iStream(videoPacket);
     }
 
@@ -768,11 +871,49 @@ VideoEffectsPrivate::VideoEffectsPrivate(VideoEffects *self):
                      &VideoEffects::sourceIsEmptyChanged);
 }
 
+QString VideoEffectsPrivate::encodeDevice(const QString &device) const
+{
+    return QString::fromUtf8(QUrl::toPercentEncoding(device)
+                             .replace("%", "_")
+                             .replace(".", "_"));
+}
+
+void VideoEffectsPrivate::updateOutputCaps()
+{
+    QSettings config;
+    config.beginGroup("VideoEffects");
+
+    bool isPortrait = false;
+    auto defaultScreen = QGuiApplication::primaryScreen();
+
+    if (defaultScreen)
+        isPortrait = defaultScreen->orientation() == Qt::PortraitOrientation
+                     || defaultScreen->orientation() == Qt::InvertedPortraitOrientation;
+
+    int width = config.value("outputWidth", isPortrait? DEFAULT_HEIGHT: DEFAULT_WIDTH).toInt();
+    int height = config.value("outputHeight", isPortrait? DEFAULT_WIDTH: DEFAULT_HEIGHT).toInt();
+    int fps = config.value("outputFps", 30).toInt();
+
+    AkVideoCaps caps(AkVideoCaps::Format_rgba, width, height, {fps, 1});
+    this->m_glCompositor.setOutputCaps(caps);
+
+    config.endGroup();
+}
+
+void VideoEffectsPrivate::updateCanvasColor()
+{
+    QSettings config;
+    config.beginGroup("VideoEffects");
+    auto defaultColor = qRgba(0, 0, 0, 0);
+    this->m_glCompositor.setCanvasColor(config.value("canvasColor", defaultColor).toUInt());
+    config.endGroup();
+}
+
 void VideoEffectsPrivate::updateChainEffects()
 {
     QSettings config;
     config.beginGroup("VideoEffects");
-    self->setChainEffects(config.value("chainEffects").toBool());
+    this->m_glCompositor.setChainEffects(config.value("chainEffects").toBool());
     config.endGroup();
 }
 
@@ -792,7 +933,8 @@ void VideoEffectsPrivate::updateEffects()
     config.endArray();
     config.endGroup();
 
-    self->setEffects(effects);
+    this->m_glCompositor.setEffects(effects);
+    this->updateEffectsProperties();
 }
 
 void VideoEffectsPrivate::updateEffectsProperties()
@@ -810,6 +952,66 @@ void VideoEffectsPrivate::updateEffectsProperties()
 
         config.endGroup();
     }
+}
+
+void VideoEffectsPrivate::updateSourceEffects(qint64 id, const QString &device)
+{
+    auto encodedDevice = this->encodeDevice(device);
+    QSettings config;
+    config.beginGroup("VideoEffects_" + encodedDevice);
+
+    int size = config.beginReadArray("effects");
+    QStringList effects;
+
+    for (int i = 0; i < size; i++) {
+        config.setArrayIndex(i);
+        effects << config.value("effect").toString();
+    }
+
+    config.endArray();
+    config.endGroup();
+
+    this->m_glCompositor.setSourceEffects(id, effects);
+    this->updateSourceEffectsProperties(id, device);
+}
+
+void VideoEffectsPrivate::updateSourceEffectsProperties(qint64 id, const QString &device)
+{
+    auto encodedDevice = this->encodeDevice(device);
+    auto effects = this->m_glCompositor.sourceEffects(id);
+
+    for (int i = 0; i < effects.size(); ++i) {
+        auto groupName = "VideoEffects_" + encodedDevice + "_" + effects[i];
+        QSettings config;
+        config.beginGroup(groupName);
+
+        auto element = this->m_glCompositor.sourceElementAt(id, i);
+
+        if (element)
+            for (auto &key: config.allKeys())
+                element->setProperty(key.toStdString().c_str(),
+                                     config.value(key));
+
+        config.endGroup();
+    }
+}
+
+void VideoEffectsPrivate::saveOutputCaps(const AkVideoCaps &caps)
+{
+    QSettings config;
+    config.beginGroup("VideoEffects");
+    config.setValue("outputWidth", caps.width());
+    config.setValue("outputHeight", caps.height());
+    config.setValue("outputFps", caps.fps().num());
+    config.endGroup();
+}
+
+void VideoEffectsPrivate::saveCanvasColor(QRgb canvasColor)
+{
+    QSettings config;
+    config.beginGroup("VideoEffects");
+    config.setValue("canvasColor", canvasColor);
+    config.endGroup();
 }
 
 void VideoEffectsPrivate::saveChainEffects(bool chainEffects)
@@ -861,6 +1063,58 @@ void VideoEffectsPrivate::saveEffectsProperties()
                                     element->property(propertyName));
                 }
             }
+
+        config.endGroup();
+    }
+}
+
+void VideoEffectsPrivate::saveSourceEffects(qint64 id, const QString &device)
+{
+    auto encodedDevice = this->encodeDevice(device);
+    QSettings config;
+    config.beginGroup("VideoEffects_" + encodedDevice);
+    config.beginWriteArray("effects");
+
+    int i = 0;
+    auto effects = this->m_glCompositor.sourceEffects(id);
+
+    for (auto &effect: effects) {
+        config.setArrayIndex(i);
+        config.setValue("effect", effect);
+        i++;
+    }
+
+    config.endArray();
+    config.endGroup();
+}
+
+void VideoEffectsPrivate::saveSourceEffectsProperties(qint64 id,
+                                                      const QString &device)
+{
+    auto encodedDevice = this->encodeDevice(device);
+    auto effects = this->m_glCompositor.sourceEffects(id);
+
+    for (int i = 0; i < effects.size(); ++i) {
+        auto groupName = "VideoEffects_" + encodedDevice + "_" + effects[i];
+        QSettings config;
+        config.beginGroup(groupName);
+
+        auto element = this->m_glCompositor.sourceElementAt(id, i);
+
+        if (element) {
+            for (int property = 0;
+                 property < element->metaObject()->propertyCount();
+                 property++) {
+                auto metaProperty =
+                element->metaObject()->property(property);
+
+                if (metaProperty.isWritable()) {
+                    auto propertyName = metaProperty.name();
+                    config.setValue(propertyName,
+                                    element->property(propertyName));
+                }
+            }
+        }
 
         config.endGroup();
     }

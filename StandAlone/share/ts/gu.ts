@@ -344,6 +344,85 @@
     </message>
 </context>
 <context>
+    <name>CanvasConfig</name>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="28"/>
+        <source>Canvas</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="92"/>
+        <source>Orientation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="93"/>
+        <source>Lanscape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="93"/>
+        <source>Portrait</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="108"/>
+        <location filename="../qml/CanvasConfig.qml" line="127"/>
+        <source>Canvas resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="166"/>
+        <source>Custom</source>
+        <translation type="unfinished">કસ્ટમ</translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="170"/>
+        <source>%1×%2 @ %3 FPS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="292"/>
+        <source>Canvas color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="294"/>
+        <source>Choose the canvas color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="181"/>
+        <source>Advanced settings</source>
+        <translation type="unfinished">ઉન્નત સેટિંગ્સ</translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="29"/>
+        <source>Configure the composition canvas resolution, frame rate, and color.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="192"/>
+        <source>Canvas size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="210"/>
+        <source>Width</source>
+        <translation type="unfinished">પહોળાઈ</translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="239"/>
+        <source>Height</source>
+        <translation type="unfinished">ઊંચાઈ</translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="268"/>
+        <source>Frame rate</source>
+        <translation type="unfinished">ફ્રેમ રેટ</translation>
+    </message>
+</context>
+<context>
     <name>CaptureSettingsDialog</name>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="32"/>
@@ -1235,32 +1314,37 @@
         <translation>વિડિયો</translation>
     </message>
     <message>
-        <location filename="../qml/MainPanel.qml" line="31"/>
-        <source>Effects</source>
-        <translation>ઈફેક્ટ્સ</translation>
+        <location filename="../qml/MainPanel.qml" line="32"/>
+        <source>Canvas effects</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="33"/>
+        <source>Source effects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/MainPanel.qml" line="35"/>
         <source>Video Source Options</source>
         <translation>વિડિયો સ્રોત વિકલ્પો</translation>
     </message>
     <message>
-        <location filename="../qml/MainPanel.qml" line="35"/>
+        <location filename="../qml/MainPanel.qml" line="37"/>
         <source>Virtual Camera Options</source>
         <translation>વર્ચ્યુઅલ કેમેરા વિકલ્પો</translation>
     </message>
     <message>
-        <location filename="../qml/MainPanel.qml" line="37"/>
+        <location filename="../qml/MainPanel.qml" line="39"/>
         <source>Streaming Platform Options</source>
         <translation>સ્ટ્રીમિંગ પ્લેટફોર્મ વિકલ્પો</translation>
     </message>
     <message>
-        <location filename="../qml/MainPanel.qml" line="39"/>
+        <location filename="../qml/MainPanel.qml" line="41"/>
         <source>Local Streaming Options</source>
         <translation>લોકલ સ્ટ્રીમિંગ વિકલ્પો</translation>
     </message>
     <message>
-        <location filename="../qml/MainPanel.qml" line="40"/>
+        <location filename="../qml/MainPanel.qml" line="42"/>
         <source>%1 options</source>
         <translation>%1 વિકલ્પો</translation>
     </message>
@@ -1309,7 +1393,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1270"/>
+        <location filename="../../src/mediatools.cpp" line="1271"/>
         <source>%1/log %2.txt</source>
         <translation>%1/લોગ %2.txt</translation>
     </message>
@@ -1460,165 +1544,165 @@
         <translation>%1/વિડિયો %2.%3</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="848"/>
+        <location filename="../../src/videolayer.cpp" line="942"/>
         <source>3GP Video</source>
         <translation>3GP વિડિયો</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="849"/>
+        <location filename="../../src/videolayer.cpp" line="943"/>
         <source>AVI Video</source>
         <translation>AVI વિડિયો</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="850"/>
+        <location filename="../../src/videolayer.cpp" line="944"/>
         <source>Windows Bitmap</source>
         <translation>વિન્ડોઝ બિટમેપ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="851"/>
+        <location filename="../../src/videolayer.cpp" line="945"/>
         <source>Microsoft Windows Cursor</source>
         <translation>માઈક્રોસોફ્ટ વિન્ડોઝ કર્સર</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="853"/>
+        <location filename="../../src/videolayer.cpp" line="947"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
         <translation>ફ્લેશ વિડિયો</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="854"/>
+        <location filename="../../src/videolayer.cpp" line="948"/>
         <source>Animated GIF</source>
         <translation>એનિમેટેડ GIF</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="855"/>
+        <location filename="../../src/videolayer.cpp" line="949"/>
         <source>Graphic Interchange Format</source>
         <translation>ગ્રાફિક ઇન્ટરચેન્જ ફોર્મેટ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="856"/>
+        <location filename="../../src/videolayer.cpp" line="950"/>
         <source>Apple Icon Image</source>
         <translation>ઍપલ આઇકન ઇમેજ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="857"/>
+        <location filename="../../src/videolayer.cpp" line="951"/>
         <source>Microsoft Windows Icon</source>
         <translation>માઈક્રોસોફ્ટ વિન્ડોઝ આઇકન</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="858"/>
+        <location filename="../../src/videolayer.cpp" line="952"/>
         <source>Joint Photographic Experts Group</source>
         <translation>જોઈન્ટ ફોટોગ્રાફિક એક્સપર્ટ્સ ગ્રુપ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="859"/>
+        <location filename="../../src/videolayer.cpp" line="953"/>
         <source>MKV Video</source>
         <translation>MKV વિડિયો</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="860"/>
+        <location filename="../../src/videolayer.cpp" line="954"/>
         <source>Animated PNG</source>
         <translation>એનિમેટેડ PNG</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="861"/>
+        <location filename="../../src/videolayer.cpp" line="955"/>
         <source>Multiple-image Network Graphics</source>
         <translation>મલ્ટિપલ-ઇમેજ નેટવર્ક ગ્રાફિક્સ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="862"/>
+        <location filename="../../src/videolayer.cpp" line="956"/>
         <source>QuickTime Video</source>
         <translation>ક્વિકટાઈમ વિડિયો</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="863"/>
+        <location filename="../../src/videolayer.cpp" line="957"/>
         <source>MP4 Video</source>
         <translation>MP4 વિડિયો</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="864"/>
+        <location filename="../../src/videolayer.cpp" line="958"/>
         <source>MPEG Video</source>
         <translation>MPEG વિડિયો</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="865"/>
+        <location filename="../../src/videolayer.cpp" line="959"/>
         <source>Ogg Video</source>
         <translation>Ogg વિડિયો</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="866"/>
+        <location filename="../../src/videolayer.cpp" line="960"/>
         <source>Portable Bitmap</source>
         <translation>પોર્ટેબલ બિટમેપ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="867"/>
+        <location filename="../../src/videolayer.cpp" line="961"/>
         <source>Portable Graymap</source>
         <translation>પોર્ટેબલ ગ્રેયમેપ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="868"/>
+        <location filename="../../src/videolayer.cpp" line="962"/>
         <source>Portable Network Graphics</source>
         <translation>પોર્ટેબલ નેટવર્ક ગ્રાફિક્સ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="869"/>
+        <location filename="../../src/videolayer.cpp" line="963"/>
         <source>Portable Pixmap</source>
         <translation>પોર્ટેબલ પિક્સમેપ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="871"/>
+        <location filename="../../src/videolayer.cpp" line="965"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
         <translation>RealMedia વિડિયો</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="872"/>
+        <location filename="../../src/videolayer.cpp" line="966"/>
         <source>Scalable Vector Graphics</source>
         <translation>સ્કેલેબલ વેક્ટર ગ્રાફિક્સ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="873"/>
+        <location filename="../../src/videolayer.cpp" line="967"/>
         <source>Truevision TGA</source>
         <translation>ટ્રૂવિઝન TGA</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="874"/>
+        <location filename="../../src/videolayer.cpp" line="968"/>
         <source>Tagged Image File Format</source>
         <translation>ટૅગ્ડ ઇમેજ ફાઇલ ફોર્મેટ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="875"/>
+        <location filename="../../src/videolayer.cpp" line="969"/>
         <source>DVD Video</source>
         <translation>DVD વિડિયો</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="876"/>
+        <location filename="../../src/videolayer.cpp" line="970"/>
         <source>Wireless Bitmap</source>
         <translation>વાયરલેસ બિટમેપ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="877"/>
+        <location filename="../../src/videolayer.cpp" line="971"/>
         <source>WebM Video</source>
         <translation>WebM વિડિયો</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="878"/>
+        <location filename="../../src/videolayer.cpp" line="972"/>
         <source>WebP</source>
         <translation>WebP</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="880"/>
+        <location filename="../../src/videolayer.cpp" line="974"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
         <translation>વિન્ડોઝ મીડિયા વિડિયો</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="881"/>
+        <location filename="../../src/videolayer.cpp" line="975"/>
         <source>X11 Bitmap</source>
         <translation>X11 બિટમેપ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="882"/>
+        <location filename="../../src/videolayer.cpp" line="976"/>
         <source>X11 Pixmap</source>
         <translation>X11 પિક્સમેપ</translation>
     </message>
@@ -1634,42 +1718,37 @@
 <context>
     <name>SettingsMenu</name>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="60"/>
+        <location filename="../qml/SettingsMenu.qml" line="64"/>
         <source>Video</source>
         <translation>વિડિયો</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="66"/>
+        <location filename="../qml/SettingsMenu.qml" line="70"/>
         <source>Audio</source>
         <translation>ઑડિયો</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="72"/>
-        <source>Effects</source>
-        <translation>ઈફેક્ટ્સ</translation>
-    </message>
-    <message>
-        <location filename="../qml/SettingsMenu.qml" line="78"/>
+        <location filename="../qml/SettingsMenu.qml" line="76"/>
         <source>Preferences</source>
         <translation>પસંદગીઓ</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="84"/>
+        <location filename="../qml/SettingsMenu.qml" line="82"/>
         <source>Donate</source>
         <translation>દાન કરો</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="90"/>
+        <location filename="../qml/SettingsMenu.qml" line="88"/>
         <source>Help</source>
         <translation>મદદ</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="96"/>
+        <location filename="../qml/SettingsMenu.qml" line="94"/>
         <source>About</source>
         <translation>વિશે</translation>
     </message>
     <message>
-        <location filename="../qml/SettingsMenu.qml" line="103"/>
+        <location filename="../qml/SettingsMenu.qml" line="101"/>
         <source>Play sources</source>
         <translation>સ્ત્રોતો પ્લે કરો</translation>
     </message>
@@ -1687,163 +1766,163 @@
         <translation>ઘણા બધા પ્લેટફોર્મ્સ પર વિડિયો સ્ટ્રીમિંગ રૂપરેખાંકિત કરો.</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="122"/>
-        <location filename="../qml/Streaming.qml" line="147"/>
+        <location filename="../qml/Streaming.qml" line="133"/>
+        <location filename="../qml/Streaming.qml" line="158"/>
         <source>Streaming quality</source>
         <translation>સ્ટ્રીમિંગ ગુણવત્તા</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="200"/>
+        <location filename="../qml/Streaming.qml" line="211"/>
         <source>Custom</source>
         <translation>કસ્ટમ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="203"/>
+        <location filename="../qml/Streaming.qml" line="214"/>
         <source>Video quality: %1×%2 %3 FPS</source>
         <translation>વિડિયો ગુણવત્તા: %1×%2 %3 FPS</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="204"/>
+        <location filename="../qml/Streaming.qml" line="215"/>
         <source>Video bitrate: %1 Mbps</source>
         <translation>વિડિયો બીટરેટ: %1 Mbps</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="205"/>
+        <location filename="../qml/Streaming.qml" line="216"/>
         <source>Audio sample rate: %1 kHz</source>
         <translation>ઑડિયો સેમ્પલ રેટ: %1 kHz</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="206"/>
+        <location filename="../qml/Streaming.qml" line="217"/>
         <source>Audio bitrate: %1 kbps</source>
         <translation>ઑડિયો બીટરેટ: %1 kbps</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="214"/>
+        <location filename="../qml/Streaming.qml" line="225"/>
         <source>Advanced settings</source>
         <translation>ઉન્નત સેટિંગ્સ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="229"/>
+        <location filename="../qml/Streaming.qml" line="240"/>
         <source>Video quality</source>
         <translation>વિડિયો ગુણવત્તા</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="247"/>
+        <location filename="../qml/Streaming.qml" line="258"/>
         <source>Output width</source>
         <translation>આઉટપુટ પહોળાઈ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="270"/>
+        <location filename="../qml/Streaming.qml" line="281"/>
         <source>Output height</source>
         <translation>આઉટપુટ ઊંચાઈ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="293"/>
+        <location filename="../qml/Streaming.qml" line="304"/>
         <source>Output frame rate</source>
         <translation>આઉટપુટ ફ્રેમ રેટ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="316"/>
+        <location filename="../qml/Streaming.qml" line="327"/>
         <source>Video bitrate (kbps)</source>
         <translation>વિડિયો બીટરેટ (kbps)</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="336"/>
+        <location filename="../qml/Streaming.qml" line="347"/>
         <source>Keyframes stride (ms)</source>
         <translation>કીફ્રેમ્સ સ્ટ્રાઇડ (મિલિસેકન્ડ)</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="353"/>
+        <location filename="../qml/Streaming.qml" line="364"/>
         <source>Video codec</source>
         <translation>વિડિયો કોડેક</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="436"/>
+        <location filename="../qml/Streaming.qml" line="447"/>
         <source>Audio quality</source>
         <translation>ઑડિયો ગુણવત્તા</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="454"/>
+        <location filename="../qml/Streaming.qml" line="465"/>
         <source>Sample rate</source>
         <translation>સેમ્પલ રેટ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="477"/>
+        <location filename="../qml/Streaming.qml" line="488"/>
         <source>Audio bitrate (kbps)</source>
         <translation>ઑડિયો બીટરેટ (kbps)</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="498"/>
+        <location filename="../qml/Streaming.qml" line="509"/>
         <source>Audio codec</source>
         <translation>ઑડિયો કોડેક</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="521"/>
+        <location filename="../qml/Streaming.qml" line="532"/>
         <source>Streaming platform settings</source>
         <translation>સ્ટ્રીમિંગ પ્લેટફોર્મ સેટિંગ્સ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="532"/>
+        <location filename="../qml/Streaming.qml" line="543"/>
         <source>Platform</source>
         <translation>પ્લેટફોર્મ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="540"/>
+        <location filename="../qml/Streaming.qml" line="551"/>
         <source>Add platform</source>
         <translation>પ્લેટફોર્મ ઉમેરો</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="547"/>
+        <location filename="../qml/Streaming.qml" line="558"/>
         <source>Remove platform</source>
         <translation>પ્લેટફોર્મ દૂર કરો</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="561"/>
+        <location filename="../qml/Streaming.qml" line="572"/>
         <source>Website</source>
         <translation>વેબસાઇટ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="581"/>
+        <location filename="../qml/Streaming.qml" line="592"/>
         <source>Visit website</source>
         <translation>વેબસાઇટની મુલાકાત લો</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="596"/>
+        <location filename="../qml/Streaming.qml" line="607"/>
         <source>Streaming URL</source>
         <translation>સ્ટ્રીમિંગ URL</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="627"/>
+        <location filename="../qml/Streaming.qml" line="638"/>
         <source>Hide streaming URL</source>
         <translation>સ્ટ્રીમિંગ URL છુપાવો</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="628"/>
+        <location filename="../qml/Streaming.qml" line="639"/>
         <source>Show streaming URL</source>
         <translation>સ્ટ્રીમિંગ URL બતાવો</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="647"/>
+        <location filename="../qml/Streaming.qml" line="658"/>
         <source>Streaming key</source>
         <translation>સ્ટ્રીમિંગ કી</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="680"/>
+        <location filename="../qml/Streaming.qml" line="691"/>
         <source>Hide streaming key</source>
         <translation>સ્ટ્રીમિંગ કી છુપાવો</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="681"/>
+        <location filename="../qml/Streaming.qml" line="692"/>
         <source>Show streaming key</source>
         <translation>સ્ટ્રીમિંગ કી બતાવો</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="700"/>
+        <location filename="../qml/Streaming.qml" line="711"/>
         <source>Streaming configuration help</source>
         <translation>સ્ટ્રીમિંગ ગોઠવણી મદદ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="712"/>
+        <location filename="../qml/Streaming.qml" line="723"/>
         <source>Get streaming key</source>
         <translation>સ્ટ્રીમિંગ કી મેળવો</translation>
     </message>
@@ -1859,57 +1938,57 @@
 <context>
     <name>StreamingPlatformOptions</name>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="60"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="71"/>
         <source>Remove</source>
         <translation>દૂર કરો</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="72"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="83"/>
         <source>Website</source>
         <translation>વેબસાઇટ</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="92"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="103"/>
         <source>Visit website</source>
         <translation>વેબસાઇટની મુલાકાત લો</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="107"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="118"/>
         <source>Streaming URL</source>
         <translation>સ્ટ્રીમિંગ URL</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="138"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="149"/>
         <source>Hide streaming URL</source>
         <translation>સ્ટ્રીમિંગ URL છુપાવો</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="139"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="150"/>
         <source>Show streaming URL</source>
         <translation>સ્ટ્રીમિંગ URL બતાવો</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="158"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="169"/>
         <source>Streaming key</source>
         <translation>સ્ટ્રીમિંગ કી</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="191"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="202"/>
         <source>Hide streaming key</source>
         <translation>સ્ટ્રીમિંગ કી છુપાવો</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="192"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="203"/>
         <source>Show streaming key</source>
         <translation>સ્ટ્રીમિંગ કી બતાવો</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="211"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="222"/>
         <source>Streaming configuration help</source>
         <translation>સ્ટ્રીમિંગ ગોઠવણી મદદ</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="223"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="234"/>
         <source>Get streaming key</source>
         <translation>સ્ટ્રીમિંગ કી મેળવો</translation>
     </message>
@@ -2150,12 +2229,12 @@
 <context>
     <name>VideoEffectOptions</name>
     <message>
-        <location filename="../qml/VideoEffectOptions.qml" line="56"/>
+        <location filename="../qml/VideoEffectOptions.qml" line="96"/>
         <source>Remove</source>
         <translation>દૂર કરો</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectOptions.qml" line="61"/>
+        <location filename="../qml/VideoEffectOptions.qml" line="101"/>
         <source>Remove %1 video effect</source>
         <translation>%1 વિડિયો ઈફેક્ટ દૂર કરો</translation>
     </message>
@@ -2168,12 +2247,12 @@
         <translation>વિડિયો ઈફેક્ટ ઉમેરો</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="69"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="114"/>
         <source>Effect</source>
         <translation>ઈફેક્ટ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="133"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="178"/>
         <source>Chain effect</source>
         <extracomment>Apply the effect over the other effects.</extracomment>
         <translation>ચેન ઈફેક્ટ</translation>
@@ -2182,12 +2261,12 @@
 <context>
     <name>VideoEffectsList</name>
     <message>
-        <location filename="../qml/VideoEffectsList.qml" line="50"/>
+        <location filename="../qml/VideoEffectsList.qml" line="94"/>
         <source>Add effect</source>
         <translation>ઈફેક્ટ ઉમેરો</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsList.qml" line="57"/>
+        <location filename="../qml/VideoEffectsList.qml" line="101"/>
         <source>Remove all effects</source>
         <translation>બધા ઈફેક્ટ્સ દૂર કરો</translation>
     </message>
@@ -2226,61 +2305,61 @@
 <context>
     <name>VideoInputAddEdit</name>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="185"/>
-        <source>URL</source>
-        <translation>URL</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="124"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="169"/>
-        <source>Description</source>
-        <translation>વર્ણન</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="82"/>
-        <source>Edit media file source</source>
-        <translation>મીડિયા ફાઇલ સ્રોત સંપાદિત કરો</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="86"/>
-        <source>Edit media URL source</source>
-        <translation>મીડિયા URL સ્રોત સંપાદિત કરો</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="90"/>
-        <source>Add media file source</source>
-        <translation>મીડિયા ફાઇલ સ્રોત ઉમેરો</translation>
-    </message>
-    <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="91"/>
+        <source>Edit media file source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="95"/>
+        <source>Edit media URL source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="99"/>
+        <source>Add media file source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="100"/>
         <source>Add media URL source</source>
-        <translation>મીડિયા URL સ્રોત ઉમેરો</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="130"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="175"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="133"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="180"/>
+        <source>Description</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="139"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="186"/>
         <source>Source title</source>
-        <translation>સ્રોત શીર્ષક</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="140"/>
-        <source>Path</source>
-        <translation>પાથ</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="148"/>
-        <source>File path</source>
-        <translation>ફાઇલ પાથ</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="149"/>
-        <source>Search file to use as source</source>
-        <translation>સ્રોત તરીકે વાપરવા માટે ફાઇલ શોધો</translation>
+        <source>Path</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="234"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="159"/>
+        <source>File path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="160"/>
+        <source>Search file to use as source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="196"/>
+        <source>URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="254"/>
         <source>Choose the file to add as source</source>
-        <translation>સ્રોત તરીકે ઉમેરવા માટે ફાઇલ પસંદ કરો</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2312,68 +2391,118 @@
 <context>
     <name>VideoInputOptions</name>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="61"/>
+        <location filename="../qml/VideoInputOptions.qml" line="65"/>
         <source>Edit</source>
         <translation>સંપાદિત કરો</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="74"/>
+        <location filename="../qml/VideoInputOptions.qml" line="77"/>
         <source>Remove</source>
         <translation>દૂર કરો</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputOptions.qml" line="92"/>
+        <source>Manage source effects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputOptions.qml" line="104"/>
+        <source>Opacity</source>
+        <translation type="unfinished">ઓપેસિટી</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputOptions.qml" line="120"/>
+        <source>Source opacity</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>VideoInputs</name>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="107"/>
-        <source>Configure source</source>
-        <translation>સ્રોત રૂપરેખાંકિત કરો</translation>
+        <location filename="../qml/VideoInputs.qml" line="97"/>
+        <source>Camera</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="56"/>
+        <location filename="../qml/VideoInputs.qml" line="99"/>
+        <source>Screen</source>
+        <translation type="unfinished">સ્ક્રીન</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="101"/>
+        <source>Image</source>
+        <translation type="unfinished">ચિત્ર</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="103"/>
+        <source>Video</source>
+        <translation type="unfinished">વિડિયો</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="105"/>
+        <source>Unknown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="124"/>
         <source>Add source</source>
         <translation>સ્રોત ઉમેરો</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="68"/>
+        <location filename="../qml/VideoInputs.qml" line="136"/>
         <source>Add camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="76"/>
+        <location filename="../qml/VideoInputs.qml" line="144"/>
         <source>Add screen</source>
         <translation>સ્ક્રીન ઉમેરો</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="77"/>
+        <location filename="../qml/VideoInputs.qml" line="145"/>
         <source>Add screen source</source>
         <translation>સ્ક્રીન સ્રોત ઉમેરો</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="84"/>
+        <location filename="../qml/VideoInputs.qml" line="152"/>
         <source>Add window</source>
         <translation>વિન્ડો ઉમેરો</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="93"/>
+        <location filename="../qml/VideoInputs.qml" line="161"/>
         <source>Add media file</source>
         <translation>મીડિયા ફાઇલ ઉમેરો</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="99"/>
+        <location filename="../qml/VideoInputs.qml" line="167"/>
         <source>Add media URL</source>
         <translation>મીડિયા URL ઉમેરો</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="183"/>
+        <source>Manage canvas effects</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="175"/>
+        <source>Edit layout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="379"/>
+        <source>Source %1</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="141"/>
+        <location filename="../../src/videolayer.cpp" line="142"/>
         <source>All Image and Video Files</source>
         <translation>બધી ઇમેજ અને વિડિયો ફાઇલો</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="178"/>
+        <location filename="../../src/videolayer.cpp" line="179"/>
         <source>All Files</source>
         <translation>બધી ફાઇલો</translation>
     </message>
@@ -2381,12 +2510,12 @@
 <context>
     <name>VideoOptions</name>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="46"/>
+        <location filename="../qml/VideoOptions.qml" line="48"/>
         <source>Sources</source>
         <translation>સ્ત્રોતો</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="49"/>
+        <location filename="../qml/VideoOptions.qml" line="51"/>
         <source>Outputs</source>
         <translation>આઉટપુટ</translation>
     </message>
@@ -2800,32 +2929,32 @@
         <translation>લ્યુમિનન્સ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="28"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="29"/>
         <source>Number of scratches</source>
         <translation>ખંજવાળની સંખ્યા</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="45"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="47"/>
         <source>Aging intensity</source>
         <translation>એજિંગ તીવ્રતા</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="64"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="67"/>
         <source>Dust density</source>
         <translation>ધૂળ ઘનતા</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="83"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="87"/>
         <source>Scratch density</source>
         <translation>ખંજવાળ ઘનતા</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="102"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="107"/>
         <source>Scratch brightness</source>
         <translation>ખંજવાળ ચમક</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="121"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Aging/share/qml/main.qml" line="127"/>
         <source>Pits density</source>
         <translation>ખાડા ઘનતા</translation>
     </message>
@@ -4707,135 +4836,135 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="46"/>
+        <location filename="../qml/main.qml" line="53"/>
         <source>Daily Build</source>
         <translation>દૈનિક બિલ્ડ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="60"/>
+        <location filename="../qml/main.qml" line="67"/>
         <source>%1/Picture %2.%3</source>
         <translation>%1/ચિત્ર %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="258"/>
+        <location filename="../qml/main.qml" line="255"/>
         <source>Main menu</source>
         <translation>મુખ્ય મેનુ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="264"/>
+        <location filename="../qml/main.qml" line="261"/>
         <source>Open main menu</source>
         <translation>મુખ્ય મેનુ ખોલો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="295"/>
+        <location filename="../qml/main.qml" line="291"/>
         <source>Start streaming</source>
         <translation>સ્ટ્રીમિંગ શરૂ કરો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="295"/>
+        <location filename="../qml/main.qml" line="291"/>
         <source>Stop streaming</source>
         <translation>સ્ટ્રીમિંગ બંધ કરો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="300"/>
+        <location filename="../qml/main.qml" line="296"/>
         <source>You must add at least one streaming platform to the video outputs</source>
         <translation>તમારે વિડિયો આઉટપુટમાં ઓછામાં ઓછું એક સ્ટ્રીમિંગ પ્લેટફોર્મ ઉમેરવું પડશે</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="302"/>
+        <location filename="../qml/main.qml" line="298"/>
         <source>The following platforms are not configured:&lt;br/&gt;&lt;br/&gt;%1</source>
         <translation>નીચેના પ્લેટફોર્મ્સ ગોઠવેલ નથી:&lt;br/&gt;&lt;br/&gt;%1</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="336"/>
+        <location filename="../qml/main.qml" line="332"/>
         <source>Capture options</source>
         <translation>કેપ્ચર વિકલ્પો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="342"/>
+        <location filename="../qml/main.qml" line="338"/>
         <source>Open capture options menu</source>
         <translation>કેપ્ચર વિકલ્પો મેનુ ખોલો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="373"/>
+        <location filename="../qml/main.qml" line="369"/>
         <source>Open last photo</source>
         <translation>છેલ્લું ફોટો ખોલો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="384"/>
+        <location filename="../qml/main.qml" line="380"/>
         <source>Open last photo taken</source>
         <translation>લેવામાં આવેલ છેલ્લું ફોટો ખોલો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="415"/>
-        <location filename="../qml/main.qml" line="418"/>
+        <location filename="../qml/main.qml" line="411"/>
+        <location filename="../qml/main.qml" line="414"/>
         <source>Take a photo</source>
         <translation>ફોટો લો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="419"/>
+        <location filename="../qml/main.qml" line="415"/>
         <source>Image capture mode</source>
         <translation>ચિત્ર કેપ્ચર મોડ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="422"/>
+        <location filename="../qml/main.qml" line="418"/>
         <source>Make a capture and save it to an image file</source>
         <translation>કેપ્ચર બનાવો અને તેને ચિત્ર ફાઇલમાં સાચવો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="423"/>
+        <location filename="../qml/main.qml" line="419"/>
         <source>Put %1 in image capture mode</source>
         <translation>%1 ને ચિત્ર કેપ્ચર મોડમાં મૂકો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="472"/>
-        <location filename="../qml/main.qml" line="478"/>
+        <location filename="../qml/main.qml" line="468"/>
+        <location filename="../qml/main.qml" line="474"/>
         <source>Record video</source>
         <translation>વિડિયો રેકોર્ડ કરો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="473"/>
-        <location filename="../qml/main.qml" line="479"/>
+        <location filename="../qml/main.qml" line="469"/>
+        <location filename="../qml/main.qml" line="475"/>
         <source>Stop video recording</source>
         <translation>વિડિયો રેકોર્ડિંગ બંધ કરો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="476"/>
+        <location filename="../qml/main.qml" line="472"/>
         <source>Video capture mode</source>
         <translation>વિડિયો કેપ્ચર મોડ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="482"/>
+        <location filename="../qml/main.qml" line="478"/>
         <source>Put %1 in video recording mode</source>
         <translation>%1 ને વિડિયો રેકોર્ડિંગ મોડમાં મૂકો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="484"/>
+        <location filename="../qml/main.qml" line="480"/>
         <source>Start recording to a video file</source>
         <translation>વિડિયો ફાઇલમાં રેકોર્ડિંગ શરૂ કરો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="485"/>
+        <location filename="../qml/main.qml" line="481"/>
         <source>Stop current video recording</source>
         <translation>વર્તમાન વિડિયો રેકોર્ડિંગ બંધ કરો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="512"/>
+        <location filename="../qml/main.qml" line="525"/>
         <source>Open last video</source>
         <translation>છેલ્લું વિડિયો ખોલો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="524"/>
+        <location filename="../qml/main.qml" line="537"/>
         <source>Open last recorded video</source>
         <translation>રેકોર્ડ કરેલ છેલ્લું વિડિયો ખોલો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="760"/>
+        <location filename="../qml/main.qml" line="792"/>
         <source>Installing virtual camera</source>
         <translation>વર્ચ્યુઅલ કેમેરા ઇન્સ્ટોલ થાય છે</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="761"/>
+        <location filename="../qml/main.qml" line="793"/>
         <source>Running commands</source>
         <translation>ચલાવી રહેલા આદેશો</translation>
     </message>

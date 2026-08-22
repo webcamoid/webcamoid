@@ -25,20 +25,45 @@ import Ak
 ScrollView {
     id: effectsView
 
-    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+    property int sourceId: -1
 
-    signal openVideoEffectsDialog()
-    signal openVideoEffectOptions(int effectIndex)
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+    readonly property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    readonly property int rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    readonly property bool isSource: sourceId >= 0
+
+    signal openVideoEffectsDialog(int sourceId)
+    signal openVideoEffectOptions(int sourceId, int effectIndex)
+
+    function activeEffects() {
+        if (effectsView.isSource)
+            return videoEffects.sourceEffects(effectsView.sourceId)
+
+        return videoEffects.effects
+    }
 
     Component.onCompleted: effectsList.update()
-    onVisibleChanged: effectsList.forceActiveFocus()
+    onVisibleChanged: {
+        if (visible)
+            effectsList.update()
+
+        effectsList.forceActiveFocus()
+    }
+    onSourceIdChanged: effectsList.update()
 
     Connections {
         target: videoEffects
 
         function onEffectsChanged()
         {
-            effectsList.update()
+            if (!effectsView.isSource)
+                effectsList.update()
+        }
+
+        function onSourceEffectsChanged(id)
+        {
+            if (effectsView.isSource && id === effectsView.sourceId)
+                effectsList.update()
         }
     }
 
@@ -46,19 +71,43 @@ ScrollView {
         width: effectsView.width
         layoutDirection: effectsView.rtl? Qt.RightToLeft: Qt.LeftToRight
 
+        Label {
+            id: deviceInfo
+            text: {
+                if (!effectsView.isSource)
+                    return ""
+
+                return "<b>" + videoLayer.sourceLabel(effectsView.sourceId) + "</b>"
+                       + "<br/><i>" + videoLayer.sourceDevice(effectsView.sourceId) + "</i>"
+            }
+            elide: Label.ElideRight
+            height: effectsView.isSource? undefined: 0
+            visible: effectsView.isSource
+            Layout.fillWidth: true
+            Layout.leftMargin: effectsView.leftMargin
+            Layout.rightMargin: effectsView.rightMargin
+            Layout.bottomMargin:
+                AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+        }
+
         Button {
             text: qsTr("Add effect")
             icon.source: "image://icons/add"
             flat: true
 
-            onClicked: effectsView.openVideoEffectsDialog()
+            onClicked: effectsView.openVideoEffectsDialog(effectsView.sourceId)
         }
         Button {
             text: qsTr("Remove all effects")
             icon.source: "image://icons/no"
             flat: true
 
-            onClicked: videoEffects.removeAllEffects()
+            onClicked: {
+                if (effectsView.isSource)
+                    videoEffects.removeAllSourceEffects(effectsView.sourceId)
+                else
+                    videoEffects.removeAllEffects()
+            }
         }
         OptionList {
             id: effectsList
@@ -70,7 +119,7 @@ ScrollView {
 
             function update() {
                 effectsList.minHeight = 0
-                let effects = videoEffects.effects
+                let effects = effectsView.activeEffects()
 
                 for (let i = count - 1; i >= 0; i--)
                     removeItem(itemAt(i))
@@ -88,7 +137,8 @@ ScrollView {
                     effectsList.minHeight += obj.height
 
                     obj.onClicked.connect((index => function () {
-                        effectsView.openVideoEffectOptions(index)
+                        effectsView.openVideoEffectOptions(effectsView.sourceId,
+                                                           index)
                     })(i))
                 }
             }

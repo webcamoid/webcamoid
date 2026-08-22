@@ -29,6 +29,7 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 #include <QQmlEngine>
+#include <QReadWriteLock>
 #include <QThread>
 #include <QVector>
 #include <QMatrix4x4>
@@ -49,13 +50,11 @@ class AkGLCompositorSource
 {
     public:
         QMutex mutex;
-        AkVideoPacket lastPacket;
-        bool hasFrame {false};
+        qint64 sourceId {-1};
         QRectF rect {0.0, 0.0, 1.0, 1.0};
         int zOrder {0};
         qreal opacity {1.0};
         Qt::AspectRatioMode aspectRatioMode {Qt::KeepAspectRatio};
-        AkVideoConverter converter {{AkVideoCaps::Format_rgba, 0, 0, {}}};
         QOpenGLTexture *uploadTex {nullptr};
         QOpenGLFramebufferObject *entryFbo {nullptr};
         QOpenGLFramebufferObject *effectFbo {nullptr};
@@ -64,6 +63,16 @@ class AkGLCompositorSource
 };
 
 using AkGLCompositorSourcePtr = QSharedPointer<AkGLCompositorSource>;
+
+class AkGLPacketSlot
+{
+    public:
+        AkVideoConverter converter {{AkVideoCaps::Format_rgba, 0, 0, {}}};
+        AkVideoPacket lastPacket;
+        bool hasFrame {false};
+};
+
+using AkGLPacketSlotPtr = QSharedPointer<AkGLPacketSlot>;
 
 struct SourceSnapshot
 {
@@ -111,12 +120,14 @@ class AkGLCompositorPrivate
         AkVideoPacket m_outputPacket;
         QMutex m_sourcesMutex;
         QHash<qint64, AkGLCompositorSourcePtr> m_sources;
+        QHash<qint64, AkGLPacketSlotPtr> m_packetsBuffer;
+        QReadWriteLock m_packetsBufferMutex;
         QMutex m_pendingRemovalsMutex;
         QVector<qint64> m_pendingRemovals;
         QMutex m_stopMutex;
         bool m_stopRequested {false};
         QElapsedTimer m_clock;
-        AkVideoCaps m_outputCaps {AkVideoCaps::Format_rgba, 640, 480, {30, 1}};
+        AkVideoCaps m_outputCaps;
         QRgb m_canvasColor {qRgba(0, 0, 0, 0)};
         AkGLPipeline m_pipeline;
         AkVideoConverter m_outputConverter;
@@ -130,6 +141,10 @@ class AkGLCompositorPrivate
         size_t m_readbackBufferSize {0};
 
         explicit AkGLCompositorPrivate(AkGLCompositor *self);
+        static QString profileString(QSurfaceFormat::OpenGLContextProfile profile);
+        static QString renderableTypeString(QSurfaceFormat::RenderableType type);
+        static QString swapBehaviorString(QSurfaceFormat::SwapBehavior behavior);
+        void printGLInfo();
         void startRenderThread();
         void stopRenderThread();
         void renderGL();
@@ -137,7 +152,8 @@ class AkGLCompositorPrivate
         void uninitGL();
         void processPendingRemovals();
         void processTick();
-        void uploadSource(AkGLCompositorSourcePtr source);
+        void uploadSource(AkGLCompositorSourcePtr source,
+                          const AkVideoPacket &packet);
         void compositeSourcesIntoCanvas();
         void readAndEmit(qint64 pts);
         void blitTexture(GLuint tex, int width, int height);
@@ -250,7 +266,13 @@ qint64 AkGLCompositor::addSource(qint64 id)
             return id;
 
         this->d->m_sources[id] = AkGLCompositorSourcePtr::create();
+        this->d->m_sources[id]->sourceId = id;
         this->d->m_zOrderDirty = true;
+
+        {
+            QWriteLocker writeLocker(&this->d->m_packetsBufferMutex);
+            this->d->m_packetsBuffer[id] = AkGLPacketSlotPtr::create();
+        }
     }
 
     emit this->sourceAdded(id);
@@ -274,6 +296,11 @@ void AkGLCompositor::removeSource(qint64 id)
             this->d->m_pendingRemovals << id;
     } else {
         this->d->m_sources.remove(id);
+
+        {
+            QWriteLocker writeLocker(&this->d->m_packetsBufferMutex);
+            this->d->m_packetsBuffer.remove(id);
+        }
     }
 
     this->d->m_zOrderDirty = true;
@@ -497,7 +524,7 @@ bool AkGLCompositor::setState(AkElement::ElementState state)
 
 void AkGLCompositor::resetOutputCaps()
 {
-    this->setOutputCaps({AkVideoCaps::Format_rgba, 640, 480, {30, 1}});
+    this->setOutputCaps(AkVideoCaps());
 }
 
 void AkGLCompositor::resetCanvasColor()
@@ -923,14 +950,14 @@ AkPacket AkGLCompositor::iVideoStream(const AkVideoPacket &videoPacket)
         return {};
 
     auto id = videoPacket.id();
-    AkGLCompositorSourcePtr source;
+    AkGLPacketSlotPtr packetSlot;
 
     {
-        QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
-        source = this->d->m_sources.value(id, nullptr);
+        QReadLocker mutexLocker(&this->d->m_packetsBufferMutex);
+        packetSlot = this->d->m_packetsBuffer.value(id, nullptr);
     }
 
-    if (!source) {
+    if (!packetSlot) {
         qWarning() << "AkGLCompositor::iStream: packet with unknown source id"
                    << id;
 
@@ -940,18 +967,18 @@ AkPacket AkGLCompositor::iVideoStream(const AkVideoPacket &videoPacket)
     bool firstFrame = false;
 
     {
-        QMutexLocker sourceLocker(&source->mutex);
-
-        source->converter.begin();
-        auto rgbaPacket = source->converter.convert(videoPacket);
-        source->converter.end();
+        packetSlot->converter.begin();
+        auto rgbaPacket = packetSlot->converter.convert(videoPacket);
+        packetSlot->converter.end();
 
         if (!rgbaPacket)
             return {};
 
-        firstFrame = !source->hasFrame;
-        source->lastPacket = rgbaPacket;
-        source->hasFrame = true;
+        QWriteLocker mutexLocker(&this->d->m_packetsBufferMutex);
+
+        firstFrame = !packetSlot->hasFrame;
+        packetSlot->lastPacket = rgbaPacket;
+        packetSlot->hasFrame = true;
     }
 
     if (firstFrame) {
@@ -997,6 +1024,127 @@ void AkGLCompositor::registerTypes()
 AkGLCompositorPrivate::AkGLCompositorPrivate(AkGLCompositor *self):
     self(self)
 {
+}
+
+QString AkGLCompositorPrivate::profileString(QSurfaceFormat::OpenGLContextProfile profile)
+{
+    switch (profile) {
+    case QSurfaceFormat::CoreProfile:
+        return {"Core"};
+    case QSurfaceFormat::CompatibilityProfile:
+        return {"Compatibility"};
+    default:
+        break;
+    }
+
+    return {"No Profile"};
+}
+
+QString AkGLCompositorPrivate::renderableTypeString(QSurfaceFormat::RenderableType type)
+{
+    switch (type) {
+    case QSurfaceFormat::DefaultRenderableType:
+        return {"Default"};
+    case QSurfaceFormat::OpenGL:
+        return {"OpenGL"};
+    case QSurfaceFormat::OpenGLES:
+        return {"OpenGL ES"};
+    default:
+        break;
+    }
+
+    return {"Unknown"};
+}
+
+QString AkGLCompositorPrivate::swapBehaviorString(QSurfaceFormat::SwapBehavior behavior)
+{
+    switch (behavior) {
+    case QSurfaceFormat::DefaultSwapBehavior:
+        return {"Default"};
+    case QSurfaceFormat::DoubleBuffer:
+        return {"Double Buffer"};
+    case QSurfaceFormat::TripleBuffer:
+        return {"Triple Buffer"};
+    case QSurfaceFormat::SingleBuffer:
+        return {"Single Buffer"};
+    default:
+        break;
+    }
+
+    return {"Unknown"};
+}
+
+void AkGLCompositorPrivate::printGLInfo()
+{
+    if (!this->m_context || !this->m_surface)
+        return;
+
+    if (!this->m_context->makeCurrent(this->m_surface))
+        return;
+
+    auto format = this->m_surface->format();
+
+    qInfo() << "QSurfaceFormat Information";
+    qInfo() << "";
+    qInfo() << "Version:"
+             << QString("%1.%2").arg(format.majorVersion())
+                                .arg(format.minorVersion())
+                .toStdString().c_str();
+    qInfo() << "Profile:" << profileString(format.profile());
+    qInfo() << "Renderable type:" << renderableTypeString(format.renderableType());
+    qInfo() << "Depth buffer size:" << format.depthBufferSize();
+    qInfo() << "Stencil buffer size:" << format.stencilBufferSize();
+    qInfo() << "Alpha buffer size:" << format.alphaBufferSize();
+    qInfo() << "Red buffer size:" << format.redBufferSize();
+    qInfo() << "Green buffer size:" << format.greenBufferSize();
+    qInfo() << "Blue buffer size:" << format.blueBufferSize();
+    qInfo() << "Samples:" << format.samples();
+    qInfo() << "Stereo:" << format.stereo();
+    qInfo() << "Swap behavior:" << swapBehaviorString(format.swapBehavior());
+    qInfo() << "Swap interval:" << format.swapInterval();
+    qInfo() << "Has alpha:" << format.hasAlpha();
+    qInfo() << "";
+    qInfo() << "OpenGL Context Information";
+    qInfo() << "";
+
+    auto vendor = reinterpret_cast<const char *>(self->glGetString(GL_VENDOR));
+    auto renderer = reinterpret_cast<const char *>(self->glGetString(GL_RENDERER));
+    auto version = reinterpret_cast<const char *>(self->glGetString(GL_VERSION));
+    auto shadingLanguage = reinterpret_cast<const char *>(self->glGetString(GL_SHADING_LANGUAGE_VERSION));
+
+    qInfo() << "OpenGL vendor string:" << (vendor? vendor: "N/A");
+    qInfo() << "OpenGL renderer string:" << (renderer? renderer: "N/A");
+    qInfo() << "OpenGL version string:" << (version? version: "N/A");
+    qInfo() << "OpenGL shading language version string:" << (shadingLanguage? shadingLanguage: "N/A");
+    qInfo() << "";
+    qInfo() << "OpenGL Extensions";
+    qInfo() << "";
+
+    auto extensions = reinterpret_cast<const char *>(self->glGetString(GL_EXTENSIONS));
+
+    if (extensions) {
+        auto extList = QString(extensions).split(' ', Qt::SkipEmptyParts);
+
+        for (auto &ext: extList)
+            qInfo() << ext.toStdString().c_str();
+    }
+
+    qInfo() << "";
+    qInfo() << "OpenGL Limits";
+    qInfo() << "";
+
+    GLint maxTextureSize;
+    self->glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxTextureSize);
+    qInfo() << "Max texture size:" << maxTextureSize;
+
+    GLint maxViewportDims[2];
+    self->glGetIntegerv(GL_MAX_VIEWPORT_DIMS, maxViewportDims);
+    qInfo() << "Max viewport dimensions:" << maxViewportDims[0] << "x" << maxViewportDims[1];
+
+    GLint maxCombinedTextureImageUnits;
+    self->glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS,
+                        &maxCombinedTextureImageUnits);
+    qInfo() << "Max combined texture image units:" << maxCombinedTextureImageUnits;
 }
 
 void AkGLCompositorPrivate::startRenderThread()
@@ -1051,6 +1199,8 @@ void AkGLCompositorPrivate::renderGL()
     this->m_pipeline.init(self, this->m_vbo, this->m_ibo);
     emit self->ready();
 
+    this->printGLInfo();
+
     this->m_clock.start();
     auto fps = this->m_outputCaps.fps();
     auto fpsValue = fps.value() > 0.0? fps.value(): 30.0;
@@ -1099,10 +1249,14 @@ void AkGLCompositorPrivate::renderGL()
         this->m_uploadBuffer = nullptr;
     }
 
+    this->m_uploadBufferSize = 0;
+
     if (this->m_readbackBuffer) {
         delete [] this->m_readbackBuffer;
         this->m_readbackBuffer = nullptr;
     }
+
+    this->m_readbackBufferSize = 0;
 }
 
 void AkGLCompositorPrivate::processPendingRemovals()
@@ -1142,6 +1296,11 @@ void AkGLCompositorPrivate::processPendingRemovals()
         delete source->entryFbo;
         delete source->effectFbo;
 
+        {
+            QWriteLocker writeLocker(&this->m_packetsBufferMutex);
+            this->m_packetsBuffer.remove(id);
+        }
+
         emit self->sourceRemoved(id);
     }
 
@@ -1166,17 +1325,26 @@ void AkGLCompositorPrivate::processTick()
                 source->glInitialized = true;
             }
 
-            if (source->hasFrame) {
-                this->uploadSource(source);
+            QReadLocker readLocker(&this->m_packetsBufferMutex);
+            auto packetSlot =
+                    this->m_packetsBuffer.value(source->sourceId, nullptr);
+
+            if (packetSlot && packetSlot->hasFrame) {
+                auto &lastPacket = packetSlot->lastPacket;
+                this->uploadSource(source, lastPacket);
                 this->ensureFboSize(source->effectFbo,
                                     source->entryFbo->width(),
                                     source->entryFbo->height());
-                auto pts = source->lastPacket.pts()
-                        * source->lastPacket.timeBase().value();
+                auto pts = lastPacket.pts() * lastPacket.timeBase().value();
+                auto packetId = lastPacket.id();
+                this->m_packetsBufferMutex.unlock();
+
                 source->pipeline.process(source->entryFbo,
                                         source->effectFbo,
-                                        source->lastPacket.id(),
+                                        packetId,
                                         pts);
+
+                this->m_packetsBufferMutex.lockForRead();
             }
         }
     }
@@ -1199,9 +1367,9 @@ void AkGLCompositorPrivate::processTick()
         this->readAndEmit(pts / 1000);
 }
 
-void AkGLCompositorPrivate::uploadSource(AkGLCompositorSourcePtr source)
+void AkGLCompositorPrivate::uploadSource(AkGLCompositorSourcePtr source,
+                                         const AkVideoPacket &packet)
 {
-    auto &packet = source->lastPacket;
     int width = packet.caps().width();
     int height = packet.caps().height();
 
@@ -1234,7 +1402,8 @@ void AkGLCompositorPrivate::uploadSource(AkGLCompositorSourcePtr source)
     } else {
         size_t uploadBufferSize = srcLineSize * height;
 
-        if (this->m_uploadBufferSize != uploadBufferSize) {
+        if (this->m_uploadBufferSize != uploadBufferSize
+            || !this->m_uploadBuffer) {
             if (this->m_uploadBuffer)
                 delete [] this->m_uploadBuffer;
 
@@ -1285,15 +1454,18 @@ void AkGLCompositorPrivate::compositeSourcesIntoCanvas()
 
         for (auto &source: this->m_sources) {
             QMutexLocker sourceLocker(&source->mutex);
+            QReadLocker readLocker(&this->m_packetsBufferMutex);
+            auto packetSlot =
+                    this->m_packetsBuffer.value(source->sourceId, nullptr);
 
-            if (source->hasFrame && source->entryFbo) {
+            if (packetSlot->hasFrame && source->entryFbo) {
                 SourceSnapshot snap;
                 snap.source = source;
                 snap.rect = source->rect;
                 snap.opacity = source->opacity;
                 snap.aspectRatioMode = source->aspectRatioMode;
-                snap.texW = source->entryFbo ? source->entryFbo->width() : 0;
-                snap.texH = source->entryFbo ? source->entryFbo->height() : 0;
+                snap.texW = source->entryFbo? source->entryFbo->width(): 0;
+                snap.texH = source->entryFbo? source->entryFbo->height(): 0;
                 this->m_orderedSources << snap;
             }
         }
@@ -1415,7 +1587,8 @@ void AkGLCompositorPrivate::readAndEmit(qint64 pts)
     } else {
         size_t readbackBufferSize = outLineSize * outHeight;
 
-        if (this->m_readbackBufferSize != readbackBufferSize) {
+        if (this->m_readbackBufferSize != readbackBufferSize
+            || !this->m_readbackBuffer) {
             if (this->m_readbackBuffer)
                 delete [] this->m_readbackBuffer;
 

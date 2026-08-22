@@ -82,7 +82,7 @@ Dialog {
     onAccepted: {
         if (cbxScreen.currentIndex >= 0) {
             let screen = cbxScreen.model.get(cbxScreen.currentIndex)
-            videoLayer.addScreenSource(screen.sourceId)
+            videoLayer.addSource(screen.sourceId)
         }
     }
 }

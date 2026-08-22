@@ -44,6 +44,7 @@ struct VideoLayerSource
     QString device;
     AkElementPtr element;
     qint64 id {0};
+    int zOrder {0};
     bool enabled {true};
     VideoLayer::InputType type {VideoLayer::InputUnknown};
     AkAudioCaps audioCaps;
@@ -239,6 +240,15 @@ VideoLayer::InputType VideoLayer::deviceType(const QString &device) const
     return this->d->classifyByExtension(device);
 }
 
+VideoLayer::InputType VideoLayer::deviceType(qint64 id) const
+{
+    for (const auto &source: this->d->m_activeSources)
+        if (source.id == id)
+            return source.type;
+
+    return InputUnknown;
+}
+
 QStringList VideoLayer::devicesByType(InputType type) const
 {
     switch (type) {
@@ -352,7 +362,20 @@ QString VideoLayer::sourceLabel(qint64 id) const
     if (!this->d->m_activeSources.contains(id))
         return {};
 
-    return this->d->m_activeSources[id].label;
+    auto &source = this->d->m_activeSources[id];
+
+    switch (source.type) {
+    case InputCamera:
+        return this->d->cameraDescription(source.device);
+
+    case InputScreen:
+        return this->d->screenDescription(source.device);
+
+    default:
+        break;
+    }
+
+    return source.label;
 }
 
 bool VideoLayer::sourceEnabled(qint64 id) const
@@ -361,6 +384,14 @@ bool VideoLayer::sourceEnabled(qint64 id) const
         return false;
 
     return this->d->m_activeSources[id].enabled;
+}
+
+int VideoLayer::sourceZOrder(qint64 id) const
+{
+    if (!this->d->m_activeSources.contains(id))
+        return 0;
+
+    return this->d->m_activeSources[id].zOrder;
 }
 
 AkAudioCaps VideoLayer::sourceAudioCaps(qint64 id) const
@@ -524,6 +555,7 @@ qint64 VideoLayer::addSource(const QString &device)
                          SLOT(handlePermissionStatusChanged(PermissionStatus)));
     }
 
+    source.zOrder = (int) this->d->m_activeSources.count();
     this->d->m_activeSources[id] = source;
 
     this->d->saveSources();
@@ -545,6 +577,27 @@ void VideoLayer::removeSource(qint64 id)
     if (source.element) {
         source.element->setState(AkElement::ElementStateNull);
         QObject::disconnect(source.element.data(), nullptr, this, nullptr);
+    }
+
+    QVector<QPair<qint64, int>> ordered;
+
+    for (auto it = this->d->m_activeSources.begin();
+         it != this->d->m_activeSources.end();
+         ++it)
+        ordered.append({it.key(), it.value().zOrder});
+
+    std::sort(ordered.begin(), ordered.end(),
+              [](const auto &a, const auto &b) {
+                  return a.second < b.second;
+              });
+
+    for (int i = 0; i < ordered.size(); i++) {
+        auto &src = this->d->m_activeSources[ordered[i].first];
+
+        if (src.zOrder != i) {
+            src.zOrder = i;
+            emit this->sourceZOrderChanged(ordered[i].first, i);
+        }
     }
 
     this->d->saveSources();
@@ -589,6 +642,46 @@ void VideoLayer::setSourceLabel(qint64 id, const QString &label)
     source.label = label;
     this->d->saveSources();
     emit this->sourceLabelChanged(id, label);
+}
+
+void VideoLayer::setSourceZOrder(qint64 id, int zOrder)
+{
+    if (!this->d->m_activeSources.contains(id))
+        return;
+
+    auto &source = this->d->m_activeSources[id];
+
+    if (source.zOrder == zOrder)
+        return;
+
+    int oldZOrder = source.zOrder;
+    int n = this->d->m_activeSources.count();
+    zOrder = qBound(0, zOrder, n - 1);
+
+    for (auto it = this->d->m_activeSources.begin();
+         it != this->d->m_activeSources.end();
+         ++it) {
+        if (it.key() == id)
+            continue;
+
+        int z = it.value().zOrder;
+
+        if (oldZOrder < zOrder) {
+            if (z > oldZOrder && z <= zOrder) {
+                it.value().zOrder = z - 1;
+                emit this->sourceZOrderChanged(it.key(), z - 1);
+            }
+        } else {
+            if (z >= zOrder && z < oldZOrder) {
+                it.value().zOrder = z + 1;
+                emit this->sourceZOrderChanged(it.key(), z + 1);
+            }
+        }
+    }
+
+    source.zOrder = zOrder;
+    this->d->saveSources();
+    emit this->sourceZOrderChanged(id, zOrder);
 }
 
 void VideoLayer::setState(AkElement::ElementState state)
@@ -677,6 +770,7 @@ void VideoLayer::setQmlEngine(QQmlApplicationEngine *engine)
         qRegisterMetaType<TorchMode>("TorchMode");
         qRegisterMetaType<PermissionStatus>("PermissionStatus");
         qmlRegisterType<VideoLayer>("Webcamoid", 1, 0, "VideoLayer");
+        engine->rootContext()->setContextProperty("videoLayer", this);
     }
 }
 
@@ -1084,6 +1178,7 @@ void VideoLayerPrivate::loadProperties()
         auto device = config.value("source").toString();
         auto label = config.value("description").toString();
         auto enabled = config.value("enabled", true).toBool();
+        auto zOrder = config.value("zorder", i).toInt();
         auto deviceType = self->deviceType(device);
 
         if (device.isEmpty())
@@ -1095,6 +1190,7 @@ void VideoLayerPrivate::loadProperties()
             continue;
 
         self->setSourceEnabled(id, enabled);
+        self->setSourceZOrder(id, zOrder);
 
         if (label.isEmpty()
             && (deviceType == VideoLayer::InputImage
@@ -1170,6 +1266,7 @@ void VideoLayerPrivate::saveSources()
         config.setValue("source", source.device);
         config.setValue("description", source.label);
         config.setValue("enabled", source.enabled);
+        config.setValue("zorder", source.zOrder);
         i++;
     }
 
