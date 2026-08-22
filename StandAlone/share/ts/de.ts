@@ -965,12 +965,12 @@
     <message>
         <location filename="../qml/FirstRunFallbackDialog.qml" line="31"/>
         <source>Camera not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Kamera nicht gefunden</translation>
     </message>
     <message>
         <location filename="../qml/FirstRunFallbackDialog.qml" line="41"/>
         <source>It was not found any connected camera.&lt;br/&gt;Fallingback to the screen capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurde keine angeschlossene Kamera gefunden.&lt;br/&gt;Es wird auf die Bildschirmaufnahme zurückgegriffen.</translation>
     </message>
 </context>
 <context>
@@ -2294,12 +2294,12 @@
     <message>
         <location filename="../qml/VideoInputAddCamera.qml" line="30"/>
         <source>Select the camera to add</source>
-        <translation type="unfinished"></translation>
+        <translation>Kamera zum Hinzufügen auswählen</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddCamera.qml" line="55"/>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Kamera</translation>
     </message>
 </context>
 <context>
@@ -2451,7 +2451,7 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="136"/>
         <source>Add camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Kamera hinzufügen</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="144"/>
@@ -3848,12 +3848,12 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="473"/>
         <source>Pixel grid width</source>
-        <translation type="unfinished"></translation>
+        <translation>Breite des Pixelrasters</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="490"/>
         <source>Pixel grid height</source>
-        <translation type="unfinished"></translation>
+        <translation>Höhe des Pixelrasters</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="533"/>

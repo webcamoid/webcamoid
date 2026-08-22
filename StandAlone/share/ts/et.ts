@@ -965,12 +965,12 @@
     <message>
         <location filename="../qml/FirstRunFallbackDialog.qml" line="31"/>
         <source>Camera not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaamerat ei leidu</translation>
     </message>
     <message>
         <location filename="../qml/FirstRunFallbackDialog.qml" line="41"/>
         <source>It was not found any connected camera.&lt;br/&gt;Fallingback to the screen capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ühtegi ühendatud kaamerat ei õnnestu leida.&lt;br/&gt;Kasutan tagavaravariandina ekraanihõivet.</translation>
     </message>
 </context>
 <context>
@@ -2294,12 +2294,12 @@
     <message>
         <location filename="../qml/VideoInputAddCamera.qml" line="30"/>
         <source>Select the camera to add</source>
-        <translation type="unfinished"></translation>
+        <translation>Vali lisatav kaamera</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddCamera.qml" line="55"/>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaamera</translation>
     </message>
 </context>
 <context>
@@ -2451,7 +2451,7 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="136"/>
         <source>Add camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Lisa kaamera</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="144"/>
