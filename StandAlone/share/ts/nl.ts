@@ -2349,17 +2349,17 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="160"/>
         <source>Search file to use as source</source>
-        <translation type="unfinished"></translation>
+        <translation>Zoeken naar bestand voor bron</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="196"/>
         <source>URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Url</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="254"/>
         <source>Choose the file to add as source</source>
-        <translation type="unfinished"></translation>
+        <translation>Kies het toe te voegen bestand voor de bron</translation>
     </message>
 </context>
 <context>
@@ -2403,17 +2403,17 @@
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="92"/>
         <source>Manage source effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Broneffecten beheren</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="104"/>
         <source>Opacity</source>
-        <translation type="unfinished">Doorzichtigheid</translation>
+        <translation>Doorzichtigheid</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="120"/>
         <source>Source opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>Brondoorzichtigheid</translation>
     </message>
 </context>
 <context>
@@ -2421,27 +2421,27 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="97"/>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Camera</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="99"/>
         <source>Screen</source>
-        <translation type="unfinished">Scherm</translation>
+        <translation>Scherm</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="101"/>
         <source>Image</source>
-        <translation type="unfinished">Afbeelding</translation>
+        <translation>Afbeelding</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="103"/>
         <source>Video</source>
-        <translation type="unfinished">Video</translation>
+        <translation>Video</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="105"/>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Onbekend</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="124"/>
@@ -2451,7 +2451,7 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="136"/>
         <source>Add camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Camera toevoegen</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="144"/>
@@ -2481,17 +2481,17 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="183"/>
         <source>Manage canvas effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Canvaseffecten beheren</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="175"/>
         <source>Edit layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Indeling bewerken</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="379"/>
         <source>Source %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Bron: %1</translation>
     </message>
 </context>
 <context>
