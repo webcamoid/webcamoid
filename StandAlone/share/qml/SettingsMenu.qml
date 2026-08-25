@@ -33,7 +33,7 @@ Menu {
     signal openAboutDialog()
 
     function allCamerasGranted() {
-        let ids = videoLayer.sourceIds
+        let ids = videoLayer.sourceIds()
         let hasPermission = true
 
         for (let i = 0; i < ids.length; i++)

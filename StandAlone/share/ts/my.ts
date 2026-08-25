@@ -1121,6 +1121,24 @@
     </message>
 </context>
 <context>
+    <name>LayoutEditorDialog</name>
+    <message>
+        <location filename="../qml/LayoutEditorDialog.qml" line="57"/>
+        <source>Source %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LayoutEditorDialog.qml" line="204"/>
+        <source>Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LayoutEditorDialog.qml" line="240"/>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>License</name>
     <message>
         <location filename="../qml/License.qml" line="27"/>
@@ -1392,7 +1410,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1271"/>
+        <location filename="../../src/mediatools.cpp" line="1301"/>
         <source>%1/log %2.txt</source>
         <translation>%1/log %2.txt</translation>
     </message>
@@ -1543,165 +1561,165 @@
         <translation>%1/ဗီဒီယို %2.%3</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="942"/>
+        <location filename="../../src/videolayer.cpp" line="1004"/>
         <source>3GP Video</source>
         <translation>3GP ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="943"/>
+        <location filename="../../src/videolayer.cpp" line="1005"/>
         <source>AVI Video</source>
         <translation>AVI ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="944"/>
+        <location filename="../../src/videolayer.cpp" line="1006"/>
         <source>Windows Bitmap</source>
         <translation>ဝင်းဒိုးဘစ်တ်မပ်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="945"/>
+        <location filename="../../src/videolayer.cpp" line="1007"/>
         <source>Microsoft Windows Cursor</source>
         <translation>မိုက်ခရိုဆော့ဖ်ဝင်းဒိုးကာဆာ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="947"/>
+        <location filename="../../src/videolayer.cpp" line="1009"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
         <translation>Flash ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="948"/>
+        <location filename="../../src/videolayer.cpp" line="1010"/>
         <source>Animated GIF</source>
         <translation>ရွေ့လျားနေသော GIF</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="949"/>
+        <location filename="../../src/videolayer.cpp" line="1011"/>
         <source>Graphic Interchange Format</source>
         <translation>ဂရပ်ဖစ်ဖလှယ်ရေးဖော်မတ်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="950"/>
+        <location filename="../../src/videolayer.cpp" line="1012"/>
         <source>Apple Icon Image</source>
         <translation>အက်ပဲအိုင်ကွန်ပုံ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="951"/>
+        <location filename="../../src/videolayer.cpp" line="1013"/>
         <source>Microsoft Windows Icon</source>
         <translation>မိုက်ခရိုဆော့ဖ်ဝင်းဒိုးအိုင်ကွန်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="952"/>
+        <location filename="../../src/videolayer.cpp" line="1014"/>
         <source>Joint Photographic Experts Group</source>
         <translation>ပုံရိပ်ကျွမ်းကျင်သူများအဖွဲ့</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="953"/>
+        <location filename="../../src/videolayer.cpp" line="1015"/>
         <source>MKV Video</source>
         <translation>MKV ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="954"/>
+        <location filename="../../src/videolayer.cpp" line="1016"/>
         <source>Animated PNG</source>
         <translation>ရွေ့လျားနေသော PNG</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="955"/>
+        <location filename="../../src/videolayer.cpp" line="1017"/>
         <source>Multiple-image Network Graphics</source>
         <translation>ပုံစုံကွန်ရက်ဂရပ်ဖစ်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="956"/>
+        <location filename="../../src/videolayer.cpp" line="1018"/>
         <source>QuickTime Video</source>
         <translation>QuickTime ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="957"/>
+        <location filename="../../src/videolayer.cpp" line="1019"/>
         <source>MP4 Video</source>
         <translation>MP4 ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="958"/>
+        <location filename="../../src/videolayer.cpp" line="1020"/>
         <source>MPEG Video</source>
         <translation>MPEG ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="959"/>
+        <location filename="../../src/videolayer.cpp" line="1021"/>
         <source>Ogg Video</source>
         <translation>Ogg ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="960"/>
+        <location filename="../../src/videolayer.cpp" line="1022"/>
         <source>Portable Bitmap</source>
         <translation>သယ်ယူနိုင်သောဘစ်တ်မပ်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="961"/>
+        <location filename="../../src/videolayer.cpp" line="1023"/>
         <source>Portable Graymap</source>
         <translation>သယ်ယူနိုင်သောမီးခိုးရောင်မပ်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="962"/>
+        <location filename="../../src/videolayer.cpp" line="1024"/>
         <source>Portable Network Graphics</source>
         <translation>သယ်ယူနိုင်သောကွန်ရက်ဂရပ်ဖစ်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="963"/>
+        <location filename="../../src/videolayer.cpp" line="1025"/>
         <source>Portable Pixmap</source>
         <translation>သယ်ယူနိုင်သောပစ်မပ်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="965"/>
+        <location filename="../../src/videolayer.cpp" line="1027"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
         <translation>RealMedia ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="966"/>
+        <location filename="../../src/videolayer.cpp" line="1028"/>
         <source>Scalable Vector Graphics</source>
         <translation>စကေးချိန်ညှိနိုင်သောဗက်တာဂရပ်ဖစ်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="967"/>
+        <location filename="../../src/videolayer.cpp" line="1029"/>
         <source>Truevision TGA</source>
         <translation>Truevision TGA</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="968"/>
+        <location filename="../../src/videolayer.cpp" line="1030"/>
         <source>Tagged Image File Format</source>
         <translation>တက်ခ်လုပ်ထားသောပုံဖိုင်ဖော်မတ်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="969"/>
+        <location filename="../../src/videolayer.cpp" line="1031"/>
         <source>DVD Video</source>
         <translation>DVD ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="970"/>
+        <location filename="../../src/videolayer.cpp" line="1032"/>
         <source>Wireless Bitmap</source>
         <translation>ဝါယာလက်ဘစ်တ်မပ်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="971"/>
+        <location filename="../../src/videolayer.cpp" line="1033"/>
         <source>WebM Video</source>
         <translation>WebM ဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="972"/>
+        <location filename="../../src/videolayer.cpp" line="1034"/>
         <source>WebP</source>
         <translation>WebP</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="974"/>
+        <location filename="../../src/videolayer.cpp" line="1036"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
         <translation>ဝင်းဒိုးမီဒီယာဗီဒီယို</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="975"/>
+        <location filename="../../src/videolayer.cpp" line="1037"/>
         <source>X11 Bitmap</source>
         <translation>X11 ဘစ်တ်မပ်</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="976"/>
+        <location filename="../../src/videolayer.cpp" line="1038"/>
         <source>X11 Pixmap</source>
         <translation>X11 ပစ်မပ်</translation>
     </message>
@@ -2390,27 +2408,27 @@
 <context>
     <name>VideoInputOptions</name>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="65"/>
+        <location filename="../qml/VideoInputOptions.qml" line="67"/>
         <source>Edit</source>
         <translation>တည်းဖြတ်</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="77"/>
+        <location filename="../qml/VideoInputOptions.qml" line="79"/>
         <source>Remove</source>
         <translation>ဖယ်ရှား</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="92"/>
+        <location filename="../qml/VideoInputOptions.qml" line="94"/>
         <source>Manage source effects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="104"/>
+        <location filename="../qml/VideoInputOptions.qml" line="106"/>
         <source>Opacity</source>
         <translation type="unfinished">မတောက်ပမှု</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="120"/>
+        <location filename="../qml/VideoInputOptions.qml" line="124"/>
         <source>Source opacity</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2496,12 +2514,12 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="142"/>
+        <location filename="../../src/videolayer.cpp" line="145"/>
         <source>All Image and Video Files</source>
         <translation>ပုံနှင့်ဗီဒီယိုဖိုင်အားလုံး</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="179"/>
+        <location filename="../../src/videolayer.cpp" line="182"/>
         <source>All Files</source>
         <translation>ဖိုင်အားလုံး</translation>
     </message>
@@ -4958,12 +4976,12 @@
         <translation>နောက်ဆုံးမှတ်တမ်းတင်ထားသောဗီဒီယိုဖွင့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="792"/>
+        <location filename="../qml/main.qml" line="793"/>
         <source>Installing virtual camera</source>
         <translation>အမြင်သီးခြားကင်မရာတပ်ဆင်နေသည်</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="793"/>
+        <location filename="../qml/main.qml" line="794"/>
         <source>Running commands</source>
         <translation>အမိန့်များကိုလုပ်ဆောင်နေသည်</translation>
     </message>

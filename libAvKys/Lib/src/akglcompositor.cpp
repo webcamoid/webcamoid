@@ -54,6 +54,7 @@ class AkGLCompositorSource
         QRectF rect {0.0, 0.0, 1.0, 1.0};
         int zOrder {0};
         qreal opacity {1.0};
+        qreal rotation {0.0};
         Qt::AspectRatioMode aspectRatioMode {Qt::KeepAspectRatio};
         QOpenGLTexture *uploadTex {nullptr};
         QOpenGLFramebufferObject *entryFbo {nullptr};
@@ -79,6 +80,7 @@ struct SourceSnapshot
     AkGLCompositorSourcePtr source;
     QRectF rect;
     qreal opacity;
+    qreal rotation;
     Qt::AspectRatioMode aspectRatioMode;
     int texW;
     int texH;
@@ -113,7 +115,7 @@ class AkGLCompositorPrivate
         int m_compTexUniform {-1};
 
         QVector<SourceSnapshot> m_orderedSources;
-        bool m_zOrderDirty {true};
+        bool m_sourceParamsDirty {true};
 
         QOpenGLFramebufferObject *m_canvasFbo {nullptr};
         QOpenGLFramebufferObject *m_effectFbo {nullptr};
@@ -267,7 +269,7 @@ qint64 AkGLCompositor::addSource(qint64 id)
 
         this->d->m_sources[id] = AkGLCompositorSourcePtr::create();
         this->d->m_sources[id]->sourceId = id;
-        this->d->m_zOrderDirty = true;
+        this->d->m_sourceParamsDirty = true;
 
         {
             QWriteLocker writeLocker(&this->d->m_packetsBufferMutex);
@@ -303,7 +305,7 @@ void AkGLCompositor::removeSource(qint64 id)
         }
     }
 
-    this->d->m_zOrderDirty = true;
+    this->d->m_sourceParamsDirty = true;
 }
 
 QVariantList AkGLCompositor::sourceIds() const
@@ -356,6 +358,19 @@ qreal AkGLCompositor::sourceOpacity(qint64 id) const
     QMutexLocker sourceLocker(&source->mutex);
 
     return source->opacity;
+}
+
+qreal AkGLCompositor::sourceRotation(qint64 id) const
+{
+    QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
+    auto source = this->d->m_sources.value(id, nullptr);
+
+    if (!source)
+        return 0.0;
+
+    QMutexLocker sourceLocker(&source->mutex);
+
+    return source->rotation;
 }
 
 Qt::AspectRatioMode AkGLCompositor::sourceAspectRatioMode(qint64 id) const
@@ -669,6 +684,9 @@ void AkGLCompositor::setSourceRect(qint64 id, const QRectF &rect)
             source->rect = rect;
             changed = true;
         }
+
+        if (changed)
+            this->d->m_sourceParamsDirty = true;
     }
 
     if (changed)
@@ -697,7 +715,7 @@ void AkGLCompositor::setSourceZOrder(qint64 id, int zOrder)
         }
 
         if (changed)
-            this->d->m_zOrderDirty = true;
+            this->d->m_sourceParamsDirty = true;
     }
 
     if (changed)
@@ -724,10 +742,42 @@ void AkGLCompositor::setSourceOpacity(qint64 id, qreal opacity)
             source->opacity = opacity;
             changed = true;
         }
+
+        if (changed)
+            this->d->m_sourceParamsDirty = true;
     }
 
     if (changed)
         emit this->sourceOpacityChanged(id, opacity);
+}
+
+void AkGLCompositor::setSourceRotation(qint64 id, qreal rotation)
+{
+    bool changed = false;
+
+    {
+        QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
+        auto source = this->d->m_sources.value(id, nullptr);
+
+        if (!source)
+            return;
+
+        {
+            QMutexLocker sourceLocker(&source->mutex);
+
+            if (qFuzzyCompare(source->rotation, rotation))
+                return;
+
+            source->rotation = rotation;
+            changed = true;
+        }
+
+        if (changed)
+            this->d->m_sourceParamsDirty = true;
+    }
+
+    if (changed)
+        emit this->sourceRotationChanged(id, rotation);
 }
 
 void AkGLCompositor::setSourceAspectRatioMode(qint64 id,
@@ -983,7 +1033,7 @@ AkPacket AkGLCompositor::iVideoStream(const AkVideoPacket &videoPacket)
 
     if (firstFrame) {
         QMutexLocker compositorLocker(&this->d->m_sourcesMutex);
-        this->d->m_zOrderDirty = true;
+        this->d->m_sourceParamsDirty = true;
     }
 
     return {};
@@ -1304,7 +1354,7 @@ void AkGLCompositorPrivate::processPendingRemovals()
         emit self->sourceRemoved(id);
     }
 
-    this->m_zOrderDirty = true;
+    this->m_sourceParamsDirty = true;
 }
 
 void AkGLCompositorPrivate::processTick()
@@ -1448,7 +1498,7 @@ void AkGLCompositorPrivate::compositeSourcesIntoCanvas()
     self->glEnable(GL_BLEND);
     self->glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    if (this->m_zOrderDirty) {
+    if (this->m_sourceParamsDirty) {
         QMutexLocker mutexLocker(&this->m_sourcesMutex);
         this->m_orderedSources.clear();
 
@@ -1463,6 +1513,7 @@ void AkGLCompositorPrivate::compositeSourcesIntoCanvas()
                 snap.source = source;
                 snap.rect = source->rect;
                 snap.opacity = source->opacity;
+                snap.rotation = source->rotation;
                 snap.aspectRatioMode = source->aspectRatioMode;
                 snap.texW = source->entryFbo? source->entryFbo->width(): 0;
                 snap.texH = source->entryFbo? source->entryFbo->height(): 0;
@@ -1476,7 +1527,7 @@ void AkGLCompositorPrivate::compositeSourcesIntoCanvas()
                       return a.source->zOrder < b.source->zOrder;
                   });
 
-        this->m_zOrderDirty = false;
+        this->m_sourceParamsDirty = false;
     }
 
     this->m_compositeShader->bind();
@@ -1549,6 +1600,7 @@ QMatrix4x4 AkGLCompositorPrivate::computeSourceTransform(const SourceSnapshot &s
     QMatrix4x4 transform;
     transform.setToIdentity();
     transform.translate(ndcCx, ndcCy, 0.0f);
+    transform.rotate(float(snap.rotation), 0.0f, 0.0f, 1.0f);
     transform.scale(fittedW, fittedH, 1.0f);
 
     return transform;

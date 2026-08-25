@@ -65,6 +65,8 @@ class VideoEffectsPrivate
         void saveSourceEffectsProperties(qint64 id, const QString &device);
         void linkPreview();
         void unlinkPreview();
+        void linkLayoutEditor();
+        void unlinkLayoutEditor();
 };
 
 VideoEffects::VideoEffects(QQmlApplicationEngine *engine, QObject *parent):
@@ -296,6 +298,11 @@ qreal VideoEffects::sourceOpacity(qint64 id) const
     return this->d->m_glCompositor.sourceOpacity(id);
 }
 
+qreal VideoEffects::sourceRotation(qint64 id) const
+{
+    return this->d->m_glCompositor.sourceRotation(id);
+}
+
 Qt::AspectRatioMode VideoEffects::sourceAspectRatioMode(qint64 id) const
 {
     return this->d->m_glCompositor.sourceAspectRatioMode(id);
@@ -433,6 +440,12 @@ void VideoEffects::setSourceOpacity(qint64 id, qreal opacity)
 {
     QMutexLocker locker(&this->d->m_mutex);
     this->d->m_glCompositor.setSourceOpacity(id, opacity);
+}
+
+void VideoEffects::setSourceRotation(qint64 id, qreal rotation)
+{
+    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_glCompositor.setSourceRotation(id, rotation);
 }
 
 void VideoEffects::setSourceAspectRatioMode(qint64 id,
@@ -774,6 +787,16 @@ void VideoEffects::updateAvailableEffects()
     this->d->m_glCompositor.updateAvailableEffects();
 }
 
+void VideoEffects::linkLayoutEditor()
+{
+    this->d->linkLayoutEditor();
+}
+
+void VideoEffects::unlinkLayoutEditor()
+{
+    this->d->unlinkLayoutEditor();
+}
+
 void VideoEffects::setQmlEngine(QQmlApplicationEngine *engine)
 {
     if (this->d->m_engine == engine)
@@ -849,6 +872,10 @@ VideoEffectsPrivate::VideoEffectsPrivate(VideoEffects *self):
                      &AkGLCompositor::sourceOpacityChanged,
                      self,
                      &VideoEffects::sourceOpacityChanged);
+    QObject::connect(&this->m_glCompositor,
+                     &AkGLCompositor::sourceRotationChanged,
+                     self,
+                     &VideoEffects::sourceRotationChanged);
     QObject::connect(&this->m_glCompositor,
                      &AkGLCompositor::sourceAspectRatioModeChanged,
                      self,
@@ -1146,6 +1173,38 @@ void VideoEffectsPrivate::unlinkPreview()
 
         if (effectPreview) {
             this->m_glCompositor.unlink(effectPreview);
+
+            break;
+        }
+    }
+}
+
+void VideoEffectsPrivate::linkLayoutEditor()
+{
+    if (!this->m_engine)
+        return;
+
+    for (auto &obj: this->m_engine->rootObjects()) {
+        auto editorDisplay = obj->findChild<VideoDisplay *>("editorVideoDisplay");
+
+        if (editorDisplay) {
+            this->m_glCompositor.link(editorDisplay, Qt::DirectConnection);
+
+            break;
+        }
+    }
+}
+
+void VideoEffectsPrivate::unlinkLayoutEditor()
+{
+    if (!this->m_engine)
+        return;
+
+    for (auto &obj: this->m_engine->rootObjects()) {
+        auto editorDisplay = obj->findChild<VideoDisplay *>("editorVideoDisplay");
+
+        if (editorDisplay) {
+            this->m_glCompositor.unlink(editorDisplay);
 
             break;
         }

@@ -36,7 +36,7 @@ ApplicationWindow {
                                              "file:///":
                                              "file://"
     readonly property bool hasActiveCameraSource: {
-        let ids = videoLayer.sourceIds
+        let ids = videoLayer.sourceIds()
 
         for (let i = 0; i < ids.length; i++) {
             if (videoLayer.sourceEnabled(ids[i])
@@ -491,7 +491,7 @@ ApplicationWindow {
                         if (recording.useVideoFlash
                             && flash.isHardwareFlash
                             && wdgMainWidget.hasActiveCameraSource) {
-                            let ids = videoLayer.sourceIds
+                            let ids = videoLayer.sourceIds()
 
                             for (let i = 0; i < ids.length; i++) {
                                 let id = ids[i]
@@ -504,7 +504,7 @@ ApplicationWindow {
 
                         recording.state = AkElement.ElementStatePlaying
                     } else {
-                        let ids = videoLayer.sourceIds
+                        let ids = videoLayer.sourceIds()
 
                         for (let i = 0; i < ids.length; i++) {
                             let id = ids[i]
@@ -654,6 +654,7 @@ ApplicationWindow {
             videoEffectsDialog.open()
         }
         onOpenLocalStreamingAdvancedDialog: localStreamingAdvanced.open()
+        onEnterEditLayoutMode: layoutEditorDialog.open()
     }
     Rectangle {
         id: flashRectangle
@@ -757,7 +758,7 @@ ApplicationWindow {
 
         onShotStarted: {
             if (isHardwareFlash) {
-                let ids = videoLayer.sourceIds
+                let ids = videoLayer.sourceIds()
 
                 for (let i = 0; i < ids.length; i++) {
                     let id = ids[i]
@@ -773,7 +774,7 @@ ApplicationWindow {
         onTriggered: savePhoto()
         onShotFinished: {
             if (isHardwareFlash) {
-                let ids = videoLayer.sourceIds
+                let ids = videoLayer.sourceIds()
 
                 for (let i = 0; i < ids.length; i++) {
                     let id = ids[i]
@@ -835,6 +836,11 @@ ApplicationWindow {
         anchors.centerIn: Overlay.overlay
 
         onRejected: btnStreaming.checked = !btnStreaming.checked
+    }
+    LayoutEditorDialog {
+        id: layoutEditorDialog
+        width: parent.width
+        height: parent.height
     }
     VideoEffectsDialog {
         id: videoEffectsDialog

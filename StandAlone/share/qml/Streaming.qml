@@ -34,7 +34,7 @@ AK.MenuOption {
     property int rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
     readonly property bool hasActiveScreenSource: {
-        let ids = videoLayer.sourceIds
+        let ids = videoLayer.sourceIds()
 
         for (let i = 0; i < ids.length; i++) {
             if (videoLayer.sourceEnabled(ids[i])

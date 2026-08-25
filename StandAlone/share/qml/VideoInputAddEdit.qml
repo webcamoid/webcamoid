@@ -63,7 +63,7 @@ Dialog {
 
     function defaultDescription(url)
     {
-        let ids = videoLayer.sourceIds
+        let ids = videoLayer.sourceIds()
 
         for (let i = 0; i < ids.length; i++)
             if (videoLayer.sourceDevice(ids[i]) === url)

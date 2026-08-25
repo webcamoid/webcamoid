@@ -45,6 +45,7 @@ OptionsPanel {
     signal openErrorDialog(string title, string message)
     signal openVideoEffectsDialog(int sourceId)
     signal openLocalStreamingAdvancedDialog()
+    signal enterEditLayoutMode()
 
     function previousPage()
     {
@@ -145,6 +146,7 @@ OptionsPanel {
             }
             onOpenVCamDownloadDialog: vcamDownload.openDownloads()
             onOpenVCamManualDownloadDialog: vcamManualDownload.open()
+            onEnterEditLayoutMode: panel.enterEditLayoutMode()
         }
         VideoEffectsList {
             id: videoEffectsList

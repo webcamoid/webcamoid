@@ -1121,6 +1121,24 @@
     </message>
 </context>
 <context>
+    <name>LayoutEditorDialog</name>
+    <message>
+        <location filename="../qml/LayoutEditorDialog.qml" line="57"/>
+        <source>Source %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LayoutEditorDialog.qml" line="204"/>
+        <source>Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LayoutEditorDialog.qml" line="240"/>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>License</name>
     <message>
         <location filename="../qml/License.qml" line="27"/>
@@ -1392,7 +1410,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1271"/>
+        <location filename="../../src/mediatools.cpp" line="1301"/>
         <source>%1/log %2.txt</source>
         <translation>%1/log %2.txt</translation>
     </message>
@@ -1538,165 +1556,165 @@
         <translation>読み込みを避けるパスをセミコロンで区切ったリスト。</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="942"/>
+        <location filename="../../src/videolayer.cpp" line="1004"/>
         <source>3GP Video</source>
         <translation>3GP ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="943"/>
+        <location filename="../../src/videolayer.cpp" line="1005"/>
         <source>AVI Video</source>
         <translation>AVI ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="944"/>
+        <location filename="../../src/videolayer.cpp" line="1006"/>
         <source>Windows Bitmap</source>
         <translation>Windows ビットマップ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="945"/>
+        <location filename="../../src/videolayer.cpp" line="1007"/>
         <source>Microsoft Windows Cursor</source>
         <translation>Microsoft Windows カーソル</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="947"/>
+        <location filename="../../src/videolayer.cpp" line="1009"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
         <translation>Flash ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="948"/>
+        <location filename="../../src/videolayer.cpp" line="1010"/>
         <source>Animated GIF</source>
         <translation>アニメーション GIF</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="949"/>
+        <location filename="../../src/videolayer.cpp" line="1011"/>
         <source>Graphic Interchange Format</source>
         <translation>グラフィック交換形式</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="950"/>
+        <location filename="../../src/videolayer.cpp" line="1012"/>
         <source>Apple Icon Image</source>
         <translation>Apple アイコン画像</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="951"/>
+        <location filename="../../src/videolayer.cpp" line="1013"/>
         <source>Microsoft Windows Icon</source>
         <translation>Microsoft Windows アイコン</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="952"/>
+        <location filename="../../src/videolayer.cpp" line="1014"/>
         <source>Joint Photographic Experts Group</source>
         <translation>Joint Photographic Experts Group</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="953"/>
+        <location filename="../../src/videolayer.cpp" line="1015"/>
         <source>MKV Video</source>
         <translation>MKV ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="954"/>
+        <location filename="../../src/videolayer.cpp" line="1016"/>
         <source>Animated PNG</source>
         <translation>アニメーション PNG</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="955"/>
+        <location filename="../../src/videolayer.cpp" line="1017"/>
         <source>Multiple-image Network Graphics</source>
         <translation>Multiple-image Network Graphics</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="956"/>
+        <location filename="../../src/videolayer.cpp" line="1018"/>
         <source>QuickTime Video</source>
         <translation>QuickTime ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="957"/>
+        <location filename="../../src/videolayer.cpp" line="1019"/>
         <source>MP4 Video</source>
         <translation>MP4 ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="958"/>
+        <location filename="../../src/videolayer.cpp" line="1020"/>
         <source>MPEG Video</source>
         <translation>MPEG ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="959"/>
+        <location filename="../../src/videolayer.cpp" line="1021"/>
         <source>Ogg Video</source>
         <translation>Ogg ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="960"/>
+        <location filename="../../src/videolayer.cpp" line="1022"/>
         <source>Portable Bitmap</source>
         <translation>ポータブルビットマップ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="961"/>
+        <location filename="../../src/videolayer.cpp" line="1023"/>
         <source>Portable Graymap</source>
         <translation>ポータブルグレイマップ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="962"/>
+        <location filename="../../src/videolayer.cpp" line="1024"/>
         <source>Portable Network Graphics</source>
         <translation>ポータブルネットワークグラフィックス</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="963"/>
+        <location filename="../../src/videolayer.cpp" line="1025"/>
         <source>Portable Pixmap</source>
         <translation>ポータブルピクスマップ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="965"/>
+        <location filename="../../src/videolayer.cpp" line="1027"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
         <translation>RealMedia ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="966"/>
+        <location filename="../../src/videolayer.cpp" line="1028"/>
         <source>Scalable Vector Graphics</source>
         <translation>Scalable Vector Graphics</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="967"/>
+        <location filename="../../src/videolayer.cpp" line="1029"/>
         <source>Truevision TGA</source>
         <translation>Truevision TGA</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="968"/>
+        <location filename="../../src/videolayer.cpp" line="1030"/>
         <source>Tagged Image File Format</source>
         <translation>Tagged Image File Format</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="969"/>
+        <location filename="../../src/videolayer.cpp" line="1031"/>
         <source>DVD Video</source>
         <translation>DVD ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="970"/>
+        <location filename="../../src/videolayer.cpp" line="1032"/>
         <source>Wireless Bitmap</source>
         <translation>Wireless Bitmap</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="971"/>
+        <location filename="../../src/videolayer.cpp" line="1033"/>
         <source>WebM Video</source>
         <translation>WebM ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="972"/>
+        <location filename="../../src/videolayer.cpp" line="1034"/>
         <source>WebP</source>
         <translation>WebP</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="974"/>
+        <location filename="../../src/videolayer.cpp" line="1036"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
         <translation>Windows Media ビデオ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="975"/>
+        <location filename="../../src/videolayer.cpp" line="1037"/>
         <source>X11 Bitmap</source>
         <translation>X11 ビットマップ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="976"/>
+        <location filename="../../src/videolayer.cpp" line="1038"/>
         <source>X11 Pixmap</source>
         <translation>X11 ピクスマップ</translation>
     </message>
@@ -2390,27 +2408,27 @@
 <context>
     <name>VideoInputOptions</name>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="65"/>
+        <location filename="../qml/VideoInputOptions.qml" line="67"/>
         <source>Edit</source>
         <translation>編集</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="77"/>
+        <location filename="../qml/VideoInputOptions.qml" line="79"/>
         <source>Remove</source>
         <translation>削除</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="92"/>
+        <location filename="../qml/VideoInputOptions.qml" line="94"/>
         <source>Manage source effects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="104"/>
+        <location filename="../qml/VideoInputOptions.qml" line="106"/>
         <source>Opacity</source>
         <translation type="unfinished">不透明度</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="120"/>
+        <location filename="../qml/VideoInputOptions.qml" line="124"/>
         <source>Source opacity</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2496,12 +2514,12 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="142"/>
+        <location filename="../../src/videolayer.cpp" line="145"/>
         <source>All Image and Video Files</source>
         <translation>すべての画像およびビデオファイル</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="179"/>
+        <location filename="../../src/videolayer.cpp" line="182"/>
         <source>All Files</source>
         <translation>すべてのファイル</translation>
     </message>
@@ -4938,12 +4956,12 @@
         <translation>最後に録画したビデオを開く</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="792"/>
+        <location filename="../qml/main.qml" line="793"/>
         <source>Installing virtual camera</source>
         <translation>仮想カメラをインストール中</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="793"/>
+        <location filename="../qml/main.qml" line="794"/>
         <source>Running commands</source>
         <translation>コマンドを実行中</translation>
     </message>

@@ -877,8 +877,14 @@ bool MediaTools::init(const CliOptions &cliOptions)
                      [this] (qint64 id, const QString &device) {
                         if (this->d->m_videoLayer->sourceEnabled(id)){
                             this->d->m_videoEffects->addSource(id, device);
+                            auto rect = this->d->m_videoLayer->sourceRect(id);
                             auto zorder = this->d->m_videoLayer->sourceZOrder(id);
+                            auto opacity = this->d->m_videoLayer->sourceOpacity(id);
+                            auto rotation = this->d->m_videoLayer->sourceRotation(id);
+                            this->d->m_videoEffects->setSourceRect(id, rect);
                             this->d->m_videoEffects->setSourceZOrder(id, zorder);
+                            this->d->m_videoEffects->setSourceOpacity(id, opacity);
+                            this->d->m_videoEffects->setSourceRotation(id, rotation);
                         }
 
                          if (this->d->m_videoLayer->deviceType(device) == VideoLayer::InputStream) {
@@ -912,8 +918,14 @@ bool MediaTools::init(const CliOptions &cliOptions)
                      [this] (qint64 id, bool enabled) {
                          if (enabled) {
                              this->d->m_videoEffects->addSource(id);
+                             auto rect = this->d->m_videoLayer->sourceRect(id);
                              auto zorder = this->d->m_videoLayer->sourceZOrder(id);
+                             auto opacity = this->d->m_videoLayer->sourceOpacity(id);
+                             auto rotation = this->d->m_videoLayer->sourceRotation(id);
+                             this->d->m_videoEffects->setSourceRect(id, rect);
                              this->d->m_videoEffects->setSourceZOrder(id, zorder);
+                             this->d->m_videoEffects->setSourceOpacity(id, opacity);
+                             this->d->m_videoEffects->setSourceRotation(id, rotation);
                          } else {
                              this->d->m_videoEffects->removeSource(id);
                          }
@@ -945,9 +957,21 @@ bool MediaTools::init(const CliOptions &cliOptions)
                     this->d->m_localStreaming.data(),
                     Qt::DirectConnection);
     QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::sourceRectChanged,
+                     this->d->m_videoEffects.data(),
+                     &VideoEffects::setSourceRect);
+    QObject::connect(this->d->m_videoLayer.data(),
                      &VideoLayer::sourceZOrderChanged,
                      this->d->m_videoEffects.data(),
                      &VideoEffects::setSourceZOrder);
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::sourceOpacityChanged,
+                     this->d->m_videoEffects.data(),
+                     &VideoEffects::setSourceOpacity);
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::sourceRotationChanged,
+                     this->d->m_videoEffects.data(),
+                     &VideoEffects::setSourceRotation);
     QObject::connect(this->d->m_videoLayer.data(),
                      &VideoLayer::stateChanged,
                      this->d->m_videoEffects.data(),
@@ -1035,8 +1059,14 @@ bool MediaTools::init(const CliOptions &cliOptions)
 
         if (this->d->m_videoLayer->sourceEnabled(id)) {
             this->d->m_videoEffects->addSource(id, device);
+            auto rect = this->d->m_videoLayer->sourceRect(id);
             auto zorder = this->d->m_videoLayer->sourceZOrder(id);
+            auto opacity = this->d->m_videoLayer->sourceOpacity(id);
+            auto rotation = this->d->m_videoLayer->sourceRotation(id);
+            this->d->m_videoEffects->setSourceRect(id, rect);
             this->d->m_videoEffects->setSourceZOrder(id, zorder);
+            this->d->m_videoEffects->setSourceOpacity(id, opacity);
+            this->d->m_videoEffects->setSourceRotation(id, rotation);
         }
 
         if (this->d->m_videoLayer->deviceType(device) == VideoLayer::InputStream) {

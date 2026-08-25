@@ -119,7 +119,10 @@ class VideoLayer: public QObject
         Q_INVOKABLE QString sourceDevice(qint64 id) const;
         Q_INVOKABLE QString sourceLabel(qint64 id) const;
         Q_INVOKABLE bool sourceEnabled(qint64 id) const;
+        Q_INVOKABLE QRectF sourceRect(qint64 id) const;
         Q_INVOKABLE int sourceZOrder(qint64 id) const;
+        Q_INVOKABLE qreal sourceOpacity(qint64 id) const;
+        Q_INVOKABLE qreal sourceRotation(qint64 id) const;
         Q_INVOKABLE AkAudioCaps sourceAudioCaps(qint64 id) const;
         Q_INVOKABLE AkVideoCaps sourceVideoCaps(qint64 id) const;
         Q_INVOKABLE QString sourceError(qint64 id) const;
@@ -152,7 +155,10 @@ class VideoLayer: public QObject
         void sourceRemoved(qint64 id);
         void sourceEnabledChanged(qint64 id, bool enabled);
         void sourceLabelChanged(qint64 id, const QString &label);
+        void sourceRectChanged(qint64 id, const QRectF &sourceRect);
         void sourceZOrderChanged(qint64 id, int zOrder);
+        void sourceOpacityChanged(qint64 id, qreal opacity);
+        void sourceRotationChanged(qint64 id, qreal rotation);
         void sourceAudioCapsChanged(qint64 id, const AkAudioCaps &audioCaps);
         void sourceVideoCapsChanged(qint64 id, const AkVideoCaps &videoCaps);
         void sourceErrorChanged(qint64 id, const QString &error);
@@ -168,7 +174,10 @@ class VideoLayer: public QObject
         void removeSource(qint64 id);
         void setSourceEnabled(qint64 id, bool enabled);
         void setSourceLabel(qint64 id, const QString &label);
+        void setSourceRect(qint64 id, const QRectF &sourceRect);
         void setSourceZOrder(qint64 id, int zOrder);
+        void setSourceOpacity(qint64 id, qreal opacity);
+        void setSourceRotation(qint64 id, qreal rotation);
         void setState(AkElement::ElementState state);
         void setTorchMode(qint64 id, TorchMode mode);
         void setPlayOnStart(bool playOnStart);

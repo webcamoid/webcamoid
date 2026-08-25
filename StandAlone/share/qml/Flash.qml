@@ -21,6 +21,7 @@ import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
 import Ak
+import Webcamoid
 
 ApplicationWindow {
     id: wndFlash
@@ -31,7 +32,7 @@ ApplicationWindow {
 
     property int timeout: 1500
     readonly property bool isHardwareFlash: {
-        let ids = videoLayer.sourceIds
+        let ids = videoLayer.sourceIds()
 
         for (let i = 0; i < ids.length; i++) {
             let id = ids[i]

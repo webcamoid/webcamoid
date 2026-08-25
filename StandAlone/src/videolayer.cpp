@@ -44,7 +44,10 @@ struct VideoLayerSource
     QString device;
     AkElementPtr element;
     qint64 id {0};
+    QRectF rect;
     int zOrder {0};
+    qreal opacity {0.0};
+    qreal rotation {0.0};
     bool enabled {true};
     VideoLayer::InputType type {VideoLayer::InputUnknown};
     AkAudioCaps audioCaps;
@@ -386,12 +389,36 @@ bool VideoLayer::sourceEnabled(qint64 id) const
     return this->d->m_activeSources[id].enabled;
 }
 
+QRectF VideoLayer::sourceRect(qint64 id) const
+{
+    if (!this->d->m_activeSources.contains(id))
+        return {};
+
+    return this->d->m_activeSources[id].rect;
+}
+
 int VideoLayer::sourceZOrder(qint64 id) const
 {
     if (!this->d->m_activeSources.contains(id))
         return 0;
 
     return this->d->m_activeSources[id].zOrder;
+}
+
+qreal VideoLayer::sourceOpacity(qint64 id) const
+{
+    if (!this->d->m_activeSources.contains(id))
+        return 0.0;
+
+    return this->d->m_activeSources[id].opacity;
+}
+
+qreal VideoLayer::sourceRotation(qint64 id) const
+{
+    if (!this->d->m_activeSources.contains(id))
+        return 0.0;
+
+    return this->d->m_activeSources[id].rotation;
 }
 
 AkAudioCaps VideoLayer::sourceAudioCaps(qint64 id) const
@@ -512,18 +539,8 @@ qint64 VideoLayer::addSource(const QString &device)
                          emit this->oStream(pkt);
                      }, Qt::DirectConnection);
 
-    // "error"/"errorChanged" and "streamsChanged" are NOT declared on
-    // AkElement itself (only stateChanged/oStream are) -- they're
-    // plugin-specific, so they need the old string-based connect, same as
-    // the camera-only signals below. The handlers recover which source
-    // fired via a stashed property, since a lambda can't be the target of
-    // this connect style.
     element->setProperty("__sourceId", id);
 
-    // VideoCaptureElement (camera) exposes this as a property (errorChanged
-    // notify) instead of a plain "error" signal like the other three
-    // capture plugins -- different signal name, same (QString) payload,
-    // same handler either way.
     if (type == InputCamera)
         QObject::connect(element.data(),
                          SIGNAL(errorChanged(QString)),
@@ -644,6 +661,21 @@ void VideoLayer::setSourceLabel(qint64 id, const QString &label)
     emit this->sourceLabelChanged(id, label);
 }
 
+void VideoLayer::setSourceRect(qint64 id, const QRectF &rect)
+{
+    if (!this->d->m_activeSources.contains(id))
+        return;
+
+    auto &source = this->d->m_activeSources[id];
+
+    if (source.rect == rect)
+        return;
+
+    source.rect = rect;
+    this->d->saveSources();
+    emit this->sourceRectChanged(id, rect);
+}
+
 void VideoLayer::setSourceZOrder(qint64 id, int zOrder)
 {
     if (!this->d->m_activeSources.contains(id))
@@ -682,6 +714,36 @@ void VideoLayer::setSourceZOrder(qint64 id, int zOrder)
     source.zOrder = zOrder;
     this->d->saveSources();
     emit this->sourceZOrderChanged(id, zOrder);
+}
+
+void VideoLayer::setSourceOpacity(qint64 id, qreal opacity)
+{
+    if (!this->d->m_activeSources.contains(id))
+        return;
+
+    auto &source = this->d->m_activeSources[id];
+
+    if (qFuzzyCompare(source.opacity, opacity))
+        return;
+
+    source.opacity = opacity;
+    this->d->saveSources();
+    emit this->sourceOpacityChanged(id, opacity);
+}
+
+void VideoLayer::setSourceRotation(qint64 id, qreal rotation)
+{
+    if (!this->d->m_activeSources.contains(id))
+        return;
+
+    auto &source = this->d->m_activeSources[id];
+
+    if (qFuzzyCompare(source.rotation, rotation))
+        return;
+
+    source.rotation = rotation;
+    this->d->saveSources();
+    emit this->sourceRotationChanged(id, rotation);
 }
 
 void VideoLayer::setState(AkElement::ElementState state)
@@ -1178,7 +1240,10 @@ void VideoLayerPrivate::loadProperties()
         auto device = config.value("source").toString();
         auto label = config.value("description").toString();
         auto enabled = config.value("enabled", true).toBool();
+        auto rect = config.value("rect", QRectF(0.0, 0.0, 1.0, 1.0)).toRectF();
         auto zOrder = config.value("zorder", i).toInt();
+        auto opacity = config.value("opacity", 1.0).toReal();
+        auto rotation = config.value("rotation", 0.0).toReal();
         auto deviceType = self->deviceType(device);
 
         if (device.isEmpty())
@@ -1190,7 +1255,10 @@ void VideoLayerPrivate::loadProperties()
             continue;
 
         self->setSourceEnabled(id, enabled);
+        self->setSourceRect(id, rect);
         self->setSourceZOrder(id, zOrder);
+        self->setSourceOpacity(id, opacity);
+        self->setSourceRotation(id, rotation);
 
         if (label.isEmpty()
             && (deviceType == VideoLayer::InputImage
@@ -1266,7 +1334,10 @@ void VideoLayerPrivate::saveSources()
         config.setValue("source", source.device);
         config.setValue("description", source.label);
         config.setValue("enabled", source.enabled);
+        config.setValue("rect", source.rect);
         config.setValue("zorder", source.zOrder);
+        config.setValue("opacity", source.opacity);
+        config.setValue("rotation", source.rotation);
         i++;
     }
 

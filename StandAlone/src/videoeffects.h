@@ -102,6 +102,7 @@ class VideoEffects: public QObject
         Q_INVOKABLE QRectF sourceRect(qint64 id) const;
         Q_INVOKABLE int sourceZOrder(qint64 id) const;
         Q_INVOKABLE qreal sourceOpacity(qint64 id) const;
+        Q_INVOKABLE qreal sourceRotation(qint64 id) const;
         Q_INVOKABLE Qt::AspectRatioMode sourceAspectRatioMode(qint64 id) const;
 
         // Source effect pipeline
@@ -145,6 +146,7 @@ class VideoEffects: public QObject
         void sourceRectChanged(qint64 id, const QRectF &rect);
         void sourceZOrderChanged(qint64 id, int zOrder);
         void sourceOpacityChanged(qint64 id, qreal opacity);
+        void sourceRotationChanged(qint64 id, qreal rotation);
         void sourceAspectRatioModeChanged(qint64 id, Qt::AspectRatioMode mode);
         void sourceEffectsChanged(qint64 id, const QStringList &effects);
         void sourcePreviewChanged(qint64 id, const QString &preview);
@@ -172,6 +174,8 @@ class VideoEffects: public QObject
         void removeEffect(int index);
         void removeAllEffects();
         void updateAvailableEffects();
+        void linkLayoutEditor();
+        void unlinkLayoutEditor();
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
         AkPacket iStream(const AkPacket &packet);
 
@@ -179,6 +183,7 @@ class VideoEffects: public QObject
         void setSourceRect(qint64 id, const QRectF &rect);
         void setSourceZOrder(qint64 id, int zOrder);
         void setSourceOpacity(qint64 id, qreal opacity);
+        void setSourceRotation(qint64 id, qreal rotation);
         void setSourceAspectRatioMode(qint64 id, Qt::AspectRatioMode mode);
 
         // Source effect pipeline

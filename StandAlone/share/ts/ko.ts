@@ -1121,6 +1121,24 @@
     </message>
 </context>
 <context>
+    <name>LayoutEditorDialog</name>
+    <message>
+        <location filename="../qml/LayoutEditorDialog.qml" line="57"/>
+        <source>Source %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LayoutEditorDialog.qml" line="204"/>
+        <source>Source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LayoutEditorDialog.qml" line="240"/>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>License</name>
     <message>
         <location filename="../qml/License.qml" line="27"/>
@@ -1392,7 +1410,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1271"/>
+        <location filename="../../src/mediatools.cpp" line="1301"/>
         <source>%1/log %2.txt</source>
         <translation>%1/로그 %2.txt</translation>
     </message>
@@ -1538,165 +1556,165 @@
         <translation>불러오지 않을 경로 목록을 세미콜론으로 구분.</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="942"/>
+        <location filename="../../src/videolayer.cpp" line="1004"/>
         <source>3GP Video</source>
         <translation>3GP 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="943"/>
+        <location filename="../../src/videolayer.cpp" line="1005"/>
         <source>AVI Video</source>
         <translation>AVI 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="944"/>
+        <location filename="../../src/videolayer.cpp" line="1006"/>
         <source>Windows Bitmap</source>
         <translation>Windows 비트맵</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="945"/>
+        <location filename="../../src/videolayer.cpp" line="1007"/>
         <source>Microsoft Windows Cursor</source>
         <translation>마이크로소프트 Windows 커서</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="947"/>
+        <location filename="../../src/videolayer.cpp" line="1009"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
         <translation>플래시 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="948"/>
+        <location filename="../../src/videolayer.cpp" line="1010"/>
         <source>Animated GIF</source>
         <translation>움직이는 GIF</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="949"/>
+        <location filename="../../src/videolayer.cpp" line="1011"/>
         <source>Graphic Interchange Format</source>
         <translation>그래픽 교환 형식</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="950"/>
+        <location filename="../../src/videolayer.cpp" line="1012"/>
         <source>Apple Icon Image</source>
         <translation>Apple 아이콘 이미지</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="951"/>
+        <location filename="../../src/videolayer.cpp" line="1013"/>
         <source>Microsoft Windows Icon</source>
         <translation>마이크로소프트 Windows 아이콘</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="952"/>
+        <location filename="../../src/videolayer.cpp" line="1014"/>
         <source>Joint Photographic Experts Group</source>
         <translation>공동 사진 전문가 그룹</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="953"/>
+        <location filename="../../src/videolayer.cpp" line="1015"/>
         <source>MKV Video</source>
         <translation>MKV 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="954"/>
+        <location filename="../../src/videolayer.cpp" line="1016"/>
         <source>Animated PNG</source>
         <translation>움직이는 PNG</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="955"/>
+        <location filename="../../src/videolayer.cpp" line="1017"/>
         <source>Multiple-image Network Graphics</source>
         <translation>다중 이미지 네트워크 그래픽</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="956"/>
+        <location filename="../../src/videolayer.cpp" line="1018"/>
         <source>QuickTime Video</source>
         <translation>QuickTime 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="957"/>
+        <location filename="../../src/videolayer.cpp" line="1019"/>
         <source>MP4 Video</source>
         <translation>MP4 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="958"/>
+        <location filename="../../src/videolayer.cpp" line="1020"/>
         <source>MPEG Video</source>
         <translation>MPEG 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="959"/>
+        <location filename="../../src/videolayer.cpp" line="1021"/>
         <source>Ogg Video</source>
         <translation>Ogg 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="960"/>
+        <location filename="../../src/videolayer.cpp" line="1022"/>
         <source>Portable Bitmap</source>
         <translation>휴대용 비트맵</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="961"/>
+        <location filename="../../src/videolayer.cpp" line="1023"/>
         <source>Portable Graymap</source>
         <translation>휴대용 그레이맵</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="962"/>
+        <location filename="../../src/videolayer.cpp" line="1024"/>
         <source>Portable Network Graphics</source>
         <translation>휴대용 네트워크 그래픽</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="963"/>
+        <location filename="../../src/videolayer.cpp" line="1025"/>
         <source>Portable Pixmap</source>
         <translation>휴대용 픽스맵</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="965"/>
+        <location filename="../../src/videolayer.cpp" line="1027"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
         <translation>RealMedia 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="966"/>
+        <location filename="../../src/videolayer.cpp" line="1028"/>
         <source>Scalable Vector Graphics</source>
         <translation>확장 가능한 벡터 그래픽</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="967"/>
+        <location filename="../../src/videolayer.cpp" line="1029"/>
         <source>Truevision TGA</source>
         <translation>Truevision TGA</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="968"/>
+        <location filename="../../src/videolayer.cpp" line="1030"/>
         <source>Tagged Image File Format</source>
         <translation>태그 이미지 파일 형식</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="969"/>
+        <location filename="../../src/videolayer.cpp" line="1031"/>
         <source>DVD Video</source>
         <translation>DVD 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="970"/>
+        <location filename="../../src/videolayer.cpp" line="1032"/>
         <source>Wireless Bitmap</source>
         <translation>무선 비트맵</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="971"/>
+        <location filename="../../src/videolayer.cpp" line="1033"/>
         <source>WebM Video</source>
         <translation>WebM 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="972"/>
+        <location filename="../../src/videolayer.cpp" line="1034"/>
         <source>WebP</source>
         <translation>WebP</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="974"/>
+        <location filename="../../src/videolayer.cpp" line="1036"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
         <translation>Windows 미디어 비디오</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="975"/>
+        <location filename="../../src/videolayer.cpp" line="1037"/>
         <source>X11 Bitmap</source>
         <translation>X11 비트맵</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="976"/>
+        <location filename="../../src/videolayer.cpp" line="1038"/>
         <source>X11 Pixmap</source>
         <translation>X11 픽스맵</translation>
     </message>
@@ -2390,27 +2408,27 @@
 <context>
     <name>VideoInputOptions</name>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="65"/>
+        <location filename="../qml/VideoInputOptions.qml" line="67"/>
         <source>Edit</source>
         <translation>편집</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="77"/>
+        <location filename="../qml/VideoInputOptions.qml" line="79"/>
         <source>Remove</source>
         <translation>제거</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="92"/>
+        <location filename="../qml/VideoInputOptions.qml" line="94"/>
         <source>Manage source effects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="104"/>
+        <location filename="../qml/VideoInputOptions.qml" line="106"/>
         <source>Opacity</source>
         <translation type="unfinished">불투명도</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="120"/>
+        <location filename="../qml/VideoInputOptions.qml" line="124"/>
         <source>Source opacity</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2496,12 +2514,12 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="142"/>
+        <location filename="../../src/videolayer.cpp" line="145"/>
         <source>All Image and Video Files</source>
         <translation>모든 이미지 및 비디오 파일</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="179"/>
+        <location filename="../../src/videolayer.cpp" line="182"/>
         <source>All Files</source>
         <translation>모든 파일</translation>
     </message>
@@ -4958,12 +4976,12 @@
         <translation>녹화된 마지막 비디오 열기</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="792"/>
+        <location filename="../qml/main.qml" line="793"/>
         <source>Installing virtual camera</source>
         <translation>가상 카메라 설치 중</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="793"/>
+        <location filename="../qml/main.qml" line="794"/>
         <source>Running commands</source>
         <translation>명령 실행 중</translation>
     </message>
