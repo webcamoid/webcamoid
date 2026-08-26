@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QGuiApplication>
 #include <QMutex>
 #include <QSettings>
 #include <QQuickItem>
