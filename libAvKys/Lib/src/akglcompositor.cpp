@@ -113,9 +113,12 @@ class AkGLCompositorPrivate
         int m_compTransformUniform {-1};
         int m_compOpacityUniform {-1};
         int m_compTexUniform {-1};
+        int m_compBoxScaleUniform {-1};
 
         QVector<SourceSnapshot> m_orderedSources;
         bool m_sourceParamsDirty {true};
+
+        mutable QVector2D m_lastBoxScale;
 
         QOpenGLFramebufferObject *m_canvasFbo {nullptr};
         QOpenGLFramebufferObject *m_effectFbo {nullptr};
@@ -801,6 +804,9 @@ void AkGLCompositor::setSourceAspectRatioMode(qint64 id,
             source->aspectRatioMode = mode;
             changed = true;
         }
+
+        if (changed)
+            this->d->m_sourceParamsDirty = true;
     }
 
     if (changed)
@@ -1540,6 +1546,9 @@ void AkGLCompositorPrivate::compositeSourcesIntoCanvas()
                                  GL_FALSE,
                                  transform.constData());
         self->glUniform1f(this->m_compOpacityUniform, GLfloat(snap.opacity));
+        self->glUniform2f(this->m_compBoxScaleUniform,
+                          this->m_lastBoxScale.x(),
+                          this->m_lastBoxScale.y());
         self->glActiveTexture(GL_TEXTURE0);
         self->glBindTexture(GL_TEXTURE_2D, snap.source->effectFbo->texture());
         self->glUniform1i(this->m_compTexUniform, 0);
@@ -1558,7 +1567,6 @@ QMatrix4x4 AkGLCompositorPrivate::computeSourceTransform(const SourceSnapshot &s
 {
     float canvasW = float(this->m_outputCaps.width());
     float canvasH = float(this->m_outputCaps.height());
-
     float rx = float(snap.rect.x());
     float ry = float(snap.rect.y());
     float rw = float(snap.rect.width());
@@ -1581,7 +1589,7 @@ QMatrix4x4 AkGLCompositorPrivate::computeSourceTransform(const SourceSnapshot &s
                 fittedH = rh;
                 fittedW = fittedH * texAspect * canvasH / canvasW;
             }
-        } else if (snap.aspectRatioMode == Qt::KeepAspectRatioByExpanding) {
+    } else if (snap.aspectRatioMode == Qt::KeepAspectRatioByExpanding) {
             if (texAspect > rectAspect) {
                 fittedH = rh;
                 fittedW = fittedH * texAspect * canvasH / canvasW;
@@ -1597,11 +1605,18 @@ QMatrix4x4 AkGLCompositorPrivate::computeSourceTransform(const SourceSnapshot &s
     float ndcCx = cx * 2.0f - 1.0f;
     float ndcCy = cy * 2.0f - 1.0f;
 
+    float pixelW = fittedW * canvasW;
+    float pixelH = fittedH * canvasH;
+
+    this->m_lastBoxScale = {rw > 0.0f? fittedW / rw: 1.0f,
+                            rh > 0.0f? fittedH / rh: 1.0f};
+
     QMatrix4x4 transform;
     transform.setToIdentity();
     transform.translate(ndcCx, ndcCy, 0.0f);
+    transform.scale(1.0f / canvasW, 1.0f / canvasH, 1.0f);
     transform.rotate(float(snap.rotation), 0.0f, 0.0f, 1.0f);
-    transform.scale(fittedW, fittedH, 1.0f);
+    transform.scale(pixelW, pixelH, 1.0f);
 
     return transform;
 }
@@ -1804,6 +1819,7 @@ void AkGLCompositorPrivate::initGL()
     this->m_compTransformUniform = this->m_compositeShader->uniformLocation("uTransform");
     this->m_compOpacityUniform = this->m_compositeShader->uniformLocation("uOpacity");
     this->m_compTexUniform = this->m_compositeShader->uniformLocation("uTex");
+    this->m_compBoxScaleUniform = this->m_compositeShader->uniformLocation("uBoxScale");
 
     this->ensureFboSize(this->m_canvasFbo,
                         this->m_outputCaps.width(),

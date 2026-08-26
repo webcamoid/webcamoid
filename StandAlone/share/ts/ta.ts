@@ -1123,17 +1123,17 @@
 <context>
     <name>LayoutEditorDialog</name>
     <message>
-        <location filename="../qml/LayoutEditorDialog.qml" line="57"/>
+        <location filename="../qml/LayoutEditorDialog.qml" line="58"/>
         <source>Source %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LayoutEditorDialog.qml" line="204"/>
+        <location filename="../qml/LayoutEditorDialog.qml" line="203"/>
         <source>Source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LayoutEditorDialog.qml" line="240"/>
+        <location filename="../qml/LayoutEditorDialog.qml" line="233"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1411,7 +1411,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1301"/>
+        <location filename="../../src/mediatools.cpp" line="1311"/>
         <source>%1/log %2.txt</source>
         <translation>%1/பதிவு %2.txt</translation>
     </message>
@@ -1562,165 +1562,165 @@
         <translation>%1/வீடியோ %2.%3</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1004"/>
+        <location filename="../../src/videolayer.cpp" line="1028"/>
         <source>3GP Video</source>
         <translation>3GP வீடியோ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1005"/>
+        <location filename="../../src/videolayer.cpp" line="1029"/>
         <source>AVI Video</source>
         <translation>AVI வீடியோ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1006"/>
+        <location filename="../../src/videolayer.cpp" line="1030"/>
         <source>Windows Bitmap</source>
         <translation>விண்டோஸ் பிட்மேப்</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1007"/>
+        <location filename="../../src/videolayer.cpp" line="1031"/>
         <source>Microsoft Windows Cursor</source>
         <translation>மைக்ரோசாஃப்ட் விண்டோஸ் கர்சர்</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1009"/>
+        <location filename="../../src/videolayer.cpp" line="1033"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
         <translation>ஃபிளாஷ் வீடியோ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1010"/>
+        <location filename="../../src/videolayer.cpp" line="1034"/>
         <source>Animated GIF</source>
         <translation>அனிமேட்டட் GIF</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1011"/>
+        <location filename="../../src/videolayer.cpp" line="1035"/>
         <source>Graphic Interchange Format</source>
         <translation>கிராஃபிக் இண்டர்சேஞ்ச் ஃபார்மேட்</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1012"/>
+        <location filename="../../src/videolayer.cpp" line="1036"/>
         <source>Apple Icon Image</source>
         <translation>ஆப்பிள் ஐகான் படம்</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1013"/>
+        <location filename="../../src/videolayer.cpp" line="1037"/>
         <source>Microsoft Windows Icon</source>
         <translation>மைக்ரோசாஃப்ட் விண்டோஸ் ஐகான்</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1014"/>
+        <location filename="../../src/videolayer.cpp" line="1038"/>
         <source>Joint Photographic Experts Group</source>
         <translation>ஜாயிண்ட் ஃபோட்டோகிராஃபிக் எக்ஸ்பேர்ட்ஸ் குரூப்</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1015"/>
+        <location filename="../../src/videolayer.cpp" line="1039"/>
         <source>MKV Video</source>
         <translation>MKV வீடியோ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1016"/>
+        <location filename="../../src/videolayer.cpp" line="1040"/>
         <source>Animated PNG</source>
         <translation>அனிமேட்டட் PNG</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1017"/>
+        <location filename="../../src/videolayer.cpp" line="1041"/>
         <source>Multiple-image Network Graphics</source>
         <translation>மல்டிபிள்-இமேஜ் நெட்வொர்க் கிராஃபிக்ஸ்</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1018"/>
+        <location filename="../../src/videolayer.cpp" line="1042"/>
         <source>QuickTime Video</source>
         <translation>குவிக்டைம் வீடியோ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1019"/>
+        <location filename="../../src/videolayer.cpp" line="1043"/>
         <source>MP4 Video</source>
         <translation>MP4 வீடியோ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1020"/>
+        <location filename="../../src/videolayer.cpp" line="1044"/>
         <source>MPEG Video</source>
         <translation>MPEG வீடியோ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1021"/>
+        <location filename="../../src/videolayer.cpp" line="1045"/>
         <source>Ogg Video</source>
         <translation>Ogg வீடியோ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1022"/>
+        <location filename="../../src/videolayer.cpp" line="1046"/>
         <source>Portable Bitmap</source>
         <translation>போர்ட்டபிள் பிட்மேப்</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1023"/>
+        <location filename="../../src/videolayer.cpp" line="1047"/>
         <source>Portable Graymap</source>
         <translation>போர்ட்டபிள் கிரேமேப்</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1024"/>
+        <location filename="../../src/videolayer.cpp" line="1048"/>
         <source>Portable Network Graphics</source>
         <translation>போர்ட்டபிள் நெட்வொர்க் கிராஃபிக்ஸ்</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1025"/>
+        <location filename="../../src/videolayer.cpp" line="1049"/>
         <source>Portable Pixmap</source>
         <translation>போர்ட்டபிள் பிக்ஸ்மேப்</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1027"/>
+        <location filename="../../src/videolayer.cpp" line="1051"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
         <translation>RealMedia வீடியோ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1028"/>
+        <location filename="../../src/videolayer.cpp" line="1052"/>
         <source>Scalable Vector Graphics</source>
         <translation>ஸ்கேலபிள் வெக்டார் கிராஃபிக்ஸ்</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1029"/>
+        <location filename="../../src/videolayer.cpp" line="1053"/>
         <source>Truevision TGA</source>
         <translation>ட்ரூவிஷன் TGA</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1030"/>
+        <location filename="../../src/videolayer.cpp" line="1054"/>
         <source>Tagged Image File Format</source>
         <translation>டேக்டு இமேஜ் ஃபைல் ஃபார்மேட்</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1031"/>
+        <location filename="../../src/videolayer.cpp" line="1055"/>
         <source>DVD Video</source>
         <translation>DVD வீடியோ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1032"/>
+        <location filename="../../src/videolayer.cpp" line="1056"/>
         <source>Wireless Bitmap</source>
         <translation>வயர்லெஸ் பிட்மேப்</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1033"/>
+        <location filename="../../src/videolayer.cpp" line="1057"/>
         <source>WebM Video</source>
         <translation>WebM வீடியோ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1034"/>
+        <location filename="../../src/videolayer.cpp" line="1058"/>
         <source>WebP</source>
         <translation>WebP</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1036"/>
+        <location filename="../../src/videolayer.cpp" line="1060"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
         <translation>விண்டோஸ் மீடியா வீடியோ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1037"/>
+        <location filename="../../src/videolayer.cpp" line="1061"/>
         <source>X11 Bitmap</source>
         <translation>X11 பிட்மேப்</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1038"/>
+        <location filename="../../src/videolayer.cpp" line="1062"/>
         <source>X11 Pixmap</source>
         <translation>X11 பிக்ஸ்மேப்</translation>
     </message>
@@ -2409,28 +2409,48 @@
 <context>
     <name>VideoInputOptions</name>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="67"/>
+        <location filename="../qml/VideoInputOptions.qml" line="68"/>
         <source>Edit</source>
         <translation>திருத்து</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="79"/>
+        <location filename="../qml/VideoInputOptions.qml" line="80"/>
         <source>Remove</source>
         <translation>நீக்கு</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="94"/>
+        <location filename="../qml/VideoInputOptions.qml" line="95"/>
         <source>Manage source effects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="106"/>
+        <location filename="../qml/VideoInputOptions.qml" line="107"/>
         <source>Opacity</source>
         <translation type="unfinished">ஒளிபுகா தன்மை</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="124"/>
+        <location filename="../qml/VideoInputOptions.qml" line="125"/>
         <source>Source opacity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputOptions.qml" line="136"/>
+        <source>Aspect ratio mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputOptions.qml" line="138"/>
+        <source>Ignore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputOptions.qml" line="139"/>
+        <source>Keep</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputOptions.qml" line="140"/>
+        <source>Keep by expanding</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2515,12 +2535,12 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="145"/>
+        <location filename="../../src/videolayer.cpp" line="146"/>
         <source>All Image and Video Files</source>
         <translation>அனைத்து பட மற்றும் வீடியோ கோப்புகள்</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="182"/>
+        <location filename="../../src/videolayer.cpp" line="183"/>
         <source>All Files</source>
         <translation>அனைத்து கோப்புகள்</translation>
     </message>

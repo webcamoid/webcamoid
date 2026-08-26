@@ -21,6 +21,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
+import AkControls as AK
 import Webcamoid
 
 ScrollView {
@@ -116,7 +117,7 @@ ScrollView {
             to: 1.0
             stepSize: 0.01
             value: view.sourceId >= 0?
-                        videoEffects.sourceOpacity(view.sourceId):
+                        videoLayer.sourceOpacity(view.sourceId):
                         1.0
             Layout.leftMargin: view.leftMargin
             Layout.rightMargin: view.rightMargin
@@ -125,7 +126,53 @@ ScrollView {
 
             onMoved: {
                 if (view.sourceId >= 0)
-                    videoEffects.setSourceOpacity(view.sourceId, value)
+                    videoLayer.setSourceOpacity(view.sourceId, value)
+            }
+        }
+
+        // Aspect ratio mode
+        AK.LabeledComboBox {
+            id: aspectRatioModeComboBox
+            label: qsTr("Aspect ratio mode")
+            model: [
+                qsTr("Ignore"),
+                qsTr("Keep"),
+                qsTr("Keep by expanding"),
+            ]
+            currentIndex: {
+                if (view.sourceId < 0)
+                    return 0
+
+                switch (videoLayer.sourceAspectRatioMode(view.sourceId)) {
+                case Qt.IgnoreAspectRatio:
+                    return 0
+                case Qt.KeepAspectRatio:
+                    return 1
+                case Qt.KeepAspectRatioByExpanding:
+                    return 2
+                default:
+                    break
+                }
+
+                return 1
+            }
+            Layout.leftMargin: view.leftMargin
+            Layout.rightMargin: view.rightMargin
+            Layout.fillWidth: true
+            Accessible.name: label
+
+            onCurrentIndexChanged: {
+                if (view.sourceId < 0)
+                    return
+
+                const modes = [
+                    Qt.IgnoreAspectRatio,
+                    Qt.KeepAspectRatio,
+                    Qt.KeepAspectRatioByExpanding,
+                ]
+
+                videoLayer.setSourceAspectRatioMode(view.sourceId,
+                                                    modes[currentIndex])
             }
         }
 

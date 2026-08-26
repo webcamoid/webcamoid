@@ -44,10 +44,11 @@ struct VideoLayerSource
     QString device;
     AkElementPtr element;
     qint64 id {0};
-    QRectF rect;
+    QRectF rect {0.0, 0.0, 1.0, 1.0};
     int zOrder {0};
-    qreal opacity {0.0};
+    qreal opacity {1.0};
     qreal rotation {0.0};
+    Qt::AspectRatioMode aspectRatioMode {Qt::KeepAspectRatio};
     bool enabled {true};
     VideoLayer::InputType type {VideoLayer::InputUnknown};
     AkAudioCaps audioCaps;
@@ -421,6 +422,14 @@ qreal VideoLayer::sourceRotation(qint64 id) const
     return this->d->m_activeSources[id].rotation;
 }
 
+Qt::AspectRatioMode VideoLayer::sourceAspectRatioMode(qint64 id) const
+{
+    if (!this->d->m_activeSources.contains(id))
+        return Qt::KeepAspectRatio;
+
+    return this->d->m_activeSources[id].aspectRatioMode;
+}
+
 AkAudioCaps VideoLayer::sourceAudioCaps(qint64 id) const
 {
     if (!this->d->m_activeSources.contains(id))
@@ -744,6 +753,21 @@ void VideoLayer::setSourceRotation(qint64 id, qreal rotation)
     source.rotation = rotation;
     this->d->saveSources();
     emit this->sourceRotationChanged(id, rotation);
+}
+
+void VideoLayer::setSourceAspectRatioMode(qint64 id, Qt::AspectRatioMode mode)
+{
+    if (!this->d->m_activeSources.contains(id))
+        return;
+
+    auto &source = this->d->m_activeSources[id];
+
+    if (source.aspectRatioMode == mode)
+        return;
+
+    source.aspectRatioMode = mode;
+    this->d->saveSources();
+    emit this->sourceAspectRatioModeChanged(id, mode);
 }
 
 void VideoLayer::setState(AkElement::ElementState state)
@@ -1244,6 +1268,7 @@ void VideoLayerPrivate::loadProperties()
         auto zOrder = config.value("zorder", i).toInt();
         auto opacity = config.value("opacity", 1.0).toReal();
         auto rotation = config.value("rotation", 0.0).toReal();
+        auto aspectRatioMode = config.value("aspectRatioMode", Qt::KeepAspectRatio).toInt();
         auto deviceType = self->deviceType(device);
 
         if (device.isEmpty())
@@ -1259,6 +1284,7 @@ void VideoLayerPrivate::loadProperties()
         self->setSourceZOrder(id, zOrder);
         self->setSourceOpacity(id, opacity);
         self->setSourceRotation(id, rotation);
+        self->setSourceAspectRatioMode(id, static_cast<Qt::AspectRatioMode>(aspectRatioMode));
 
         if (label.isEmpty()
             && (deviceType == VideoLayer::InputImage
@@ -1338,6 +1364,7 @@ void VideoLayerPrivate::saveSources()
         config.setValue("zorder", source.zOrder);
         config.setValue("opacity", source.opacity);
         config.setValue("rotation", source.rotation);
+        config.setValue("aspectRatioMode", source.aspectRatioMode);
         i++;
     }
 

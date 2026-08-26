@@ -881,10 +881,12 @@ bool MediaTools::init(const CliOptions &cliOptions)
                             auto zorder = this->d->m_videoLayer->sourceZOrder(id);
                             auto opacity = this->d->m_videoLayer->sourceOpacity(id);
                             auto rotation = this->d->m_videoLayer->sourceRotation(id);
+                            auto aspectRatioMode = this->d->m_videoLayer->sourceAspectRatioMode(id);
                             this->d->m_videoEffects->setSourceRect(id, rect);
                             this->d->m_videoEffects->setSourceZOrder(id, zorder);
                             this->d->m_videoEffects->setSourceOpacity(id, opacity);
                             this->d->m_videoEffects->setSourceRotation(id, rotation);
+                            this->d->m_videoEffects->setSourceAspectRatioMode(id, aspectRatioMode);
                         }
 
                          if (this->d->m_videoLayer->deviceType(device) == VideoLayer::InputStream) {
@@ -922,10 +924,12 @@ bool MediaTools::init(const CliOptions &cliOptions)
                              auto zorder = this->d->m_videoLayer->sourceZOrder(id);
                              auto opacity = this->d->m_videoLayer->sourceOpacity(id);
                              auto rotation = this->d->m_videoLayer->sourceRotation(id);
+                             auto aspectRatioMode = this->d->m_videoLayer->sourceAspectRatioMode(id);
                              this->d->m_videoEffects->setSourceRect(id, rect);
                              this->d->m_videoEffects->setSourceZOrder(id, zorder);
                              this->d->m_videoEffects->setSourceOpacity(id, opacity);
                              this->d->m_videoEffects->setSourceRotation(id, rotation);
+                             this->d->m_videoEffects->setSourceAspectRatioMode(id, aspectRatioMode);
                          } else {
                              this->d->m_videoEffects->removeSource(id);
                          }
@@ -972,6 +976,10 @@ bool MediaTools::init(const CliOptions &cliOptions)
                      &VideoLayer::sourceRotationChanged,
                      this->d->m_videoEffects.data(),
                      &VideoEffects::setSourceRotation);
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::sourceAspectRatioModeChanged,
+                     this->d->m_videoEffects.data(),
+                     &VideoEffects::setSourceAspectRatioMode);
     QObject::connect(this->d->m_videoLayer.data(),
                      &VideoLayer::stateChanged,
                      this->d->m_videoEffects.data(),
@@ -1063,10 +1071,12 @@ bool MediaTools::init(const CliOptions &cliOptions)
             auto zorder = this->d->m_videoLayer->sourceZOrder(id);
             auto opacity = this->d->m_videoLayer->sourceOpacity(id);
             auto rotation = this->d->m_videoLayer->sourceRotation(id);
+            auto aspectRatioMode = this->d->m_videoLayer->sourceAspectRatioMode(id);
             this->d->m_videoEffects->setSourceRect(id, rect);
             this->d->m_videoEffects->setSourceZOrder(id, zorder);
             this->d->m_videoEffects->setSourceOpacity(id, opacity);
             this->d->m_videoEffects->setSourceRotation(id, rotation);
+            this->d->m_videoEffects->setSourceAspectRatioMode(id, aspectRatioMode);
         }
 
         if (this->d->m_videoLayer->deviceType(device) == VideoLayer::InputStream) {

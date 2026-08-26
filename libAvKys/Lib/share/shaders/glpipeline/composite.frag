@@ -18,11 +18,15 @@
  */
 
 varying vec2 vTexCoord;
+varying vec2 vBoxCoord;
 uniform sampler2D uTex;
 uniform float uOpacity;
 
 void main()
 {
+    if (abs(vBoxCoord.x) > 1.0 || abs(vBoxCoord.y) > 1.0)
+        discard;
+
     vec4 color = texture2D(uTex, vTexCoord);
     color.a *= uOpacity;
     gl_FragColor = color;

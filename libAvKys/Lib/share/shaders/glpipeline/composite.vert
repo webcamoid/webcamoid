@@ -20,10 +20,13 @@
 attribute vec3 aPos;
 attribute vec2 aTexCoord;
 uniform mat4 uTransform;
+uniform vec2 uBoxScale;
 varying vec2 vTexCoord;
+varying vec2 vBoxCoord;
 
 void main()
 {
     gl_Position = uTransform * vec4(aPos, 1.0);
     vTexCoord = aTexCoord;
+    vBoxCoord = aPos.xy * uBoxScale;
 }

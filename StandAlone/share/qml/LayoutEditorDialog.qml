@@ -21,6 +21,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
+import AkControls as AK
 import Webcamoid
 
 Dialog {
@@ -68,8 +69,8 @@ Dialog {
                     break
                 }
 
-            if (!stillPresent)
-                layoutEditor.selectedSourceId = sourcesModel.get(0).sourceId
+                if (!stillPresent)
+                    layoutEditor.selectedSourceId = sourcesModel.get(0).sourceId
         } else {
             layoutEditor.selectedSourceId = -1
         }
@@ -81,10 +82,8 @@ Dialog {
         let w = rect.width
         let h = rect.height
         let th = layoutEditor.snapPositionThreshold
-
         let hAnchors = [0, 0.25, 0.5, 0.75, 1.0]
         let vAnchors = [0, 0.25, 0.5, 0.75, 1.0]
-
         let ids = videoLayer.sourceIds()
 
         for (let i = 0; i < ids.length; i++) {
@@ -100,7 +99,6 @@ Dialog {
 
         let srcHPoints = [x, x + w / 2, x + w]
         let srcVPoints = [y, y + h / 2, y + h]
-
         let bestDx = th
         let snapX = x
 
@@ -200,15 +198,12 @@ Dialog {
                 anchors.leftMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
                 anchors.rightMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
 
-                Label {
-                    text: qsTr("Source")
-                    Layout.alignment: Qt.AlignVCenter
-                }
-
-                ComboBox {
+                AK.LabeledComboBox {
                     id: sourceCombo
+                    label: qsTr("Source")
                     Layout.fillWidth: true
                     Layout.alignment: Qt.AlignVCenter
+                    Accessible.name: label
                     model: layoutEditor.sourcesModel
                     textRole: "label"
 
@@ -234,15 +229,12 @@ Dialog {
                     }
                 }
 
-                Item { Layout.fillWidth: true }
-
                 ToolButton {
                     text: qsTr("Close")
                     icon.source: "image://icons/no"
                     display: AbstractButton.IconOnly
                     ToolTip.visible: hovered
                     ToolTip.text: text
-
                     onClicked: layoutEditor.close()
                 }
             }
@@ -257,6 +249,7 @@ Dialog {
             VideoDisplay {
                 id: editorVideoDisplay
                 objectName: "editorVideoDisplay"
+                visible: videoLayer.state == AkElement.ElementStatePlaying
                 anchors.fill: parent
                 smooth: true
             }
@@ -267,7 +260,6 @@ Dialog {
 
                 delegate: Item {
                     id: delegateRoot
-
                     required property int index
                     required property var model
 
@@ -284,6 +276,8 @@ Dialog {
 
                     readonly property bool isSelected: layoutEditor.selectedSourceId === sourceId
                     readonly property real handleSize: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
+
+                    property bool isResizeMode: true
 
                     Connections {
                         target: videoEffects
@@ -307,11 +301,11 @@ Dialog {
                         height: delegateRoot.pxH
                         color: "transparent"
                         border.color: delegateRoot.isSelected?
-                                            AkTheme.palette.active.highlight:
-                                            AkTheme.palette.active.windowText
+                        AkTheme.palette.active.highlight:
+                        AkTheme.palette.active.windowText
                         border.width: delegateRoot.isSelected?
-                                        AkUnit.create(2 * AkTheme.controlScale, "dp").pixels:
-                                        AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
+                        AkUnit.create(2 * AkTheme.controlScale, "dp").pixels:
+                        AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
                         opacity: delegateRoot.isSelected? 1: 0.5
                         rotation: delegateRoot.normRotation
                         transformOrigin: Item.Center
@@ -321,8 +315,8 @@ Dialog {
                             anchors.fill: parent
                             anchors.margins: delegateRoot.handleSize / 2
                             cursorShape: drag.active?
-                                            Qt.ClosedHandCursor:
-                                            Qt.OpenHandCursor
+                            Qt.ClosedHandCursor:
+                            Qt.OpenHandCursor
                             drag.target: moveProxy
                             drag.threshold: 0
                             enabled: delegateRoot.isSelected
@@ -343,13 +337,15 @@ Dialog {
                                     let ny = moveProxy.y / canvasArea.height
                                     let nw = delegateRoot.normRect.width
                                     let nh = delegateRoot.normRect.height
-
                                     let snapped = layoutEditor.snapRect(delegateRoot.sourceId, Qt.rect(nx, ny, nw, nh))
                                     videoLayer.setSourceRect(delegateRoot.sourceId, snapped)
                                 }
                             }
 
                             onClicked: (mouse) => {
+                                let mapped = moveArea.mapToItem(canvasArea, mouse.x, mouse.y)
+                                let mouseX = mapped.x
+                                let mouseY = mapped.y
                                 let ids = videoLayer.sourceIds()
                                 let candidates = []
 
@@ -365,10 +361,10 @@ Dialog {
                                     let pxW = r.width * canvasArea.width
                                     let pxH = r.height * canvasArea.height
 
-                                    if (mouse.x >= pxX
-                                        && mouse.x <= pxX + pxW
-                                        && mouse.y >= pxY
-                                        && mouse.y <= pxY + pxH) {
+                                    if (mouseX >= pxX
+                                        && mouseX <= pxX + pxW
+                                        && mouseY >= pxY
+                                        && mouseY <= pxY + pxH) {
                                         candidates.push({ id: id, z: videoLayer.sourceZOrder(id) })
                                     }
                                 }
@@ -378,108 +374,257 @@ Dialog {
                                     layoutEditor.selectedSourceId = candidates[0].id
                                 }
                             }
+
+                            onDoubleClicked: (mouse) => {
+                                if (delegateRoot.isSelected)
+                                    delegateRoot.isResizeMode = !delegateRoot.isResizeMode
+                            }
                         }
                     }
 
-                    Rectangle {
-                        id: rotateHandle
-                        width: delegateRoot.handleSize
-                        height: delegateRoot.handleSize
-                        radius: delegateRoot.handleSize / 2
-                        color: AkTheme.palette.active.highlight
-                        border.color: AkTheme.palette.active.highlightedText
-                        border.width: AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
-                        visible: delegateRoot.isSelected
-                        z: 10
+                    // Resize handles (default)
+                    Repeater {
+                        id: resizeHandles
+                        model: [
+                            { corner: "tl", x: 0, y: 0 },
+                            { corner: "tr", x: 1, y: 0 },
+                            { corner: "bl", x: 0, y: 1 },
+                            { corner: "br", x: 1, y: 1 }
+                        ]
+                        delegate: Rectangle {
+                            id: resizeHandle
+                            width: delegateRoot.handleSize
+                            height: delegateRoot.handleSize
+                            color: AkTheme.palette.active.highlight
+                            border.color: AkTheme.palette.active.highlightedText
+                            border.width: AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
+                            visible: delegateRoot.isSelected && delegateRoot.isResizeMode
+                            z: 10
 
-                        readonly property real trX: delegateRoot.pxCx + (delegateRoot.pxW / 2)
-                                                    * Math.cos(delegateRoot.normRotation * Math.PI / 180)
-                                                    + (delegateRoot.pxH / 2)
-                                                    * Math.sin(delegateRoot.normRotation * Math.PI / 180)
-                        readonly property real trY: delegateRoot.pxCy + (delegateRoot.pxW / 2)
-                                                    * Math.sin(delegateRoot.normRotation * Math.PI / 180)
-                                                    - (delegateRoot.pxH / 2)
-                                                    * Math.cos(delegateRoot.normRotation * Math.PI / 180)
+                            rotation: delegateRoot.normRotation
+                            transformOrigin: Item.Center
 
-                        x: (handleArea.drag.active ? dragProxy.x : rotateHandle.trX) - width / 2
-                        y: (handleArea.drag.active ? dragProxy.y : rotateHandle.trY) - height / 2
+                            readonly property real rx: modelData.x === 0 ? -1 : 1
+                            readonly property real ry: modelData.y === 0 ? -1 : 1
+                            readonly property real rel_x: rx * (delegateRoot.pxW / 2)
+                            readonly property real rel_y: ry * (delegateRoot.pxH / 2)
+                            readonly property real a: delegateRoot.normRotation * Math.PI / 180
+                            readonly property real rot_x: rel_x * Math.cos(a) - rel_y * Math.sin(a)
+                            readonly property real rot_y: rel_x * Math.sin(a) + rel_y * Math.cos(a)
 
-                        Item {
-                            id: dragProxy
-                            parent: canvasArea
-                            width: 1
-                            height: 1
+                            x: delegateRoot.pxCx + rot_x - width / 2
+                            y: delegateRoot.pxCy + rot_y - height / 2
 
-                            property real startCenterX: 0
-                            property real startCenterY: 0
-                            property real startNormW: 1
-                            property real startNormH: 1
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: modelData.x === modelData.y?
+                                                Qt.SizeFDiagCursor:
+                                                Qt.SizeBDiagCursor
+                                drag.target: proxy
+                                drag.axis: Drag.XAndYAxis
+                                drag.threshold: 0
+
+                                Item {
+                                    id: proxy
+                                    parent: canvasArea
+                                    x: resizeHandle.x + resizeHandle.width / 2
+                                    y: resizeHandle.y + resizeHandle.height / 2
+                                    width: 1
+                                    height: 1
+
+                                    property var corner: modelData
+                                    property real startPxW: 0
+                                    property real startPxH: 0
+                                    property real startPxCx: 0
+                                    property real startPxCy: 0
+                                    property real startRotation: 0
+                                }
+
+                                onPressed: (mouse) => {
+                                    proxy.x = resizeHandle.x + resizeHandle.width / 2
+                                    proxy.y = resizeHandle.y + resizeHandle.height / 2
+                                    proxy.startPxW = delegateRoot.pxW
+                                    proxy.startPxH = delegateRoot.pxH
+                                    proxy.startPxCx = delegateRoot.pxCx
+                                    proxy.startPxCy = delegateRoot.pxCy
+                                    proxy.startRotation = delegateRoot.normRotation
+                                }
+
+                                onPositionChanged: (mouse) => {
+                                    if (!pressed)
+                                        return
+
+                                    let rx = proxy.corner.x === 0 ? -1 : 1
+                                    let ry = proxy.corner.y === 0 ? -1 : 1
+
+                                    let F_rel_x = -rx * (proxy.startPxW / 2)
+                                    let F_rel_y = -ry * (proxy.startPxH / 2)
+
+                                    let a = proxy.startRotation * Math.PI / 180
+                                    let cos_a = Math.cos(a)
+                                    let sin_a = Math.sin(a)
+
+                                    let F_rot_x = F_rel_x * cos_a - F_rel_y * sin_a
+                                    let F_rot_y = F_rel_x * sin_a + F_rel_y * cos_a
+
+                                    let F_screen_x = proxy.startPxCx + F_rot_x
+                                    let F_screen_y = proxy.startPxCy + F_rot_y
+
+                                    let D_screen_x = proxy.x
+                                    let D_screen_y = proxy.y
+
+                                    let dx = D_screen_x - F_screen_x
+                                    let dy = D_screen_y - F_screen_y
+
+                                    let v_x = dx * cos_a + dy * sin_a
+                                    let v_y = -dx * sin_a + dy * cos_a
+
+                                    let minW = 0.02 * canvasArea.width
+                                    let minH = 0.02 * canvasArea.height
+
+                                    let newW_px = Math.max(minW, v_x * rx)
+                                    let newH_px = Math.max(minH, v_y * ry)
+
+                                    let C_rel_F_local_x = rx * newW_px / 2
+                                    let C_rel_F_local_y = ry * newH_px / 2
+
+                                    let C_rel_F_screen_x = C_rel_F_local_x * cos_a - C_rel_F_local_y * sin_a
+                                    let C_rel_F_screen_y = C_rel_F_local_x * sin_a + C_rel_F_local_y * cos_a
+
+                                    let new_C_screen_x = F_screen_x + C_rel_F_screen_x
+                                    let new_C_screen_y = F_screen_y + C_rel_F_screen_y
+
+                                    let new_cx_n = new_C_screen_x / canvasArea.width
+                                    let new_cy_n = new_C_screen_y / canvasArea.height
+                                    let new_w_n = newW_px / canvasArea.width
+                                    let new_h_n = newH_px / canvasArea.height
+
+                                    let new_x_n = new_cx_n - new_w_n / 2
+                                    let new_y_n = new_cy_n - new_h_n / 2
+
+                                    videoLayer.setSourceRect(delegateRoot.sourceId, Qt.rect(new_x_n, new_y_n, new_w_n, new_h_n))
+                                }
+
+                                onReleased: {
+                                    let currentRect = videoLayer.sourceRect(delegateRoot.sourceId)
+                                    let snappedRect = layoutEditor.snapRect(delegateRoot.sourceId, currentRect)
+                                    videoLayer.setSourceRect(delegateRoot.sourceId, snappedRect)
+                                }
+                            }
                         }
+                    }
 
-                        MouseArea {
-                            id: handleArea
-                            anchors.fill: parent
-                            cursorShape: Qt.SizeAllCursor
-                            drag.target: dragProxy
-                            drag.threshold: 0
+                    // Rotation handles
+                    Repeater {
+                        id: rotateHandles
+                        model: [
+                            { corner: "tl", x: 0, y: 0 },
+                            { corner: "tr", x: 1, y: 0 },
+                            { corner: "bl", x: 0, y: 1 },
+                            { corner: "br", x: 1, y: 1 }
+                        ]
+                        delegate: Rectangle {
+                            id: rotateHandle
+                            width: delegateRoot.handleSize
+                            height: delegateRoot.handleSize
+                            radius: delegateRoot.handleSize / 2
+                            color: AkTheme.palette.active.highlight
+                            border.color: AkTheme.palette.active.highlightedText
+                            border.width: AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
+                            visible: delegateRoot.isSelected && !delegateRoot.isResizeMode
+                            z: 10
 
-                            onPressed: (mouse) => {
-                                dragProxy.x = rotateHandle.trX
-                                dragProxy.y = rotateHandle.trY
+                            rotation: delegateRoot.normRotation
+                            transformOrigin: Item.Center
 
-                                dragProxy.startCenterX  = delegateRoot.pxCx
-                                dragProxy.startCenterY  = delegateRoot.pxCy
-                                dragProxy.startNormW    = delegateRoot.normRect.width
-                                dragProxy.startNormH    = delegateRoot.normRect.height
+                            readonly property real rx: modelData.x === 0 ? -1 : 1
+                            readonly property real ry: modelData.y === 0 ? -1 : 1
+                            readonly property real rel_x: rx * (delegateRoot.pxW / 2)
+                            readonly property real rel_y: ry * (delegateRoot.pxH / 2)
+                            readonly property real a: delegateRoot.normRotation * Math.PI / 180
+                            readonly property real rot_x: rel_x * Math.cos(a) - rel_y * Math.sin(a)
+                            readonly property real rot_y: rel_x * Math.sin(a) + rel_y * Math.cos(a)
+
+                            x: delegateRoot.pxCx + rot_x - width / 2
+                            y: delegateRoot.pxCy + rot_y - height / 2
+
+                            Item {
+                                id: dragProxy
+                                parent: canvasArea
+                                width: 1
+                                height: 1
+
+                                property real startCenterX: 0
+                                property real startCenterY: 0
+                                property real startNormW: 1
+                                property real startNormH: 1
+                                property var corner: modelData
                             }
 
-                            onPositionChanged: (mouse) => {
-                                if (!pressed)
-                                    return
+                            MouseArea {
+                                anchors.fill: parent
+                                cursorShape: Qt.SizeAllCursor
+                                drag.target: dragProxy
+                                drag.threshold: 0
 
-                                let dx_px = dragProxy.x - dragProxy.startCenterX
-                                let dy_px = dragProxy.y - dragProxy.startCenterY
-                                let dist_px = Math.sqrt(dx_px * dx_px + dy_px * dy_px)
+                                onPressed: (mouse) => {
+                                    dragProxy.x = rotateHandle.x + rotateHandle.width / 2
+                                    dragProxy.y = rotateHandle.y + rotateHandle.height / 2
+                                    dragProxy.startCenterX  = delegateRoot.pxCx
+                                    dragProxy.startCenterY  = delegateRoot.pxCy
+                                    dragProxy.startNormW    = delegateRoot.normRect.width
+                                    dragProxy.startNormH    = delegateRoot.normRect.height
+                                    dragProxy.corner        = modelData
+                                }
 
-                                let startPxW = dragProxy.startNormW * canvasArea.width
-                                let startPxH = dragProxy.startNormH * canvasArea.height
+                                onPositionChanged: (mouse) => {
+                                    if (!pressed)
+                                        return
 
-                                let startDist_px = Math.sqrt(Math.pow(startPxW / 2, 2) + Math.pow(startPxH / 2, 2))
+                                    let dx_px = dragProxy.x - dragProxy.startCenterX
+                                    let dy_px = dragProxy.y - dragProxy.startCenterY
+                                    let dist_px = Math.sqrt(dx_px * dx_px + dy_px * dy_px)
 
-                                let scale = startDist_px > 0 ? dist_px / startDist_px : 1.0
+                                    let startPxW = dragProxy.startNormW * canvasArea.width
+                                    let startPxH = dragProxy.startNormH * canvasArea.height
+                                    let startDist_px = Math.sqrt(Math.pow(startPxW / 2, 2) + Math.pow(startPxH / 2, 2))
 
-                                let newNormW = Math.max(0.02, dragProxy.startNormW * scale)
-                                let newNormH = Math.max(0.02, dragProxy.startNormH * scale)
+                                    let scale = startDist_px > 0 ? dist_px / startDist_px : 1.0
+                                    let newNormW = Math.max(0.02, dragProxy.startNormW * scale)
+                                    let newNormH = Math.max(0.02, dragProxy.startNormH * scale)
 
-                                let theta_mouse = Math.atan2(dy_px, dx_px)
-                                let alpha = Math.atan2(-startPxH / 2, startPxW / 2)
-                                let theta_rad = theta_mouse - alpha
-                                let theta_deg = theta_rad * 180 / Math.PI
+                                    let cornerX = dragProxy.corner.x === 0 ? -startPxW / 2 : startPxW / 2
+                                    let cornerY = dragProxy.corner.y === 0 ? -startPxH / 2 : startPxH / 2
+                                    let alpha = Math.atan2(cornerY, cornerX)
 
-                                theta_deg = ((theta_deg % 360) + 360) % 360
+                                    let theta_mouse = Math.atan2(dy_px, dx_px)
+                                    let theta_rad = theta_mouse - alpha
+                                    let theta_deg = theta_rad * 180 / Math.PI
+                                    theta_deg = ((theta_deg % 360) + 360) % 360
 
-                                let cx_n = dragProxy.startCenterX / canvasArea.width
-                                let cy_n = dragProxy.startCenterY / canvasArea.height
+                                    let cx_n = dragProxy.startCenterX / canvasArea.width
+                                    let cy_n = dragProxy.startCenterY / canvasArea.height
 
-                                let nr = Qt.rect(
-                                    cx_n - newNormW / 2,
-                                    cy_n - newNormH / 2,
-                                    newNormW,
-                                    newNormH
-                                )
+                                    let nr = Qt.rect(
+                                        cx_n - newNormW / 2,
+                                        cy_n - newNormH / 2,
+                                        newNormW,
+                                        newNormH
+                                    )
 
-                                videoLayer.setSourceRect(delegateRoot.sourceId, nr)
-                                videoLayer.setSourceRotation(delegateRoot.sourceId, theta_deg)
-                            }
+                                    videoLayer.setSourceRect(delegateRoot.sourceId, nr)
+                                    videoLayer.setSourceRotation(delegateRoot.sourceId, theta_deg)
+                                }
 
-                            onReleased: {
-                                let currentRect = videoLayer.sourceRect(delegateRoot.sourceId)
-                                let snappedRect = layoutEditor.snapRect(delegateRoot.sourceId, currentRect)
-                                videoLayer.setSourceRect(delegateRoot.sourceId, snappedRect)
+                                onReleased: {
+                                    let currentRect = videoLayer.sourceRect(delegateRoot.sourceId)
+                                    let snappedRect = layoutEditor.snapRect(delegateRoot.sourceId, currentRect)
+                                    videoLayer.setSourceRect(delegateRoot.sourceId, snappedRect)
 
-                                let currentRotation = videoLayer.sourceRotation(delegateRoot.sourceId)
-                                let snappedRotation = layoutEditor.snapAngle(currentRotation)
-                                videoLayer.setSourceRotation(delegateRoot.sourceId, snappedRotation)
+                                    let currentRotation = videoLayer.sourceRotation(delegateRoot.sourceId)
+                                    let snappedRotation = layoutEditor.snapAngle(currentRotation)
+                                    videoLayer.setSourceRotation(delegateRoot.sourceId, snappedRotation)
+                                }
                             }
                         }
                     }
@@ -496,7 +641,6 @@ Dialog {
             MouseArea {
                 anchors.fill: parent
                 z: -2
-
                 onClicked: (mouse) => {
                     let ids = videoLayer.sourceIds()
                     let candidates = []

@@ -255,6 +255,9 @@ qint64 VideoEffects::addSource(qint64 id, const QString &device)
         this->d->m_glCompositor.addSource(id);
         this->d->m_glCompositor.setSourcePreserveNullPlugins(id, true);
         this->d->m_glCompositor.setSourceRect(id, QRectF(0.0, 0.0, 1.0, 1.0));
+        this->d->m_glCompositor.setSourceOpacity(id, 1.0);
+        this->d->m_glCompositor.setSourceRotation(id, 0.0);
+        this->d->m_glCompositor.setSourceAspectRatioMode(id, Qt::KeepAspectRatio);
 
         if (!device.isEmpty()) {
             this->d->m_sourceDevices[id] = device;
