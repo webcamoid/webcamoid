@@ -801,6 +801,16 @@ void VideoEffects::unlinkLayoutEditor()
     this->d->unlinkLayoutEditor();
 }
 
+void VideoEffects::attachToWindow(QQuickWindow *window)
+{
+    this->d->m_glCompositor.attachToWindow(window);
+}
+
+void VideoEffects::detachFromWindow()
+{
+    this->d->m_glCompositor.detachFromWindow();
+}
+
 void VideoEffects::setQmlEngine(QQmlApplicationEngine *engine)
 {
     if (this->d->m_engine == engine)
@@ -852,6 +862,11 @@ VideoEffectsPrivate::VideoEffectsPrivate(VideoEffects *self):
                      &AkGLCompositor::ready,
                      self,
                      &VideoEffects::ready);
+    QObject::connect(&this->m_glCompositor,
+                     &AkGLCompositor::outputTextureReady,
+                     self,
+                     &VideoEffects::outputTextureReady,
+                     Qt::DirectConnection);
 
     // Sources management.
     QObject::connect(&this->m_glCompositor,
@@ -1160,7 +1175,11 @@ void VideoEffectsPrivate::linkPreview()
         auto effectPreview = obj->findChild<VideoDisplay *>("effectPreview");
 
         if (effectPreview) {
-            this->m_glCompositor.link(effectPreview, Qt::DirectConnection);
+            QObject::connect(&this->m_glCompositor,
+                             &AkGLCompositor::outputTextureReady,
+                             effectPreview,
+                             &VideoDisplay::iStreamGL,
+                             Qt::DirectConnection);
 
             break;
         }
@@ -1176,7 +1195,10 @@ void VideoEffectsPrivate::unlinkPreview()
         auto effectPreview = obj->findChild<VideoDisplay *>("effectPreview");
 
         if (effectPreview) {
-            this->m_glCompositor.unlink(effectPreview);
+            QObject::disconnect(&this->m_glCompositor,
+                                &AkGLCompositor::outputTextureReady,
+                                effectPreview,
+                                &VideoDisplay::iStreamGL);
 
             break;
         }
@@ -1192,7 +1214,11 @@ void VideoEffectsPrivate::linkLayoutEditor()
         auto editorDisplay = obj->findChild<VideoDisplay *>("editorVideoDisplay");
 
         if (editorDisplay) {
-            this->m_glCompositor.link(editorDisplay, Qt::DirectConnection);
+            QObject::connect(&this->m_glCompositor,
+                             &AkGLCompositor::outputTextureReady,
+                             editorDisplay,
+                             &VideoDisplay::iStreamGL,
+                             Qt::DirectConnection);
 
             break;
         }
@@ -1208,7 +1234,10 @@ void VideoEffectsPrivate::unlinkLayoutEditor()
         auto editorDisplay = obj->findChild<VideoDisplay *>("editorVideoDisplay");
 
         if (editorDisplay) {
-            this->m_glCompositor.unlink(editorDisplay);
+            QObject::disconnect(&this->m_glCompositor,
+                                &AkGLCompositor::outputTextureReady,
+                                editorDisplay,
+                                &VideoDisplay::iStreamGL);
 
             break;
         }

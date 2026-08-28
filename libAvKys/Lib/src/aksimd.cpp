@@ -386,7 +386,7 @@ int AkSimd::preferredAlign(SimdInstructionSet wanted)
              || AkSimdPrivate::haveSSE4_1())
         return 16;
 #elif defined(Q_PROCESSOR_ARM)
-    if (AkSimdPrivate::haveNEON())
+    if (AkSimdPrivate::haveSVE())
         return 32;
     else if (AkSimdPrivate::haveNEON())
         return 16;
@@ -400,6 +400,9 @@ int AkSimd::preferredAlign(SimdInstructionSet wanted)
 
 void AkSimd::afree(void *ptr)
 {
+    if (!ptr)
+        return;
+
 #ifdef Q_OS_WIN32
     _aligned_free(ptr);
 #else
@@ -409,6 +412,9 @@ void AkSimd::afree(void *ptr)
 
 void *AkSimd::amalloc(size_t size, int align)
 {
+    if (align <= 1)
+        align = sizeof(void*);
+
 #ifdef Q_OS_WIN32
     return _aligned_malloc(size, align);
 #else

@@ -27,10 +27,19 @@ import Webcamoid
 
 ApplicationWindow {
     id: wdgMainWidget
-    title: mediaTools.applicationName + " " + version()
+    title: {
+        let appTitle = mediaTools.applicationName + " " + version()
+
+        if (videoDisplay.visible && videoDisplay.measureFps)
+            appTitle += " - " + renderingFPS + " FPS"
+
+        return appTitle
+    }
     visible: true
     width: mediaTools.windowWidth
     height: mediaTools.windowHeight
+
+    property int renderingFPS: 0
 
     readonly property string filePrefix: Ak.platform() == "windows"?
                                              "file:///":
@@ -186,7 +195,10 @@ ApplicationWindow {
         objectName: "videoDisplay"
         visible: videoLayer.state == AkElement.ElementStatePlaying
         smooth: true
+        measureFps: mediaTools.showFps
         anchors.fill: parent
+
+        onFpsUpdated: (fps) => wdgMainWidget.renderingFPS = fps
     }
     Image {
         id: photoPreviewThumbnail

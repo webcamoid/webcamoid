@@ -635,7 +635,7 @@ class AKCOMMONS_EXPORT AkVideoCaps: public QObject
 
         Q_INVOKABLE AkVideoCaps nearest(const AkVideoCapsList &caps) const;
         Q_INVOKABLE bool isSameFormat(const AkVideoCaps &other) const;
-        Q_INVOKABLE size_t dataSize() const;
+        Q_INVOKABLE size_t dataSize(int align=0) const;
 
         Q_INVOKABLE static int bitsPerPixel(AkVideoCaps::PixelFormat pixelFormat);
         Q_INVOKABLE static QString pixelFormatToString(AkVideoCaps::PixelFormat pixelFormat);

@@ -59,6 +59,11 @@ class AKCOMMONS_EXPORT AkVideoConverter: public QObject
                WRITE setInputRect
                RESET resetInputRect
                NOTIFY inputRectChanged)
+    Q_PROPERTY(int align
+               READ align
+               WRITE setAlign
+               RESET resetAlign
+               NOTIFY alignChanged)
 
     public:
         enum ScalingMode {
@@ -90,6 +95,7 @@ class AKCOMMONS_EXPORT AkVideoConverter: public QObject
         Q_INVOKABLE AkVideoConverter::ScalingMode scalingMode() const;
         Q_INVOKABLE AkVideoConverter::AspectRatioMode aspectRatioMode() const;
         Q_INVOKABLE QRect inputRect() const;
+        Q_INVOKABLE int align() const;
 
         Q_INVOKABLE bool begin();
         Q_INVOKABLE void end();
@@ -105,6 +111,7 @@ class AKCOMMONS_EXPORT AkVideoConverter: public QObject
         void scalingModeChanged(AkVideoConverter::ScalingMode scalingMode);
         void aspectRatioModeChanged(AkVideoConverter::AspectRatioMode aspectRatioMode);
         void inputRectChanged(const QRect &inputRect);
+        void alignChanged(int align);
 
     public Q_SLOTS:
         void setCacheIndex(int index);
@@ -114,12 +121,14 @@ class AKCOMMONS_EXPORT AkVideoConverter: public QObject
         void setScalingMode(AkVideoConverter::ScalingMode scalingMode);
         void setAspectRatioMode(AkVideoConverter::AspectRatioMode aspectRatioMode);
         void setInputRect(const QRect &inputRect);
+        void setAlign(int align);
         void resetOutputCaps();
         void resetYuvColorSpace();
         void resetYuvColorSpaceType();
         void resetScalingMode();
         void resetAspectRatioMode();
         void resetInputRect();
+        void resetAlign();
         void reset();
         static void registerTypes();
 };

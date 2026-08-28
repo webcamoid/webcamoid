@@ -1001,42 +1001,47 @@
         <translation>Skjul kontroller når markøren forlader området</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="111"/>
+        <location filename="../qml/GeneralConfig.qml" line="110"/>
+        <source>Show current FPS in title bar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="122"/>
         <source>Frameworks and libraries</source>
         <translation>Rammer og biblioteker</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="121"/>
+        <location filename="../qml/GeneralConfig.qml" line="132"/>
         <source>Video capture</source>
         <translation>Videooptagelse</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="139"/>
+        <location filename="../qml/GeneralConfig.qml" line="150"/>
         <source>Screen capture</source>
         <translation>Skærmoptagelse</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="157"/>
+        <location filename="../qml/GeneralConfig.qml" line="168"/>
         <source>Audio capture/playback</source>
         <translation>Lydoptagelse/afspilning</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="175"/>
+        <location filename="../qml/GeneralConfig.qml" line="186"/>
         <source>Video convert</source>
         <translation>Videokonvertering</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="193"/>
+        <location filename="../qml/GeneralConfig.qml" line="204"/>
         <source>Video playback</source>
         <translation>Videoudspilning</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="211"/>
+        <location filename="../qml/GeneralConfig.qml" line="222"/>
         <source>Virtual camera driver</source>
         <translation>Driver for virtuelt kamera</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="234"/>
+        <location filename="../qml/GeneralConfig.qml" line="245"/>
         <source>Root method</source>
         <extracomment>The preferred method for executing commands with elevated privileges in the system.</extracomment>
         <translation>Root-metode</translation>
@@ -1123,17 +1128,17 @@
 <context>
     <name>LayoutEditorDialog</name>
     <message>
-        <location filename="../qml/LayoutEditorDialog.qml" line="58"/>
+        <location filename="../qml/LayoutEditorDialog.qml" line="94"/>
         <source>Source %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LayoutEditorDialog.qml" line="203"/>
+        <location filename="../qml/LayoutEditorDialog.qml" line="234"/>
         <source>Source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LayoutEditorDialog.qml" line="233"/>
+        <location filename="../qml/LayoutEditorDialog.qml" line="264"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1411,7 +1416,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1311"/>
+        <location filename="../../src/mediatools.cpp" line="1351"/>
         <source>%1/log %2.txt</source>
         <translation>%1/log %2.txt</translation>
     </message>
@@ -4874,135 +4879,135 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="53"/>
+        <location filename="../qml/main.qml" line="62"/>
         <source>Daily Build</source>
         <translation>Daglig Build</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="67"/>
+        <location filename="../qml/main.qml" line="76"/>
         <source>%1/Picture %2.%3</source>
         <translation>%1/Billede %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="255"/>
+        <location filename="../qml/main.qml" line="267"/>
         <source>Main menu</source>
         <translation>Hovedmenu</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="261"/>
+        <location filename="../qml/main.qml" line="273"/>
         <source>Open main menu</source>
         <translation>Åbn hovedmenu</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="291"/>
+        <location filename="../qml/main.qml" line="303"/>
         <source>Start streaming</source>
         <translation>Start streaming</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="291"/>
+        <location filename="../qml/main.qml" line="303"/>
         <source>Stop streaming</source>
         <translation>Stop streaming</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="296"/>
+        <location filename="../qml/main.qml" line="308"/>
         <source>You must add at least one streaming platform to the video outputs</source>
         <translation>Du skal tilføje mindst én streaming-platform til video-outputtene</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="298"/>
+        <location filename="../qml/main.qml" line="310"/>
         <source>The following platforms are not configured:&lt;br/&gt;&lt;br/&gt;%1</source>
         <translation>Følgende platforme er ikke konfigureret:&lt;br/&gt;&lt;br/&gt;%1</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="332"/>
+        <location filename="../qml/main.qml" line="344"/>
         <source>Capture options</source>
         <translation>Optagelsesindstillinger</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="338"/>
+        <location filename="../qml/main.qml" line="350"/>
         <source>Open capture options menu</source>
         <translation>Åbn optagelsesindstillingsmenu</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="369"/>
+        <location filename="../qml/main.qml" line="381"/>
         <source>Open last photo</source>
         <translation>Åbn sidste foto</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="380"/>
+        <location filename="../qml/main.qml" line="392"/>
         <source>Open last photo taken</source>
         <translation>Åbn sidst tagne foto</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="411"/>
-        <location filename="../qml/main.qml" line="414"/>
+        <location filename="../qml/main.qml" line="423"/>
+        <location filename="../qml/main.qml" line="426"/>
         <source>Take a photo</source>
         <translation>Tag et foto</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="415"/>
+        <location filename="../qml/main.qml" line="427"/>
         <source>Image capture mode</source>
         <translation>Billedoptagelsestilstand</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="418"/>
+        <location filename="../qml/main.qml" line="430"/>
         <source>Make a capture and save it to an image file</source>
         <translation>Lav en optagelse og gem den til en billedfil</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="419"/>
+        <location filename="../qml/main.qml" line="431"/>
         <source>Put %1 in image capture mode</source>
         <translation>Sæt %1 i billedoptagelsestilstand</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="468"/>
-        <location filename="../qml/main.qml" line="474"/>
+        <location filename="../qml/main.qml" line="480"/>
+        <location filename="../qml/main.qml" line="486"/>
         <source>Record video</source>
         <translation>Optag video</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="469"/>
-        <location filename="../qml/main.qml" line="475"/>
+        <location filename="../qml/main.qml" line="481"/>
+        <location filename="../qml/main.qml" line="487"/>
         <source>Stop video recording</source>
         <translation>Stop videooptagelse</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="472"/>
+        <location filename="../qml/main.qml" line="484"/>
         <source>Video capture mode</source>
         <translation>Videooptagelsestilstand</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="478"/>
+        <location filename="../qml/main.qml" line="490"/>
         <source>Put %1 in video recording mode</source>
         <translation>Sæt %1 i videooptagelsestilstand</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="480"/>
+        <location filename="../qml/main.qml" line="492"/>
         <source>Start recording to a video file</source>
         <translation>Start optagelse til en videofil</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="481"/>
+        <location filename="../qml/main.qml" line="493"/>
         <source>Stop current video recording</source>
         <translation>Stop nuværende videooptagelse</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="525"/>
+        <location filename="../qml/main.qml" line="537"/>
         <source>Open last video</source>
         <translation>Åbn sidste video</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="537"/>
+        <location filename="../qml/main.qml" line="549"/>
         <source>Open last recorded video</source>
         <translation>Åbn sidst optagne video</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="793"/>
+        <location filename="../qml/main.qml" line="805"/>
         <source>Installing virtual camera</source>
         <translation>Installerer virtuelt kamera</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="794"/>
+        <location filename="../qml/main.qml" line="806"/>
         <source>Running commands</source>
         <translation>Kører kommandoer</translation>
     </message>

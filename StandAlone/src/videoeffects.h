@@ -20,6 +20,7 @@
 #ifndef VIDEOEFFECTS_H
 #define VIDEOEFFECTS_H
 
+#include <QOpenGLFunctions>
 #include <qrgb.h>
 #include <iak/akelement.h>
 #include <iak/akvideoeffect.h>
@@ -27,7 +28,9 @@
 class VideoEffectsPrivate;
 class VideoEffects;
 class QQmlApplicationEngine;
+class QQuickWindow;
 class QRectF;
+class QSize;
 class AkPluginInfo;
 class AkVideoCaps;
 
@@ -153,6 +156,7 @@ class VideoEffects: public QObject
         void sourceChainEffectsChanged(qint64 id, bool chainEffects);
         void sourcePreserveNullPluginsChanged(qint64 id, bool preserveNullPlugins);
         void sourceIsEmptyChanged(qint64 id, bool isEmpty);
+        void outputTextureReady(GLuint texture, const QSize &size);
 
     public slots:
         // Global output pipeline
@@ -178,6 +182,8 @@ class VideoEffects: public QObject
         void unlinkLayoutEditor();
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
         AkPacket iStream(const AkPacket &packet);
+        void attachToWindow(QQuickWindow *window);
+        void detachFromWindow();
 
         // Source layout
         void setSourceRect(qint64 id, const QRectF &rect);

@@ -109,6 +109,11 @@ class MediaTools: public QObject
                WRITE setHideControlsOnPointerOut
                RESET resetHideControlsOnPointerOut
                NOTIFY hideControlsOnPointerOutChanged)
+    Q_PROPERTY(bool showFps
+               READ showFps
+               WRITE setShowFps
+               RESET resetShowFps
+               NOTIFY showFpsChanged)
 
     public:
         enum AdType {
@@ -163,6 +168,7 @@ class MediaTools: public QObject
         Q_INVOKABLE bool singleInstanceAllowed() const;
         Q_INVOKABLE bool singleInstance() const;
         Q_INVOKABLE bool hideControlsOnPointerOut() const;
+        Q_INVOKABLE bool showFps() const;
 
     private:
         MediaToolsPrivate *d;
@@ -178,6 +184,7 @@ class MediaTools: public QObject
         void adBannerHeightChanged(int adBannerHeight);
         void singleInstanceChanged(bool singleInstance);
         void hideControlsOnPointerOutChanged(bool hideControlsOnPointerOut);
+        void showFpsChanged(bool showFps);
 
     public slots:
         bool init(const CliOptions &cliOptions);
@@ -186,11 +193,13 @@ class MediaTools: public QObject
         void setDocumentsDirectory(const QString &documentsDirectory);
         void setSingleInstance(bool singleInstance);
         void setHideControlsOnPointerOut(bool hideControlsOnPointerOut);
+        void setShowFps(bool showFps);
         void resetWindowWidth();
         void resetWindowHeight();
         void resetDocumentsDirectory();
         void resetSingleInstance();
         void resetHideControlsOnPointerOut();
+        void resetShowFps();
         void loadConfigs();
         void saveConfigs();
         void show();

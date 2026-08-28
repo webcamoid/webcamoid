@@ -976,22 +976,22 @@
 <context>
     <name>GeneralConfig</name>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="121"/>
+        <location filename="../qml/GeneralConfig.qml" line="132"/>
         <source>Video capture</source>
         <translation>비디오 캡처</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="175"/>
+        <location filename="../qml/GeneralConfig.qml" line="186"/>
         <source>Video convert</source>
         <translation>비디오 변환</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="211"/>
+        <location filename="../qml/GeneralConfig.qml" line="222"/>
         <source>Virtual camera driver</source>
         <translation>가상 카메라 드라이버</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="193"/>
+        <location filename="../qml/GeneralConfig.qml" line="204"/>
         <source>Video playback</source>
         <translation>비디오 재생</translation>
     </message>
@@ -1021,22 +1021,27 @@
         <translation>포인터 밖으로 나가면 컨트롤 숨기기</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="111"/>
+        <location filename="../qml/GeneralConfig.qml" line="110"/>
+        <source>Show current FPS in title bar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="122"/>
         <source>Frameworks and libraries</source>
         <translation>프레임워크 및 라이브러리</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="139"/>
+        <location filename="../qml/GeneralConfig.qml" line="150"/>
         <source>Screen capture</source>
         <translation>화면 캡처</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="157"/>
+        <location filename="../qml/GeneralConfig.qml" line="168"/>
         <source>Audio capture/playback</source>
         <translation>오디오 캡처/재생</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="234"/>
+        <location filename="../qml/GeneralConfig.qml" line="245"/>
         <source>Root method</source>
         <extracomment>The preferred method for executing commands with elevated privileges in the system.</extracomment>
         <translation>루트 방법</translation>
@@ -1123,17 +1128,17 @@
 <context>
     <name>LayoutEditorDialog</name>
     <message>
-        <location filename="../qml/LayoutEditorDialog.qml" line="58"/>
+        <location filename="../qml/LayoutEditorDialog.qml" line="94"/>
         <source>Source %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LayoutEditorDialog.qml" line="203"/>
+        <location filename="../qml/LayoutEditorDialog.qml" line="234"/>
         <source>Source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LayoutEditorDialog.qml" line="233"/>
+        <location filename="../qml/LayoutEditorDialog.qml" line="264"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1410,7 +1415,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1311"/>
+        <location filename="../../src/mediatools.cpp" line="1351"/>
         <source>%1/log %2.txt</source>
         <translation>%1/로그 %2.txt</translation>
     </message>
@@ -4873,135 +4878,135 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="53"/>
+        <location filename="../qml/main.qml" line="62"/>
         <source>Daily Build</source>
         <translation>일일 빌드</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="67"/>
+        <location filename="../qml/main.qml" line="76"/>
         <source>%1/Picture %2.%3</source>
         <translation>%1/사진 %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="255"/>
+        <location filename="../qml/main.qml" line="267"/>
         <source>Main menu</source>
         <translation>메인 메뉴</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="261"/>
+        <location filename="../qml/main.qml" line="273"/>
         <source>Open main menu</source>
         <translation>메인 메뉴 열기</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="291"/>
+        <location filename="../qml/main.qml" line="303"/>
         <source>Start streaming</source>
         <translation>스트리밍 시작</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="291"/>
+        <location filename="../qml/main.qml" line="303"/>
         <source>Stop streaming</source>
         <translation>스트리밍 중지</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="296"/>
+        <location filename="../qml/main.qml" line="308"/>
         <source>You must add at least one streaming platform to the video outputs</source>
         <translation>비디오 출력에 최소 하나의 스트리밍 플랫폼을 추가해야 합니다</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="298"/>
+        <location filename="../qml/main.qml" line="310"/>
         <source>The following platforms are not configured:&lt;br/&gt;&lt;br/&gt;%1</source>
         <translation>다음 플랫폼이 구성되지 않았습니다:&lt;br/&gt;&lt;br/&gt;%1</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="332"/>
+        <location filename="../qml/main.qml" line="344"/>
         <source>Capture options</source>
         <translation>캡처 옵션</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="338"/>
+        <location filename="../qml/main.qml" line="350"/>
         <source>Open capture options menu</source>
         <translation>캡처 옵션 메뉴 열기</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="369"/>
+        <location filename="../qml/main.qml" line="381"/>
         <source>Open last photo</source>
         <translation>마지막 사진 열기</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="380"/>
+        <location filename="../qml/main.qml" line="392"/>
         <source>Open last photo taken</source>
         <translation>찍은 마지막 사진 열기</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="411"/>
-        <location filename="../qml/main.qml" line="414"/>
+        <location filename="../qml/main.qml" line="423"/>
+        <location filename="../qml/main.qml" line="426"/>
         <source>Take a photo</source>
         <translation>사진 찍기</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="415"/>
+        <location filename="../qml/main.qml" line="427"/>
         <source>Image capture mode</source>
         <translation>이미지 캡처 모드</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="418"/>
+        <location filename="../qml/main.qml" line="430"/>
         <source>Make a capture and save it to an image file</source>
         <translation>캡처를 만들어 이미지 파일로 저장</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="419"/>
+        <location filename="../qml/main.qml" line="431"/>
         <source>Put %1 in image capture mode</source>
         <translation>%1을 이미지 캡처 모드로 설정</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="468"/>
-        <location filename="../qml/main.qml" line="474"/>
+        <location filename="../qml/main.qml" line="480"/>
+        <location filename="../qml/main.qml" line="486"/>
         <source>Record video</source>
         <translation>비디오 녹화</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="469"/>
-        <location filename="../qml/main.qml" line="475"/>
+        <location filename="../qml/main.qml" line="481"/>
+        <location filename="../qml/main.qml" line="487"/>
         <source>Stop video recording</source>
         <translation>비디오 녹화 중지</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="472"/>
+        <location filename="../qml/main.qml" line="484"/>
         <source>Video capture mode</source>
         <translation>비디오 캡처 모드</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="478"/>
+        <location filename="../qml/main.qml" line="490"/>
         <source>Put %1 in video recording mode</source>
         <translation>%1을 비디오 녹화 모드로 설정</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="480"/>
+        <location filename="../qml/main.qml" line="492"/>
         <source>Start recording to a video file</source>
         <translation>비디오 파일로 녹화 시작</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="481"/>
+        <location filename="../qml/main.qml" line="493"/>
         <source>Stop current video recording</source>
         <translation>현재 비디오 녹화 중지</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="525"/>
+        <location filename="../qml/main.qml" line="537"/>
         <source>Open last video</source>
         <translation>마지막 비디오 열기</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="537"/>
+        <location filename="../qml/main.qml" line="549"/>
         <source>Open last recorded video</source>
         <translation>녹화된 마지막 비디오 열기</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="793"/>
+        <location filename="../qml/main.qml" line="805"/>
         <source>Installing virtual camera</source>
         <translation>가상 카메라 설치 중</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="794"/>
+        <location filename="../qml/main.qml" line="806"/>
         <source>Running commands</source>
         <translation>명령 실행 중</translation>
     </message>

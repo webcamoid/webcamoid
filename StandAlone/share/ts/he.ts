@@ -976,22 +976,22 @@
 <context>
     <name>GeneralConfig</name>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="121"/>
+        <location filename="../qml/GeneralConfig.qml" line="132"/>
         <source>Video capture</source>
         <translation>לכידת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="175"/>
+        <location filename="../qml/GeneralConfig.qml" line="186"/>
         <source>Video convert</source>
         <translation>המרת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="211"/>
+        <location filename="../qml/GeneralConfig.qml" line="222"/>
         <source>Virtual camera driver</source>
         <translation>מנהל התקן וירטואלי למצלמה</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="193"/>
+        <location filename="../qml/GeneralConfig.qml" line="204"/>
         <source>Video playback</source>
         <translation>נגינת וידאו</translation>
     </message>
@@ -1021,22 +1021,27 @@
         <translation>הסתר את הפקדים כאשר הסמן יוצא</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="111"/>
+        <location filename="../qml/GeneralConfig.qml" line="110"/>
+        <source>Show current FPS in title bar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="122"/>
         <source>Frameworks and libraries</source>
         <translation>סביבות עבודה וספריות</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="139"/>
+        <location filename="../qml/GeneralConfig.qml" line="150"/>
         <source>Screen capture</source>
         <translation>לכידת המסך</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="157"/>
+        <location filename="../qml/GeneralConfig.qml" line="168"/>
         <source>Audio capture/playback</source>
         <translation>לכידת/נגינת שמע</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="234"/>
+        <location filename="../qml/GeneralConfig.qml" line="245"/>
         <source>Root method</source>
         <extracomment>The preferred method for executing commands with elevated privileges in the system.</extracomment>
         <translation>שיטת שורש</translation>
@@ -1123,17 +1128,17 @@
 <context>
     <name>LayoutEditorDialog</name>
     <message>
-        <location filename="../qml/LayoutEditorDialog.qml" line="58"/>
+        <location filename="../qml/LayoutEditorDialog.qml" line="94"/>
         <source>Source %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LayoutEditorDialog.qml" line="203"/>
+        <location filename="../qml/LayoutEditorDialog.qml" line="234"/>
         <source>Source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LayoutEditorDialog.qml" line="233"/>
+        <location filename="../qml/LayoutEditorDialog.qml" line="264"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1411,7 +1416,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1311"/>
+        <location filename="../../src/mediatools.cpp" line="1351"/>
         <source>%1/log %2.txt</source>
         <translation>%1/log %2.txt</translation>
     </message>
@@ -4529,115 +4534,115 @@
         <translation>משך (בשניות)</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="411"/>
-        <location filename="../qml/main.qml" line="414"/>
+        <location filename="../qml/main.qml" line="423"/>
+        <location filename="../qml/main.qml" line="426"/>
         <source>Take a photo</source>
         <translation>צילום תמונה</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="67"/>
+        <location filename="../qml/main.qml" line="76"/>
         <source>%1/Picture %2.%3</source>
         <translation>%1/תמונה %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="53"/>
+        <location filename="../qml/main.qml" line="62"/>
         <source>Daily Build</source>
         <translation>מהדורה יומית</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="291"/>
+        <location filename="../qml/main.qml" line="303"/>
         <source>Start streaming</source>
         <translation>התחלת הזרמה</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="291"/>
+        <location filename="../qml/main.qml" line="303"/>
         <source>Stop streaming</source>
         <translation>עצירת הזרמה</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="296"/>
+        <location filename="../qml/main.qml" line="308"/>
         <source>You must add at least one streaming platform to the video outputs</source>
         <translation>יש להוסיף לפחות פלטפורמת הזרמה אחת לפלטי הווידאו</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="298"/>
+        <location filename="../qml/main.qml" line="310"/>
         <source>The following platforms are not configured:&lt;br/&gt;&lt;br/&gt;%1</source>
         <translation>הפלטפורמות הבאות אינן מוגדרות:&lt;br/&gt;&lt;br/&gt;%1</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="369"/>
+        <location filename="../qml/main.qml" line="381"/>
         <source>Open last photo</source>
         <translation>פתיחת התמונה האחרונה</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="380"/>
+        <location filename="../qml/main.qml" line="392"/>
         <source>Open last photo taken</source>
         <translation>פתיחת התמונה האחרונה שצולמה</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="415"/>
+        <location filename="../qml/main.qml" line="427"/>
         <source>Image capture mode</source>
         <translation>מצב לכידת תמונה</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="418"/>
+        <location filename="../qml/main.qml" line="430"/>
         <source>Make a capture and save it to an image file</source>
         <translation>לכידת תמונה ושמירתה לקובץ תמונה</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="419"/>
+        <location filename="../qml/main.qml" line="431"/>
         <source>Put %1 in image capture mode</source>
         <translation>הגדרת %1 למצב לכידת תמונה</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="468"/>
-        <location filename="../qml/main.qml" line="474"/>
+        <location filename="../qml/main.qml" line="480"/>
+        <location filename="../qml/main.qml" line="486"/>
         <source>Record video</source>
         <translation>הקלטת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="469"/>
-        <location filename="../qml/main.qml" line="475"/>
+        <location filename="../qml/main.qml" line="481"/>
+        <location filename="../qml/main.qml" line="487"/>
         <source>Stop video recording</source>
         <translation>עצירת הקלטת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="472"/>
+        <location filename="../qml/main.qml" line="484"/>
         <source>Video capture mode</source>
         <translation>מצב לכידת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="478"/>
+        <location filename="../qml/main.qml" line="490"/>
         <source>Put %1 in video recording mode</source>
         <translation>הגדרת %1 למצב לכידת וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="480"/>
+        <location filename="../qml/main.qml" line="492"/>
         <source>Start recording to a video file</source>
         <translation>התחלת הקלטה לקובץ וידאו</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="481"/>
+        <location filename="../qml/main.qml" line="493"/>
         <source>Stop current video recording</source>
         <translation>עצירת הקלטת הווידאו הנוכחית</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="525"/>
+        <location filename="../qml/main.qml" line="537"/>
         <source>Open last video</source>
         <translation>פתיחת הווידאו האחרון</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="537"/>
+        <location filename="../qml/main.qml" line="549"/>
         <source>Open last recorded video</source>
         <translation>פתיחת הווידאו האחרון שהוקלט</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="793"/>
+        <location filename="../qml/main.qml" line="805"/>
         <source>Installing virtual camera</source>
         <translation>התקנת מצלמה וירטואלית</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="794"/>
+        <location filename="../qml/main.qml" line="806"/>
         <source>Running commands</source>
         <translation>הרצת פקודות</translation>
     </message>
@@ -4967,22 +4972,22 @@
         <translation>נרמול</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="255"/>
+        <location filename="../qml/main.qml" line="267"/>
         <source>Main menu</source>
         <translation>תפריט ראשי</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="261"/>
+        <location filename="../qml/main.qml" line="273"/>
         <source>Open main menu</source>
         <translation>פתח תפריט ראשי</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="332"/>
+        <location filename="../qml/main.qml" line="344"/>
         <source>Capture options</source>
         <translation>אפשרויות לכידה</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="338"/>
+        <location filename="../qml/main.qml" line="350"/>
         <source>Open capture options menu</source>
         <translation>פתח תפריט אפשרויות לכידה</translation>
     </message>

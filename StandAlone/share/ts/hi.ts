@@ -1001,42 +1001,47 @@
         <translation>पॉइंटर बाहर जाने पर नियंत्रण छिपाएं</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="111"/>
+        <location filename="../qml/GeneralConfig.qml" line="110"/>
+        <source>Show current FPS in title bar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="122"/>
         <source>Frameworks and libraries</source>
         <translation>फ्रेमवर्क और लाइब्रेरी</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="121"/>
+        <location filename="../qml/GeneralConfig.qml" line="132"/>
         <source>Video capture</source>
         <translation>वीडियो कैप्चर</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="139"/>
+        <location filename="../qml/GeneralConfig.qml" line="150"/>
         <source>Screen capture</source>
         <translation>स्क्रीन कैप्चर</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="157"/>
+        <location filename="../qml/GeneralConfig.qml" line="168"/>
         <source>Audio capture/playback</source>
         <translation>ऑडियो कैप्चर/प्लेबैक</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="175"/>
+        <location filename="../qml/GeneralConfig.qml" line="186"/>
         <source>Video convert</source>
         <translation>वीडियो कन्वर्ट</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="193"/>
+        <location filename="../qml/GeneralConfig.qml" line="204"/>
         <source>Video playback</source>
         <translation>वीडियो प्लेबैक</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="211"/>
+        <location filename="../qml/GeneralConfig.qml" line="222"/>
         <source>Virtual camera driver</source>
         <translation>वर्चुअल कैमरा ड्राइवर</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="234"/>
+        <location filename="../qml/GeneralConfig.qml" line="245"/>
         <source>Root method</source>
         <extracomment>The preferred method for executing commands with elevated privileges in the system.</extracomment>
         <translation>रूट विधि</translation>
@@ -1123,17 +1128,17 @@
 <context>
     <name>LayoutEditorDialog</name>
     <message>
-        <location filename="../qml/LayoutEditorDialog.qml" line="58"/>
+        <location filename="../qml/LayoutEditorDialog.qml" line="94"/>
         <source>Source %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LayoutEditorDialog.qml" line="203"/>
+        <location filename="../qml/LayoutEditorDialog.qml" line="234"/>
         <source>Source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LayoutEditorDialog.qml" line="233"/>
+        <location filename="../qml/LayoutEditorDialog.qml" line="264"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1411,7 +1416,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1311"/>
+        <location filename="../../src/mediatools.cpp" line="1351"/>
         <source>%1/log %2.txt</source>
         <translation>%1/लॉग %2.txt</translation>
     </message>
@@ -4874,135 +4879,135 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="53"/>
+        <location filename="../qml/main.qml" line="62"/>
         <source>Daily Build</source>
         <translation>दैनिक बिल्ड</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="67"/>
+        <location filename="../qml/main.qml" line="76"/>
         <source>%1/Picture %2.%3</source>
         <translation>%1/तस्वीर %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="255"/>
+        <location filename="../qml/main.qml" line="267"/>
         <source>Main menu</source>
         <translation>मुख्य मेनू</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="261"/>
+        <location filename="../qml/main.qml" line="273"/>
         <source>Open main menu</source>
         <translation>मुख्य मेनू खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="291"/>
+        <location filename="../qml/main.qml" line="303"/>
         <source>Start streaming</source>
         <translation>स्ट्रीमिंग शुरू करें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="291"/>
+        <location filename="../qml/main.qml" line="303"/>
         <source>Stop streaming</source>
         <translation>स्ट्रीमिंग रोकें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="296"/>
+        <location filename="../qml/main.qml" line="308"/>
         <source>You must add at least one streaming platform to the video outputs</source>
         <translation>आपको वीडियो आउटपुट में कम से कम एक स्ट्रीमिंग प्लेटफ़ॉर्म जोड़ना होगा</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="298"/>
+        <location filename="../qml/main.qml" line="310"/>
         <source>The following platforms are not configured:&lt;br/&gt;&lt;br/&gt;%1</source>
         <translation>निम्नलिखित प्लेटफ़ॉर्म कॉन्फ़िगर नहीं हैं:&lt;br/&gt;&lt;br/&gt;%1</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="332"/>
+        <location filename="../qml/main.qml" line="344"/>
         <source>Capture options</source>
         <translation>कैप्चर विकल्प</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="338"/>
+        <location filename="../qml/main.qml" line="350"/>
         <source>Open capture options menu</source>
         <translation>कैप्चर विकल्प मेनू खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="369"/>
+        <location filename="../qml/main.qml" line="381"/>
         <source>Open last photo</source>
         <translation>अंतिम फोटो खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="380"/>
+        <location filename="../qml/main.qml" line="392"/>
         <source>Open last photo taken</source>
         <translation>अंतिम ली गई फोटो खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="411"/>
-        <location filename="../qml/main.qml" line="414"/>
+        <location filename="../qml/main.qml" line="423"/>
+        <location filename="../qml/main.qml" line="426"/>
         <source>Take a photo</source>
         <translation>फोटो लें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="415"/>
+        <location filename="../qml/main.qml" line="427"/>
         <source>Image capture mode</source>
         <translation>छवि कैप्चर मोड</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="418"/>
+        <location filename="../qml/main.qml" line="430"/>
         <source>Make a capture and save it to an image file</source>
         <translation>कैप्चर करें और इसे छवि फ़ाइल में सहेजें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="419"/>
+        <location filename="../qml/main.qml" line="431"/>
         <source>Put %1 in image capture mode</source>
         <translation>%1 को छवि कैप्चर मोड में रखें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="468"/>
-        <location filename="../qml/main.qml" line="474"/>
+        <location filename="../qml/main.qml" line="480"/>
+        <location filename="../qml/main.qml" line="486"/>
         <source>Record video</source>
         <translation>वीडियो रिकॉर्ड करें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="469"/>
-        <location filename="../qml/main.qml" line="475"/>
+        <location filename="../qml/main.qml" line="481"/>
+        <location filename="../qml/main.qml" line="487"/>
         <source>Stop video recording</source>
         <translation>वीडियो रिकॉर्डिंग रोकें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="472"/>
+        <location filename="../qml/main.qml" line="484"/>
         <source>Video capture mode</source>
         <translation>वीडियो कैप्चर मोड</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="478"/>
+        <location filename="../qml/main.qml" line="490"/>
         <source>Put %1 in video recording mode</source>
         <translation>%1 को वीडियो रिकॉर्डिंग मोड में रखें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="480"/>
+        <location filename="../qml/main.qml" line="492"/>
         <source>Start recording to a video file</source>
         <translation>वीडियो फ़ाइल में रिकॉर्डिंग शुरू करें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="481"/>
+        <location filename="../qml/main.qml" line="493"/>
         <source>Stop current video recording</source>
         <translation>वर्तमान वीडियो रिकॉर्डिंग रोकें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="525"/>
+        <location filename="../qml/main.qml" line="537"/>
         <source>Open last video</source>
         <translation>अंतिम वीडियो खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="537"/>
+        <location filename="../qml/main.qml" line="549"/>
         <source>Open last recorded video</source>
         <translation>अंतिम रिकॉर्डेड वीडियो खोलें</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="793"/>
+        <location filename="../qml/main.qml" line="805"/>
         <source>Installing virtual camera</source>
         <translation>वर्चुअल कैमरा इंस्टॉल हो रहा है</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="794"/>
+        <location filename="../qml/main.qml" line="806"/>
         <source>Running commands</source>
         <translation>कमांड चल रही हैं</translation>
     </message>

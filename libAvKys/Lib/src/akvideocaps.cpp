@@ -2490,10 +2490,10 @@ bool AkVideoCaps::isSameFormat(const AkVideoCaps &other) const
             && this->d->m_height == other.d->m_height;
 }
 
-size_t AkVideoCaps::dataSize() const
+size_t AkVideoCaps::dataSize(int align) const
 {
     size_t dataSize = 0;
-    auto align = AkSimd::preferredAlign();
+    auto dataAlign = align > 0? align: AkSimd::preferredAlign();
     auto specs = VideoFormat::formatSpecs(this->d->m_format);
 
     // Calculate parameters for each plane
@@ -2505,19 +2505,19 @@ size_t AkVideoCaps::dataSize() const
 
         // Align line size for SIMD compatibility
         size_t lineSize =
-                AkAlgorithm::alignUp(bytesUsed, size_t(align));
+                AkAlgorithm::alignUp(bytesUsed, size_t(dataAlign));
 
         // Calculate plane size, considering sub-sampling
         size_t planeSize = (lineSize * this->d->m_height) >> plane.heightDiv();
 
         // Align plane size to ensure next plane starts aligned and update
         // total data size
-        dataSize += AkAlgorithm::alignUp(planeSize, size_t(align));
+        dataSize += AkAlgorithm::alignUp(planeSize, size_t(dataAlign));
     }
 
     // Align total data size for buffer allocation
 
-    return AkAlgorithm::alignUp(dataSize, size_t(align));
+    return AkAlgorithm::alignUp(dataSize, size_t(dataAlign));
 }
 
 int AkVideoCaps::bitsPerPixel(AkVideoCaps::PixelFormat pixelFormat)

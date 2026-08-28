@@ -21,22 +21,23 @@
 #include <QElapsedTimer>
 #include <QHash>
 #include <QMutex>
-#include <QOffscreenSurface>
 #include <QOpenGLBuffer>
 #include <QOpenGLContext>
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLFramebufferObjectFormat>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
+#include <QPointer>
 #include <QQmlEngine>
+#include <QQuickOpenGLUtils>
+#include <QQuickWindow>
 #include <QReadWriteLock>
-#include <QThread>
 #include <QVector>
 #include <QMatrix4x4>
-#include <chrono>
 
 #include "akglcompositor.h"
 #include "ak.h"
+#include "akalgorithm.h"
 #include "akfrac.h"
 #include "akglpipeline.h"
 #include "akpacket.h"
@@ -91,10 +92,11 @@ class AkGLCompositorPrivate
     public:
         AkGLCompositor *self;
         QMutex m_effectsMutex;
-        QThread *m_renderThread {nullptr};
         QAtomicInt m_packetReaders;
-        QOpenGLContext *m_context {nullptr};
-        QOffscreenSurface *m_surface {nullptr};
+        QPointer<QQuickWindow> m_window;
+        QAtomicInt m_glInitialized {0};
+        qint64 m_lastTickNs {0};
+        QAtomicInt m_releaseRequested {0};
 
         // Shared geometry (VBO + IBO).
         QOpenGLBuffer *m_vbo {nullptr};
@@ -129,8 +131,6 @@ class AkGLCompositorPrivate
         QReadWriteLock m_packetsBufferMutex;
         QMutex m_pendingRemovalsMutex;
         QVector<qint64> m_pendingRemovals;
-        QMutex m_stopMutex;
-        bool m_stopRequested {false};
         QElapsedTimer m_clock;
         AkVideoCaps m_outputCaps;
         QRgb m_canvasColor {qRgba(0, 0, 0, 0)};
@@ -150,9 +150,8 @@ class AkGLCompositorPrivate
         static QString renderableTypeString(QSurfaceFormat::RenderableType type);
         static QString swapBehaviorString(QSurfaceFormat::SwapBehavior behavior);
         void printGLInfo();
-        void startRenderThread();
-        void stopRenderThread();
-        void renderGL();
+        void renderFrame();
+        void releaseGLResources();
         void initGL();
         void uninitGL();
         void processPendingRemovals();
@@ -180,6 +179,7 @@ AkGLCompositor::AkGLCompositor(QObject *parent):
 AkGLCompositor::~AkGLCompositor()
 {
     this->setState(AkElement::ElementStateNull);
+    this->detachFromWindow();
 
     delete this->d;
 }
@@ -296,7 +296,7 @@ void AkGLCompositor::removeSource(qint64 id)
 
     QMutexLocker mutexLocker(&this->d->m_pendingRemovalsMutex);
 
-    if (this->d->m_renderThread && this->d->m_renderThread->isRunning()) {
+    if (this->d->m_glInitialized) {
         if (!this->d->m_pendingRemovals.contains(id))
             this->d->m_pendingRemovals << id;
     } else {
@@ -503,9 +503,7 @@ bool AkGLCompositor::setState(AkElement::ElementState state)
     case AkElement::ElementStateNull:
         switch (state) {
         case AkElement::ElementStatePaused:
-            return AkElement::setState(state);
         case AkElement::ElementStatePlaying:
-            this->d->startRenderThread();
             return AkElement::setState(state);
         case AkElement::ElementStateNull:
             break;
@@ -515,7 +513,7 @@ bool AkGLCompositor::setState(AkElement::ElementState state)
     case AkElement::ElementStatePaused:
         switch (state) {
         case AkElement::ElementStateNull:
-            this->d->stopRenderThread();
+            this->d->m_releaseRequested.storeRelease(1);
             return AkElement::setState(state);
         case AkElement::ElementStatePlaying:
             return AkElement::setState(state);
@@ -527,7 +525,7 @@ bool AkGLCompositor::setState(AkElement::ElementState state)
     case AkElement::ElementStatePlaying:
         switch (state) {
         case AkElement::ElementStateNull:
-            this->d->stopRenderThread();
+            this->d->m_releaseRequested.storeRelease(1);
             return AkElement::setState(state);
         case AkElement::ElementStatePaused:
             return AkElement::setState(state);
@@ -1000,6 +998,35 @@ void AkGLCompositor::removePacketReader()
     this->d->m_packetReaders--;
 }
 
+void AkGLCompositor::attachToWindow(QQuickWindow *window)
+{
+    if (this->d->m_window == window)
+        return;
+
+    this->detachFromWindow();
+
+    this->d->m_window = window;
+
+    if (!window)
+        return;
+
+    connect(window, &QQuickWindow::beforeRenderPassRecording,
+            this, [this] { this->d->renderFrame(); },
+            Qt::DirectConnection);
+    connect(window, &QQuickWindow::sceneGraphInvalidated,
+            this, [this] { this->d->releaseGLResources(); },
+            Qt::DirectConnection);
+}
+
+void AkGLCompositor::detachFromWindow()
+{
+    if (!this->d->m_window)
+        return;
+
+    disconnect(this->d->m_window, nullptr, this, nullptr);
+    this->d->m_window = nullptr;
+}
+
 AkPacket AkGLCompositor::iVideoStream(const AkVideoPacket &videoPacket)
 {
     if (!videoPacket)
@@ -1023,6 +1050,20 @@ AkPacket AkGLCompositor::iVideoStream(const AkVideoPacket &videoPacket)
     bool firstFrame = false;
 
     {
+        /* We do frame alignment by resizing. Width will be a 32 bits multiple,
+         * then up scale the frame to keep the aspect ratio.
+         * This is a free cost optimization that allow us to upload the video
+         * frames straight to the GPU without creating a temporary buffer.
+         * This give us a few more FPSs.
+         */
+        auto caps = videoPacket.caps();
+        auto width = AkAlgorithm::alignUp(caps.width(), 32);
+        auto height = qRound(qreal(width * caps.height()) / caps.width());
+
+        packetSlot->converter.setOutputCaps({AkVideoCaps::Format_rgba,
+                                             width,
+                                             height,
+                                             caps.fps()});
         packetSlot->converter.begin();
         auto rgbaPacket = packetSlot->converter.convert(videoPacket);
         packetSlot->converter.end();
@@ -1132,13 +1173,12 @@ QString AkGLCompositorPrivate::swapBehaviorString(QSurfaceFormat::SwapBehavior b
 
 void AkGLCompositorPrivate::printGLInfo()
 {
-    if (!this->m_context || !this->m_surface)
+    auto context = QOpenGLContext::currentContext();
+
+    if (!context)
         return;
 
-    if (!this->m_context->makeCurrent(this->m_surface))
-        return;
-
-    auto format = this->m_surface->format();
+    auto format = context->format();
 
     qInfo() << "QSurfaceFormat Information";
     qInfo() << "";
@@ -1203,89 +1243,40 @@ void AkGLCompositorPrivate::printGLInfo()
     qInfo() << "Max combined texture image units:" << maxCombinedTextureImageUnits;
 }
 
-void AkGLCompositorPrivate::startRenderThread()
+void AkGLCompositorPrivate::renderFrame()
 {
-    if (this->m_renderThread)
+    if (this->m_releaseRequested.testAndSetOrdered(1, 0)) {
+        this->releaseGLResources();
         return;
-
-    this->m_renderThread = QThread::create([this] { this->renderGL(); });
-    this->m_renderThread->start();
-}
-
-void AkGLCompositorPrivate::stopRenderThread()
-{
-    if (!this->m_renderThread)
-        return;
-
-    {
-        QMutexLocker mutexLocker(&this->m_stopMutex);
-        this->m_stopRequested = true;
     }
 
-    this->m_renderThread->wait();
-    delete this->m_renderThread;
-    this->m_renderThread = nullptr;
+    if (!this->m_glInitialized) {
+        self->initializeOpenGLFunctions();
+        this->initGL();
+        this->m_pipeline.init(self, this->m_vbo, this->m_ibo);
+        this->m_clock.start();
+        this->m_lastTickNs = 0;
+        this->m_id = Ak::id();
+        this->m_glInitialized = true;
+        this->printGLInfo();
+        emit self->ready();
+    }
 
-    this->m_stopRequested = false;
+    if (self->state() != AkElement::ElementStatePlaying)
+        return;
+
+    self->glDisable(GL_SCISSOR_TEST);
+    this->processTick();
+    QQuickOpenGLUtils::resetOpenGLState();
 }
 
-void AkGLCompositorPrivate::renderGL()
+void AkGLCompositorPrivate::releaseGLResources()
 {
-    this->m_surface = new QOffscreenSurface;
-    QSurfaceFormat fmt;
-
-#if defined(Q_OS_ANDROID)
-    fmt.setRenderableType(QSurfaceFormat::OpenGLES);
-    fmt.setVersion(2, 0);
-#elif defined(Q_OS_MAC)
-    fmt.setRenderableType(QSurfaceFormat::OpenGL);
-    fmt.setProfile(QSurfaceFormat::CoreProfile);
-    fmt.setVersion(4, 1);
-#else
-    fmt.setRenderableType(QSurfaceFormat::OpenGL);
-    fmt.setProfile(QSurfaceFormat::CompatibilityProfile);
-    fmt.setVersion(2, 1);
-#endif
-
-    this->m_surface->setFormat(fmt);
-    this->m_surface->create();
-
-    this->initGL();
-
-    this->m_pipeline.init(self, this->m_vbo, this->m_ibo);
-    emit self->ready();
-
-    this->printGLInfo();
-
-    this->m_clock.start();
-    auto fps = this->m_outputCaps.fps();
-    auto fpsValue = fps.value() > 0.0? fps.value(): 30.0;
-    auto tickInterval =
-            std::chrono::nanoseconds(qint64(1'000'000'000.0 / fpsValue));
-    auto nextTick = std::chrono::steady_clock::now();
-    this->m_id = Ak::id();
-
-    while (true) {
-        {
-            QMutexLocker mutexLocker(&this->m_stopMutex);
-
-            if (this->m_stopRequested)
-                break;
-        }
-
-        nextTick += tickInterval;
-
-        if (self->state() == AkElement::ElementStatePlaying)
-            this->processTick();
-
-        auto now = std::chrono::steady_clock::now();
-        auto remaining = std::chrono::duration_cast<std::chrono::microseconds>(nextTick - now);
-
-        if (remaining.count() > 0)
-            QThread::usleep(static_cast<unsigned long>(remaining.count()));
-    }
+    if (!this->m_glInitialized)
+        return;
 
     this->m_pipeline.uninit();
+
     {
         QMutexLocker mutexLocker(&this->m_sourcesMutex);
 
@@ -1296,9 +1287,6 @@ void AkGLCompositorPrivate::renderGL()
     }
 
     this->uninitGL();
-
-    delete this->m_surface;
-    this->m_surface = nullptr;
 
     if (this->m_uploadBuffer) {
         delete [] this->m_uploadBuffer;
@@ -1313,6 +1301,8 @@ void AkGLCompositorPrivate::renderGL()
     }
 
     this->m_readbackBufferSize = 0;
+    this->m_glInitialized = false;
+    this->m_lastTickNs = 0;
 }
 
 void AkGLCompositorPrivate::processPendingRemovals()
@@ -1419,8 +1409,18 @@ void AkGLCompositorPrivate::processTick()
                                   this->m_effectFbo->size());
 
 
-    if (this->m_packetReaders > 0)
+    if (this->m_packetReaders > 0) {
+        auto fps = this->m_outputCaps.fps();
+        auto fpsValue = fps.value() > 0.0? fps.value(): 30.0;
+        auto tickIntervalNs = qint64(1'000'000'000.0 / fpsValue);
+        auto now = this->m_clock.nsecsElapsed();
+
+        if (now - this->m_lastTickNs < tickIntervalNs)
+            return;
+
+        this->m_lastTickNs = now;
         this->readAndEmit(pts / 1000);
+    }
 }
 
 void AkGLCompositorPrivate::uploadSource(AkGLCompositorSourcePtr source,
@@ -1755,17 +1755,6 @@ void AkGLCompositorPrivate::bindCompositeAttribs()
 
 void AkGLCompositorPrivate::initGL()
 {
-    QSurfaceFormat fmt;
-    fmt.setVersion(2, 0);
-    fmt.setProfile(QSurfaceFormat::CoreProfile);
-
-    this->m_context = new QOpenGLContext;
-    this->m_context->setFormat(this->m_surface->format());
-    this->m_context->create();
-    this->m_context->makeCurrent(this->m_surface);
-
-    self->initializeOpenGLFunctions();
-
     // Full-screen quad.
     static const float akGLCompositorQuadVertices[] = {
         -1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
@@ -1874,12 +1863,6 @@ void AkGLCompositorPrivate::uninitGL()
         this->m_ibo->destroy();
         delete this->m_ibo;
         this->m_ibo = nullptr;
-    }
-
-    if (this->m_context) {
-        this->m_context->doneCurrent();
-        delete this->m_context;
-        this->m_context = nullptr;
     }
 }
 

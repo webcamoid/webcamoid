@@ -383,19 +383,21 @@ class AkVideoPacketPrivate
         inline void fill(QRgb color);
 };
 
-AkVideoPacket::AkVideoPacket(QObject *parent):
+AkVideoPacket::AkVideoPacket(QObject *parent, int align):
     AkPacketBase(parent)
 {
     this->d = new AkVideoPacketPrivate;
-    this->d->m_align = AkSimd::preferredAlign();
+    this->d->m_align = align > 0? align: AkSimd::preferredAlign();
 }
 
-AkVideoPacket::AkVideoPacket(const AkVideoCaps &caps, bool initialized):
+AkVideoPacket::AkVideoPacket(const AkVideoCaps &caps,
+                             bool initialized,
+                             int align):
     AkPacketBase()
 {
     this->d = new AkVideoPacketPrivate;
     this->d->m_caps = caps;
-    this->d->m_align = AkSimd::preferredAlign();
+    this->d->m_align = align > 0? align: AkSimd::preferredAlign();
     auto specs = AkVideoCaps::formatSpecs(this->d->m_caps.format());
     this->d->m_nPlanes = specs.planes();
     this->d->updateParams(specs);
@@ -529,7 +531,6 @@ AkVideoPacket &AkVideoPacket::operator =(const AkPacket &other)
 
         this->d->m_dataSize = 0;
         this->d->m_nPlanes = 0;
-        this->d->m_align = AkSimd::preferredAlign();
     }
 
     this->copyMetadata(other);
@@ -675,12 +676,16 @@ quint8 *AkVideoPacket::line(int plane, int y)
             * this->d->m_lineSize[plane];
 }
 
-AkVideoPacket AkVideoPacket::copy(int x, int y, int width, int height) const
+AkVideoPacket AkVideoPacket::copy(int x,
+                                  int y,
+                                  int width,
+                                  int height,
+                                  int align) const
 {
     auto ocaps = this->d->m_caps;
     ocaps.setWidth(width);
     ocaps.setHeight(height);
-    AkVideoPacket dst(ocaps, true);
+    AkVideoPacket dst(ocaps, true, align);
     dst.copyMetadata(*this);
 
     auto maxX = qMin(x + width, this->d->m_caps.width());
@@ -704,6 +709,29 @@ AkVideoPacket AkVideoPacket::copy(int x, int y, int width, int height) const
         auto srcLine = this->constLine(plane, y) + offset;
         auto dstLine = dst.d->m_planes[plane];
         auto maxY = diffY >> this->d->m_heightDiv[plane];
+
+        for (int y = 0; y < maxY; y++) {
+            memcpy(dstLine, srcLine, copyBytes);
+            srcLine += srcLineOffset;
+            dstLine += dstLineOffset;
+        }
+    }
+
+    return dst;
+}
+
+AkVideoPacket AkVideoPacket::realign(int align) const
+{
+    AkVideoPacket dst(this->d->m_caps, true, align);
+    auto height = this->d->m_caps.height();
+
+    for (int plane = 0; plane < this->d->m_nPlanes; plane++) {
+        size_t copyBytes = this->d->m_bytesUsed[plane];
+        auto srcLineOffset = this->d->m_lineSize[plane];
+        auto dstLineOffset = dst.d->m_lineSize[plane];
+        auto srcLine = this->d->m_planes[plane];
+        auto dstLine = dst.d->m_planes[plane];
+        auto maxY = height >> this->d->m_heightDiv[plane];
 
         for (int y = 0; y < maxY; y++) {
             memcpy(dstLine, srcLine, copyBytes);

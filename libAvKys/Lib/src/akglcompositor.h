@@ -32,6 +32,7 @@ class AkPacket;
 class AkPluginInfo;
 class AkVideoCaps;
 class QRectF;
+class QQuickWindow;
 
 class AKCOMMONS_EXPORT AkGLCompositor:
         public AkElement,
@@ -203,6 +204,8 @@ class AKCOMMONS_EXPORT AkGLCompositor:
         // Enable/disable the CPU readback and oStream().
         void addPacketReader();
         void removePacketReader();
+        void attachToWindow(QQuickWindow *window);
+        void detachFromWindow();
 
         AkPacket iVideoStream(const AkVideoPacket &videoPacket) override;
 

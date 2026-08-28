@@ -106,6 +106,17 @@ AK.MenuOption {
 
                 onCheckedChanged: mediaTools.hideControlsOnPointerOut = checked
             }
+            Switch {
+                text: qsTr("Show current FPS in title bar")
+                checked: mediaTools.showFps
+                visible: Ak.platform() != "android"
+                Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
+                Layout.fillWidth: true
+                Accessible.name: text
+
+                onCheckedChanged: mediaTools.showFps = checked
+            }
 
             Label {
                 text: qsTr("Frameworks and libraries")

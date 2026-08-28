@@ -77,8 +77,10 @@ class AKCOMMONS_EXPORT AkVideoPacket: public AkPacketBase
                CONSTANT)
 
     public:
-        AkVideoPacket(QObject *parent=nullptr);
-        AkVideoPacket(const AkVideoCaps &caps, bool initialized=false);
+        AkVideoPacket(QObject *parent=nullptr, int align=0);
+        AkVideoPacket(const AkVideoCaps &caps,
+                      bool initialized=false,
+                      int align=0);
         AkVideoPacket(const AkPacket &other);
         AkVideoPacket(const AkVideoPacket &other);
         ~AkVideoPacket();
@@ -105,7 +107,9 @@ class AKCOMMONS_EXPORT AkVideoPacket: public AkPacketBase
         Q_INVOKABLE AkVideoPacket copy(int x,
                                        int y,
                                        int width,
-                                       int height) const;
+                                       int height,
+                                       int align=0) const;
+        Q_INVOKABLE AkVideoPacket realign(int align=0) const;
 
         template <typename T>
         inline T pixel(int plane, int x, int y) const

@@ -27,6 +27,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickStyle>
+#include <QQuickWindow>
 #include <QRegularExpression>
 #include <QSettings>
 #include <QSharedMemory>
@@ -144,6 +145,7 @@ class MediaToolsPrivate
         int m_adBannerHeight {0};
         QTime m_lastTimeAdShow;
         bool m_hideControlsOnPointerOut {false};
+        bool m_showFps {false};
         QMap<qint64, qint64> m_videoSourceAudioIds;
         QMap<qint64, QString> m_videoSourceAudioDevices;
 
@@ -747,6 +749,11 @@ bool MediaTools::hideControlsOnPointerOut() const
     return this->d->m_hideControlsOnPointerOut;
 }
 
+bool MediaTools::showFps() const
+{
+    return this->d->m_showFps;
+}
+
 bool MediaTools::init(const CliOptions &cliOptions)
 {
     if (!globalMediaToolsLogger.m_mediaTools) {
@@ -1153,6 +1160,21 @@ void MediaTools::setHideControlsOnPointerOut(bool hideControlsOnPointerOut)
     emit this->hideControlsOnPointerOutChanged(this->d->m_hideControlsOnPointerOut);
 }
 
+void MediaTools::setShowFps(bool showFps)
+{
+    if (this->d->m_showFps == showFps)
+        return;
+
+    this->d->m_showFps = showFps;
+
+    QSettings config;
+    config.beginGroup("GeneralConfigs");
+    config.setValue("showFps", this->d->m_showFps);
+    config.endGroup();
+
+    emit this->showFpsChanged(this->d->m_showFps);
+}
+
 void MediaTools::resetWindowWidth()
 {
     this->setWindowWidth(0);
@@ -1184,6 +1206,11 @@ void MediaTools::resetHideControlsOnPointerOut()
     this->setHideControlsOnPointerOut(false);
 }
 
+void MediaTools::resetShowFps()
+{
+    this->setShowFps(false);
+}
+
 void MediaTools::loadConfigs()
 {
     QSettings config;
@@ -1194,6 +1221,7 @@ void MediaTools::loadConfigs()
     this->d->m_windowHeight = qMax(windowSize.height(), 480);
     this->d->m_hideControlsOnPointerOut =
             config.value("hideControlsOnPointerOut", false).toBool();
+    this->d->m_showFps = config.value("showFps", false).toBool();
     config.endGroup();
 }
 
@@ -1218,9 +1246,21 @@ void MediaTools::show()
         if (!videoDisplay)
             continue;
 
-        AkElement::link(this->d->m_videoEffects.data(),
-                        videoDisplay,
-                        Qt::DirectConnection);
+        auto window = qobject_cast<QQuickWindow *>(obj);
+
+        if (window) {
+            this->d->m_videoEffects->attachToWindow(window);
+
+            QObject::connect(this->d->m_videoEffects.data(),
+                             &VideoEffects::outputTextureReady,
+                             videoDisplay,
+                             &VideoDisplay::iStreamGL,
+                             Qt::DirectConnection);
+        } else {
+            AkElement::link(this->d->m_videoEffects.data(),
+                            videoDisplay,
+                            Qt::DirectConnection);
+        }
 
         break;
     }

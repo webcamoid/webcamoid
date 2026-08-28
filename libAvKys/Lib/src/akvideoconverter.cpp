@@ -320,6 +320,7 @@ class FrameConvertParameters
         AkVideoCaps outputConvertCaps;
         AkVideoPacket outputFrame;
         QRect inputRect;
+        int align {0};
         AkColorConvert::YuvColorSpace yuvColorSpace {AkColorConvert::YuvColorSpace_ITUR_BT601};
         AkColorConvert::YuvColorSpaceType yuvColorSpaceType {AkColorConvert::YuvColorSpaceType_StudioSwing};
         AkVideoConverter::ScalingMode scalingMode {AkVideoConverter::ScalingMode_Fast};
@@ -486,6 +487,7 @@ class AkVideoConverterPrivate
         AkVideoConverter::ScalingMode m_scalingMode {AkVideoConverter::ScalingMode_Fast};
         AkVideoConverter::AspectRatioMode m_aspectRatioMode {AkVideoConverter::AspectRatioMode_Ignore};
         QRect m_inputRect;
+        int m_align {0};
 
         /* Color blendig functions
          *
@@ -8250,6 +8252,7 @@ AkVideoConverter::AkVideoConverter(const AkVideoConverter &other):
     this->d->m_scalingMode = other.d->m_scalingMode;
     this->d->m_aspectRatioMode = other.d->m_aspectRatioMode;
     this->d->m_inputRect = other.d->m_inputRect;
+    this->d->m_align = other.d->m_align;
 }
 
 AkVideoConverter::~AkVideoConverter()
@@ -8271,6 +8274,7 @@ AkVideoConverter &AkVideoConverter::operator =(const AkVideoConverter &other)
         this->d->m_scalingMode = other.d->m_scalingMode;
         this->d->m_aspectRatioMode = other.d->m_aspectRatioMode;
         this->d->m_inputRect = other.d->m_inputRect;
+        this->d->m_align = other.d->m_align;
     }
 
     return *this;
@@ -8309,6 +8313,11 @@ AkVideoConverter::AspectRatioMode AkVideoConverter::aspectRatioMode() const
 QRect AkVideoConverter::inputRect() const
 {
     return this->d->m_inputRect;
+}
+
+int AkVideoConverter::align() const
+{
+    return this->d->m_align;
 }
 
 bool AkVideoConverter::begin()
@@ -8400,6 +8409,15 @@ void AkVideoConverter::setInputRect(const QRect &inputRect)
     emit this->inputRectChanged(inputRect);
 }
 
+void AkVideoConverter::setAlign(int align)
+{
+    if (this->d->m_align == align)
+        return;
+
+    this->d->m_align = align;
+    emit this->alignChanged(align);
+}
+
 void AkVideoConverter::resetOutputCaps()
 {
     this->setOutputCaps({});
@@ -8428,6 +8446,11 @@ void AkVideoConverter::resetAspectRatioMode()
 void AkVideoConverter::resetInputRect()
 {
     this->setInputRect({});
+}
+
+void AkVideoConverter::resetAlign()
+{
+    this->setAlign(0);
 }
 
 void AkVideoConverter::reset()
@@ -8524,7 +8547,8 @@ AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
         || this->m_yuvColorSpaceType != fc.yuvColorSpaceType
         || this->m_scalingMode != fc.scalingMode
         || this->m_aspectRatioMode != fc.aspectRatioMode
-        || this->m_inputRect != fc.inputRect) {
+        || this->m_inputRect != fc.inputRect
+        || this->m_align != fc.align) {
         fc.configure(packet.caps(),
                      ocaps,
                      fc.colorConvert,
@@ -8541,6 +8565,7 @@ AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
         fc.scalingMode = this->m_scalingMode;
         fc.aspectRatioMode = this->m_aspectRatioMode;
         fc.inputRect = this->m_inputRect;
+        fc.align = this->m_align;
     }
 
     if (fc.outputConvertCaps.isSameFormat(packet.caps())) {
@@ -9736,13 +9761,13 @@ void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
         }
     }
 
-    this->outputFrame = {this->outputConvertCaps};
+    this->outputFrame = {this->outputConvertCaps, false, this->align};
 
     if (aspectRatioMode == AkVideoConverter::AspectRatioMode_Fit)
         this->outputFrame.fillRgb(qRgba(0, 0, 0, 0));
 
     this->paralelize =
-            this->outputConvertCaps.dataSize() > this->parallelizationThreshold;
+            this->outputConvertCaps.dataSize(this->align) > this->parallelizationThreshold;
 }
 
 void FrameConvertParameters::reset()

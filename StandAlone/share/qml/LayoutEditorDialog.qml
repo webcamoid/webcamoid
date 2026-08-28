@@ -43,6 +43,42 @@ Dialog {
     property int selectedSourceId: -1
     property var sourcesModel: ListModel {}
 
+    readonly property rect canvasRect: {
+        let caps = AkVideoCaps.create(videoEffects.outputCaps)
+        let vW = caps ? caps.width : 16
+        let vH = caps ? caps.height : 9
+
+        if (vW <= 0) vW = 16
+
+        if (vH <= 0)
+            vH = 9
+
+        let aW = canvasArea.width
+        let aH = canvasArea.height
+
+        if (aW <= 0)
+            aW = 1
+
+        if (aH <= 0)
+            aH = 1
+
+        let cW, cH, cX, cY
+
+        if (aW / aH > vW / vH) {
+            cH = aH
+            cW = aH * (vW / vH)
+            cX = (aW - cW) / 2
+            cY = 0
+        } else {
+            cW = aW
+            cH = aW * (vH / vW)
+            cX = 0
+            cY = (aH - cH) / 2
+        }
+
+        return Qt.rect(cX, cY, cW, cH)
+    }
+
     function buildSourcesModel() {
         sourcesModel.clear()
         let ids = videoLayer.sourceIds()
@@ -65,12 +101,11 @@ Dialog {
             for (let i = 0; i < sourcesModel.count; i++)
                 if (sourcesModel.get(i).sourceId === layoutEditor.selectedSourceId) {
                     stillPresent = true
-
                     break
                 }
 
-                if (!stillPresent)
-                    layoutEditor.selectedSourceId = sourcesModel.get(0).sourceId
+            if (!stillPresent)
+                layoutEditor.selectedSourceId = sourcesModel.get(0).sourceId
         } else {
             layoutEditor.selectedSourceId = -1
         }
@@ -153,23 +188,19 @@ Dialog {
     Connections {
         target: videoLayer
 
-        function onSourceAdded(id, device)
-        {
+        function onSourceAdded(id, device) {
             layoutEditor.buildSourcesModel()
         }
 
-        function onSourceRemoved(id)
-        {
+        function onSourceRemoved(id) {
             layoutEditor.buildSourcesModel()
         }
 
-        function onSourceEnabledChanged(id, enabled)
-        {
+        function onSourceEnabledChanged(id, enabled) {
             layoutEditor.buildSourcesModel()
         }
 
-        function onSourceLabelChanged(id, label)
-        {
+        function onSourceLabelChanged(id, label) {
             layoutEditor.buildSourcesModel()
         }
     }
@@ -267,10 +298,10 @@ Dialog {
                     property rect normRect: videoLayer.sourceRect(sourceId)
                     property real normRotation: videoLayer.sourceRotation(sourceId)
 
-                    readonly property real pxX: normRect.x * canvasArea.width
-                    readonly property real pxY: normRect.y * canvasArea.height
-                    readonly property real pxW: normRect.width * canvasArea.width
-                    readonly property real pxH: normRect.height * canvasArea.height
+                    readonly property real pxX: layoutEditor.canvasRect.x + normRect.x * layoutEditor.canvasRect.width
+                    readonly property real pxY: layoutEditor.canvasRect.y + normRect.y * layoutEditor.canvasRect.height
+                    readonly property real pxW: normRect.width * layoutEditor.canvasRect.width
+                    readonly property real pxH: normRect.height * layoutEditor.canvasRect.height
                     readonly property real pxCx: pxX + pxW / 2
                     readonly property real pxCy: pxY + pxH / 2
 
@@ -300,13 +331,9 @@ Dialog {
                         width: delegateRoot.pxW
                         height: delegateRoot.pxH
                         color: "transparent"
-                        border.color: delegateRoot.isSelected?
-                        AkTheme.palette.active.highlight:
-                        AkTheme.palette.active.windowText
-                        border.width: delegateRoot.isSelected?
-                        AkUnit.create(2 * AkTheme.controlScale, "dp").pixels:
-                        AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
-                        opacity: delegateRoot.isSelected? 1: 0.5
+                        border.color: delegateRoot.isSelected ? AkTheme.palette.active.highlight : AkTheme.palette.active.windowText
+                        border.width: delegateRoot.isSelected ? AkUnit.create(2 * AkTheme.controlScale, "dp").pixels : AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
+                        opacity: delegateRoot.isSelected ? 1 : 0.5
                         rotation: delegateRoot.normRotation
                         transformOrigin: Item.Center
 
@@ -314,9 +341,7 @@ Dialog {
                             id: moveArea
                             anchors.fill: parent
                             anchors.margins: delegateRoot.handleSize / 2
-                            cursorShape: drag.active?
-                            Qt.ClosedHandCursor:
-                            Qt.OpenHandCursor
+                            cursorShape: drag.active ? Qt.ClosedHandCursor : Qt.OpenHandCursor
                             drag.target: moveProxy
                             drag.threshold: 0
                             enabled: delegateRoot.isSelected
@@ -333,8 +358,8 @@ Dialog {
                                 onYChanged: if (moveArea.drag.active) applyMove()
 
                                 function applyMove() {
-                                    let nx = moveProxy.x / canvasArea.width
-                                    let ny = moveProxy.y / canvasArea.height
+                                    let nx = (moveProxy.x - layoutEditor.canvasRect.x) / layoutEditor.canvasRect.width
+                                    let ny = (moveProxy.y - layoutEditor.canvasRect.y) / layoutEditor.canvasRect.height
                                     let nw = delegateRoot.normRect.width
                                     let nh = delegateRoot.normRect.height
                                     let snapped = layoutEditor.snapRect(delegateRoot.sourceId, Qt.rect(nx, ny, nw, nh))
@@ -356,10 +381,10 @@ Dialog {
                                         continue
 
                                     let r = videoLayer.sourceRect(id)
-                                    let pxX = r.x * canvasArea.width
-                                    let pxY = r.y * canvasArea.height
-                                    let pxW = r.width * canvasArea.width
-                                    let pxH = r.height * canvasArea.height
+                                    let pxX = layoutEditor.canvasRect.x + r.x * layoutEditor.canvasRect.width
+                                    let pxY = layoutEditor.canvasRect.y + r.y * layoutEditor.canvasRect.height
+                                    let pxW = r.width * layoutEditor.canvasRect.width
+                                    let pxH = r.height * layoutEditor.canvasRect.height
 
                                     if (mouseX >= pxX
                                         && mouseX <= pxX + pxW
@@ -417,9 +442,7 @@ Dialog {
 
                             MouseArea {
                                 anchors.fill: parent
-                                cursorShape: modelData.x === modelData.y?
-                                                Qt.SizeFDiagCursor:
-                                                Qt.SizeBDiagCursor
+                                cursorShape: modelData.x === modelData.y ? Qt.SizeFDiagCursor : Qt.SizeBDiagCursor
                                 drag.target: proxy
                                 drag.axis: Drag.XAndYAxis
                                 drag.threshold: 0
@@ -479,8 +502,8 @@ Dialog {
                                     let v_x = dx * cos_a + dy * sin_a
                                     let v_y = -dx * sin_a + dy * cos_a
 
-                                    let minW = 0.02 * canvasArea.width
-                                    let minH = 0.02 * canvasArea.height
+                                    let minW = 0.02 * layoutEditor.canvasRect.width
+                                    let minH = 0.02 * layoutEditor.canvasRect.height
 
                                     let newW_px = Math.max(minW, v_x * rx)
                                     let newH_px = Math.max(minH, v_y * ry)
@@ -494,10 +517,10 @@ Dialog {
                                     let new_C_screen_x = F_screen_x + C_rel_F_screen_x
                                     let new_C_screen_y = F_screen_y + C_rel_F_screen_y
 
-                                    let new_cx_n = new_C_screen_x / canvasArea.width
-                                    let new_cy_n = new_C_screen_y / canvasArea.height
-                                    let new_w_n = newW_px / canvasArea.width
-                                    let new_h_n = newH_px / canvasArea.height
+                                    let new_cx_n = (new_C_screen_x - layoutEditor.canvasRect.x) / layoutEditor.canvasRect.width
+                                    let new_cy_n = (new_C_screen_y - layoutEditor.canvasRect.y) / layoutEditor.canvasRect.height
+                                    let new_w_n = newW_px / layoutEditor.canvasRect.width
+                                    let new_h_n = newH_px / layoutEditor.canvasRect.height
 
                                     let new_x_n = new_cx_n - new_w_n / 2
                                     let new_y_n = new_cy_n - new_h_n / 2
@@ -585,8 +608,8 @@ Dialog {
                                     let dy_px = dragProxy.y - dragProxy.startCenterY
                                     let dist_px = Math.sqrt(dx_px * dx_px + dy_px * dy_px)
 
-                                    let startPxW = dragProxy.startNormW * canvasArea.width
-                                    let startPxH = dragProxy.startNormH * canvasArea.height
+                                    let startPxW = dragProxy.startNormW * layoutEditor.canvasRect.width
+                                    let startPxH = dragProxy.startNormH * layoutEditor.canvasRect.height
                                     let startDist_px = Math.sqrt(Math.pow(startPxW / 2, 2) + Math.pow(startPxH / 2, 2))
 
                                     let scale = startDist_px > 0 ? dist_px / startDist_px : 1.0
@@ -602,8 +625,8 @@ Dialog {
                                     let theta_deg = theta_rad * 180 / Math.PI
                                     theta_deg = ((theta_deg % 360) + 360) % 360
 
-                                    let cx_n = dragProxy.startCenterX / canvasArea.width
-                                    let cy_n = dragProxy.startCenterY / canvasArea.height
+                                    let cx_n = (dragProxy.startCenterX - layoutEditor.canvasRect.x) / layoutEditor.canvasRect.width
+                                    let cy_n = (dragProxy.startCenterY - layoutEditor.canvasRect.y) / layoutEditor.canvasRect.height
 
                                     let nr = Qt.rect(
                                         cx_n - newNormW / 2,
@@ -652,10 +675,10 @@ Dialog {
                             continue
 
                         let r = videoLayer.sourceRect(id)
-                        let pxX = r.x * canvasArea.width
-                        let pxY = r.y * canvasArea.height
-                        let pxW = r.width * canvasArea.width
-                        let pxH = r.height * canvasArea.height
+                        let pxX = layoutEditor.canvasRect.x + r.x * layoutEditor.canvasRect.width
+                        let pxY = layoutEditor.canvasRect.y + r.y * layoutEditor.canvasRect.height
+                        let pxW = r.width * layoutEditor.canvasRect.width
+                        let pxH = r.height * layoutEditor.canvasRect.height
 
                         if (mouse.x >= pxX
                             && mouse.x <= pxX + pxW

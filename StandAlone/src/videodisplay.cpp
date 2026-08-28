@@ -36,6 +36,7 @@ class VideoDisplayPrivate
         QImage m_frame;
         QMutex m_inputMutex;
         QReadWriteLock m_updateMutex;
+        bool m_measureFps {false};
         QElapsedTimer m_timer;
         qint64 m_lastTime {0};
         int m_frameCount {0};
@@ -57,6 +58,7 @@ class VideoDisplayPrivate
         VideoDisplayPrivate(VideoDisplay *self);
         QSGTexture *createVideoTexture(const QImage &frame) const;
         QRectF calculateTextureRect(const QSGTexture *texture) const;
+        void measureFps();
 };
 
 VideoDisplay::VideoDisplay(QQuickItem *parent):
@@ -78,70 +80,28 @@ bool VideoDisplay::fillDisplay() const
     return this->d->m_fillDisplay;
 }
 
+bool VideoDisplay::measureFps() const
+{
+    return this->d->m_measureFps;
+}
+
 QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
                                        QQuickItem::UpdatePaintNodeData *updatePaintNodeData)
 {
     Q_UNUSED(updatePaintNodeData)
 
-#if 0
-    // Start the timer if it's the first call
-    if (!this->d->m_timer.isValid()) {
-        this->d->m_timer.start();
-        this->d->m_lastTime = this->d->m_timer.nsecsElapsed();
-    }
+    this->d->measureFps();
+    auto window = this->window();
 
-    // Measure current time
-    auto currentTime = this->d->m_timer.nsecsElapsed();
-    auto deltaTime = (currentTime - this->d->m_lastTime) / 1e9; // Convert to seconds
-    this->d->m_lastTime = currentTime;
-
-    // Update counters
-    this->d->m_frameCount++;
-    this->d->m_elapsedTime += deltaTime;
-
-    // Calculate and display FPS every second
-    if (this->d->m_elapsedTime >= 1.0) {
-        auto fps = this->d->m_frameCount / this->d->m_elapsedTime;
-        qDebug() << "FPS:" << fps;
-
-        // Reset counters
-        this->d->m_frameCount = 0;
-        this->d->m_elapsedTime = 0.0;
-    }
-#endif
-
-    QImage frame;
-
-    {
-        QMutexLocker lk(&this->d->m_swapMutex);
-        this->d->m_pendingUpdate = false;
-
-        if (this->d->m_readIdx < 0)
-            return oldNode;
-
-        frame = this->d->m_frames[this->d->m_readIdx];
-    }
-
-    if (frame.isNull() || frame.size().isEmpty())
-        return oldNode;
-
-    auto node = static_cast<QSGSimpleTextureNode *>(oldNode);
-
-    if (!node)
-        node = new QSGSimpleTextureNode();
-
-        auto window = this->window();
     if (!window)
         return oldNode;
 
-    auto *oldTex = node->texture();
-    bool sizeChanged = !oldTex || oldTex->textureSize() != frame.size();
     QSGTexture *tex = nullptr;
+    bool usingGL = false;
 
     auto *rif = window->rendererInterface();
     bool isGL = rif->graphicsApi() == QSGRendererInterface::OpenGLRhi
                 || rif->graphicsApi() == QSGRendererInterface::OpenGL;
-    bool usingGL = false;
 
     if (isGL) {
         QMutexLocker lk(&this->d->m_glTexMutex);
@@ -159,6 +119,21 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
     }
 
     if (!usingGL) {
+        QImage frame;
+
+        {
+            QMutexLocker lk(&this->d->m_swapMutex);
+            this->d->m_pendingUpdate = false;
+
+            if (this->d->m_readIdx < 0)
+                return oldNode;
+
+            frame = this->d->m_frames[this->d->m_readIdx];
+        }
+
+        if (frame.isNull() || frame.size().isEmpty())
+            return oldNode;
+
         if (window->rendererInterface()->graphicsApi() == QSGRendererInterface::Software) {
             auto targetSize = this->size().toSize();
             QImage toUpload = (frame.size() != targetSize)?
@@ -175,6 +150,11 @@ QSGNode *VideoDisplay::updatePaintNode(QSGNode *oldNode,
             tex = window->createTextureFromImage(frame);
         }
     }
+
+    auto node = static_cast<QSGSimpleTextureNode *>(oldNode);
+
+    if (!node)
+        node = new QSGSimpleTextureNode();
 
     node->setOwnsTexture(true);
     node->setFiltering(QSGTexture::Linear);
@@ -242,12 +222,26 @@ void VideoDisplay::setFillDisplay(bool fillDisplay)
         return;
 
     this->d->m_fillDisplay = fillDisplay;
-    emit this->fillDisplayChanged();
+    emit this->fillDisplayChanged(fillDisplay);
+}
+
+void VideoDisplay::setMeasureFps(bool measureFps)
+{
+    if (this->d->m_measureFps == measureFps)
+        return;
+
+    this->d->m_measureFps = measureFps;
+    emit this->measureFpsChanged(measureFps);
 }
 
 void VideoDisplay::resetFillDisplay()
 {
     this->setFillDisplay(false);
+}
+
+void VideoDisplay::resetMeasureFps()
+{
+    this->setMeasureFps(false);
 }
 
 void VideoDisplay::registerTypes()
@@ -307,6 +301,36 @@ QRectF VideoDisplayPrivate::calculateTextureRect(const QSGTexture *texture) cons
     rect.moveCenter(self->boundingRect().center());
 
     return rect;
+}
+
+void VideoDisplayPrivate::measureFps()
+{
+    if (this->m_measureFps) {
+        // Start the timer if it's the first call
+        if (!this->m_timer.isValid()) {
+            this->m_timer.start();
+            this->m_lastTime = this->m_timer.nsecsElapsed();
+        }
+
+        // Measure current time
+        auto currentTime = this->m_timer.nsecsElapsed();
+        auto deltaTime = (currentTime - this->m_lastTime) / 1e9; // Convert to seconds
+        this->m_lastTime = currentTime;
+
+        // Update counters
+        this->m_frameCount++;
+        this->m_elapsedTime += deltaTime;
+
+        // Calculate and display FPS every second
+        if (this->m_elapsedTime >= 1.0) {
+            auto fps = this->m_frameCount / this->m_elapsedTime;
+            emit self->fpsUpdated(fps);
+
+            // Reset counters
+            this->m_frameCount = 0;
+            this->m_elapsedTime = 0.0;
+        }
+    }
 }
 
 #include "moc_videodisplay.cpp"

@@ -30,18 +30,23 @@ class VideoDisplay: public QQuickItem
 {
     Q_OBJECT
     Q_DISABLE_COPY(VideoDisplay)
-
     Q_PROPERTY(bool fillDisplay
                READ fillDisplay
                WRITE setFillDisplay
                RESET resetFillDisplay
                NOTIFY fillDisplayChanged)
+    Q_PROPERTY(bool measureFps
+               READ measureFps
+               WRITE setMeasureFps
+               RESET resetMeasureFps
+               NOTIFY measureFpsChanged)
 
     public:
         VideoDisplay(QQuickItem *parent=nullptr);
         ~VideoDisplay() override;
 
         Q_INVOKABLE bool fillDisplay() const;
+        Q_INVOKABLE bool measureFps() const;
 
     private:
         VideoDisplayPrivate *d;
@@ -51,13 +56,17 @@ class VideoDisplay: public QQuickItem
                                  UpdatePaintNodeData *updatePaintNodeData) override;
 
     signals:
-        void fillDisplayChanged();
+        void fillDisplayChanged(bool fillDisplay);
+        void measureFpsChanged(bool measureFps);
+        void fpsUpdated(int fps);
 
     public slots:
         void iStream(const AkPacket &packet);
         void iStreamGL(GLuint texture, const QSize &size);
         void setFillDisplay(bool fillDisplay);
+        void setMeasureFps(bool measureFps);
         void resetFillDisplay();
+        void resetMeasureFps();
         static void registerTypes();
 };
 
