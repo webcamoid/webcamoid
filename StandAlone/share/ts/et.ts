@@ -216,7 +216,7 @@
     <message>
         <location filename="../qml/AudioInputAdd.qml" line="30"/>
         <source>Select the audio source to add</source>
-        <translation>Vali lisatav heliallikas</translation>
+        <translation>Vali lisatav helisisend</translation>
     </message>
     <message>
         <location filename="../qml/AudioInputAdd.qml" line="55"/>
@@ -348,78 +348,78 @@
     <message>
         <location filename="../qml/CanvasConfig.qml" line="28"/>
         <source>Canvas</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanvaa</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="92"/>
         <source>Orientation</source>
-        <translation type="unfinished"></translation>
+        <translation>Paigutuse suund</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="93"/>
         <source>Lanscape</source>
-        <translation type="unfinished"></translation>
+        <translation>Rõhtvaates</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="93"/>
         <source>Portrait</source>
-        <translation type="unfinished"></translation>
+        <translation>Püstvaates</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="108"/>
         <location filename="../qml/CanvasConfig.qml" line="127"/>
         <source>Canvas resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanvaa resolutsioon</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="166"/>
         <source>Custom</source>
-        <translation type="unfinished">Kohandatud</translation>
+        <translation>Kohandatud</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="170"/>
         <source>%1×%2 @ %3 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1×%2 @ %3 FPS</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="292"/>
         <source>Canvas color</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanvaa värv</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="294"/>
         <source>Choose the canvas color</source>
-        <translation type="unfinished"></translation>
+        <translation>Vali kanvaa värv</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="181"/>
         <source>Advanced settings</source>
-        <translation type="unfinished">Täpsemad seaded</translation>
+        <translation>Seadistused oskuskasutajale</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="29"/>
         <source>Configure the composition canvas resolution, frame rate, and color.</source>
-        <translation type="unfinished"></translation>
+        <translation>Seadista kanvaa resolutsiooni, kaadrisagedust ja värvi.</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="192"/>
         <source>Canvas size</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanvaa suurus</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="210"/>
         <source>Width</source>
-        <translation type="unfinished">Laius</translation>
+        <translation>Laius</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="239"/>
         <source>Height</source>
-        <translation type="unfinished">Kõrgus</translation>
+        <translation>Kõrgus</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="268"/>
         <source>Frame rate</source>
-        <translation type="unfinished">Kaadrisagedus</translation>
+        <translation>Kaadrisagedus</translation>
     </message>
 </context>
 <context>
@@ -1008,7 +1008,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="77"/>
         <source>Play sources on start</source>
-        <translation>Käivitage sisendid käivitamisel</translation>
+        <translation>Käivita sisendid rakenduse käivitamisel</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="87"/>
@@ -1023,7 +1023,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="110"/>
         <source>Show current FPS in title bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Näita tiitliribal praegust kaadrisagedust</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="122"/>
@@ -1130,17 +1130,17 @@
     <message>
         <location filename="../qml/LayoutEditorDialog.qml" line="94"/>
         <source>Source %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Sisend: %1</translation>
     </message>
     <message>
         <location filename="../qml/LayoutEditorDialog.qml" line="234"/>
         <source>Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Sisend</translation>
     </message>
     <message>
         <location filename="../qml/LayoutEditorDialog.qml" line="264"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Sulge</translation>
     </message>
 </context>
 <context>
@@ -1339,12 +1339,12 @@
     <message>
         <location filename="../qml/MainPanel.qml" line="32"/>
         <source>Canvas effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanvaa efektid</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="33"/>
         <source>Source effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Sisendi efektid</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="35"/>
@@ -1773,7 +1773,7 @@
     <message>
         <location filename="../qml/SettingsMenu.qml" line="101"/>
         <source>Play sources</source>
-        <translation>Mängige sisendeid</translation>
+        <translation>Esita sisendeid</translation>
     </message>
 </context>
 <context>
@@ -2231,12 +2231,12 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="258"/>
         <source>Bitrate (bits/secs)</source>
-        <translation>Bitikiirus (bitit/sek)</translation>
+        <translation>Bitikiirus (bitti sekundis)</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="268"/>
         <source>Keyframes stride (ms)</source>
-        <translation>Võtmekaadri samm (ms)</translation>
+        <translation>Võtmekaadri samm (msek)</translation>
     </message>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="275"/>
@@ -2330,59 +2330,59 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="91"/>
         <source>Edit media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>Muuda meediumi failisisendit</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="95"/>
         <source>Edit media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>Muuda meediumi võrgusisendit</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="99"/>
         <source>Add media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>Lisa meediumi failisisend</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="100"/>
         <source>Add media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>Lisa meediumi võrgusisend</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="133"/>
         <location filename="../qml/VideoInputAddEdit.qml" line="180"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Kirjeldus</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="139"/>
         <location filename="../qml/VideoInputAddEdit.qml" line="186"/>
         <source>Source title</source>
-        <translation type="unfinished"></translation>
+        <translation>Sisendi pealkiri</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="149"/>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Asukoht</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="159"/>
         <source>File path</source>
-        <translation type="unfinished"></translation>
+        <translation>Faili asukoht</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="160"/>
         <source>Search file to use as source</source>
-        <translation type="unfinished"></translation>
+        <translation>Otsi faili, mida soovid kasutada sisendina</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="196"/>
         <source>URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Võrguaadress</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="254"/>
         <source>Choose the file to add as source</source>
-        <translation type="unfinished"></translation>
+        <translation>Vali fail lisamiseks sisendina</translation>
     </message>
 </context>
 <context>
@@ -2426,37 +2426,37 @@
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="95"/>
         <source>Manage source effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Halda sisendi efekte</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="107"/>
         <source>Opacity</source>
-        <translation type="unfinished">Läbipaistmatus</translation>
+        <translation>Läbipaistmatus</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="125"/>
         <source>Source opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>Sisendi läbipaistmatus</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="136"/>
         <source>Aspect ratio mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Kuvasuhte režiim</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="138"/>
         <source>Ignore</source>
-        <translation type="unfinished"></translation>
+        <translation>Eira</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="139"/>
         <source>Keep</source>
-        <translation type="unfinished"></translation>
+        <translation>Säilita</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="140"/>
         <source>Keep by expanding</source>
-        <translation type="unfinished"></translation>
+        <translation>Säilita laiendades</translation>
     </message>
 </context>
 <context>
@@ -2464,32 +2464,32 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="97"/>
         <source>Camera</source>
-        <translation type="unfinished">Kaamera</translation>
+        <translation>Kaamera</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="99"/>
         <source>Screen</source>
-        <translation type="unfinished">Ekraan</translation>
+        <translation>Ekraan</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="101"/>
         <source>Image</source>
-        <translation type="unfinished">Pilt</translation>
+        <translation>Pilt</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="103"/>
         <source>Video</source>
-        <translation type="unfinished">Video</translation>
+        <translation>Video</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="105"/>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Pole teada</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="124"/>
         <source>Add source</source>
-        <translation>Lisa allikas</translation>
+        <translation>Lisa sisend</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="136"/>
@@ -2504,7 +2504,7 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="145"/>
         <source>Add screen source</source>
-        <translation>Lisa ekraani allikas</translation>
+        <translation>Lisa ekraanisisend</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="152"/>
@@ -2524,17 +2524,17 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="183"/>
         <source>Manage canvas effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Halda kanvaa efekte</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="175"/>
         <source>Edit layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Muuda paigutust</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="379"/>
         <source>Source %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Sisend: %1</translation>
     </message>
 </context>
 <context>
@@ -2555,7 +2555,7 @@
     <message>
         <location filename="../qml/VideoOptions.qml" line="48"/>
         <source>Sources</source>
-        <translation>Allikad</translation>
+        <translation>Sisendid</translation>
     </message>
     <message>
         <location filename="../qml/VideoOptions.qml" line="51"/>
@@ -3423,7 +3423,7 @@
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="152"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="108"/>
         <source>Source palette</source>
-        <translation>Allikapalett</translation>
+        <translation>Sisendipalett</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="153"/>
