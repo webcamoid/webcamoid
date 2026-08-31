@@ -1023,7 +1023,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="110"/>
         <source>Show current FPS in title bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Huidig aantal fps op titelbalk tonen</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="122"/>
