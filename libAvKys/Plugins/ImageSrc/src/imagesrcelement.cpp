@@ -61,6 +61,7 @@ class ImageSrcElementPrivate
         QFuture<void> m_framesThreadStatus;
         QFuture<void> m_threadStatus;
         QImageReader m_imageReader;
+        QImage m_cachedImage;
         QReadWriteLock m_fpsMutex;
         QReadWriteLock m_imageReaderMutex;
         bool m_forceFps {false};
@@ -261,6 +262,7 @@ void ImageSrcElement::setMedia(const QString &media)
         size = this->d->m_imageReader.size();
         isAnimation = this->d->m_imageReader.supportsAnimation();
         this->d->m_imageReader.setFileName(media);
+        this->d->m_cachedImage = QImage();
     }
 
     if (!media.isEmpty())
@@ -379,11 +381,31 @@ void ImageSrcElementPrivate::readFrame()
 
         QImage image;
         QString error;
+        bool useCache = false;
 
         {
             QReadLocker locker(&this->m_imageReaderMutex);
-            image = this->m_imageReader.read();
-            error = this->m_imageReader.errorString();
+
+            if (!this->m_cachedImage.isNull() 
+                && !this->m_imageReader.supportsAnimation()) {
+                image = this->m_cachedImage;
+                useCache = true;
+            }
+        }
+
+        if (!useCache) {
+            {
+                QReadLocker locker(&this->m_imageReaderMutex);
+                image = this->m_imageReader.read();
+                error = this->m_imageReader.errorString();
+            }
+
+            if (!image.isNull()) {
+                QWriteLocker locker(&this->m_imageReaderMutex);
+
+                if (!this->m_imageReader.supportsAnimation())
+                    this->m_cachedImage = image;
+            }
         }
 
         if (image.isNull()) {
@@ -449,9 +471,7 @@ void ImageSrcElementPrivate::readFrame()
                 auto delay = (1000 / fps).value() + delayDiff;
                 delayDiff = delay - qRound(delay);
                 QThread::msleep(qRound(delay));
-            }
-
-            {
+            } else {
                 QWriteLocker locker(&this->m_imageReaderMutex);
                 auto fileName = this->m_imageReader.fileName();
                 this->m_imageReader.setFileName({});

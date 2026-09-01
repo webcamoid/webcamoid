@@ -54,15 +54,15 @@ AK.MenuOption {
     readonly property bool isPortrait: cbxOrientation.currentIndex != 0
 
     // Effective dimensions (swapped for portrait display).
-    readonly property int effectiveWidth: isPortrait? currentCaps.height : currentCaps.width
-    readonly property int effectiveHeight: isPortrait? currentCaps.width : currentCaps.height
+    readonly property int effectiveWidth: isPortrait? currentCaps.height: currentCaps.width
+    readonly property int effectiveHeight: isPortrait? currentCaps.width: currentCaps.height
 
     // Find the preset index that matches current effective dimensions + FPS, or -1.
     readonly property int matchedPresetIndex: {
         for (let i = 0; i < canvasPresets.length; i++) {
             let p = canvasPresets[i]
-            let pw = isPortrait? p.height : p.width
-            let ph = isPortrait? p.width : p.height
+            let pw = isPortrait? p.height: p.width
+            let ph = isPortrait? p.width: p.height
 
             if (effectiveWidth === pw
                 && effectiveHeight === ph
@@ -85,16 +85,28 @@ AK.MenuOption {
         ColumnLayout {
             id: layout
             width: scrollView.width
-            layoutDirection: root.rtl? Qt.RightToLeft : Qt.LeftToRight
+            layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
 
             AK.LabeledComboBox {
                 id: cbxOrientation
                 label: qsTr("Orientation")
-                model: [qsTr("Lanscape"), qsTr("Portrait")]
+                model: [qsTr("Landscape"), qsTr("Portrait")]
                 currentIndex: {
                     let caps = AkVideoCaps.create(videoEffects.outputCaps)
 
                     return caps.width >= caps.height? 0: 1
+                }
+                onCurrentIndexChanged: {
+                    let caps = AkVideoCaps.create(videoEffects.outputCaps)
+                    let targetIsLandscape = (currentIndex === 0)
+                    let currentIsLandscape = (caps.width >= caps.height)
+
+                    if (targetIsLandscape !== currentIsLandscape) {
+                        let temp = caps.width
+                        caps.width = caps.height
+                        caps.height = temp
+                        videoEffects.outputCaps = caps.toVariant()
+                    }
                 }
                 Accessible.description: label
                 Layout.leftMargin: root.leftMargin
@@ -134,8 +146,8 @@ AK.MenuOption {
                     root.updatingFromPreset = true
 
                     let newCaps = AkVideoCaps.create(videoEffects.outputCaps)
-                    newCaps.width = root.isPortrait? p.height : p.width
-                    newCaps.height = root.isPortrait? p.width : p.height
+                    newCaps.width = root.isPortrait? p.height: p.width
+                    newCaps.height = root.isPortrait? p.width: p.height
                     newCaps.fps = AkFrac.create(p.fps, 1).toVariant()
                     videoEffects.outputCaps = newCaps.toVariant()
 
@@ -200,7 +212,7 @@ AK.MenuOption {
 
                 GridLayout {
                     columns: 2
-                    layoutDirection: root.rtl? Qt.RightToLeft : Qt.LeftToRight
+                    layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
                     Layout.leftMargin: root.leftMargin
                     Layout.rightMargin: root.rightMargin
                     Layout.fillWidth: true
@@ -286,8 +298,26 @@ AK.MenuOption {
                             videoEffects.outputCaps = newCaps.toVariant()
                         }
                     }
+
+                    Label {
+                        id: txtCanvasOutputBuffers
+                        text: qsTr("Output buffers")
+                    }
+                    SpinBox {
+                        id: spbCanvasOutputBuffers
+                        value: videoEffects.outputBufferSize
+                        from: 2
+                        to: 16
+                        stepSize: 1
+                        editable: true
+                        Accessible.name: txtCanvasOutputBuffers.text
+                        Layout.rightMargin: root.rightMargin
+
+                        onValueModified: videoEffects.outputBufferSize = value
+                    }
                 }
             }
+
             AK.ColorButton {
                 text: qsTr("Canvas color")
                 currentColor: AkUtils.fromRgba(videoEffects.canvasColor)

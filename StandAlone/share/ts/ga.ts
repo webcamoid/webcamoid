@@ -357,42 +357,47 @@
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="93"/>
-        <source>Lanscape</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/CanvasConfig.qml" line="93"/>
         <source>Portrait</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="108"/>
-        <location filename="../qml/CanvasConfig.qml" line="127"/>
+        <location filename="../qml/CanvasConfig.qml" line="93"/>
+        <source>Landscape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="120"/>
+        <location filename="../qml/CanvasConfig.qml" line="139"/>
         <source>Canvas resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="166"/>
+        <location filename="../qml/CanvasConfig.qml" line="178"/>
         <source>Custom</source>
         <translation type="unfinished">Saincheaptha</translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="170"/>
+        <location filename="../qml/CanvasConfig.qml" line="182"/>
         <source>%1×%2 @ %3 FPS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="292"/>
+        <location filename="../qml/CanvasConfig.qml" line="304"/>
+        <source>Output buffers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="322"/>
         <source>Canvas color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="294"/>
+        <location filename="../qml/CanvasConfig.qml" line="324"/>
         <source>Choose the canvas color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="181"/>
+        <location filename="../qml/CanvasConfig.qml" line="193"/>
         <source>Advanced settings</source>
         <translation type="unfinished">Socruithe casta</translation>
     </message>
@@ -402,22 +407,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="192"/>
+        <location filename="../qml/CanvasConfig.qml" line="204"/>
         <source>Canvas size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="210"/>
+        <location filename="../qml/CanvasConfig.qml" line="222"/>
         <source>Width</source>
         <translation type="unfinished">Leithead</translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="239"/>
+        <location filename="../qml/CanvasConfig.qml" line="251"/>
         <source>Height</source>
         <translation type="unfinished">Airde</translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="268"/>
+        <location filename="../qml/CanvasConfig.qml" line="280"/>
         <source>Frame rate</source>
         <translation type="unfinished">Ráta fráma</translation>
     </message>
@@ -1417,7 +1422,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1351"/>
+        <location filename="../../src/mediatools.cpp" line="1415"/>
         <source>%1/log %2.txt</source>
         <translation>%1/log %2.txt</translation>
     </message>
@@ -1563,7 +1568,7 @@
         <translation>Oscail cás nua de %1.</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1509"/>
+        <location filename="../../src/recording.cpp" line="1494"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/Físeán %2.%3</translation>
     </message>
@@ -4880,135 +4885,135 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="62"/>
+        <location filename="../qml/main.qml" line="69"/>
         <source>Daily Build</source>
         <translation>Tógáil Laethúil</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="76"/>
+        <location filename="../qml/main.qml" line="83"/>
         <source>%1/Picture %2.%3</source>
         <translation>%1/Pictiúr %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="267"/>
+        <location filename="../qml/main.qml" line="292"/>
         <source>Main menu</source>
         <translation>Príomhroghchlár</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="273"/>
+        <location filename="../qml/main.qml" line="298"/>
         <source>Open main menu</source>
         <translation>Oscail príomhroghchlár</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="303"/>
+        <location filename="../qml/main.qml" line="328"/>
         <source>Start streaming</source>
         <translation>Tosaigh sruthú</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="303"/>
+        <location filename="../qml/main.qml" line="328"/>
         <source>Stop streaming</source>
         <translation>Stop sruthú</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="308"/>
+        <location filename="../qml/main.qml" line="333"/>
         <source>You must add at least one streaming platform to the video outputs</source>
         <translation>Ní mór duit ar a laghad ardán sruthaithe amháin a chur leis na haschuir físe</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="310"/>
+        <location filename="../qml/main.qml" line="335"/>
         <source>The following platforms are not configured:&lt;br/&gt;&lt;br/&gt;%1</source>
         <translation>Níl na hardáin seo a leanas cumraithe:&lt;br/&gt;&lt;br/&gt;%1</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="344"/>
+        <location filename="../qml/main.qml" line="369"/>
         <source>Capture options</source>
         <translation>Roghanna gabhála</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="350"/>
+        <location filename="../qml/main.qml" line="375"/>
         <source>Open capture options menu</source>
         <translation>Oscail roghchlár roghanna gabhála</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="381"/>
+        <location filename="../qml/main.qml" line="406"/>
         <source>Open last photo</source>
         <translation>Oscail an grianghraf deireanach</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="392"/>
+        <location filename="../qml/main.qml" line="417"/>
         <source>Open last photo taken</source>
         <translation>Oscail an grianghraf deireanach a tógadh</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="423"/>
-        <location filename="../qml/main.qml" line="426"/>
+        <location filename="../qml/main.qml" line="448"/>
+        <location filename="../qml/main.qml" line="451"/>
         <source>Take a photo</source>
         <translation>Tóg grianghraf</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="427"/>
+        <location filename="../qml/main.qml" line="452"/>
         <source>Image capture mode</source>
         <translation>Modh gabhála íomhá</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="430"/>
+        <location filename="../qml/main.qml" line="455"/>
         <source>Make a capture and save it to an image file</source>
         <translation>Déan gabháil agus sábháil i gcomhad íomhá</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="431"/>
+        <location filename="../qml/main.qml" line="456"/>
         <source>Put %1 in image capture mode</source>
         <translation>Cuir %1 i modh gabhála íomhá</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="480"/>
-        <location filename="../qml/main.qml" line="486"/>
+        <location filename="../qml/main.qml" line="505"/>
+        <location filename="../qml/main.qml" line="511"/>
         <source>Record video</source>
         <translation>Taifead físeán</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="481"/>
-        <location filename="../qml/main.qml" line="487"/>
+        <location filename="../qml/main.qml" line="506"/>
+        <location filename="../qml/main.qml" line="512"/>
         <source>Stop video recording</source>
         <translation>Stop taifeadadh físeáin</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="484"/>
+        <location filename="../qml/main.qml" line="509"/>
         <source>Video capture mode</source>
         <translation>Modh gabhála físe</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="490"/>
+        <location filename="../qml/main.qml" line="515"/>
         <source>Put %1 in video recording mode</source>
         <translation>Cuir %1 i modh taifeadta físe</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="492"/>
+        <location filename="../qml/main.qml" line="517"/>
         <source>Start recording to a video file</source>
         <translation>Tosaigh ag taifeadadh chuig comhad físe</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="493"/>
+        <location filename="../qml/main.qml" line="518"/>
         <source>Stop current video recording</source>
         <translation>Stop taifeadadh físe reatha</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="537"/>
+        <location filename="../qml/main.qml" line="562"/>
         <source>Open last video</source>
         <translation>Oscail an físeán deireanach</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="549"/>
+        <location filename="../qml/main.qml" line="574"/>
         <source>Open last recorded video</source>
         <translation>Oscail an físeán deireanach a taifeadadh</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="805"/>
+        <location filename="../qml/main.qml" line="830"/>
         <source>Installing virtual camera</source>
         <translation>Ag suiteáil ceamara fíorúil</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="806"/>
+        <location filename="../qml/main.qml" line="831"/>
         <source>Running commands</source>
         <translation>Ag rith orduithe</translation>
     </message>

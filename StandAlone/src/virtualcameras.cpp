@@ -895,7 +895,7 @@ void VirtualCamerasPrivate::loadProperties()
             config.setArrayIndex(i);
             auto output = config.value("output").toString();
 
-            if (!medias.contains(output))
+            if (medias.contains(output))
                 this->m_selectedOutputs << output;
         }
 

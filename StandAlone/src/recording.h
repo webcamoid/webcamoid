@@ -224,6 +224,8 @@ class Recording: public QObject
         void imageSaveQualityChanged(int imageSaveQuality);
         void useFlashChanged(bool useFlash);
         void photoTimeoutChanged(int photoTimeout);
+        void requestPhotoFrame();
+        void photoReady();
 
     public slots:
         // General options
@@ -280,6 +282,7 @@ class Recording: public QObject
 
         void takePhoto();
         void savePhoto(const QString &fileName);
+        void setPhotoFrame(const QImage &frame);
         bool copyToClipboard();
         AkPacket iStream(const AkPacket &packet);
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);

@@ -121,11 +121,9 @@ class RecordingPrivate
         QString m_latestVideoUri;
         QString m_latestPhotoUri;
         AkElementPtr m_thumbnailer {akPluginManager->create<AkElement>("MultimediaSource/MultiSrc")};
-        QMutex m_mutex;
         QReadWriteLock m_thumbnailMutex;
         QMutex m_thumbnailerMutex;
         QThreadPool m_threadPool;
-        AkVideoPacket m_curPacket;
         QImage m_photo;
         QImage m_thumbnail;
         QMap<QString, QString> m_imageFormats;
@@ -1022,23 +1020,8 @@ void Recording::resetPhotoTimeout()
 
 void Recording::takePhoto()
 {
-    QMutexLocker locker(&this->d->m_mutex);
-
-    this->d->m_videoConverter.begin();
-    auto src = this->d->m_videoConverter.convert(this->d->m_curPacket);
-    this->d->m_videoConverter.end();
-
-    this->d->m_photo = QImage(src.caps().width(),
-                              src.caps().height(),
-                              QImage::Format_ARGB32);
-    auto lineSize =
-            qMin<size_t>(src.lineSize(0), this->d->m_photo.bytesPerLine());
-
-    for (int y = 0; y < src.caps().height(); y++) {
-        auto srcLine = src.constLine(0, y);
-        auto dstLine = this->d->m_photo.scanLine(y);
-        memcpy(dstLine, srcLine, lineSize);
-    }
+    this->d->m_photo = QImage();
+    emit this->requestPhotoFrame();
 }
 
 void Recording::savePhoto(const QString &fileName)
@@ -1078,6 +1061,13 @@ void Recording::savePhoto(const QString &fileName)
     emit this->lastPhotoPreviewChanged(path);
 }
 
+void Recording::setPhotoFrame(const QImage &frame)
+{
+    this->d->m_photo = frame.convertedTo(QImage::Format_ARGB32);
+
+    emit this->photoReady();
+}
+
 bool Recording::copyToClipboard()
 {
     if (!this->d->m_photo.isNull()) {
@@ -1091,11 +1081,6 @@ bool Recording::copyToClipboard()
 
 AkPacket Recording::iStream(const AkPacket &packet)
 {
-    if (packet.type() == AkPacket::PacketVideo) {
-        QMutexLocker locker(&this->d->m_mutex);
-        this->d->m_curPacket = packet;
-    }
-
     if (this->d->m_isRecording) {
         switch (packet.type()) {
         case AkPacket::PacketAudio:

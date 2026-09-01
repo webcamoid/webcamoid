@@ -49,6 +49,11 @@ class VideoEffects: public QObject
                WRITE setCanvasColor
                RESET resetCanvasColor
                NOTIFY canvasColorChanged)
+    Q_PROPERTY(size_t outputBufferSize
+               READ outputBufferSize
+               WRITE setOutputBufferSize
+               RESET resetOutputBufferSize
+               NOTIFY outputBufferSizeChanged)
     Q_PROPERTY(QStringList availableEffects
                READ availableEffects
                NOTIFY availableEffectsChanged)
@@ -81,6 +86,7 @@ class VideoEffects: public QObject
         // Global output pipeline
         Q_INVOKABLE AkVideoCaps outputCaps() const;
         Q_INVOKABLE QRgb canvasColor() const;
+        Q_INVOKABLE size_t outputBufferSize() const;
         Q_INVOKABLE QStringList availableEffects() const;
         Q_INVOKABLE QStringList effects() const;
         Q_INVOKABLE QString preview() const;
@@ -131,11 +137,13 @@ class VideoEffects: public QObject
         VideoEffectsPrivate *d;
 
     signals:
+        void frameCaptured(const QImage &frame);
         void ready();
 
         // Global output pipeline
         void outputCapsChanged(const AkVideoCaps &outputCaps);
         void canvasColorChanged(QRgb canvasColor);
+        void outputBufferSizeChanged(size_t outputBufferSize);
         void availableEffectsChanged(const QStringList &availableEffects);
         void effectsChanged(const QStringList &effects);
         void previewChanged(const QString &preview);
@@ -162,12 +170,14 @@ class VideoEffects: public QObject
         // Global output pipeline
         void setOutputCaps(const AkVideoCaps &outputCaps);
         void setCanvasColor(QRgb canvasColor);
+        void setOutputBufferSize(size_t outputBufferSize);
         void setEffects(const QStringList &effects);
         void setPreview(const QString &preview);
         void setState(AkElement::ElementState state);
         void setChainEffects(bool chainEffects);
         void resetOutputCaps();
         void resetCanvasColor();
+        void resetOutputBufferSize();
         void resetEffects();
         void resetPreview();
         void resetState();
@@ -182,8 +192,11 @@ class VideoEffects: public QObject
         void unlinkLayoutEditor();
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
         AkPacket iStream(const AkPacket &packet);
+        void addPacketReader();
+        void removePacketReader();
         void attachToWindow(QQuickWindow *window);
         void detachFromWindow();
+        void captureFrame();
 
         // Source layout
         void setSourceRect(qint64 id, const QRectF &rect);

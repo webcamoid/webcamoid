@@ -357,42 +357,47 @@
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="93"/>
-        <source>Lanscape</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/CanvasConfig.qml" line="93"/>
         <source>Portrait</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="108"/>
-        <location filename="../qml/CanvasConfig.qml" line="127"/>
+        <location filename="../qml/CanvasConfig.qml" line="93"/>
+        <source>Landscape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="120"/>
+        <location filename="../qml/CanvasConfig.qml" line="139"/>
         <source>Canvas resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="166"/>
+        <location filename="../qml/CanvasConfig.qml" line="178"/>
         <source>Custom</source>
         <translation type="unfinished">Карыстальніцкі</translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="170"/>
+        <location filename="../qml/CanvasConfig.qml" line="182"/>
         <source>%1×%2 @ %3 FPS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="292"/>
+        <location filename="../qml/CanvasConfig.qml" line="304"/>
+        <source>Output buffers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="322"/>
         <source>Canvas color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="294"/>
+        <location filename="../qml/CanvasConfig.qml" line="324"/>
         <source>Choose the canvas color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="181"/>
+        <location filename="../qml/CanvasConfig.qml" line="193"/>
         <source>Advanced settings</source>
         <translation type="unfinished">Пашыраныя налады</translation>
     </message>
@@ -402,22 +407,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="192"/>
+        <location filename="../qml/CanvasConfig.qml" line="204"/>
         <source>Canvas size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="210"/>
+        <location filename="../qml/CanvasConfig.qml" line="222"/>
         <source>Width</source>
         <translation type="unfinished">Шырыня</translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="239"/>
+        <location filename="../qml/CanvasConfig.qml" line="251"/>
         <source>Height</source>
         <translation type="unfinished">Вышыня</translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="268"/>
+        <location filename="../qml/CanvasConfig.qml" line="280"/>
         <source>Frame rate</source>
         <translation type="unfinished">Частата кадраў</translation>
     </message>
@@ -1417,7 +1422,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1351"/>
+        <location filename="../../src/mediatools.cpp" line="1415"/>
         <source>%1/log %2.txt</source>
         <translation>%1/журнал %2.txt</translation>
     </message>
@@ -1563,7 +1568,7 @@
         <translation>Адкрыць новы асобнік %1.</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1509"/>
+        <location filename="../../src/recording.cpp" line="1494"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/Відэа %2.%3</translation>
     </message>
@@ -4880,135 +4885,135 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="62"/>
+        <location filename="../qml/main.qml" line="69"/>
         <source>Daily Build</source>
         <translation>Штодзённая зборка</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="76"/>
+        <location filename="../qml/main.qml" line="83"/>
         <source>%1/Picture %2.%3</source>
         <translation>%1/Выява %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="267"/>
+        <location filename="../qml/main.qml" line="292"/>
         <source>Main menu</source>
         <translation>Галоўнае меню</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="273"/>
+        <location filename="../qml/main.qml" line="298"/>
         <source>Open main menu</source>
         <translation>Адкрыць галоўнае меню</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="303"/>
+        <location filename="../qml/main.qml" line="328"/>
         <source>Start streaming</source>
         <translation>Пачаць трансляцыю</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="303"/>
+        <location filename="../qml/main.qml" line="328"/>
         <source>Stop streaming</source>
         <translation>Спыніць трансляцыю</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="308"/>
+        <location filename="../qml/main.qml" line="333"/>
         <source>You must add at least one streaming platform to the video outputs</source>
         <translation>Вы павінны дадаць хаця б адну платформу трансляцыі да відэавыхадаў</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="310"/>
+        <location filename="../qml/main.qml" line="335"/>
         <source>The following platforms are not configured:&lt;br/&gt;&lt;br/&gt;%1</source>
         <translation>Наступныя платформы не наладжаны:&lt;br/&gt;&lt;br/&gt;%1</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="344"/>
+        <location filename="../qml/main.qml" line="369"/>
         <source>Capture options</source>
         <translation>Налады захопу</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="350"/>
+        <location filename="../qml/main.qml" line="375"/>
         <source>Open capture options menu</source>
         <translation>Адкрыць меню налад захопу</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="381"/>
+        <location filename="../qml/main.qml" line="406"/>
         <source>Open last photo</source>
         <translation>Адкрыць апошнюю фатаграфію</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="392"/>
+        <location filename="../qml/main.qml" line="417"/>
         <source>Open last photo taken</source>
         <translation>Адкрыць апошнюю зробленую фатаграфію</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="423"/>
-        <location filename="../qml/main.qml" line="426"/>
+        <location filename="../qml/main.qml" line="448"/>
+        <location filename="../qml/main.qml" line="451"/>
         <source>Take a photo</source>
         <translation>Зрабіць фатаграфію</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="427"/>
+        <location filename="../qml/main.qml" line="452"/>
         <source>Image capture mode</source>
         <translation>Рэжым захопу выявы</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="430"/>
+        <location filename="../qml/main.qml" line="455"/>
         <source>Make a capture and save it to an image file</source>
         <translation>Зрабіць здымак і захаваць у файл выявы</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="431"/>
+        <location filename="../qml/main.qml" line="456"/>
         <source>Put %1 in image capture mode</source>
         <translation>Перавесці %1 у рэжым захопу выявы</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="480"/>
-        <location filename="../qml/main.qml" line="486"/>
+        <location filename="../qml/main.qml" line="505"/>
+        <location filename="../qml/main.qml" line="511"/>
         <source>Record video</source>
         <translation>Запісаць відэа</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="481"/>
-        <location filename="../qml/main.qml" line="487"/>
+        <location filename="../qml/main.qml" line="506"/>
+        <location filename="../qml/main.qml" line="512"/>
         <source>Stop video recording</source>
         <translation>Спыніць запіс відэа</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="484"/>
+        <location filename="../qml/main.qml" line="509"/>
         <source>Video capture mode</source>
         <translation>Рэжым захопу відэа</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="490"/>
+        <location filename="../qml/main.qml" line="515"/>
         <source>Put %1 in video recording mode</source>
         <translation>Перавесці %1 у рэжым запісу відэа</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="492"/>
+        <location filename="../qml/main.qml" line="517"/>
         <source>Start recording to a video file</source>
         <translation>Пачаць запіс у відэафайл</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="493"/>
+        <location filename="../qml/main.qml" line="518"/>
         <source>Stop current video recording</source>
         <translation>Спыніць бягучы запіс відэа</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="537"/>
+        <location filename="../qml/main.qml" line="562"/>
         <source>Open last video</source>
         <translation>Адкрыць апошняе відэа</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="549"/>
+        <location filename="../qml/main.qml" line="574"/>
         <source>Open last recorded video</source>
         <translation>Адкрыць апошняе запісанае відэа</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="805"/>
+        <location filename="../qml/main.qml" line="830"/>
         <source>Installing virtual camera</source>
         <translation>Усталёўка віртуальнай камеры</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="806"/>
+        <location filename="../qml/main.qml" line="831"/>
         <source>Running commands</source>
         <translation>Выкананне каманд</translation>
     </message>

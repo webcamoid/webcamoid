@@ -20,9 +20,11 @@
 #include <QDebug>
 #include <QElapsedTimer>
 #include <QHash>
+#include <QMatrix4x4>
 #include <QMutex>
 #include <QOpenGLBuffer>
 #include <QOpenGLContext>
+#include <QOpenGLExtraFunctions>
 #include <QOpenGLFramebufferObject>
 #include <QOpenGLFramebufferObjectFormat>
 #include <QOpenGLShaderProgram>
@@ -33,7 +35,7 @@
 #include <QQuickWindow>
 #include <QReadWriteLock>
 #include <QVector>
-#include <QMatrix4x4>
+#include <QWaitCondition>
 
 #include "akglcompositor.h"
 #include "ak.h"
@@ -47,6 +49,11 @@
 #include "akvideoconverter.h"
 #include "akvideopacket.h"
 
+#define DEFAULT_OUTPUT_BUFFER_SIZE 2
+
+using TexturePtr = QSharedPointer<QOpenGLTexture>;
+using BufferPtr = QSharedPointer<QOpenGLBuffer>;
+
 class AkGLCompositorSource
 {
     public:
@@ -57,9 +64,11 @@ class AkGLCompositorSource
         qreal opacity {1.0};
         qreal rotation {0.0};
         Qt::AspectRatioMode aspectRatioMode {Qt::KeepAspectRatio};
-        QOpenGLTexture *uploadTex {nullptr};
+        TexturePtr uploadTex {nullptr};
         QOpenGLFramebufferObject *entryFbo {nullptr};
         QOpenGLFramebufferObject *effectFbo {nullptr};
+        BufferPtr uploadPbo;
+        size_t uploadPboSize {0};
         AkGLPipeline pipeline;
         bool glInitialized {false};
 };
@@ -97,6 +106,8 @@ class AkGLCompositorPrivate
         QAtomicInt m_glInitialized {0};
         qint64 m_lastTickNs {0};
         QAtomicInt m_releaseRequested {0};
+        bool m_supportsPBO {false};
+        bool m_readFrameRequested {false};
 
         // Shared geometry (VBO + IBO).
         QOpenGLBuffer *m_vbo {nullptr};
@@ -119,7 +130,6 @@ class AkGLCompositorPrivate
 
         QVector<SourceSnapshot> m_orderedSources;
         bool m_sourceParamsDirty {true};
-
         mutable QVector2D m_lastBoxScale;
 
         QOpenGLFramebufferObject *m_canvasFbo {nullptr};
@@ -134,6 +144,7 @@ class AkGLCompositorPrivate
         QElapsedTimer m_clock;
         AkVideoCaps m_outputCaps;
         QRgb m_canvasColor {qRgba(0, 0, 0, 0)};
+        size_t m_outputBufferSize {DEFAULT_OUTPUT_BUFFER_SIZE};
         AkGLPipeline m_pipeline;
         AkVideoConverter m_outputConverter;
         QStringList m_availableEffects;
@@ -144,6 +155,10 @@ class AkGLCompositorPrivate
         size_t m_uploadBufferSize {0};
         quint8 *m_readbackBuffer {nullptr};
         size_t m_readbackBufferSize {0};
+
+        QVector<BufferPtr> m_packPbo;
+        int m_currentPackPbo {0};
+        size_t m_packPboSize {0};
 
         explicit AkGLCompositorPrivate(AkGLCompositor *self);
         static QString profileString(QSurfaceFormat::OpenGLContextProfile profile);
@@ -192,6 +207,11 @@ AkVideoCaps AkGLCompositor::outputCaps() const
 QRgb AkGLCompositor::canvasColor() const
 {
     return this->d->m_canvasColor;
+}
+
+size_t AkGLCompositor::outputBufferSize() const
+{
+    return this->d->m_outputBufferSize;
 }
 
 QStringList AkGLCompositor::availableEffects() const
@@ -495,6 +515,15 @@ void AkGLCompositor::setCanvasColor(QRgb canvasColor)
     emit this->canvasColorChanged(canvasColor);
 }
 
+void AkGLCompositor::setOutputBufferSize(size_t outputBufferSize)
+{
+    if (this->d->m_outputBufferSize == outputBufferSize)
+        return;
+
+    this->d->m_outputBufferSize = outputBufferSize;
+    emit this->outputBufferSizeChanged(outputBufferSize);
+}
+
 bool AkGLCompositor::setState(AkElement::ElementState state)
 {
     auto curState = this->state();
@@ -546,6 +575,19 @@ void AkGLCompositor::resetOutputCaps()
 void AkGLCompositor::resetCanvasColor()
 {
     this->setCanvasColor(qRgba(0, 0, 0, 0));
+}
+
+void AkGLCompositor::resetOutputBufferSize()
+{
+    this->setOutputBufferSize(DEFAULT_OUTPUT_BUFFER_SIZE);
+}
+
+void AkGLCompositor::captureFrame()
+{
+    if (this->state() != AkElement::ElementStatePlaying)
+        return;
+
+    this->d->m_readFrameRequested = true;
 }
 
 void AkGLCompositor::setEffects(const QStringList &effects)
@@ -1252,6 +1294,27 @@ void AkGLCompositorPrivate::renderFrame()
 
     if (!this->m_glInitialized) {
         self->initializeOpenGLFunctions();
+        auto context = QOpenGLContext::currentContext();
+
+        if (context) {
+            this->m_supportsPBO = false;
+
+            auto format = context->format();
+            int major = format.majorVersion();
+            int minor = format.minorVersion();
+            bool isES = format.renderableType() == QSurfaceFormat::OpenGLES;
+
+            if (isES)
+                this->m_supportsPBO = (major >= 3);
+            else
+                this->m_supportsPBO = (major > 3) || (major == 3 && minor >= 3);
+
+            if (!this->m_supportsPBO)
+                this->m_supportsPBO =
+                        context->hasExtension("GL_ARB_pixel_buffer_object")
+                        || context->hasExtension("GL_EXT_pixel_buffer_object");
+        }
+
         this->initGL();
         this->m_pipeline.init(self, this->m_vbo, this->m_ibo);
         this->m_clock.start();
@@ -1332,15 +1395,15 @@ void AkGLCompositorPrivate::processPendingRemovals()
 
         source->pipeline.uninit();
 
-        if (source->uploadTex) {
-            if (source->uploadTex->isCreated())
-                source->uploadTex->destroy();
-
-            delete source->uploadTex;
-        }
+        source->uploadTex = {};
+        source->uploadPbo = {};
+        source->uploadPboSize = 0;
 
         delete source->entryFbo;
+        source->entryFbo = nullptr;
+
         delete source->effectFbo;
+        source->effectFbo = nullptr;
 
         {
             QWriteLocker writeLocker(&this->m_packetsBufferMutex);
@@ -1386,9 +1449,9 @@ void AkGLCompositorPrivate::processTick()
                 this->m_packetsBufferMutex.unlock();
 
                 source->pipeline.process(source->entryFbo,
-                                        source->effectFbo,
-                                        packetId,
-                                        pts);
+                                         source->effectFbo,
+                                         packetId,
+                                         pts);
 
                 this->m_packetsBufferMutex.lockForRead();
             }
@@ -1408,6 +1471,10 @@ void AkGLCompositorPrivate::processTick()
     emit self->outputTextureReady(this->m_effectFbo->texture(),
                                   this->m_effectFbo->size());
 
+    if (this->m_readFrameRequested) {
+        emit self->frameCaptured(this->m_effectFbo->toImage(false));
+        this->m_readFrameRequested = false;
+    }
 
     if (this->m_packetReaders > 0) {
         auto fps = this->m_outputCaps.fps();
@@ -1415,11 +1482,10 @@ void AkGLCompositorPrivate::processTick()
         auto tickIntervalNs = qint64(1'000'000'000.0 / fpsValue);
         auto now = this->m_clock.nsecsElapsed();
 
-        if (now - this->m_lastTickNs < tickIntervalNs)
-            return;
-
-        this->m_lastTickNs = now;
-        this->readAndEmit(pts / 1000);
+        if (now - this->m_lastTickNs >= tickIntervalNs) {
+            this->m_lastTickNs = now;
+            this->readAndEmit(pts / 1000);
+        }
     }
 }
 
@@ -1430,7 +1496,7 @@ void AkGLCompositorPrivate::uploadSource(AkGLCompositorSourcePtr source,
     int height = packet.caps().height();
 
     if (!source->uploadTex)
-         source->uploadTex = new QOpenGLTexture(QOpenGLTexture::Target2D);
+        source->uploadTex = TexturePtr::create(QOpenGLTexture::Target2D);
 
     if (!source->uploadTex->isCreated()
         || source->uploadTex->width() != width
@@ -1448,37 +1514,76 @@ void AkGLCompositorPrivate::uploadSource(AkGLCompositorSourcePtr source,
 
     size_t packetLineSize = packet.lineSize(0);
     size_t srcLineSize = size_t(width) * 4;
+    size_t requiredSize = srcLineSize * height;
 
     source->uploadTex->bind();
 
-    if (packetLineSize == srcLineSize) {
-        self->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
-                              GL_RGBA, GL_UNSIGNED_BYTE,
-                              packet.constData());
-    } else {
-        size_t uploadBufferSize = srcLineSize * height;
-
-        if (this->m_uploadBufferSize != uploadBufferSize
-            || !this->m_uploadBuffer) {
-            if (this->m_uploadBuffer)
-                delete [] this->m_uploadBuffer;
-
-            this->m_uploadBuffer = new quint8 [uploadBufferSize];
-            this->m_uploadBufferSize = uploadBufferSize;
+    if (this->m_supportsPBO) {
+        if (!source->uploadPbo) {
+            source->uploadPbo =
+                    BufferPtr::create(QOpenGLBuffer::PixelUnpackBuffer);
+            source->uploadPbo->create();
         }
 
-        auto src = reinterpret_cast<const quint8 *>(packet.constData());
-        auto dst = this->m_uploadBuffer;
-        size_t copyLineSize = qMin<size_t>(srcLineSize, packetLineSize);
+        if (source->uploadPboSize != requiredSize) {
+            source->uploadPbo->bind();
+            source->uploadPbo->allocate(requiredSize);
+            source->uploadPbo->release();
+            source->uploadPboSize = requiredSize;
+        }
 
-        for (int y = 0; y < height; ++y)
-            memcpy(dst + y * srcLineSize,
-                   src + y * packetLineSize,
-                   copyLineSize);
+        source->uploadPbo->bind();
 
+        if (packetLineSize == srcLineSize) {
+            source->uploadPbo->write(0, packet.constData(), requiredSize);
+        } else {
+            auto ptr = source->uploadPbo->map(QOpenGLBuffer::WriteOnly);
+
+            if (ptr) {
+                auto src = reinterpret_cast<const quint8 *>(packet.constData());
+                auto dst = reinterpret_cast<quint8 *>(ptr);
+                size_t copyLineSize = qMin<size_t>(srcLineSize, packetLineSize);
+
+                for (int y = 0; y < height; ++y)
+                    memcpy(dst + y * srcLineSize,
+                           src + y * packetLineSize,
+                           copyLineSize);
+
+                source->uploadPbo->unmap();
+            }
+        }
+
+        self->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
+                              GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+        source->uploadPbo->release();
+    } else {
+        if (packetLineSize == srcLineSize) {
             self->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
                                   GL_RGBA, GL_UNSIGNED_BYTE,
-                                  dst);
+                                  packet.constData());
+        } else {
+            if (this->m_uploadBufferSize != requiredSize
+                || !this->m_uploadBuffer) {
+                if (this->m_uploadBuffer)
+                    delete [] this->m_uploadBuffer;
+
+                this->m_uploadBuffer = new quint8 [requiredSize];
+                this->m_uploadBufferSize = requiredSize;
+            }
+
+            auto src = reinterpret_cast<const quint8 *>(packet.constData());
+            auto dst = this->m_uploadBuffer;
+            size_t copyLineSize = qMin<size_t>(srcLineSize, packetLineSize);
+
+            for (int y = 0; y < height; ++y)
+                memcpy(dst + y * srcLineSize,
+                       src + y * packetLineSize,
+                       copyLineSize);
+
+            self->glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height,
+                                  GL_RGBA, GL_UNSIGNED_BYTE, dst);
+        }
     }
 
     source->uploadTex->release();
@@ -1631,9 +1736,7 @@ void AkGLCompositorPrivate::readAndEmit(qint64 pts)
         || this->m_outputPacket.caps().height() != outSize.height()
         || this->m_outputPacket.caps().fps() != currentFps) {
         AkVideoCaps rgbaCaps(AkVideoCaps::Format_rgba,
-                             outSize.width(),
-                             outSize.height(),
-                             currentFps);
+                             outSize.width(), outSize.height(), currentFps);
         this->m_outputPacket = AkVideoPacket(rgbaCaps);
     }
 
@@ -1643,36 +1746,92 @@ void AkGLCompositorPrivate::readAndEmit(qint64 pts)
     size_t packetLineSize = this->m_outputPacket.lineSize(0);
     int outWidth = outSize.width();
     int outHeight = outSize.height();
+    size_t outLineSize = 4 * outWidth;
+    size_t requiredSize = outLineSize * outHeight;
 
     this->m_effectFbo->bind();
-    size_t outLineSize =  4 * outWidth;
 
-    if (packetLineSize == outLineSize) {
-        self->glReadPixels(0, 0, outWidth, outHeight,
-                           GL_RGBA, GL_UNSIGNED_BYTE,
-                           this->m_outputPacket.data());
-    } else {
-        size_t readbackBufferSize = outLineSize * outHeight;
+    if (this->m_supportsPBO) {
+        auto outputBufferSize = qBound<size_t>(2, this->m_outputBufferSize, 16);
+        this->m_packPbo.resize(outputBufferSize);
 
-        if (this->m_readbackBufferSize != readbackBufferSize
-            || !this->m_readbackBuffer) {
-            if (this->m_readbackBuffer)
-                delete [] this->m_readbackBuffer;
+        for (auto &buffer: this->m_packPbo)
+            if (!buffer) {
+                buffer = BufferPtr::create(QOpenGLBuffer::PixelPackBuffer);
+                buffer->create();
+            }
 
-            this->m_readbackBuffer = new quint8 [readbackBufferSize];
-            this->m_readbackBufferSize = readbackBufferSize;
+        if (this->m_packPboSize != requiredSize) {
+            for (auto &buffer: this->m_packPbo) {
+                buffer->bind();
+                buffer->allocate(requiredSize);
+                buffer->release();
+            }
+
+            this->m_packPboSize = requiredSize;
         }
 
-        self->glReadPixels(0, 0, outWidth, outHeight,
-                           GL_RGBA, GL_UNSIGNED_BYTE,
-                           this->m_readbackBuffer);
-        auto dst = reinterpret_cast<quint8 *>(this->m_outputPacket.data());
-        size_t copyBytes = qMin<size_t>(outLineSize, packetLineSize);
+        int writeIndex = this->m_currentPackPbo % this->m_packPbo.size();
+        int mapIndex = (writeIndex + 1) % this->m_packPbo.size();
 
-        for (int y = 0; y < outHeight; ++y)
-            memcpy(dst + y * packetLineSize,
-                   this->m_readbackBuffer + y * outLineSize,
-                   copyBytes);
+        this->m_packPbo[writeIndex]->bind();
+        self->glReadPixels(0,
+                           0,
+                           outWidth,
+                           outHeight,
+                           GL_RGBA,
+                           GL_UNSIGNED_BYTE,
+                           nullptr);
+        this->m_packPbo[writeIndex]->release();
+
+        this->m_packPbo[mapIndex]->bind();
+        auto ptr = this->m_packPbo[mapIndex]->map(QOpenGLBuffer::ReadOnly);
+
+        if (ptr) {
+            auto src = reinterpret_cast<const quint8 *>(ptr);
+            auto dst = reinterpret_cast<quint8 *>(this->m_outputPacket.data());
+
+            if (packetLineSize == outLineSize) {
+                memcpy(dst, src, requiredSize);
+            } else {
+                size_t copyBytes = qMin<size_t>(outLineSize, packetLineSize);
+
+                for (int y = 0; y < outHeight; ++y)
+                    memcpy(dst + y * packetLineSize,
+                           src + y * outLineSize,
+                           copyBytes);
+            }
+
+            this->m_packPbo[mapIndex]->unmap();
+        }
+
+        this->m_packPbo[mapIndex]->release();
+        this->m_currentPackPbo =
+                (this->m_currentPackPbo + 1) % this->m_packPbo.size();
+    } else {
+        if (packetLineSize == outLineSize) {
+            self->glReadPixels(0, 0, outWidth, outHeight,
+                               GL_RGBA, GL_UNSIGNED_BYTE,
+                               this->m_outputPacket.data());
+        } else {
+            if (this->m_readbackBufferSize != requiredSize
+                || !this->m_readbackBuffer) {
+                if (this->m_readbackBuffer)
+                    delete [] this->m_readbackBuffer;
+
+                this->m_readbackBuffer = new quint8 [requiredSize];
+                this->m_readbackBufferSize = requiredSize;
+            }
+
+                self->glReadPixels(0, 0, outWidth, outHeight,
+                                   GL_RGBA, GL_UNSIGNED_BYTE,
+                                   this->m_readbackBuffer);
+                auto dst = reinterpret_cast<quint8 *>(this->m_outputPacket.data());
+                size_t copyBytes = qMin<size_t>(outLineSize, packetLineSize);
+                for (int y = 0; y < outHeight; ++y)
+                    memcpy(dst + y * packetLineSize,
+                           this->m_readbackBuffer + y * outLineSize, copyBytes);
+        }
     }
 
     this->m_effectFbo->release();
@@ -1823,16 +1982,13 @@ void AkGLCompositorPrivate::uninitGL()
         for (auto &source: this->m_sources) {
             source->pipeline.uninit();
 
-            if (source->uploadTex) {
-                if (source->uploadTex->isCreated())
-                    source->uploadTex->destroy();
-
-                delete source->uploadTex;
-                source->uploadTex = nullptr;
-            }
+            source->uploadTex = {};
+            source->uploadPbo = {};
+            source->uploadPboSize = 0;
 
             delete source->entryFbo;
             source->entryFbo = nullptr;
+
             delete source->effectFbo;
             source->effectFbo = nullptr;
         }
@@ -1840,6 +1996,7 @@ void AkGLCompositorPrivate::uninitGL()
 
     delete this->m_canvasFbo;
     this->m_canvasFbo = nullptr;
+
     delete this->m_effectFbo;
     this->m_effectFbo = nullptr;
 
@@ -1864,6 +2021,10 @@ void AkGLCompositorPrivate::uninitGL()
         delete this->m_ibo;
         this->m_ibo = nullptr;
     }
+
+    this->m_packPbo = {};
+    this->m_packPboSize = 0;
+    this->m_currentPackPbo = 0;
 }
 
 #include "moc_akglcompositor.cpp"

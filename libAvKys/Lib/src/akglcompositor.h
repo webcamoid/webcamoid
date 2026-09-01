@@ -49,6 +49,11 @@ class AKCOMMONS_EXPORT AkGLCompositor:
                WRITE setCanvasColor
                RESET resetCanvasColor
                NOTIFY canvasColorChanged)
+    Q_PROPERTY(size_t outputBufferSize
+               READ outputBufferSize
+               WRITE setOutputBufferSize
+               RESET resetOutputBufferSize
+               NOTIFY outputBufferSizeChanged)
     Q_PROPERTY(QStringList availableEffects
                READ availableEffects
                NOTIFY availableEffectsChanged)
@@ -85,6 +90,7 @@ class AKCOMMONS_EXPORT AkGLCompositor:
 
         Q_INVOKABLE AkVideoCaps outputCaps() const;
         Q_INVOKABLE QRgb canvasColor() const;
+        Q_INVOKABLE size_t outputBufferSize() const;
 
         // Global data for all available effects in all pipelines.
         Q_INVOKABLE QStringList availableEffects() const;
@@ -131,7 +137,9 @@ class AKCOMMONS_EXPORT AkGLCompositor:
     Q_SIGNALS:
         void outputCapsChanged(const AkVideoCaps &outputCaps);
         void canvasColorChanged(QRgb canvasColor);
+        void outputBufferSizeChanged(size_t outputBufferSize);
         void availableEffectsChanged(const QStringList &availableEffects);
+        void frameCaptured(const QImage &frame);
         void ready();
 
         // Output pipeline signals
@@ -162,9 +170,12 @@ class AKCOMMONS_EXPORT AkGLCompositor:
     public Q_SLOTS:
         void setOutputCaps(const AkVideoCaps &outputCaps);
         void setCanvasColor(QRgb canvasColor);
+        void setOutputBufferSize(size_t outputBufferSize);
         bool setState(AkElement::ElementState state) override;
         void resetOutputCaps();
         void resetCanvasColor();
+        void resetOutputBufferSize();
+        void captureFrame();
 
         // Output pipeline controls.
         void setEffects(const QStringList &effects);

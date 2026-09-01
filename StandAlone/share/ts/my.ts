@@ -357,42 +357,47 @@
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="93"/>
-        <source>Lanscape</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/CanvasConfig.qml" line="93"/>
         <source>Portrait</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="108"/>
-        <location filename="../qml/CanvasConfig.qml" line="127"/>
+        <location filename="../qml/CanvasConfig.qml" line="93"/>
+        <source>Landscape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="120"/>
+        <location filename="../qml/CanvasConfig.qml" line="139"/>
         <source>Canvas resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="166"/>
+        <location filename="../qml/CanvasConfig.qml" line="178"/>
         <source>Custom</source>
         <translation type="unfinished">စိတ်ကြိုက်</translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="170"/>
+        <location filename="../qml/CanvasConfig.qml" line="182"/>
         <source>%1×%2 @ %3 FPS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="292"/>
+        <location filename="../qml/CanvasConfig.qml" line="304"/>
+        <source>Output buffers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="322"/>
         <source>Canvas color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="294"/>
+        <location filename="../qml/CanvasConfig.qml" line="324"/>
         <source>Choose the canvas color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="181"/>
+        <location filename="../qml/CanvasConfig.qml" line="193"/>
         <source>Advanced settings</source>
         <translation type="unfinished">အဆင့်မြင့် ပြင်ဆင်မှုများ</translation>
     </message>
@@ -402,22 +407,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="192"/>
+        <location filename="../qml/CanvasConfig.qml" line="204"/>
         <source>Canvas size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="210"/>
+        <location filename="../qml/CanvasConfig.qml" line="222"/>
         <source>Width</source>
         <translation type="unfinished">အကျယ်</translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="239"/>
+        <location filename="../qml/CanvasConfig.qml" line="251"/>
         <source>Height</source>
         <translation type="unfinished">အမြင့်</translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="268"/>
+        <location filename="../qml/CanvasConfig.qml" line="280"/>
         <source>Frame rate</source>
         <translation type="unfinished">ဖရိမ်နှုန်း</translation>
     </message>
@@ -1415,7 +1420,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1351"/>
+        <location filename="../../src/mediatools.cpp" line="1415"/>
         <source>%1/log %2.txt</source>
         <translation>%1/log %2.txt</translation>
     </message>
@@ -1561,7 +1566,7 @@
         <translation>%1 ၏ဥပမာအသစ်တစ်ခုကိုဖွင့်ပါ။</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1509"/>
+        <location filename="../../src/recording.cpp" line="1494"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/ဗီဒီယို %2.%3</translation>
     </message>
@@ -4878,135 +4883,135 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="62"/>
+        <location filename="../qml/main.qml" line="69"/>
         <source>Daily Build</source>
         <translation>နေ့စဉ်တည်ဆောက်မှု</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="76"/>
+        <location filename="../qml/main.qml" line="83"/>
         <source>%1/Picture %2.%3</source>
         <translation>%1/ပုံ %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="267"/>
+        <location filename="../qml/main.qml" line="292"/>
         <source>Main menu</source>
         <translation>အဓိကမီနူး</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="273"/>
+        <location filename="../qml/main.qml" line="298"/>
         <source>Open main menu</source>
         <translation>အဓိကမီနူးဖွင့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="303"/>
+        <location filename="../qml/main.qml" line="328"/>
         <source>Start streaming</source>
         <translation>စတရီးမင်းစတင်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="303"/>
+        <location filename="../qml/main.qml" line="328"/>
         <source>Stop streaming</source>
         <translation>စတရီးမင်းရပ်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="308"/>
+        <location filename="../qml/main.qml" line="333"/>
         <source>You must add at least one streaming platform to the video outputs</source>
         <translation>ဗီဒီယိုထုတ်လုပ်မှုများသို့ စတရီးမင်းပလက်ဖောင်း အနည်းဆုံးတစ်ခု ထည့်သွင်းရပါမည်။</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="310"/>
+        <location filename="../qml/main.qml" line="335"/>
         <source>The following platforms are not configured:&lt;br/&gt;&lt;br/&gt;%1</source>
         <translation>အောက်ပါပလက်ဖောင်းများကို ပြင်ဆင်ထားခြင်းမရှိပါ-&lt;br/&gt;&lt;br/&gt;%1</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="344"/>
+        <location filename="../qml/main.qml" line="369"/>
         <source>Capture options</source>
         <translation>ဖမ်းယူရေးရွေးချယ်စရာများ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="350"/>
+        <location filename="../qml/main.qml" line="375"/>
         <source>Open capture options menu</source>
         <translation>ဖမ်းယူရေးရွေးချယ်စရာမီနူးဖွင့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="381"/>
+        <location filename="../qml/main.qml" line="406"/>
         <source>Open last photo</source>
         <translation>နောက်ဆုံးဓာတ်ပုံဖွင့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="392"/>
+        <location filename="../qml/main.qml" line="417"/>
         <source>Open last photo taken</source>
         <translation>နောက်ဆုံးရိုက်ထားသောဓာတ်ပုံဖွင့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="423"/>
-        <location filename="../qml/main.qml" line="426"/>
+        <location filename="../qml/main.qml" line="448"/>
+        <location filename="../qml/main.qml" line="451"/>
         <source>Take a photo</source>
         <translation>ဓာတ်ပုံရိုက်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="427"/>
+        <location filename="../qml/main.qml" line="452"/>
         <source>Image capture mode</source>
         <translation>ပုံဖမ်းယူမုဒ်</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="430"/>
+        <location filename="../qml/main.qml" line="455"/>
         <source>Make a capture and save it to an image file</source>
         <translation>ဖမ်းယူပြီး ပုံဖိုင်တစ်ခုထဲသိမ်းဆည်းပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="431"/>
+        <location filename="../qml/main.qml" line="456"/>
         <source>Put %1 in image capture mode</source>
         <translation>%1 ကို ပုံဖမ်းယူမုဒ်ထဲထည့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="480"/>
-        <location filename="../qml/main.qml" line="486"/>
+        <location filename="../qml/main.qml" line="505"/>
+        <location filename="../qml/main.qml" line="511"/>
         <source>Record video</source>
         <translation>ဗီဒီယိုမှတ်တမ်းတင်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="481"/>
-        <location filename="../qml/main.qml" line="487"/>
+        <location filename="../qml/main.qml" line="506"/>
+        <location filename="../qml/main.qml" line="512"/>
         <source>Stop video recording</source>
         <translation>ဗီဒီယိုမှတ်တမ်းတင်ခြင်းရပ်</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="484"/>
+        <location filename="../qml/main.qml" line="509"/>
         <source>Video capture mode</source>
         <translation>ဗီဒီယိုဖမ်းယူမုဒ်</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="490"/>
+        <location filename="../qml/main.qml" line="515"/>
         <source>Put %1 in video recording mode</source>
         <translation>%1 ကို ဗီဒီယိုမှတ်တမ်းတင်မုဒ်ထဲထည့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="492"/>
+        <location filename="../qml/main.qml" line="517"/>
         <source>Start recording to a video file</source>
         <translation>ဗီဒီယိုဖိုင်တစ်ခုသို့မှတ်တမ်းတင်ရန်စတင်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="493"/>
+        <location filename="../qml/main.qml" line="518"/>
         <source>Stop current video recording</source>
         <translation>လက်ရှိဗီဒီယိုမှတ်တမ်းတင်ခြင်းရပ်</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="537"/>
+        <location filename="../qml/main.qml" line="562"/>
         <source>Open last video</source>
         <translation>နောက်ဆုံးဗီဒီယိုဖွင့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="549"/>
+        <location filename="../qml/main.qml" line="574"/>
         <source>Open last recorded video</source>
         <translation>နောက်ဆုံးမှတ်တမ်းတင်ထားသောဗီဒီယိုဖွင့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="805"/>
+        <location filename="../qml/main.qml" line="830"/>
         <source>Installing virtual camera</source>
         <translation>အမြင်သီးခြားကင်မရာတပ်ဆင်နေသည်</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="806"/>
+        <location filename="../qml/main.qml" line="831"/>
         <source>Running commands</source>
         <translation>အမိန့်များကိုလုပ်ဆောင်နေသည်</translation>
     </message>

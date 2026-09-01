@@ -958,6 +958,10 @@ bool MediaTools::init(const CliOptions &cliOptions)
     AkElement::link(this->d->m_videoEffects.data(),
                     this->d->m_localStreaming.data(),
                     Qt::DirectConnection);
+    QObject::connect(this->d->m_videoEffects.data(),
+                     &VideoEffects::frameCaptured,
+                     this->d->m_recording.data(),
+                     &Recording::setPhotoFrame);
     AkElement::link(this->d->m_audioInputs.data(),
                     this->d->m_recording.data(),
                     Qt::DirectConnection);
@@ -993,12 +997,15 @@ bool MediaTools::init(const CliOptions &cliOptions)
                      &VideoEffects::setState);
     QObject::connect(this->d->m_videoLayer.data(),
                      &VideoLayer::stateChanged,
-                     this->d->m_virtualCameras.data(),
-                     &VirtualCameras::setState);
-    QObject::connect(this->d->m_videoLayer.data(),
-                     &VideoLayer::stateChanged,
-                     this->d->m_localStreaming.data(),
-                     &LocalStreaming::setState);
+                     this,
+                     [this] (AkElement::ElementState state) {
+                         if (!this->d->m_virtualCameras->selectedOutputs().isEmpty()
+                             && !this->d->m_virtualCameras->outputs().isEmpty())
+                            this->d->m_virtualCameras->setState(state);
+
+                         if (!this->d->m_localStreaming->location().isEmpty())
+                            this->d->m_localStreaming->setState(state);
+                     });
     QObject::connect(this->d->m_videoLayer.data(),
                      &VideoLayer::stateChanged,
                      this->d->m_audioOutputs.data(),
@@ -1007,18 +1014,18 @@ bool MediaTools::init(const CliOptions &cliOptions)
                      &Recording::stateChanged,
                      this->d->m_audioInputs.data(),
                      &AudioInputs::setInputState);
-    QObject::connect(this->d->m_streaming.data(),
-                     &Streaming::stateChanged,
-                     this->d->m_audioInputs.data(),
-                     &AudioInputs::setInputState);
-    QObject::connect(this->d->m_localStreaming.data(),
-                     &LocalStreaming::stateChanged,
-                     this->d->m_audioInputs.data(),
-                     &AudioInputs::setInputState);
     QObject::connect(this->d->m_recording.data(),
                      &Recording::stateChanged,
                      this->d->m_audioInputs.data(),
                      &AudioInputs::setOutputState);
+    QObject::connect(this->d->m_recording.data(),
+                     &Recording::requestPhotoFrame,
+                     this->d->m_videoEffects.data(),
+                     &VideoEffects::captureFrame);
+    QObject::connect(this->d->m_streaming.data(),
+                     &Streaming::stateChanged,
+                     this->d->m_audioInputs.data(),
+                     &AudioInputs::setInputState);
     QObject::connect(this->d->m_streaming.data(),
                      &Streaming::stateChanged,
                      this->d->m_audioInputs.data(),
@@ -1026,7 +1033,64 @@ bool MediaTools::init(const CliOptions &cliOptions)
     QObject::connect(this->d->m_localStreaming.data(),
                      &LocalStreaming::stateChanged,
                      this->d->m_audioInputs.data(),
+                     &AudioInputs::setInputState);
+    QObject::connect(this->d->m_localStreaming.data(),
+                     &LocalStreaming::stateChanged,
+                     this->d->m_audioInputs.data(),
                      &AudioInputs::setOutputState);
+    QObject::connect(this->d->m_localStreaming.data(),
+                     &LocalStreaming::locationChanged,
+                     this,
+                     [this] (const QString &location) {
+        if (location.isEmpty())
+            this->d->m_localStreaming->setState(AkElement::ElementStateNull);
+        else
+            this->d->m_localStreaming->setState(this->d->m_videoLayer->state());
+    });
+
+    auto updatePacketReaders = [this](AkElement::ElementState state) {
+        if (state == AkElement::ElementStatePlaying)
+            this->d->m_videoEffects->addPacketReader();
+        else if (state == AkElement::ElementStateNull)
+            this->d->m_videoEffects->removePacketReader();
+    };
+
+    QObject::connect(this->d->m_recording.data(),
+                     &Recording::stateChanged,
+                     this,
+                     updatePacketReaders);
+    QObject::connect(this->d->m_streaming.data(),
+                     &Streaming::stateChanged,
+                     this,
+                     updatePacketReaders);
+    QObject::connect(this->d->m_localStreaming.data(),
+                     &LocalStreaming::stateChanged,
+                     this,
+                     updatePacketReaders);
+    QObject::connect(this->d->m_virtualCameras.data(),
+                     &VirtualCameras::stateChanged,
+                     this,
+                     updatePacketReaders);
+    QObject::connect(this->d->m_virtualCameras.data(),
+                     &VirtualCameras::outputsChanged,
+                     this,
+                     [this] (const QStringList &outputs) {
+        if (outputs.isEmpty()
+            || this->d->m_virtualCameras->selectedOutputs().isEmpty())
+            this->d->m_virtualCameras->setState(AkElement::ElementStateNull);
+        else
+            this->d->m_virtualCameras->setState(this->d->m_videoLayer->state());
+    });
+    QObject::connect(this->d->m_virtualCameras.data(),
+                     &VirtualCameras::selectedOutputsChanged,
+                     this,
+                     [this] (const QStringList &selectedOutputs) {
+        if (selectedOutputs.isEmpty()
+            || this->d->m_virtualCameras->outputs().isEmpty())
+            this->d->m_virtualCameras->setState(AkElement::ElementStateNull);
+        else
+            this->d->m_virtualCameras->setState(this->d->m_videoLayer->state());
+    });
     QObject::connect(this->d->m_virtualCameras.data(),
                      &VirtualCameras::startVCamDownload,
                      this,

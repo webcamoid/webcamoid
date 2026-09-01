@@ -29,9 +29,14 @@ ApplicationWindow {
     id: wdgMainWidget
     title: {
         let appTitle = mediaTools.applicationName + " " + version()
+        let caps = AkVideoCaps.create(videoEffects.outputCaps)
+        appTitle += " - " + caps.width + "x" + caps.height
+        let fps = Math.round(AkFrac.create(caps.fps).value)
 
         if (videoDisplay.visible && videoDisplay.measureFps)
-            appTitle += " - " + renderingFPS + " FPS"
+            fps = renderingFPS
+
+        appTitle += " " + fps + " FPS"
 
         return appTitle
     }
@@ -40,6 +45,8 @@ ApplicationWindow {
     height: mediaTools.windowHeight
 
     property int renderingFPS: 0
+    property string pendingPhotoAction: ""
+    property string pendingPhotoPath: ""
 
     readonly property string filePrefix: Ak.platform() == "windows"?
                                              "file:///":
@@ -70,25 +77,20 @@ ApplicationWindow {
         return mediaTools.applicationVersion
     }
 
-    function savePhoto()
+    function requestPhotoSave()
     {
+        pendingPhotoAction = "save"
+        pendingPhotoPath = qsTr("%1/Picture %2.%3")
+                           .arg(recording.imagesDirectory)
+                           .arg(mediaTools.currentTime())
+                           .arg(recording.imageFormat)
         recording.takePhoto()
-        recording.savePhoto(qsTr("%1/Picture %2.%3")
-                            .arg(recording.imagesDirectory)
-                            .arg(mediaTools.currentTime())
-                            .arg(recording.imageFormat))
-        photoPreviewSaveAnimation.start()
-        picturesGallery.model.reload()
     }
 
-    function snapshotToClipboard()
+    function requestPhotoClipboard()
     {
+        pendingPhotoAction = "clipboard"
         recording.takePhoto()
-
-        if (recording.copyToClipboard())
-            console.debug("Capture snapshot to Clipboard successful")
-        else
-            console.debug("Capture snapshot to Clipboard failed")
     }
 
     function pathToUrl(path)
@@ -163,6 +165,29 @@ ApplicationWindow {
         function onVcamCliInstallFinished()
         {
             runCommandDialog.stop()
+        }
+    }
+
+    Connections {
+        target: recording
+
+        function onPhotoReady()
+        {
+            if (pendingPhotoAction === "save") {
+                if (pendingPhotoPath.length > 0) {
+                    recording.savePhoto(pendingPhotoPath)
+                    pendingPhotoPath = ""
+                    photoPreviewSaveAnimation.start()
+                    picturesGallery.model.reload()
+                }
+            } else if (pendingPhotoAction === "clipboard") {
+                if (recording.copyToClipboard())
+                    console.debug("Capture snapshot to Clipboard successful")
+                else
+                    console.debug("Capture snapshot to Clipboard failed")
+            }
+
+            pendingPhotoAction = ""
         }
     }
 
@@ -358,7 +383,7 @@ ApplicationWindow {
 
                     onCopyToClipboard: {
                         mediaTools.showAd(MediaTools.AdType_Interstitial);
-                        snapshotToClipboard();
+                        requestPhotoClipboard();
                     }
                     onOpenCaptureSettings: settingsDialog.openAtIndex(1)
                     onOpenRecordingSettings: settingsDialog.openAtIndex(2)
@@ -442,7 +467,7 @@ ApplicationWindow {
 
                         if (!recording.useFlash
                             || !wdgMainWidget.hasActiveCameraSource) {
-                            savePhoto()
+                            requestPhotoSave()
 
                             return
                         }
@@ -451,7 +476,7 @@ ApplicationWindow {
                             if (recording.useFlash)
                                 flash.shot()
                             else
-                                savePhoto()
+                                requestPhotoSave()
 
                             return
                         }
@@ -585,7 +610,7 @@ ApplicationWindow {
                     if (recording.useFlash)
                         flash.shot()
                     else
-                        savePhoto()
+                        requestPhotoSave()
                 }
             }
         }
@@ -783,7 +808,7 @@ ApplicationWindow {
                 flashRectangle.visible = true
             }
         }
-        onTriggered: savePhoto()
+        onTriggered: requestPhotoSave()
         onShotFinished: {
             if (isHardwareFlash) {
                 let ids = videoLayer.sourceIds()

@@ -38,6 +38,8 @@
 #define DEFAULT_WIDTH  1280
 #define DEFAULT_HEIGHT 720
 
+#define DEFAULT_OUTPUT_BUFFER_SIZE 2
+
 class VideoEffectsPrivate
 {
     public:
@@ -52,6 +54,7 @@ class VideoEffectsPrivate
         QString encodeDevice(const QString &device) const;
         void updateOutputCaps();
         void updateCanvasColor();
+        void updateOutputBufferSize();
         void updateChainEffects();
         void updateEffects();
         void updateEffectsProperties();
@@ -59,6 +62,7 @@ class VideoEffectsPrivate
         void updateSourceEffectsProperties(qint64 id, const QString &device);
         void saveOutputCaps(const AkVideoCaps &caps);
         void saveCanvasColor(QRgb canvasColor);
+        void saveOutputBufferSize(size_t outputBufferSize);
         void saveChainEffects(bool chainEffects);
         void saveEffects();
         void saveEffectsProperties();
@@ -78,15 +82,14 @@ VideoEffects::VideoEffects(QQmlApplicationEngine *engine, QObject *parent):
     this->updateAvailableEffects();
     this->d->updateOutputCaps();
     this->d->updateCanvasColor();
+    this->d->updateOutputBufferSize();
     this->d->updateChainEffects();
     this->d->updateEffects();
-    this->d->m_glCompositor.addPacketReader();
 }
 
 VideoEffects::~VideoEffects()
 {
     this->setState(AkElement::ElementStateNull);
-    this->d->m_glCompositor.removePacketReader();
     this->d->saveEffectsProperties();
 
     for (auto it = this->d->m_sourceDevices.begin();
@@ -106,6 +109,11 @@ AkVideoCaps VideoEffects::outputCaps() const
 QRgb VideoEffects::canvasColor() const
 {
     return this->d->m_glCompositor.canvasColor();
+}
+
+size_t VideoEffects::outputBufferSize() const
+{
+    return this->d->m_glCompositor.outputBufferSize();
 }
 
 QStringList VideoEffects::availableEffects() const
@@ -430,32 +438,27 @@ bool VideoEffects::embedPreviewControls(const QString &where,
 
 void VideoEffects::setSourceRect(qint64 id, const QRectF &rect)
 {
-    QMutexLocker locker(&this->d->m_mutex);
     this->d->m_glCompositor.setSourceRect(id, rect);
 }
 
 void VideoEffects::setSourceZOrder(qint64 id, int zOrder)
 {
-    QMutexLocker locker(&this->d->m_mutex);
     this->d->m_glCompositor.setSourceZOrder(id, zOrder);
 }
 
 void VideoEffects::setSourceOpacity(qint64 id, qreal opacity)
 {
-    QMutexLocker locker(&this->d->m_mutex);
     this->d->m_glCompositor.setSourceOpacity(id, opacity);
 }
 
 void VideoEffects::setSourceRotation(qint64 id, qreal rotation)
 {
-    QMutexLocker locker(&this->d->m_mutex);
     this->d->m_glCompositor.setSourceRotation(id, rotation);
 }
 
 void VideoEffects::setSourceAspectRatioMode(qint64 id,
                                             Qt::AspectRatioMode mode)
 {
-    QMutexLocker locker(&this->d->m_mutex);
     this->d->m_glCompositor.setSourceAspectRatioMode(id, mode);
 }
 
@@ -614,6 +617,20 @@ void VideoEffects::setCanvasColor(QRgb canvasColor)
     emit this->canvasColorChanged(canvasColor);
 }
 
+void VideoEffects::setOutputBufferSize(size_t outputBufferSize)
+{
+    if (this->d->m_glCompositor.outputBufferSize() == outputBufferSize)
+        return;
+
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_glCompositor.setOutputBufferSize(outputBufferSize);
+        this->d->saveOutputBufferSize(outputBufferSize);
+    }
+
+    emit this->outputBufferSizeChanged(outputBufferSize);
+}
+
 void VideoEffects::setEffects(const QStringList &effects)
 {
     if (this->effects() == effects)
@@ -682,6 +699,11 @@ void VideoEffects::resetOutputCaps()
 void VideoEffects::resetCanvasColor()
 {
     this->setCanvasColor(qRgba(0, 0, 0, 0));
+}
+
+void VideoEffects::resetOutputBufferSize()
+{
+    this->setOutputBufferSize(DEFAULT_OUTPUT_BUFFER_SIZE);
 }
 
 void VideoEffects::resetEffects()
@@ -801,6 +823,16 @@ void VideoEffects::unlinkLayoutEditor()
     this->d->unlinkLayoutEditor();
 }
 
+void VideoEffects::addPacketReader()
+{
+    this->d->m_glCompositor.addPacketReader();
+}
+
+void VideoEffects::removePacketReader()
+{
+    this->d->m_glCompositor.removePacketReader();
+}
+
 void VideoEffects::attachToWindow(QQuickWindow *window)
 {
     this->d->m_glCompositor.attachToWindow(window);
@@ -809,6 +841,11 @@ void VideoEffects::attachToWindow(QQuickWindow *window)
 void VideoEffects::detachFromWindow()
 {
     this->d->m_glCompositor.detachFromWindow();
+}
+
+void VideoEffects::captureFrame()
+{
+    this->d->m_glCompositor.captureFrame();
 }
 
 void VideoEffects::setQmlEngine(QQmlApplicationEngine *engine)
@@ -866,6 +903,11 @@ VideoEffectsPrivate::VideoEffectsPrivate(VideoEffects *self):
                      &AkGLCompositor::outputTextureReady,
                      self,
                      &VideoEffects::outputTextureReady,
+                     Qt::DirectConnection);
+    QObject::connect(&this->m_glCompositor,
+                     &AkGLCompositor::frameCaptured,
+                     self,
+                     &VideoEffects::frameCaptured,
                      Qt::DirectConnection);
 
     // Sources management.
@@ -952,6 +994,14 @@ void VideoEffectsPrivate::updateCanvasColor()
     config.beginGroup("VideoEffects");
     auto defaultColor = qRgba(0, 0, 0, 0);
     this->m_glCompositor.setCanvasColor(config.value("canvasColor", defaultColor).toUInt());
+    config.endGroup();
+}
+
+void VideoEffectsPrivate::updateOutputBufferSize()
+{
+    QSettings config;
+    config.beginGroup("VideoEffects");
+    this->m_glCompositor.setOutputBufferSize(config.value("canvasOutputBufferSize", DEFAULT_OUTPUT_BUFFER_SIZE).toUInt());
     config.endGroup();
 }
 
@@ -1057,6 +1107,14 @@ void VideoEffectsPrivate::saveCanvasColor(QRgb canvasColor)
     QSettings config;
     config.beginGroup("VideoEffects");
     config.setValue("canvasColor", canvasColor);
+    config.endGroup();
+}
+
+void VideoEffectsPrivate::saveOutputBufferSize(size_t outputBufferSize)
+{
+    QSettings config;
+    config.beginGroup("VideoEffects");
+    config.setValue("canvasOutputBufferSize", static_cast<quint32>(outputBufferSize));
     config.endGroup();
 }
 

@@ -137,7 +137,7 @@ class VCamV4L2LoopBackPrivate
         AkVideoConverter m_videoConverter;
         QString m_rootMethod;
         v4l2_format m_v4l2Format;
-        IoMethod m_ioMethod {IoMethodUnknown};
+        IoMethod m_ioMethod {IoMethodReadWrite};
         int m_fd {-1};
         int m_nBuffers {32};
 
