@@ -1028,7 +1028,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="110"/>
         <source>Show current FPS in title bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Huidig aantal fps op titelbalk tonen</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="122"/>
@@ -1135,17 +1135,17 @@
     <message>
         <location filename="../qml/LayoutEditorDialog.qml" line="94"/>
         <source>Source %1</source>
-        <translation type="unfinished">Bron: %1</translation>
+        <translation>Bron: %1</translation>
     </message>
     <message>
         <location filename="../qml/LayoutEditorDialog.qml" line="234"/>
         <source>Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Bron</translation>
     </message>
     <message>
         <location filename="../qml/LayoutEditorDialog.qml" line="264"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Sluiten</translation>
     </message>
 </context>
 <context>
@@ -2446,22 +2446,22 @@
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="136"/>
         <source>Aspect ratio mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Beeldverhoudingsmodus</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="138"/>
         <source>Ignore</source>
-        <translation type="unfinished"></translation>
+        <translation>Negeren</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="139"/>
         <source>Keep</source>
-        <translation type="unfinished"></translation>
+        <translation>Behouden</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="140"/>
         <source>Keep by expanding</source>
-        <translation type="unfinished"></translation>
+        <translation>Behouden door uit te rekken</translation>
     </message>
 </context>
 <context>

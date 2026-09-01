@@ -348,17 +348,17 @@
     <message>
         <location filename="../qml/CanvasConfig.qml" line="28"/>
         <source>Canvas</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanvas</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="92"/>
         <source>Orientation</source>
-        <translation type="unfinished"></translation>
+        <translation>Orientasi</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="93"/>
         <source>Portrait</source>
-        <translation type="unfinished"></translation>
+        <translation>Potret</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="93"/>
@@ -369,17 +369,17 @@
         <location filename="../qml/CanvasConfig.qml" line="120"/>
         <location filename="../qml/CanvasConfig.qml" line="139"/>
         <source>Canvas resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Resolusi kanvas</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="178"/>
         <source>Custom</source>
-        <translation type="unfinished">Khusus</translation>
+        <translation>Kustom</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="182"/>
         <source>%1×%2 @ %3 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1×%2 @ %3 FPS</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="304"/>
@@ -389,42 +389,42 @@
     <message>
         <location filename="../qml/CanvasConfig.qml" line="322"/>
         <source>Canvas color</source>
-        <translation type="unfinished"></translation>
+        <translation>Warna kanvas</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="324"/>
         <source>Choose the canvas color</source>
-        <translation type="unfinished"></translation>
+        <translation>Pilih warna kanvas</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="193"/>
         <source>Advanced settings</source>
-        <translation type="unfinished">Pengaturan lanjutan</translation>
+        <translation>Pengaturan lanjutan</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="29"/>
         <source>Configure the composition canvas resolution, frame rate, and color.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurasi resolusi kanvas komposisi, laju bingkai, dan warna.</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="204"/>
         <source>Canvas size</source>
-        <translation type="unfinished"></translation>
+        <translation>Ukuran kanvas</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="222"/>
         <source>Width</source>
-        <translation type="unfinished">Lebar</translation>
+        <translation>Lebar</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="251"/>
         <source>Height</source>
-        <translation type="unfinished">Tinggi</translation>
+        <translation>Tinggi</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="280"/>
         <source>Frame rate</source>
-        <translation type="unfinished">Tingkat bingkai</translation>
+        <translation>Laju bingkai</translation>
     </message>
 </context>
 <context>
@@ -970,12 +970,12 @@
     <message>
         <location filename="../qml/FirstRunFallbackDialog.qml" line="31"/>
         <source>Camera not found</source>
-        <translation type="unfinished"></translation>
+        <translation>Kamera tidak ditemukan</translation>
     </message>
     <message>
         <location filename="../qml/FirstRunFallbackDialog.qml" line="41"/>
         <source>It was not found any connected camera.&lt;br/&gt;Fallingback to the screen capture.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak ditemukan kamera yang terhubung.&lt;br/&gt;Kembali ke tangkapan layar.</translation>
     </message>
 </context>
 <context>
@@ -1008,7 +1008,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="110"/>
         <source>Show current FPS in title bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Tampilkan FPS saat ini di bilah judul</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="122"/>
@@ -1135,17 +1135,17 @@
     <message>
         <location filename="../qml/LayoutEditorDialog.qml" line="94"/>
         <source>Source %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Sumber %1</translation>
     </message>
     <message>
         <location filename="../qml/LayoutEditorDialog.qml" line="234"/>
         <source>Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Sumber</translation>
     </message>
     <message>
         <location filename="../qml/LayoutEditorDialog.qml" line="264"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Tutup</translation>
     </message>
 </context>
 <context>
@@ -1344,12 +1344,12 @@
     <message>
         <location filename="../qml/MainPanel.qml" line="32"/>
         <source>Canvas effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Efek kanvas</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="33"/>
         <source>Source effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Efek sumber</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="35"/>
@@ -2321,12 +2321,12 @@
     <message>
         <location filename="../qml/VideoInputAddCamera.qml" line="30"/>
         <source>Select the camera to add</source>
-        <translation type="unfinished"></translation>
+        <translation>Pilih kamera untuk ditambahkan</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddCamera.qml" line="55"/>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Kamera</translation>
     </message>
 </context>
 <context>
@@ -2334,59 +2334,59 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="91"/>
         <source>Edit media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>Edit sumber file media</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="95"/>
         <source>Edit media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>Edit sumber URL media</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="99"/>
         <source>Add media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>Tambahkan sumber file media</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="100"/>
         <source>Add media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>Tambahkan sumber URL media</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="133"/>
         <location filename="../qml/VideoInputAddEdit.qml" line="180"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Deskripsi</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="139"/>
         <location filename="../qml/VideoInputAddEdit.qml" line="186"/>
         <source>Source title</source>
-        <translation type="unfinished"></translation>
+        <translation>Judul sumber</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="149"/>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Jalur</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="159"/>
         <source>File path</source>
-        <translation type="unfinished"></translation>
+        <translation>Jalur file</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="160"/>
         <source>Search file to use as source</source>
-        <translation type="unfinished"></translation>
+        <translation>Cari file untuk digunakan sebagai sumber</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="196"/>
         <source>URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="254"/>
         <source>Choose the file to add as source</source>
-        <translation type="unfinished"></translation>
+        <translation>Pilih file untuk ditambahkan sebagai sumber</translation>
     </message>
 </context>
 <context>
@@ -2430,37 +2430,37 @@
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="95"/>
         <source>Manage source effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Kelola efek sumber</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="107"/>
         <source>Opacity</source>
-        <translation type="unfinished">Opasitas</translation>
+        <translation>Opasitas</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="125"/>
         <source>Source opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>Opasitas sumber</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="136"/>
         <source>Aspect ratio mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Mode rasio aspek</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="138"/>
         <source>Ignore</source>
-        <translation type="unfinished"></translation>
+        <translation>Abaikan</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="139"/>
         <source>Keep</source>
-        <translation type="unfinished"></translation>
+        <translation>Pertahankan</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="140"/>
         <source>Keep by expanding</source>
-        <translation type="unfinished"></translation>
+        <translation>Pertahankan dengan memperluas</translation>
     </message>
 </context>
 <context>
@@ -2468,27 +2468,27 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="97"/>
         <source>Camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Kamera</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="99"/>
         <source>Screen</source>
-        <translation type="unfinished">Layar</translation>
+        <translation>Layar</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="101"/>
         <source>Image</source>
-        <translation type="unfinished">Gambar</translation>
+        <translation>Gambar</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="103"/>
         <source>Video</source>
-        <translation type="unfinished">Video</translation>
+        <translation>Video</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="105"/>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Tidak dikenal</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="124"/>
@@ -2498,7 +2498,7 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="136"/>
         <source>Add camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Tambahkan kamera</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="144"/>
@@ -2528,17 +2528,17 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="183"/>
         <source>Manage canvas effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Kelola efek kanvas</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="175"/>
         <source>Edit layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Edit tata letak</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="379"/>
         <source>Source %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Sumber %1</translation>
     </message>
 </context>
 <context>
@@ -4119,17 +4119,17 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="473"/>
         <source>Pixel grid width</source>
-        <translation type="unfinished"></translation>
+        <translation>Lebar kisi piksel</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="490"/>
         <source>Pixel grid height</source>
-        <translation type="unfinished"></translation>
+        <translation>Tinggi kisi piksel</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="533"/>
         <source>Adjust the size and position of the face marker area.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sesuaikan ukuran dan posisi area penanda wajah.</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="509"/>
@@ -4875,12 +4875,12 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="149"/>
         <source>Backgroud color</source>
-        <translation type="unfinished"></translation>
+        <translation>Warna latar belakang</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Wave/share/qml/main.qml" line="151"/>
         <source>Choose the backgroud color</source>
-        <translation type="unfinished"></translation>
+        <translation>Pilih warna latar belakang</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="69"/>
@@ -5048,7 +5048,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Nervous/share/qml/main.qml" line="42"/>
         <source>Smooth</source>
-        <translation type="unfinished"></translation>
+        <translation>Halus</translation>
     </message>
 </context>
 </TS>
