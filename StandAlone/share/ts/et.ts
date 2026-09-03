@@ -363,7 +363,7 @@
     <message>
         <location filename="../qml/CanvasConfig.qml" line="93"/>
         <source>Landscape</source>
-        <translation type="unfinished"></translation>
+        <translation>Rõhtvaates</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="120"/>
@@ -384,7 +384,7 @@
     <message>
         <location filename="../qml/CanvasConfig.qml" line="304"/>
         <source>Output buffers</source>
-        <translation type="unfinished"></translation>
+        <translation>Väljundpuhvrid</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="322"/>
