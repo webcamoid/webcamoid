@@ -1380,32 +1380,32 @@
 <context>
     <name>MediaGalleryDialog</name>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="84"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="87"/>
         <source>%1 selected</source>
         <translation>%1 sélectionné(e)(s)</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="128"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="132"/>
         <source>Select all</source>
         <translation>Tout sélectionner</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="135"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="139"/>
         <source>Deselect all</source>
         <translation>Tout désélectionner</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="286"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="301"/>
         <source>The directory is empty</source>
         <translation>Le répertoire est vide</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="294"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="309"/>
         <source>Confirm delete</source>
         <translation>Confirmer suppression</translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="302"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="317"/>
         <source>Delete %n picture(s) permanently?</source>
         <translation>
             <numerusform>Supprimer %n image définitivement&#x202f;?</numerusform>
@@ -1413,7 +1413,7 @@
         </translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="309"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="324"/>
         <source>This action can&apos;t be undone.</source>
         <translation>Cette action ne peut pas être annulée.</translation>
     </message>
@@ -1429,29 +1429,49 @@
 <context>
     <name>MediaViewerDialog</name>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="138"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="144"/>
         <source>Use as</source>
         <translation>Utiliser comme</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="143"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="152"/>
         <source>Open with</source>
         <translation>Ouvrir avec</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="148"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="153"/>
+        <source>Open externally</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="158"/>
         <source>Delete</source>
         <translation>Supprimer</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="156"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="163"/>
         <source>Move to</source>
         <translation>Déplacer vers</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="161"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="168"/>
         <source>Copy to</source>
         <translation>Copier vers</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="486"/>
+        <source>Confirm delete</source>
+        <translation type="unfinished">Confirmer suppression</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="494"/>
+        <source>Delete this picture permanently?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="501"/>
+        <source>This action can&apos;t be undone.</source>
+        <translation type="unfinished">Cette action ne peut pas être annulée.</translation>
     </message>
 </context>
 <context>
@@ -4156,75 +4176,75 @@
         <translation>Ouvrir la dernière photo prise</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="478"/>
-        <location filename="../qml/main.qml" line="481"/>
+        <location filename="../qml/main.qml" line="472"/>
+        <location filename="../qml/main.qml" line="475"/>
         <source>Take a photo</source>
         <translation>Prendre une photo</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="482"/>
+        <location filename="../qml/main.qml" line="476"/>
         <source>Image capture mode</source>
         <translation>Mode capture d’image</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="485"/>
+        <location filename="../qml/main.qml" line="479"/>
         <source>Make a capture and save it to an image file</source>
         <translation>Effectuer une capture et l’enregistrer dans un fichier image</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="486"/>
+        <location filename="../qml/main.qml" line="480"/>
         <source>Put %1 in image capture mode</source>
         <translation>Passe %1 en mode capture d’image</translation>
     </message>
     <message>
+        <location filename="../qml/main.qml" line="529"/>
         <location filename="../qml/main.qml" line="535"/>
-        <location filename="../qml/main.qml" line="541"/>
         <source>Record video</source>
         <translation>Enregistrer une vidéo</translation>
     </message>
     <message>
+        <location filename="../qml/main.qml" line="530"/>
         <location filename="../qml/main.qml" line="536"/>
-        <location filename="../qml/main.qml" line="542"/>
         <source>Stop video recording</source>
         <translation>Arrêter l’enregistrement vidéo</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="539"/>
+        <location filename="../qml/main.qml" line="533"/>
         <source>Video capture mode</source>
         <translation>Mode enregistrement vidéo</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="545"/>
+        <location filename="../qml/main.qml" line="539"/>
         <source>Put %1 in video recording mode</source>
         <translation>Passe %1 en mode enregistrement vidéo</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="547"/>
+        <location filename="../qml/main.qml" line="541"/>
         <source>Start recording to a video file</source>
         <translation>Démarrer l’enregistrement dans un fichier vidéo</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="548"/>
+        <location filename="../qml/main.qml" line="542"/>
         <source>Stop current video recording</source>
         <translation>Arrêter l’enregistrement vidéo en cours</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="592"/>
+        <location filename="../qml/main.qml" line="586"/>
         <source>Open last video</source>
         <translation>Ouvrir la dernière vidéo</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="604"/>
+        <location filename="../qml/main.qml" line="598"/>
         <source>Open last recorded video</source>
         <translation>Ouvrir la dernière vidéo enregistrée</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="860"/>
+        <location filename="../qml/main.qml" line="848"/>
         <source>Installing virtual camera</source>
         <translation>Installation de la caméra virtuelle</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="861"/>
+        <location filename="../qml/main.qml" line="849"/>
         <source>Running commands</source>
         <translation>Exécution des commandes</translation>
     </message>

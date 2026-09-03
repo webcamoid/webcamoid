@@ -1380,39 +1380,39 @@
 <context>
     <name>MediaGalleryDialog</name>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="84"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="87"/>
         <source>%1 selected</source>
         <translation>已選取 %1 個</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="128"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="132"/>
         <source>Select all</source>
         <translation>全選</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="135"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="139"/>
         <source>Deselect all</source>
         <translation>取消全選</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="286"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="301"/>
         <source>The directory is empty</source>
         <translation>目錄為空</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="294"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="309"/>
         <source>Confirm delete</source>
         <translation>確認刪除</translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="302"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="317"/>
         <source>Delete %n picture(s) permanently?</source>
         <translation>
             <numerusform>永久刪除 %n 張圖片？</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="309"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="324"/>
         <source>This action can&apos;t be undone.</source>
         <translation>此動作無法復原。</translation>
     </message>
@@ -1428,29 +1428,49 @@
 <context>
     <name>MediaViewerDialog</name>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="138"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="144"/>
         <source>Use as</source>
         <translation>用作</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="143"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="152"/>
         <source>Open with</source>
         <translation>以...開啟</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="148"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="153"/>
+        <source>Open externally</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="158"/>
         <source>Delete</source>
         <translation>刪除</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="156"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="163"/>
         <source>Move to</source>
         <translation>移動到</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="161"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="168"/>
         <source>Copy to</source>
         <translation>複製到</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="486"/>
+        <source>Confirm delete</source>
+        <translation type="unfinished">確認刪除</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="494"/>
+        <source>Delete this picture permanently?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="501"/>
+        <source>This action can&apos;t be undone.</source>
+        <translation type="unfinished">此動作無法復原。</translation>
     </message>
 </context>
 <context>
@@ -4958,75 +4978,75 @@
         <translation>開啟最後拍攝的相片</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="478"/>
-        <location filename="../qml/main.qml" line="481"/>
+        <location filename="../qml/main.qml" line="472"/>
+        <location filename="../qml/main.qml" line="475"/>
         <source>Take a photo</source>
         <translation>拍攝相片</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="482"/>
+        <location filename="../qml/main.qml" line="476"/>
         <source>Image capture mode</source>
         <translation>圖片擷取模式</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="485"/>
+        <location filename="../qml/main.qml" line="479"/>
         <source>Make a capture and save it to an image file</source>
         <translation>進行擷取並儲存至圖像檔案</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="486"/>
+        <location filename="../qml/main.qml" line="480"/>
         <source>Put %1 in image capture mode</source>
         <translation>將 %1 設為圖片擷取模式</translation>
     </message>
     <message>
+        <location filename="../qml/main.qml" line="529"/>
         <location filename="../qml/main.qml" line="535"/>
-        <location filename="../qml/main.qml" line="541"/>
         <source>Record video</source>
         <translation>錄製影片</translation>
     </message>
     <message>
+        <location filename="../qml/main.qml" line="530"/>
         <location filename="../qml/main.qml" line="536"/>
-        <location filename="../qml/main.qml" line="542"/>
         <source>Stop video recording</source>
         <translation>停止影片錄製</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="539"/>
+        <location filename="../qml/main.qml" line="533"/>
         <source>Video capture mode</source>
         <translation>影片擷取模式</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="545"/>
+        <location filename="../qml/main.qml" line="539"/>
         <source>Put %1 in video recording mode</source>
         <translation>將 %1 設為影片錄製模式</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="547"/>
+        <location filename="../qml/main.qml" line="541"/>
         <source>Start recording to a video file</source>
         <translation>開始錄製至影片檔案</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="548"/>
+        <location filename="../qml/main.qml" line="542"/>
         <source>Stop current video recording</source>
         <translation>停止目前影片錄製</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="592"/>
+        <location filename="../qml/main.qml" line="586"/>
         <source>Open last video</source>
         <translation>開啟最後一段影片</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="604"/>
+        <location filename="../qml/main.qml" line="598"/>
         <source>Open last recorded video</source>
         <translation>開啟最後錄製的影片</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="860"/>
+        <location filename="../qml/main.qml" line="848"/>
         <source>Installing virtual camera</source>
         <translation>正在安裝虛擬鏡頭</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="861"/>
+        <location filename="../qml/main.qml" line="849"/>
         <source>Running commands</source>
         <translation>正在執行命令</translation>
     </message>

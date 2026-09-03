@@ -1380,39 +1380,39 @@
 <context>
     <name>MediaGalleryDialog</name>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="84"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="87"/>
         <source>%1 selected</source>
         <translation>%1 ရွေးချယ်ထားသည်</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="128"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="132"/>
         <source>Select all</source>
         <translation>အားလုံးရွေးချယ်ပါ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="135"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="139"/>
         <source>Deselect all</source>
         <translation>အားလုံးရွေးချယ်မှုပယ်ဖျက်ပါ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="286"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="301"/>
         <source>The directory is empty</source>
         <translation>လမ်းညွှန်သည် ဗလာဖြစ်နေသည်</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="294"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="309"/>
         <source>Confirm delete</source>
         <translation>ဖျက်ရန်အတည်ပြုပါ</translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="302"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="317"/>
         <source>Delete %n picture(s) permanently?</source>
         <translation>
             <numerusform>ပုံ %n ပုံကို အပြီးတိုင်ဖျက်မည်လား။</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="309"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="324"/>
         <source>This action can&apos;t be undone.</source>
         <translation>ဤလုပ်ဆောင်ချက်ကို ပြန်လည်မရနိုင်ပါ။</translation>
     </message>
@@ -1428,29 +1428,49 @@
 <context>
     <name>MediaViewerDialog</name>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="138"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="144"/>
         <source>Use as</source>
         <translation>အဖြစ်အသုံးပြုရန်</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="143"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="152"/>
         <source>Open with</source>
         <translation>ဖြင့်ဖွင့်ရန်</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="148"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="153"/>
+        <source>Open externally</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="158"/>
         <source>Delete</source>
         <translation>ဖျက်ပါ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="156"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="163"/>
         <source>Move to</source>
         <translation>သို့ရွှေ့ရန်</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="161"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="168"/>
         <source>Copy to</source>
         <translation>သို့ကူးယူရန်</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="486"/>
+        <source>Confirm delete</source>
+        <translation type="unfinished">ဖျက်ရန်အတည်ပြုပါ</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="494"/>
+        <source>Delete this picture permanently?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="501"/>
+        <source>This action can&apos;t be undone.</source>
+        <translation type="unfinished">ဤလုပ်ဆောင်ချက်ကို ပြန်လည်မရနိုင်ပါ။</translation>
     </message>
 </context>
 <context>
@@ -4958,75 +4978,75 @@
         <translation>နောက်ဆုံးရိုက်ထားသောဓာတ်ပုံဖွင့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="478"/>
-        <location filename="../qml/main.qml" line="481"/>
+        <location filename="../qml/main.qml" line="472"/>
+        <location filename="../qml/main.qml" line="475"/>
         <source>Take a photo</source>
         <translation>ဓာတ်ပုံရိုက်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="482"/>
+        <location filename="../qml/main.qml" line="476"/>
         <source>Image capture mode</source>
         <translation>ပုံဖမ်းယူမုဒ်</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="485"/>
+        <location filename="../qml/main.qml" line="479"/>
         <source>Make a capture and save it to an image file</source>
         <translation>ဖမ်းယူပြီး ပုံဖိုင်တစ်ခုထဲသိမ်းဆည်းပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="486"/>
+        <location filename="../qml/main.qml" line="480"/>
         <source>Put %1 in image capture mode</source>
         <translation>%1 ကို ပုံဖမ်းယူမုဒ်ထဲထည့်ပါ</translation>
     </message>
     <message>
+        <location filename="../qml/main.qml" line="529"/>
         <location filename="../qml/main.qml" line="535"/>
-        <location filename="../qml/main.qml" line="541"/>
         <source>Record video</source>
         <translation>ဗီဒီယိုမှတ်တမ်းတင်ပါ</translation>
     </message>
     <message>
+        <location filename="../qml/main.qml" line="530"/>
         <location filename="../qml/main.qml" line="536"/>
-        <location filename="../qml/main.qml" line="542"/>
         <source>Stop video recording</source>
         <translation>ဗီဒီယိုမှတ်တမ်းတင်ခြင်းရပ်</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="539"/>
+        <location filename="../qml/main.qml" line="533"/>
         <source>Video capture mode</source>
         <translation>ဗီဒီယိုဖမ်းယူမုဒ်</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="545"/>
+        <location filename="../qml/main.qml" line="539"/>
         <source>Put %1 in video recording mode</source>
         <translation>%1 ကို ဗီဒီယိုမှတ်တမ်းတင်မုဒ်ထဲထည့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="547"/>
+        <location filename="../qml/main.qml" line="541"/>
         <source>Start recording to a video file</source>
         <translation>ဗီဒီယိုဖိုင်တစ်ခုသို့မှတ်တမ်းတင်ရန်စတင်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="548"/>
+        <location filename="../qml/main.qml" line="542"/>
         <source>Stop current video recording</source>
         <translation>လက်ရှိဗီဒီယိုမှတ်တမ်းတင်ခြင်းရပ်</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="592"/>
+        <location filename="../qml/main.qml" line="586"/>
         <source>Open last video</source>
         <translation>နောက်ဆုံးဗီဒီယိုဖွင့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="604"/>
+        <location filename="../qml/main.qml" line="598"/>
         <source>Open last recorded video</source>
         <translation>နောက်ဆုံးမှတ်တမ်းတင်ထားသောဗီဒီယိုဖွင့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="860"/>
+        <location filename="../qml/main.qml" line="848"/>
         <source>Installing virtual camera</source>
         <translation>အမြင်သီးခြားကင်မရာတပ်ဆင်နေသည်</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="861"/>
+        <location filename="../qml/main.qml" line="849"/>
         <source>Running commands</source>
         <translation>အမိန့်များကိုလုပ်ဆောင်နေသည်</translation>
     </message>

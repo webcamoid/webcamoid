@@ -39,6 +39,9 @@ Dialog {
     property alias directory: galleryModel.directory
     property alias model: grid.model
 
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color activeHighlightedText: AkTheme.palette.active.highlightedText
+
     signal openMedia(url mediaUrl)
 
     function openAtUrl(url)
@@ -83,13 +86,13 @@ Dialog {
                 Label {
                     text: qsTr("%1 selected").arg(grid.model.selectedCount)
                     font.bold: true
-                    color: AkTheme.palette.active.highlightedText
+                    color: root.activeHighlightedText
                     Layout.fillWidth: true
                 }
                 Label {
                     text: formatBytes(grid.model.totalSelectedSize)
                     font: AkTheme.fontSettings.subtitle2
-                    color: AkTheme.palette.active.highlightedText
+                    color: root.activeHighlightedText
                     Layout.fillWidth: true
                 }
             }
@@ -99,6 +102,7 @@ Dialog {
 
                 ToolButton {
                     icon.source: "image://icons/share"
+                    visible: Ak.platform == "android"
                     implicitWidth: implicitHeight
 
                     onClicked: {
@@ -233,18 +237,24 @@ Dialog {
 
                 // video play icon
                 Rectangle {
+                    width: AkUnit.create(60 * AkTheme.controlScale, "dp").pixels
+                    height: width
+                    radius: width / 2
+                    color: root.activeHighlight
+                    opacity: 0.5
                     visible: model.type === AkMediaGalleryModel.Type_Movie
                     anchors.centerIn: parent
-                    width: AkUnit.create(60 * AkTheme.controlScale, "dp").pixels
-                    height: AkUnit.create(60 * AkTheme.controlScale, "dp").pixels
-                    radius: AkUnit.create(30 * AkTheme.controlScale, "dp").pixels
-                    color: "#80000000"
 
-                    Text {
+                    AkColorizedImage {
+                        width: AkUnit.create(40 * AkTheme.controlScale, "dp").pixels
+                        height: width
+                        source: "image://icons/play"
+                        sourceSize: Qt.size(width, height)
+                        color: root.activeHighlightedText
+                        asynchronous: true
+                        mipmap: true
+                        fillMode: Image.PreserveAspectFit
                         anchors.centerIn: parent
-                        text: "▶"
-                        color: "white"
-                        font.pixelSize: AkUnit.create(40 * AkTheme.controlScale, "dp").pixels
                     }
                 }
             }
@@ -257,17 +267,22 @@ Dialog {
                 width: AkUnit.create(40 * AkTheme.controlScale, "dp").pixels
                 height: AkUnit.create(40 * AkTheme.controlScale, "dp").pixels
                 radius: AkUnit.create(20 * AkTheme.controlScale, "dp").pixels
-                color: model.selected? "#2196F3": "transparent"
-                border.color: "white"
+                color: model.selected? root.activeHighlight: Qt.rgba(0, 0, 0, 0)
+                border.color: root.activeHighlightedText
                 border.width: AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
                 visible: grid.model.selectedCount > 0
 
-                Text {
-                    anchors.centerIn: parent
-                    text: "✓"
-                    color: "white"
-                    font.pixelSize: 28
+                AkColorizedImage {
+                    width: AkUnit.create(28 * AkTheme.controlScale, "dp").pixels
+                    height: width
+                    source: "image://icons/check"
+                    sourceSize: Qt.size(width, height)
+                    color: root.activeHighlightedText
+                    asynchronous: true
+                    mipmap: true
+                    fillMode: Image.PreserveAspectFit
                     visible: model.selected
+                    anchors.centerIn: parent
                 }
             }
 
@@ -284,7 +299,7 @@ Dialog {
         Label {
             anchors.centerIn: parent
             text: qsTr("The directory is empty")
-            font.pixelSize: 20
+            font: AkTheme.fontSettings.h6
             visible: grid.count === 0
         }
     }
@@ -307,7 +322,7 @@ Dialog {
             }
             Label {
                 text: qsTr("This action can't be undone.")
-                font.pixelSize: 12
+                font: AkTheme.fontSettings.body1
                 Layout.fillWidth: true
             }
         }

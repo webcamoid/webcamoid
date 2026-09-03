@@ -24,7 +24,7 @@ import QtMultimedia
 import Ak
 
 Dialog {
-    id: detailDialog
+    id: root
     width: AkUnit.create(400 * AkTheme.controlScale, "dp").pixels
     height: AkUnit.create(300 * AkTheme.controlScale, "dp").pixels
     topPadding: 0
@@ -35,6 +35,11 @@ Dialog {
 
     property bool hideControls: false
     property alias model: rep.model
+
+    readonly property color activeWindowText: AkTheme.palette.active.windowText
+    readonly property color activeWindow: AkTheme.palette.active.window
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color activeHighlightedText: AkTheme.palette.active.highlightedText
 
     signal share(url mediaUrl)
 
@@ -93,7 +98,7 @@ Dialog {
     header: ToolBar {
         id: toolBar
         implicitHeight: AkUnit.create(64 * AkTheme.controlScale, "dp").pixels
-        opacity: detailDialog.hideControls? 0.0: 1.0
+        opacity: root.hideControls? 0.0: 1.0
         visible: opacity != 0.0
 
         Behavior on opacity {
@@ -110,7 +115,7 @@ Dialog {
                 icon.source: "image://icons/left-arrow"
                 implicitWidth: implicitHeight
 
-                onClicked: detailDialog.close()
+                onClicked: root.close()
             }
 
             Item {
@@ -120,6 +125,7 @@ Dialog {
             ToolButton {
                 icon.source: "image://icons/share"
                 implicitWidth: implicitHeight
+                visible: Ak.platform == "android"
 
                 onClicked: rep.model.share(rep.model.urlAt(swipeView.currentIndex))
             }
@@ -136,21 +142,22 @@ Dialog {
 
                     MenuItem {
                         text: qsTr("Use as")
+                        visible: Ak.platform == "android"
+                        height: Ak.platform == "android"? undefined: 0
 
                         onClicked: rep.model.useAs(rep.model.urlAt(swipeView.currentIndex))
                     }
                     MenuItem {
-                        text: qsTr("Open with")
+                        text: Ak.platform == "android"?
+                                qsTr("Open with"):
+                                qsTr("Open externally")
 
                         onClicked: Qt.openUrlExternally(rep.model.urlAt(swipeView.currentIndex))
                     }
                     MenuItem {
                         text: qsTr("Delete")
 
-                        onClicked: {
-                            rep.model.deleteSelectedAt(swipeView.currentIndex)
-                            detailDialog.close()
-                        }
+                        onClicked: confirmDialog.open()
                     }
                     MenuItem {
                         text: qsTr("Move to")
@@ -283,7 +290,7 @@ Dialog {
                                     swipeView.zoomedItem = swipeView.currentIndex
                                     detailImage.clampPosition()
                                 }
-                                onClicked: detailDialog.hideControls = !detailDialog.hideControls
+                                onClicked: root.hideControls = !root.hideControls
                                 onDoubleClicked: {
                                     // Zoom reset + auto-center
                                     detailImage.scale = 1.0
@@ -351,7 +358,7 @@ Dialog {
                                 autoHideTimer.restart()
                             } else {
                                 autoHideTimer.stop()
-                                detailDialog.hideControls = false
+                                root.hideControls = false
                             }
                         }
                     }
@@ -364,10 +371,12 @@ Dialog {
 
                     // Play/Pause button
 
-                    Item {
+                    Rectangle {
                         width: AkUnit.create(100 * AkTheme.controlScale, "dp").pixels
-                        height: AkUnit.create(100 * AkTheme.controlScale, "dp").pixels
-                        opacity: detailDialog.hideControls? 0.0: 1.0
+                        height: width
+                        radius: width / 2
+                        color: root.activeHighlight
+                        opacity: root.hideControls? 0.0: 0.75
                         visible: opacity > 0.0
                         anchors.centerIn: parent
 
@@ -377,19 +386,18 @@ Dialog {
                             }
                         }
 
-                        Rectangle {
-                            anchors.fill: parent
-                            radius: width / 2
-                            color: "#80000000"
-                        }
-
-                        Text {
+                        AkColorizedImage {
+                            width: AkUnit.create(40 * AkTheme.controlScale, "dp").pixels
+                            height: width
+                            source: videoPlayer.playbackState === MediaPlayer.PlayingState?
+                                        "image://icons/pause":
+                                        "image://icons/play"
+                            sourceSize: Qt.size(width, height)
+                            color: root.activeHighlightedText
+                            asynchronous: true
+                            mipmap: true
+                            fillMode: Image.PreserveAspectFit
                             anchors.centerIn: parent
-                            text: videoPlayer.playbackState === MediaPlayer.PlayingState? "⏸": "▶"
-                            color: "white"
-                            font.pixelSize: 60
-                            horizontalAlignment: Text.AlignHCenter
-                            verticalAlignment: Text.AlignVCenter
                         }
                     }
                     MouseArea {
@@ -405,12 +413,12 @@ Dialog {
 
                     // Video controls
                     Rectangle {
-                        visible: !detailDialog.hideControls
+                        visible: !root.hideControls
                         anchors.left: parent.left
                         anchors.right: parent.right
                         anchors.bottom: parent.bottom
                         height: AkUnit.create(60 * AkTheme.controlScale, "dp").pixels
-                        color: "#80000000"
+                        color: AkTheme.constShade(root.activeWindow, 0, 0.75)
 
                         RowLayout {
                             anchors.fill: parent
@@ -418,8 +426,7 @@ Dialog {
 
                             Label {
                                 text: formatTime(videoPlayer.position)
-                                color: "white"
-                                font.pixelSize: 14
+                                color: root.activeWindowText
                             }
 
                             Slider {
@@ -437,8 +444,7 @@ Dialog {
 
                             Label {
                                 text: formatTime(videoPlayer.duration)
-                                color: "white"
-                                font.pixelSize: 14
+                                color: root.activeWindowText
                             }
                         }
                     }
@@ -449,7 +455,7 @@ Dialog {
                         interval: 4000
                         repeat: false
 
-                        onTriggered: detailDialog.hideControls = true
+                        onTriggered: root.hideControls = true
                     }
 
                     // Automatic play/stop when switching the media
@@ -472,6 +478,35 @@ Dialog {
                     }
                 }
             }
+        }
+    }
+
+    Dialog {
+        id: confirmDialog
+        title: qsTr("Confirm delete")
+        standardButtons: Dialog.Yes | Dialog.No
+        anchors.centerIn: Overlay.overlay
+
+        ColumnLayout {
+            spacing: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+
+            Label {
+                text: qsTr("Delete this picture permanently?")
+                wrapMode: Text.WordWrap
+                width: confirmDialog.availableWidth
+                Layout.fillWidth: true
+
+            }
+            Label {
+                text: qsTr("This action can't be undone.")
+                font: AkTheme.fontSettings.body1
+                Layout.fillWidth: true
+            }
+        }
+
+        onAccepted: {
+            rep.model.deleteSelectedAt(swipeView.currentIndex)
+            root.close()
         }
     }
 }

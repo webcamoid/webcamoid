@@ -449,20 +449,14 @@ ApplicationWindow {
                 onClicked: {
                     if (photoPreview.status == Image.Ready) {
                         if (recording.latestPhotoUri.length > 1) {
-                            if (Ak.platform() == "android")
-                                picturesGallery.openAtUrl(recording.latestPhotoUri)
-                            else
-                                Qt.openUrlExternally(recording.latestPhotoUri)
+                            picturesGallery.openAtUrl(recording.latestPhotoUri)
                         } else {
                             let url = "" + photoPreview.icon.source
 
                             if (!url.startsWith(wdgMainWidget.filePrefix))
                                 url = wdgMainWidget.filePrefix + url
 
-                            if (Ak.platform() == "android")
-                                picturesGallery.openAtUrl(url)
-                            else
-                                Qt.openUrlExternally(url)
+                            picturesGallery.openAtUrl(url)
                         }
                     }
                 }
@@ -606,20 +600,14 @@ ApplicationWindow {
                 onClicked: {
                     if (videoPreview.status == Image.Ready) {
                         if (recording.latestVideoUri.length > 1) {
-                            if (Ak.platform() == "android")
-                                moviesGallery.openAtUrl(recording.latestVideoUri)
-                            else
-                                Qt.openUrlExternally(recording.latestVideoUri)
+                            moviesGallery.openAtUrl(recording.latestVideoUri)
                         } else {
                             let url = recording.lastVideo
 
                             if (!url.startsWith(wdgMainWidget.filePrefix))
                                 url = wdgMainWidget.filePrefix + url
 
-                            if (Ak.platform() == "android")
-                                moviesGallery.openAtUrl(url)
-                            else
-                                Qt.openUrlExternally(url)
+                            moviesGallery.openAtUrl(url)
                         }
                     }
                 }
