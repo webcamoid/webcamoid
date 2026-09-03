@@ -4896,17 +4896,17 @@
     <message>
         <location filename="../qml/main.qml" line="172"/>
         <source>Creating &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Loon virtuaalkaamerat: &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="182"/>
         <source>Editing &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Muudan virtuaalkaamerat: &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="192"/>
         <source>Removing &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>Eemaldan virtuaalkaamera: &lt;b&gt;%1&lt;/b&gt;</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="322"/>
