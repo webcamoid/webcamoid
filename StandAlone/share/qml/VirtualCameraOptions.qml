@@ -45,6 +45,19 @@ ScrollView {
         virtualCameras.embedOutputControls("itmVirtualCameraOptions", videoOutput)
     }
 
+    Connections {
+        target: virtualCameras
+
+        function onOutputRemoved(ok, error) {
+            view.videoOutputRemoved()
+
+            if (!ok) {
+                let title = qsTr("Error removing the virtual camera")
+                view.openErrorDialog(title, error)
+            }
+        }
+    }
+
     ColumnLayout {
         width: view.width
         spacing: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
@@ -103,13 +116,7 @@ ScrollView {
             onClicked: {
                 if (virtualCameras.clientsPids.length < 1) {
                     virtualCameras.removeInterface("itmVirtualCameraOptions")
-                    let ok = virtualCameras.removeOutput(view.videoOutput)
-                    view.videoOutputRemoved()
-
-                    if (!ok) {
-                        let title = qsTr("Error removing the virtual camera")
-                        view.openErrorDialog(title, virtualCameras.outputError)
-                    }
+                    virtualCameras.removeOutput(view.videoOutput)
                 } else {
                     let title = qsTr("Can't Remove The Virtual Camera")
                     let message = Commons.vcamDriverBusyMessage()

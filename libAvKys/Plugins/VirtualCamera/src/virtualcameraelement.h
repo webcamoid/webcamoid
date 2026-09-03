@@ -102,15 +102,15 @@ class VirtualCameraElement: public AkElement
                                           const QVariantMap &streamParams={});
         Q_INVOKABLE QVariantMap updateStream(int streamIndex,
                                              const QVariantMap &streamParams={});
-        Q_INVOKABLE QString createWebcam(const QString &description,
-                                         const AkVideoCapsList &formats);
-        Q_INVOKABLE bool editWebcam(const QString &webcam,
+        Q_INVOKABLE void createWebcam(const QString &description,
+                                      const AkVideoCapsList &formats);
+        Q_INVOKABLE void editWebcam(const QString &webcam,
                                     const QString &description,
                                     const AkVideoCapsList &formats);
-        Q_INVOKABLE bool changeDescription(const QString &webcam,
+        Q_INVOKABLE void changeDescription(const QString &webcam,
                                            const QString &description={});
-        Q_INVOKABLE bool removeWebcam(const QString &webcam);
-        Q_INVOKABLE bool removeAllWebcams();
+        Q_INVOKABLE void removeWebcam(const QString &webcam);
+        Q_INVOKABLE void removeAllWebcams();
         Q_INVOKABLE QVariantList controls() const;
         Q_INVOKABLE bool setControls(const QVariantMap &controls);
         Q_INVOKABLE bool resetControls();
@@ -143,6 +143,11 @@ class VirtualCameraElement: public AkElement
         void defaultOutputPixelFormatChanged(const AkVideoCaps::PixelFormat &defaultOutputPixelFormat);
         void pictureChanged(const QString &picture);
         void rootMethodChanged(const QString &rootMethod);
+        void webcamCreated(bool ok, const QString &msg);
+        void webcamEdited(bool ok, const QString &msg);
+        void descriptionChanged(bool ok, const QString &msg);
+        void webcamRemoved(bool ok, const QString &msg);
+        void allWebcamsRemoved(bool ok, const QString &msg);
 
     public slots:
         bool applyPicture();

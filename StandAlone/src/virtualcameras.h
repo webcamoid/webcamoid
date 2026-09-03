@@ -126,10 +126,10 @@ class VirtualCameras: public QObject
         Q_INVOKABLE AkVideoCapsList supportedOutputVideoCaps(const QString &device) const;
         Q_INVOKABLE AkElement::ElementState state() const;
         Q_INVOKABLE QString description(const QString &device) const;
-        Q_INVOKABLE QString createOutput(const QString &description,
-                                         const AkVideoCapsList &formats);
-        Q_INVOKABLE QString createOutput(const QString &description,
-                                         const QVariantList &formats);
+        Q_INVOKABLE bool createOutput(const QString &description,
+                                      const AkVideoCapsList &formats);
+        Q_INVOKABLE bool createOutput(const QString &description,
+                                      const QVariantList &formats);
         Q_INVOKABLE bool editOutput(const QString &output,
                                     const QString &description,
                                     const AkVideoCapsList &formats);
@@ -181,6 +181,14 @@ class VirtualCameras: public QObject
         void vcamCliInstallStarted();
         void vcamCliInstallLineReady(const QString &line);
         void vcamCliInstallFinished();
+        void outputCreated(bool ok, const QString &msg);
+        void outputEdited(bool ok, const QString &msg);
+        void outputRemoved(bool ok, const QString &msg);
+        void allOutputsRemoved(bool ok, const QString &msg);
+        void creatingOutput(const QString &outputDescription);
+        void editingOutput(const QString &outputDescription);
+        void removingOutput(const QString &outputDescription);
+        void removingAllOutputs();
 
     public slots:
         AkPacket iStream(const AkPacket &packet);

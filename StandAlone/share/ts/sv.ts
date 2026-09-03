@@ -2581,76 +2581,76 @@
         <translation>Lägg till Virtuell Kamera</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="275"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="346"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="297"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="368"/>
         <source>Virtual camera name</source>
         <translation>Namn på virtuell kamera</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="296"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="318"/>
         <source>Add format</source>
         <translation>Lägg till format</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="306"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="328"/>
         <source>Clear formats</source>
         <translation>Rensa format</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="368"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="390"/>
         <source>Format</source>
         <translation>Format</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="379"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="401"/>
         <source>Width</source>
         <translation>Bredd</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="392"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="414"/>
         <source>Height</source>
         <translation>Höjd</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="405"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="427"/>
         <source>Frame rate</source>
         <translation>Bildhastighet</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="430"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="452"/>
         <source>Can&apos;t edit the virtual camera</source>
         <translation>Kan inte redigera den virtuella kameran</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="431"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="453"/>
         <source>Can&apos;t add the virtual camera</source>
         <translation>Kan inte lägga till den virtuella kameran</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="441"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="451"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="487"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="275"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="463"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="473"/>
         <source>Error editing the virtual camera</source>
         <translation>Fel vid redigering av den virtuella kameran</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="442"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="452"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="464"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="474"/>
         <source>Error adding the virtual camera</source>
         <translation>Fel vid tillägg av den virtuella kameran</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="443"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="465"/>
         <source>Camera description can&apos;t be empty.</source>
         <translation>Kamerabeskrivning får inte vara tom.</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="497"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="266"/>
         <source>Error creating the virtual camera</source>
         <translation>Fel vid skapande av den virtuella kameran</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="453"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="475"/>
         <source>Camera description and formats can&apos;t be empty.</source>
         <translation>Kamerabeskrivning och format får inte vara tomma.</translation>
     </message>
@@ -2901,32 +2901,32 @@
 <context>
     <name>VirtualCameraOptions</name>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="65"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="78"/>
         <source>Edit</source>
         <translation>Redigera</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="77"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="90"/>
         <source>Can&apos;t Edit The Virtual Camera</source>
         <translation>Kan inte redigera den virtuella kameran</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="84"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="97"/>
         <source>Set output picture</source>
         <translation>Ställ in utmatningsbild</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="95"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="108"/>
         <source>Remove</source>
         <translation>Ta bort</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="110"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="55"/>
         <source>Error removing the virtual camera</source>
         <translation>Fel vid borttagning av den virtuella kameran</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="114"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="121"/>
         <source>Can&apos;t Remove The Virtual Camera</source>
         <translation>Kan inte ta bort den virtuella kameran</translation>
     </message>
@@ -2952,7 +2952,7 @@
 <context>
     <name>VirtualCameras</name>
     <message>
-        <location filename="../../src/virtualcameras.cpp" line="567"/>
+        <location filename="../../src/virtualcameras.cpp" line="563"/>
         <source>Virtual Camera</source>
         <translation>Virtuell kamera</translation>
     </message>
@@ -4869,125 +4869,140 @@
         <translation>%1/Bild %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="292"/>
+        <location filename="../qml/main.qml" line="172"/>
+        <source>Creating &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="182"/>
+        <source>Editing &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="192"/>
+        <source>Removing &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="322"/>
         <source>Main menu</source>
         <translation>Huvudmeny</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="298"/>
+        <location filename="../qml/main.qml" line="328"/>
         <source>Open main menu</source>
         <translation>Öppna huvudmeny</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="328"/>
+        <location filename="../qml/main.qml" line="358"/>
         <source>Start streaming</source>
         <translation>Starta streaming</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="328"/>
+        <location filename="../qml/main.qml" line="358"/>
         <source>Stop streaming</source>
         <translation>Stoppa streaming</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="333"/>
+        <location filename="../qml/main.qml" line="363"/>
         <source>You must add at least one streaming platform to the video outputs</source>
         <translation>Du måste lägga till minst en streamingplattform till videoutgångarna</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="335"/>
+        <location filename="../qml/main.qml" line="365"/>
         <source>The following platforms are not configured:&lt;br/&gt;&lt;br/&gt;%1</source>
         <translation>Följande plattformar är inte konfigurerade:&lt;br/&gt;&lt;br/&gt;%1</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="369"/>
+        <location filename="../qml/main.qml" line="399"/>
         <source>Capture options</source>
         <translation>Inspelningsalternativ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="375"/>
+        <location filename="../qml/main.qml" line="405"/>
         <source>Open capture options menu</source>
         <translation>Öppna inspelningsalternativmeny</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="406"/>
+        <location filename="../qml/main.qml" line="436"/>
         <source>Open last photo</source>
         <translation>Öppna senaste foto</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="417"/>
+        <location filename="../qml/main.qml" line="447"/>
         <source>Open last photo taken</source>
         <translation>Öppna senast tagna foto</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="448"/>
-        <location filename="../qml/main.qml" line="451"/>
+        <location filename="../qml/main.qml" line="478"/>
+        <location filename="../qml/main.qml" line="481"/>
         <source>Take a photo</source>
         <translation>Ta en bild</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="452"/>
+        <location filename="../qml/main.qml" line="482"/>
         <source>Image capture mode</source>
         <translation>Bildinspelningsläge</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="455"/>
+        <location filename="../qml/main.qml" line="485"/>
         <source>Make a capture and save it to an image file</source>
         <translation>Gör en inspelning och spara till en bildfil</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="456"/>
+        <location filename="../qml/main.qml" line="486"/>
         <source>Put %1 in image capture mode</source>
         <translation>Sätt %1 i bildinspelningsläge</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="505"/>
-        <location filename="../qml/main.qml" line="511"/>
+        <location filename="../qml/main.qml" line="535"/>
+        <location filename="../qml/main.qml" line="541"/>
         <source>Record video</source>
         <translation>Spela in video</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="506"/>
-        <location filename="../qml/main.qml" line="512"/>
+        <location filename="../qml/main.qml" line="536"/>
+        <location filename="../qml/main.qml" line="542"/>
         <source>Stop video recording</source>
         <translation>Stoppa videoinspelning</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="509"/>
+        <location filename="../qml/main.qml" line="539"/>
         <source>Video capture mode</source>
         <translation>Videoinspelningsläge</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="515"/>
+        <location filename="../qml/main.qml" line="545"/>
         <source>Put %1 in video recording mode</source>
         <translation>Sätt %1 i videoinspelningsläge</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="517"/>
+        <location filename="../qml/main.qml" line="547"/>
         <source>Start recording to a video file</source>
         <translation>Starta inspelning till en videofil</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="518"/>
+        <location filename="../qml/main.qml" line="548"/>
         <source>Stop current video recording</source>
         <translation>Stoppa aktuell videoinspelning</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="562"/>
+        <location filename="../qml/main.qml" line="592"/>
         <source>Open last video</source>
         <translation>Öppna senaste video</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="574"/>
+        <location filename="../qml/main.qml" line="604"/>
         <source>Open last recorded video</source>
         <translation>Öppna senast inspelade video</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="830"/>
+        <location filename="../qml/main.qml" line="860"/>
         <source>Installing virtual camera</source>
         <translation>Installerar virtuell kamera</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="831"/>
+        <location filename="../qml/main.qml" line="861"/>
         <source>Running commands</source>
         <translation>Kör kommandon</translation>
     </message>

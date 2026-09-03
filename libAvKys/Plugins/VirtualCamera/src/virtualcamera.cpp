@@ -17,6 +17,8 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QQmlEngine>
+
 #include "virtualcamera.h"
 #include "virtualcameraelement.h"
 

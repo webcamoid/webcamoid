@@ -60,6 +60,7 @@
         <file>share/qml/ThirdPartyLicenses.qml</file>
         <file>share/qml/UpdatesConfig.qml</file>
         <file>share/qml/UpdatesDialog.qml</file>
+        <file>share/qml/UpdatingVirtualCamerasDialog.qml</file>
         <file>share/qml/VCamInstallFailedDialog.qml</file>
         <file>share/qml/VCamInstallSucceededDialog.qml</file>
         <file>share/qml/VCamManualDownloadDialog.qml</file>

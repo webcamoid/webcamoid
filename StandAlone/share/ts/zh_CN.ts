@@ -2580,76 +2580,76 @@
         <translation>添加虚拟摄像头</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="275"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="346"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="297"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="368"/>
         <source>Virtual camera name</source>
         <translation>虚拟摄像头名称</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="296"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="318"/>
         <source>Add format</source>
         <translation>添加制式</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="306"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="328"/>
         <source>Clear formats</source>
         <translation>清空制式</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="368"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="390"/>
         <source>Format</source>
         <translation>制式</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="379"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="401"/>
         <source>Width</source>
         <translation>宽度</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="392"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="414"/>
         <source>Height</source>
         <translation>高度</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="405"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="427"/>
         <source>Frame rate</source>
         <translation>帧率</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="430"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="452"/>
         <source>Can&apos;t edit the virtual camera</source>
         <translation>无法编辑虚拟摄像头</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="431"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="453"/>
         <source>Can&apos;t add the virtual camera</source>
         <translation>无法添加虚拟摄像头</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="441"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="451"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="487"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="275"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="463"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="473"/>
         <source>Error editing the virtual camera</source>
         <translation>编辑虚拟摄像头时出错</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="442"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="452"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="464"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="474"/>
         <source>Error adding the virtual camera</source>
         <translation>添加虚拟摄像头时出错</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="443"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="465"/>
         <source>Camera description can&apos;t be empty.</source>
         <translation>摄像头描述不能为空。</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="497"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="266"/>
         <source>Error creating the virtual camera</source>
         <translation>创建虚拟摄像头时出错</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="453"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="475"/>
         <source>Camera description and formats can&apos;t be empty.</source>
         <translation>摄像头描述和制式不能为空。</translation>
     </message>
@@ -2900,32 +2900,32 @@
 <context>
     <name>VirtualCameraOptions</name>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="65"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="78"/>
         <source>Edit</source>
         <translation>编辑</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="77"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="90"/>
         <source>Can&apos;t Edit The Virtual Camera</source>
         <translation>无法编辑虚拟摄像头</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="84"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="97"/>
         <source>Set output picture</source>
         <translation>设置输出画面</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="95"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="108"/>
         <source>Remove</source>
         <translation>删除</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="110"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="55"/>
         <source>Error removing the virtual camera</source>
         <translation>移除虚拟摄像头时出错</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="114"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="121"/>
         <source>Can&apos;t Remove The Virtual Camera</source>
         <translation>无法移除虚拟摄像头</translation>
     </message>
@@ -2951,7 +2951,7 @@
 <context>
     <name>VirtualCameras</name>
     <message>
-        <location filename="../../src/virtualcameras.cpp" line="567"/>
+        <location filename="../../src/virtualcameras.cpp" line="563"/>
         <source>Virtual Camera</source>
         <translation>虚拟摄像头</translation>
     </message>
@@ -4873,125 +4873,140 @@
         <translation>%1/图片 %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="292"/>
+        <location filename="../qml/main.qml" line="172"/>
+        <source>Creating &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="182"/>
+        <source>Editing &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="192"/>
+        <source>Removing &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="322"/>
         <source>Main menu</source>
         <translation>主菜单</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="298"/>
+        <location filename="../qml/main.qml" line="328"/>
         <source>Open main menu</source>
         <translation>打开主菜单</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="328"/>
+        <location filename="../qml/main.qml" line="358"/>
         <source>Start streaming</source>
         <translation>开始推流</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="328"/>
+        <location filename="../qml/main.qml" line="358"/>
         <source>Stop streaming</source>
         <translation>停止推流</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="333"/>
+        <location filename="../qml/main.qml" line="363"/>
         <source>You must add at least one streaming platform to the video outputs</source>
         <translation>您必须在视频输出中至少添加一个推流平台</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="335"/>
+        <location filename="../qml/main.qml" line="365"/>
         <source>The following platforms are not configured:&lt;br/&gt;&lt;br/&gt;%1</source>
         <translation>以下平台未配置：&lt;br/&gt;&lt;br/&gt;%1</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="369"/>
+        <location filename="../qml/main.qml" line="399"/>
         <source>Capture options</source>
         <translation>捕获选项</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="375"/>
+        <location filename="../qml/main.qml" line="405"/>
         <source>Open capture options menu</source>
         <translation>打开捕获选项菜单</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="406"/>
+        <location filename="../qml/main.qml" line="436"/>
         <source>Open last photo</source>
         <translation>打开最后一张照片</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="417"/>
+        <location filename="../qml/main.qml" line="447"/>
         <source>Open last photo taken</source>
         <translation>打开最后拍摄的照片</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="448"/>
-        <location filename="../qml/main.qml" line="451"/>
+        <location filename="../qml/main.qml" line="478"/>
+        <location filename="../qml/main.qml" line="481"/>
         <source>Take a photo</source>
         <translation>拍照</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="452"/>
+        <location filename="../qml/main.qml" line="482"/>
         <source>Image capture mode</source>
         <translation>图像捕获模式</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="455"/>
+        <location filename="../qml/main.qml" line="485"/>
         <source>Make a capture and save it to an image file</source>
         <translation>捕获并保存到图像文件</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="456"/>
+        <location filename="../qml/main.qml" line="486"/>
         <source>Put %1 in image capture mode</source>
         <translation>将 %1 置于图像捕获模式</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="505"/>
-        <location filename="../qml/main.qml" line="511"/>
+        <location filename="../qml/main.qml" line="535"/>
+        <location filename="../qml/main.qml" line="541"/>
         <source>Record video</source>
         <translation>录制视频</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="506"/>
-        <location filename="../qml/main.qml" line="512"/>
+        <location filename="../qml/main.qml" line="536"/>
+        <location filename="../qml/main.qml" line="542"/>
         <source>Stop video recording</source>
         <translation>停止视频录制</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="509"/>
+        <location filename="../qml/main.qml" line="539"/>
         <source>Video capture mode</source>
         <translation>视频捕获模式</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="515"/>
+        <location filename="../qml/main.qml" line="545"/>
         <source>Put %1 in video recording mode</source>
         <translation>将 %1 置于视频录制模式</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="517"/>
+        <location filename="../qml/main.qml" line="547"/>
         <source>Start recording to a video file</source>
         <translation>开始录制到视频文件</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="518"/>
+        <location filename="../qml/main.qml" line="548"/>
         <source>Stop current video recording</source>
         <translation>停止当前视频录制</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="562"/>
+        <location filename="../qml/main.qml" line="592"/>
         <source>Open last video</source>
         <translation>打开最后一个视频</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="574"/>
+        <location filename="../qml/main.qml" line="604"/>
         <source>Open last recorded video</source>
         <translation>打开最后录制的视频</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="830"/>
+        <location filename="../qml/main.qml" line="860"/>
         <source>Installing virtual camera</source>
         <translation>正在安装虚拟摄像头</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="831"/>
+        <location filename="../qml/main.qml" line="861"/>
         <source>Running commands</source>
         <translation>正在运行命令</translation>
     </message>

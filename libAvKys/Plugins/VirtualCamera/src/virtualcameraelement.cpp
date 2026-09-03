@@ -17,15 +17,17 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
-#include <QCoreApplication>
-#include <QDateTime>
-#include <QDir>
-#include <QImage>
+#include <QFuture>
 #include <QMutex>
 #include <QQmlComponent>
 #include <QQmlContext>
 #include <QQmlEngine>
+#include <QQueue>
 #include <QSharedPointer>
+#include <QThread>
+#include <QThreadPool>
+#include <QWaitCondition>
+#include <QtConcurrent>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akplugininfo.h>
@@ -37,6 +39,25 @@
 #include "vcam.h"
 
 #define MAX_CAMERAS 64
+#define THREAD_WAIT_LIMIT 500
+
+enum VCamOperationType {
+    VCamOperationType_Unknown = -1,
+    VCamOperationType_Create,
+    VCamOperationType_Edit,
+    VCamOperationType_ChangeDescription,
+    VCamOperationType_DeviceDestroy,
+    VCamOperationType_DestroyAllDevices
+};
+
+struct VirtualCameraOperation
+{
+    VCamOperationType type;
+    QString webcam;
+    QString description;
+    AkVideoCapsList formats;
+    VCamPtr vcam;
+};
 
 class VirtualCameraElementPrivate
 {
@@ -45,12 +66,18 @@ class VirtualCameraElementPrivate
         VCamPtr m_vcam;
         QString m_vcamImpl;
         QMutex m_mutex;
+        QThreadPool m_threadPool;
+        QFuture<void> m_operationsLoopResult;
+        QWaitCondition m_operationsQueueNotEmpty;
+        QQueue<VirtualCameraOperation> m_operations;
         int m_streamIndex {-1};
         bool m_playing {false};
+        bool m_run {true};
 
         explicit VirtualCameraElementPrivate(VirtualCameraElement *self);
         static inline int roundTo(int value, int n);
         void linksChanged(const AkPluginLinks &links);
+        void operationsLoop();
 };
 
 VirtualCameraElement::VirtualCameraElement():
@@ -92,11 +119,20 @@ VirtualCameraElement::VirtualCameraElement():
         if (!medias.isEmpty())
             this->d->m_vcam->setDevice(medias.first());
     }
+
+    this->d->m_operationsLoopResult =
+            QtConcurrent::run(&this->d->m_threadPool,
+                              &VirtualCameraElementPrivate::operationsLoop,
+                              this->d);
 }
 
 VirtualCameraElement::~VirtualCameraElement()
 {
     this->setState(AkElement::ElementStateNull);
+
+    this->d->m_run = false;
+    this->d->m_operationsLoopResult.waitForFinished();
+
     delete this->d;
 }
 
@@ -285,102 +321,71 @@ QVariantMap VirtualCameraElement::updateStream(int streamIndex,
     return outputParams;
 }
 
-QString VirtualCameraElement::createWebcam(const QString &description,
-                                           const AkVideoCapsList &formats)
+void VirtualCameraElement::createWebcam(const QString &description,
+                                        const AkVideoCapsList &formats)
 {
-    QString camera;
-    QString error;
+    VirtualCameraOperation operation;
+    operation.type = VCamOperationType_Create;
+    operation.vcam = this->d->m_vcam;
+    operation.description = description;
+    operation.formats = formats;
 
-    this->d->m_mutex.lock();
-    auto vcam = this->d->m_vcam;
-    this->d->m_mutex.unlock();
-
-    if (vcam) {
-        camera = vcam->deviceCreate(description, formats);
-
-        if (camera.isEmpty())
-            error = vcam->error();
-    } else {
-        error = "Invalid submodule";
-    }
-
-    if (error.isEmpty())
-        emit this->mediasChanged(this->medias());
-    else
-        emit this->errorChanged(error);
-
-    return camera;
+    QMutexLocker mutexLocker(&this->d->m_mutex);
+    this->d->m_operations << operation;
+    this->d->m_operationsQueueNotEmpty.wakeOne();
 }
 
-bool VirtualCameraElement::editWebcam(const QString &webcam,
+void VirtualCameraElement::editWebcam(const QString &webcam,
                                       const QString &description,
                                       const AkVideoCapsList &formats)
 {
-    bool ok = false;
+    VirtualCameraOperation operation;
+    operation.type = VCamOperationType_Edit;
+    operation.vcam = this->d->m_vcam;
+    operation.webcam = webcam;
+    operation.description = description;
+    operation.formats = formats;
 
-    this->d->m_mutex.lock();
-    auto vcam = this->d->m_vcam;
-    this->d->m_mutex.unlock();
-
-    if (vcam)
-        ok = vcam->deviceEdit(webcam, description, formats);
-
-    if (ok)
-        emit this->mediasChanged(this->medias());
-
-    return ok;
+    QMutexLocker mutexLocker(&this->d->m_mutex);
+    this->d->m_operations << operation;
+    this->d->m_operationsQueueNotEmpty.wakeOne();
 }
 
-bool VirtualCameraElement::changeDescription(const QString &webcam,
+void VirtualCameraElement::changeDescription(const QString &webcam,
                                              const QString &description)
 {
-    bool ok = false;
+    VirtualCameraOperation operation;
+    operation.type = VCamOperationType_ChangeDescription;
+    operation.vcam = this->d->m_vcam;
+    operation.webcam = webcam;
+    operation.description = description;
 
-    this->d->m_mutex.lock();
-    auto vcam = this->d->m_vcam;
-    this->d->m_mutex.unlock();
-
-    if (vcam)
-        ok = vcam->changeDescription(webcam, description);
-
-    if (ok)
-        emit this->mediasChanged(this->medias());
-
-    return ok;
+    QMutexLocker mutexLocker(&this->d->m_mutex);
+    this->d->m_operations << operation;
+    this->d->m_operationsQueueNotEmpty.wakeOne();
 }
 
-bool VirtualCameraElement::removeWebcam(const QString &webcam)
+void VirtualCameraElement::removeWebcam(const QString &webcam)
 {
-    bool ok = false;
+    VirtualCameraOperation operation;
+    operation.type = VCamOperationType_DeviceDestroy;
+    operation.vcam = this->d->m_vcam;
+    operation.webcam = webcam;
 
-    this->d->m_mutex.lock();
-    auto vcam = this->d->m_vcam;
-    this->d->m_mutex.unlock();
-
-    if (vcam)
-        ok = vcam->deviceDestroy(webcam);
-
-    if (ok)
-        emit this->mediasChanged(this->medias());
-
-    return ok;
+    QMutexLocker mutexLocker(&this->d->m_mutex);
+    this->d->m_operations << operation;
+    this->d->m_operationsQueueNotEmpty.wakeOne();
 }
 
-bool VirtualCameraElement::removeAllWebcams()
+void VirtualCameraElement::removeAllWebcams()
 {
-    bool ok = false;
+    VirtualCameraOperation operation;
+    operation.type = VCamOperationType_DestroyAllDevices;
+    operation.vcam = this->d->m_vcam;
 
-    this->d->m_mutex.lock();
-    auto vcam = this->d->m_vcam;
-    this->d->m_mutex.unlock();
-
-    if (vcam)
-        ok = vcam->destroyAllDevices();
-
-    if (ok)
-        emit this->mediasChanged(this->medias());
-
-    return ok;
+    QMutexLocker mutexLocker(&this->d->m_mutex);
+    this->d->m_operations << operation;
+    this->d->m_operationsQueueNotEmpty.wakeOne();
 }
 
 QVariantList VirtualCameraElement::controls() const
@@ -824,6 +829,140 @@ void VirtualCameraElementPrivate::linksChanged(const AkPluginLinks &links)
         self->setMedia(medias.first());
 
     self->setState(state);
+}
+
+void VirtualCameraElementPrivate::operationsLoop()
+{
+    while (this->m_run) {
+        bool gotOperation = true;
+        VirtualCameraOperation operation;
+
+        {
+            QMutexLocker mutexLocker(&this->m_mutex);
+
+            if (this->m_operations.isEmpty())
+                gotOperation =
+                        this->m_operationsQueueNotEmpty.wait(&this->m_mutex,
+                                                             THREAD_WAIT_LIMIT);
+
+            if (gotOperation)
+                operation = this->m_operations.dequeue();
+        }
+
+        if (!gotOperation)
+            continue;
+
+        auto vcam = operation.vcam;
+
+        switch (operation.type) {
+        case VCamOperationType_Create: {
+            QString camera;
+            QString error;
+
+            if (vcam)
+                camera = vcam->deviceCreate(operation.description,
+                                            operation.formats);
+            else
+                error = "Invalid submodule";
+
+            if (error.isEmpty()) {
+                emit self->mediasChanged(self->medias());
+                emit self->webcamCreated(true, camera);
+            } else {
+                emit self->errorChanged(error);
+                emit self->webcamCreated(false, error);
+            }
+
+            break;
+        }
+
+        case VCamOperationType_Edit: {
+            bool ok = false;
+            QString error;
+
+            if (vcam)
+                ok = vcam->deviceEdit(operation.webcam,
+                                      operation.description,
+                                      operation.formats);
+            else
+                error = "Invalid submodule";
+
+            if (ok) {
+                emit self->mediasChanged(self->medias());
+                emit self->webcamEdited(true, operation.webcam);
+            } else {
+                emit self->errorChanged(error);
+                emit self->webcamEdited(false, error);
+            }
+
+            break;
+        }
+
+        case VCamOperationType_ChangeDescription: {
+            bool ok = false;
+            QString error;
+
+            if (vcam)
+                ok = vcam->changeDescription(operation.webcam,
+                                             operation.description);
+            else
+                error = "Invalid submodule";
+
+            if (ok) {
+                emit self->mediasChanged(self->medias());
+                emit self->descriptionChanged(true, operation.webcam);
+            } else {
+                emit self->errorChanged(error);
+                emit self->descriptionChanged(false, error);
+            }
+
+            break;
+        }
+
+        case VCamOperationType_DeviceDestroy: {
+            bool ok = false;
+            QString error;
+
+            if (vcam)
+                ok = vcam->deviceDestroy(operation.webcam);
+            else
+                error = "Invalid submodule";
+
+            if (ok) {
+                emit self->mediasChanged(self->medias());
+                emit self->webcamRemoved(true, operation.webcam);
+            } else {
+                emit self->errorChanged(error);
+                emit self->webcamRemoved(false, error);
+            }
+
+            break;
+        }
+
+        case VCamOperationType_DestroyAllDevices: {
+            bool ok = false;
+            QString error;
+
+            if (vcam)
+                ok = vcam->destroyAllDevices();
+            else
+                error = "Invalid submodule";
+
+            if (ok) {
+                emit self->mediasChanged(self->medias());
+                emit self->allWebcamsRemoved(true, {});
+            } else {
+                emit self->errorChanged(error);
+                emit self->allWebcamsRemoved(false, error);
+            }
+
+            break;
+        }
+
+        default:
+            break;
+        }
+    }
 }
 
 #include "moc_virtualcameraelement.cpp"

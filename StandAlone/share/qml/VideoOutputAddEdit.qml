@@ -256,6 +256,28 @@ Dialog {
             deviceDescriptionPT.forceActiveFocus():
             deviceDescription.forceActiveFocus()
 
+    Connections {
+        target: virtualCameras
+
+        function onOutputCreated(ok, msg) {
+            if (ok) {
+                virtualCameras.selectedOutputs = [...virtualCameras.selectedOutputs, msg]
+            } else {
+                let title = qsTr("Error creating the virtual camera")
+                addEdit.openErrorDialog(title, msg)
+            }
+        }
+
+        function onOutputEdited(ok, error) {
+            addEdit.edited()
+
+            if (!ok) {
+                let title = qsTr("Error editing the virtual camera")
+                addEdit.openErrorDialog(title, error)
+            }
+        }
+    }
+
     ScrollView {
         id: formatsView
         anchors.fill: parent
@@ -479,24 +501,9 @@ Dialog {
             }
         }
 
-        if (devId) {
-            let ok = virtualCameras.editOutput(devId, description, formats)
-            addEdit.edited()
-
-            if (!ok) {
-                let title = qsTr("Error editing the virtual camera")
-                addEdit.openErrorDialog(title, virtualCameras.outputError)
-            }
-        } else {
-            let videoOutput =
-                virtualCameras.createOutput(description, formats)
-
-            if (videoOutput) {
-                virtualCameras.selectedOutputs = [...virtualCameras.selectedOutputs, videoOutput]
-            } else if (virtualCameras.outputError) {
-                let title = qsTr("Error creating the virtual camera")
-                addEdit.openErrorDialog(title, virtualCameras.outputError)
-            }
-        }
+        if (devId)
+            virtualCameras.editOutput(devId, description, formats)
+        else
+            virtualCameras.createOutput(description, formats)
     }
 }

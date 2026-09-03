@@ -2581,76 +2581,76 @@
         <translation>વર્ચ્યુઅલ કેમેરા ઉમેરો</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="275"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="346"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="297"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="368"/>
         <source>Virtual camera name</source>
         <translation>વર્ચ્યુઅલ કેમેરા નામ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="296"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="318"/>
         <source>Add format</source>
         <translation>ફોર્મેટ ઉમેરો</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="306"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="328"/>
         <source>Clear formats</source>
         <translation>ફોર્મેટ્સ સાફ કરો</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="368"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="390"/>
         <source>Format</source>
         <translation>ફોર્મેટ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="379"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="401"/>
         <source>Width</source>
         <translation>પહોળાઈ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="392"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="414"/>
         <source>Height</source>
         <translation>ઊંચાઈ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="405"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="427"/>
         <source>Frame rate</source>
         <translation>ફ્રેમ રેટ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="430"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="452"/>
         <source>Can&apos;t edit the virtual camera</source>
         <translation>વર્ચ્યુઅલ કેમેરા સંપાદિત કરી શકાતો નથી</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="431"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="453"/>
         <source>Can&apos;t add the virtual camera</source>
         <translation>વર્ચ્યુઅલ કેમેરા ઉમેરી શકાતો નથી</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="441"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="451"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="487"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="275"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="463"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="473"/>
         <source>Error editing the virtual camera</source>
         <translation>વર્ચ્યુઅલ કેમેરા સંપાદિત કરવામાં ભૂલ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="442"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="452"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="464"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="474"/>
         <source>Error adding the virtual camera</source>
         <translation>વર્ચ્યુઅલ કેમેરા ઉમેરવામાં ભૂલ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="443"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="465"/>
         <source>Camera description can&apos;t be empty.</source>
         <translation>કેમેરા વર્ણન ખાલી હોઈ શકે નહીં.</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="453"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="475"/>
         <source>Camera description and formats can&apos;t be empty.</source>
         <translation>કેમેરા વર્ણન અને ફોર્મેટ ખાલી હોઈ શકે નહીં.</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="497"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="266"/>
         <source>Error creating the virtual camera</source>
         <translation>વર્ચ્યુઅલ કેમેરા બનાવવામાં ભૂલ</translation>
     </message>
@@ -2901,32 +2901,32 @@
 <context>
     <name>VirtualCameraOptions</name>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="65"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="78"/>
         <source>Edit</source>
         <translation>સંપાદિત કરો</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="77"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="90"/>
         <source>Can&apos;t Edit The Virtual Camera</source>
         <translation>વર્ચ્યુઅલ કેમેરા સંપાદિત કરી શકાતો નથી</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="84"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="97"/>
         <source>Set output picture</source>
         <translation>આઉટપુટ ચિત્ર સેટ કરો</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="95"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="108"/>
         <source>Remove</source>
         <translation>દૂર કરો</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="110"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="55"/>
         <source>Error removing the virtual camera</source>
         <translation>વર્ચ્યુઅલ કેમેરા દૂર કરવામાં ભૂલ</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="114"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="121"/>
         <source>Can&apos;t Remove The Virtual Camera</source>
         <translation>વર્ચ્યુઅલ કેમેરા દૂર કરી શકાતો નથી</translation>
     </message>
@@ -2952,7 +2952,7 @@
 <context>
     <name>VirtualCameras</name>
     <message>
-        <location filename="../../src/virtualcameras.cpp" line="567"/>
+        <location filename="../../src/virtualcameras.cpp" line="563"/>
         <source>Virtual Camera</source>
         <translation>વર્ચ્યુઅલ કેમેરા</translation>
     </message>
@@ -4894,125 +4894,140 @@
         <translation>%1/ચિત્ર %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="292"/>
+        <location filename="../qml/main.qml" line="172"/>
+        <source>Creating &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="182"/>
+        <source>Editing &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="192"/>
+        <source>Removing &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="322"/>
         <source>Main menu</source>
         <translation>મુખ્ય મેનુ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="298"/>
+        <location filename="../qml/main.qml" line="328"/>
         <source>Open main menu</source>
         <translation>મુખ્ય મેનુ ખોલો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="328"/>
+        <location filename="../qml/main.qml" line="358"/>
         <source>Start streaming</source>
         <translation>સ્ટ્રીમિંગ શરૂ કરો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="328"/>
+        <location filename="../qml/main.qml" line="358"/>
         <source>Stop streaming</source>
         <translation>સ્ટ્રીમિંગ બંધ કરો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="333"/>
+        <location filename="../qml/main.qml" line="363"/>
         <source>You must add at least one streaming platform to the video outputs</source>
         <translation>તમારે વિડિયો આઉટપુટમાં ઓછામાં ઓછું એક સ્ટ્રીમિંગ પ્લેટફોર્મ ઉમેરવું પડશે</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="335"/>
+        <location filename="../qml/main.qml" line="365"/>
         <source>The following platforms are not configured:&lt;br/&gt;&lt;br/&gt;%1</source>
         <translation>નીચેના પ્લેટફોર્મ્સ ગોઠવેલ નથી:&lt;br/&gt;&lt;br/&gt;%1</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="369"/>
+        <location filename="../qml/main.qml" line="399"/>
         <source>Capture options</source>
         <translation>કેપ્ચર વિકલ્પો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="375"/>
+        <location filename="../qml/main.qml" line="405"/>
         <source>Open capture options menu</source>
         <translation>કેપ્ચર વિકલ્પો મેનુ ખોલો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="406"/>
+        <location filename="../qml/main.qml" line="436"/>
         <source>Open last photo</source>
         <translation>છેલ્લું ફોટો ખોલો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="417"/>
+        <location filename="../qml/main.qml" line="447"/>
         <source>Open last photo taken</source>
         <translation>લેવામાં આવેલ છેલ્લું ફોટો ખોલો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="448"/>
-        <location filename="../qml/main.qml" line="451"/>
+        <location filename="../qml/main.qml" line="478"/>
+        <location filename="../qml/main.qml" line="481"/>
         <source>Take a photo</source>
         <translation>ફોટો લો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="452"/>
+        <location filename="../qml/main.qml" line="482"/>
         <source>Image capture mode</source>
         <translation>ચિત્ર કેપ્ચર મોડ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="455"/>
+        <location filename="../qml/main.qml" line="485"/>
         <source>Make a capture and save it to an image file</source>
         <translation>કેપ્ચર બનાવો અને તેને ચિત્ર ફાઇલમાં સાચવો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="456"/>
+        <location filename="../qml/main.qml" line="486"/>
         <source>Put %1 in image capture mode</source>
         <translation>%1 ને ચિત્ર કેપ્ચર મોડમાં મૂકો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="505"/>
-        <location filename="../qml/main.qml" line="511"/>
+        <location filename="../qml/main.qml" line="535"/>
+        <location filename="../qml/main.qml" line="541"/>
         <source>Record video</source>
         <translation>વિડિયો રેકોર્ડ કરો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="506"/>
-        <location filename="../qml/main.qml" line="512"/>
+        <location filename="../qml/main.qml" line="536"/>
+        <location filename="../qml/main.qml" line="542"/>
         <source>Stop video recording</source>
         <translation>વિડિયો રેકોર્ડિંગ બંધ કરો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="509"/>
+        <location filename="../qml/main.qml" line="539"/>
         <source>Video capture mode</source>
         <translation>વિડિયો કેપ્ચર મોડ</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="515"/>
+        <location filename="../qml/main.qml" line="545"/>
         <source>Put %1 in video recording mode</source>
         <translation>%1 ને વિડિયો રેકોર્ડિંગ મોડમાં મૂકો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="517"/>
+        <location filename="../qml/main.qml" line="547"/>
         <source>Start recording to a video file</source>
         <translation>વિડિયો ફાઇલમાં રેકોર્ડિંગ શરૂ કરો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="518"/>
+        <location filename="../qml/main.qml" line="548"/>
         <source>Stop current video recording</source>
         <translation>વર્તમાન વિડિયો રેકોર્ડિંગ બંધ કરો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="562"/>
+        <location filename="../qml/main.qml" line="592"/>
         <source>Open last video</source>
         <translation>છેલ્લું વિડિયો ખોલો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="574"/>
+        <location filename="../qml/main.qml" line="604"/>
         <source>Open last recorded video</source>
         <translation>રેકોર્ડ કરેલ છેલ્લું વિડિયો ખોલો</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="830"/>
+        <location filename="../qml/main.qml" line="860"/>
         <source>Installing virtual camera</source>
         <translation>વર્ચ્યુઅલ કેમેરા ઇન્સ્ટોલ થાય છે</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="831"/>
+        <location filename="../qml/main.qml" line="861"/>
         <source>Running commands</source>
         <translation>ચલાવી રહેલા આદેશો</translation>
     </message>

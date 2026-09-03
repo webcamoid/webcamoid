@@ -2581,76 +2581,76 @@
         <translation>Виртуалдык Камера Кошуу</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="275"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="346"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="297"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="368"/>
         <source>Virtual camera name</source>
         <translation>Виртуалдык камеранын аталышы</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="296"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="318"/>
         <source>Add format</source>
         <translation>Формат кошуу</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="306"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="328"/>
         <source>Clear formats</source>
         <translation>Форматтарды тазалоо</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="368"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="390"/>
         <source>Format</source>
         <translation>Формат</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="379"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="401"/>
         <source>Width</source>
         <translation>Туурасы</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="392"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="414"/>
         <source>Height</source>
         <translation>Бийиктиги</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="405"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="427"/>
         <source>Frame rate</source>
         <translation>Кадр ылдамдыгы</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="430"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="452"/>
         <source>Can&apos;t edit the virtual camera</source>
         <translation>Виртуалдык камераны түзөтүү мүмкүн эмес</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="431"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="453"/>
         <source>Can&apos;t add the virtual camera</source>
         <translation>Виртуалдык камераны кошуу мүмкүн эмес</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="441"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="451"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="487"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="275"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="463"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="473"/>
         <source>Error editing the virtual camera</source>
         <translation>Виртуалдык камераны түзөтүүдө ката</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="442"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="452"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="464"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="474"/>
         <source>Error adding the virtual camera</source>
         <translation>Виртуалдык камераны кошууда ката</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="443"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="465"/>
         <source>Camera description can&apos;t be empty.</source>
         <translation>Камера сүрөттөмөсү бош боло албайт.</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="453"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="475"/>
         <source>Camera description and formats can&apos;t be empty.</source>
         <translation>Камера сүрөттөмөсү жана форматтары бош боло албайт.</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="497"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="266"/>
         <source>Error creating the virtual camera</source>
         <translation>Виртуалдык камераны түзүүдө ката</translation>
     </message>
@@ -2901,32 +2901,32 @@
 <context>
     <name>VirtualCameraOptions</name>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="65"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="78"/>
         <source>Edit</source>
         <translation>Түзөтүү</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="77"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="90"/>
         <source>Can&apos;t Edit The Virtual Camera</source>
         <translation>Виртуалдык камераны түзөтүү мүмкүн эмес</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="84"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="97"/>
         <source>Set output picture</source>
         <translation>Чыгаруу сүрөтүн коюу</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="95"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="108"/>
         <source>Remove</source>
         <translation>Өчүрүү</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="110"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="55"/>
         <source>Error removing the virtual camera</source>
         <translation>Виртуалдык камераны өчүрүүдө ката</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="114"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="121"/>
         <source>Can&apos;t Remove The Virtual Camera</source>
         <translation>Виртуалдык камераны өчүрүү мүмкүн эмес</translation>
     </message>
@@ -2952,7 +2952,7 @@
 <context>
     <name>VirtualCameras</name>
     <message>
-        <location filename="../../src/virtualcameras.cpp" line="567"/>
+        <location filename="../../src/virtualcameras.cpp" line="563"/>
         <source>Virtual Camera</source>
         <translation>Виртуалдык Камера</translation>
     </message>
@@ -4894,125 +4894,140 @@
         <translation>%1/Сүрөт %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="292"/>
+        <location filename="../qml/main.qml" line="172"/>
+        <source>Creating &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="182"/>
+        <source>Editing &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="192"/>
+        <source>Removing &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/main.qml" line="322"/>
         <source>Main menu</source>
         <translation>Негизги меню</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="298"/>
+        <location filename="../qml/main.qml" line="328"/>
         <source>Open main menu</source>
         <translation>Негизги менюну ачуу</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="328"/>
+        <location filename="../qml/main.qml" line="358"/>
         <source>Start streaming</source>
         <translation>Агымдуу видеону баштоо</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="328"/>
+        <location filename="../qml/main.qml" line="358"/>
         <source>Stop streaming</source>
         <translation>Агымдуу видеону токтотуу</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="333"/>
+        <location filename="../qml/main.qml" line="363"/>
         <source>You must add at least one streaming platform to the video outputs</source>
         <translation>Видео чыгарууларына жок дегенде бир агымдуу платформа кошушуңуз керек</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="335"/>
+        <location filename="../qml/main.qml" line="365"/>
         <source>The following platforms are not configured:&lt;br/&gt;&lt;br/&gt;%1</source>
         <translation>Төмөнкү платформалар конфигурацияланган эмес:&lt;br/&gt;&lt;br/&gt;%1</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="369"/>
+        <location filename="../qml/main.qml" line="399"/>
         <source>Capture options</source>
         <translation>Түшүрүү параметрлери</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="375"/>
+        <location filename="../qml/main.qml" line="405"/>
         <source>Open capture options menu</source>
         <translation>Түшүрүү параметрлери менюсун ачуу</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="406"/>
+        <location filename="../qml/main.qml" line="436"/>
         <source>Open last photo</source>
         <translation>Акыркы сүрөттү ачуу</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="417"/>
+        <location filename="../qml/main.qml" line="447"/>
         <source>Open last photo taken</source>
         <translation>Акыркы түшүрүлгөн сүрөттү ачуу</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="448"/>
-        <location filename="../qml/main.qml" line="451"/>
+        <location filename="../qml/main.qml" line="478"/>
+        <location filename="../qml/main.qml" line="481"/>
         <source>Take a photo</source>
         <translation>Сүрөт түшүрүү</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="452"/>
+        <location filename="../qml/main.qml" line="482"/>
         <source>Image capture mode</source>
         <translation>Сүрөт түшүрүү режими</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="455"/>
+        <location filename="../qml/main.qml" line="485"/>
         <source>Make a capture and save it to an image file</source>
         <translation>Түшүрүү жасап, аны сүрөт файлына сактоо</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="456"/>
+        <location filename="../qml/main.qml" line="486"/>
         <source>Put %1 in image capture mode</source>
         <translation>%1&apos;ди сүрөт түшүрүү режимине койуу</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="505"/>
-        <location filename="../qml/main.qml" line="511"/>
+        <location filename="../qml/main.qml" line="535"/>
+        <location filename="../qml/main.qml" line="541"/>
         <source>Record video</source>
         <translation>Видео жазуу</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="506"/>
-        <location filename="../qml/main.qml" line="512"/>
+        <location filename="../qml/main.qml" line="536"/>
+        <location filename="../qml/main.qml" line="542"/>
         <source>Stop video recording</source>
         <translation>Видео жазууну токтотуу</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="509"/>
+        <location filename="../qml/main.qml" line="539"/>
         <source>Video capture mode</source>
         <translation>Видео түшүрүү режими</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="515"/>
+        <location filename="../qml/main.qml" line="545"/>
         <source>Put %1 in video recording mode</source>
         <translation>%1&apos;ди видео жазуу режимине койуу</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="517"/>
+        <location filename="../qml/main.qml" line="547"/>
         <source>Start recording to a video file</source>
         <translation>Видео файлына жазууну баштоо</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="518"/>
+        <location filename="../qml/main.qml" line="548"/>
         <source>Stop current video recording</source>
         <translation>Учурдагы видео жазууну токтотуу</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="562"/>
+        <location filename="../qml/main.qml" line="592"/>
         <source>Open last video</source>
         <translation>Акыркы видеону ачуу</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="574"/>
+        <location filename="../qml/main.qml" line="604"/>
         <source>Open last recorded video</source>
         <translation>Акыркы жазылган видеону ачуу</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="830"/>
+        <location filename="../qml/main.qml" line="860"/>
         <source>Installing virtual camera</source>
         <translation>Виртуалдык камера орнотулууда</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="831"/>
+        <location filename="../qml/main.qml" line="861"/>
         <source>Running commands</source>
         <translation>Командалар аткарылууда</translation>
     </message>

@@ -166,6 +166,36 @@ ApplicationWindow {
         {
             runCommandDialog.stop()
         }
+
+        function onCreatingOutput(output) {
+            updatingVirtualCamerasDialog.operation =
+                qsTr("Creating <b>%1</b> virtual camera").arg(output)
+            updatingVirtualCamerasDialog.open()
+        }
+
+        function onOutputCreated() {
+            updatingVirtualCamerasDialog.close()
+        }
+
+        function onEditingOutput(output) {
+            updatingVirtualCamerasDialog.operation =
+                qsTr("Editing <b>%1</b> virtual camera").arg(output)
+            updatingVirtualCamerasDialog.open()
+        }
+
+        function onOutputEdited() {
+            updatingVirtualCamerasDialog.close()
+        }
+
+        function onRemovingOutput(output) {
+            updatingVirtualCamerasDialog.operation =
+                qsTr("Removing <b>%1</b> virtual camera").arg(output)
+            updatingVirtualCamerasDialog.open()
+        }
+
+        function onOutputRemoved() {
+            updatingVirtualCamerasDialog.close()
+        }
     }
 
     Connections {
@@ -901,6 +931,10 @@ ApplicationWindow {
         id: localStreamingAdvanced
         width: parent.width
         height: parent.height
+    }
+    UpdatingVirtualCamerasDialog {
+        id: updatingVirtualCamerasDialog
+        anchors.centerIn: Overlay.overlay
     }
     UpdatesDialog {
         id: updatesDialog

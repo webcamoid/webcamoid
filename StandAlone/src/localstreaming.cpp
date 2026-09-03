@@ -24,7 +24,6 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QSettings>
-#include <QThreadPool>
 #include <QTimer>
 #include <ak.h>
 #include <akaudiocaps.h>
@@ -115,7 +114,6 @@ class LocalStreamingPrivate
         QMetaObject::Connection m_audioHeadersChangedConnection;
         QMetaObject::Connection m_videoHeadersChangedConnection;
         QMutex m_mutex;
-        QThreadPool m_threadPool;
         AkVideoPacket m_curPacket;
         AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
         QTimer m_ipCheckTimer;

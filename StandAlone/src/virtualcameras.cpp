@@ -241,24 +241,23 @@ QString VirtualCameras::description(const QString &device) const
     return description;
 }
 
-QString VirtualCameras::createOutput(const QString &description,
-                                   const AkVideoCapsList &formats)
+bool VirtualCameras::createOutput(const QString &description,
+                                  const AkVideoCapsList &formats)
 {
     if (!this->d->m_cameraOutput)
-        return {};
+        return false;
 
-    QString deviceId;
+    emit this->creatingOutput(description);
     QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
                               "createWebcam",
-                              Q_RETURN_ARG(QString, deviceId),
                               Q_ARG(QString, description),
                               Q_ARG(AkVideoCapsList, formats));
 
-    return deviceId;
+    return true;
 }
 
-QString VirtualCameras::createOutput(const QString &description,
-                                   const QVariantList &formats)
+bool VirtualCameras::createOutput(const QString &description,
+                                  const QVariantList &formats)
 {
     AkVideoCapsList fmts;
 
@@ -269,48 +268,45 @@ QString VirtualCameras::createOutput(const QString &description,
 }
 
 bool VirtualCameras::editOutput(const QString &output,
-                            const QString &description,
-                            const AkVideoCapsList &formats)
+                                const QString &description,
+                                const AkVideoCapsList &formats)
 {
     if (!this->d->m_cameraOutput)
-        return {};
+        return false;
 
-    bool result;
+    emit this->editingOutput(description);
     QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
                               "editWebcam",
-                              Q_RETURN_ARG(bool, result),
                               Q_ARG(QString, output),
                               Q_ARG(QString, description),
                               Q_ARG(AkVideoCapsList, formats));
 
-    return result;
+    return true;
 }
 
 bool VirtualCameras::removeOutput(const QString &output)
 {
     if (!this->d->m_cameraOutput)
-        return {};
+        return false;
 
-    bool result;
+    emit this->removingOutput(this->description(output));
     QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
                               "removeWebcam",
-                              Q_RETURN_ARG(bool, result),
                               Q_ARG(QString, output));
 
-    return result;
+    return true;
 }
 
 bool VirtualCameras::removeAllOutputs()
 {
     if (!this->d->m_cameraOutput)
-        return {};
+        return false;
 
-    bool result;
+    emit this->removingAllOutputs();
     QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
-                              "removeAllWebcams",
-                              Q_RETURN_ARG(bool, result));
+                              "removeAllWebcams");
 
-    return result;
+    return true;
 }
 
 QString VirtualCameras::outputError() const
@@ -808,6 +804,22 @@ void VirtualCamerasPrivate::connectSignals()
                          SIGNAL(mediasChanged(QStringList)),
                          self,
                          SIGNAL(outputsChanged(QStringList)));
+        QObject::connect(this->m_cameraOutput.data(),
+                         SIGNAL(webcamCreated(bool, QString)),
+                         self,
+                         SIGNAL(outputCreated(bool, QString)));
+        QObject::connect(this->m_cameraOutput.data(),
+                         SIGNAL(webcamEdited(bool, QString)),
+                         self,
+                         SIGNAL(outputEdited(bool, QString)));
+        QObject::connect(this->m_cameraOutput.data(),
+                         SIGNAL(webcamRemoved(bool, QString)),
+                         self,
+                         SIGNAL(outputRemoved(bool, QString)));
+        QObject::connect(this->m_cameraOutput.data(),
+                         SIGNAL(allWebcamsRemoved(bool, QString)),
+                         self,
+                         SIGNAL(allOutputsRemoved(bool, QString)));
         QObject::connect(this->m_cameraOutput.data(),
                          SIGNAL(pictureChanged(QString)),
                          self,
