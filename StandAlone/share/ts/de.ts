@@ -348,58 +348,58 @@
     <message>
         <location filename="../qml/CanvasConfig.qml" line="28"/>
         <source>Canvas</source>
-        <translation type="unfinished"></translation>
+        <translation>Leinwand</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="92"/>
         <source>Orientation</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausrichtung</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="93"/>
         <source>Portrait</source>
-        <translation type="unfinished"></translation>
+        <translation>Hochformat</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="93"/>
         <source>Landscape</source>
-        <translation type="unfinished"></translation>
+        <translation>Querformat</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="120"/>
         <location filename="../qml/CanvasConfig.qml" line="139"/>
         <source>Canvas resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Leinwandauflösung</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="178"/>
         <source>Custom</source>
-        <translation type="unfinished">Benutzerdefiniert</translation>
+        <translation>Benutzerdefiniert</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="182"/>
         <source>%1×%2 @ %3 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1×%2 @ %3 BpS</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="304"/>
         <source>Output buffers</source>
-        <translation type="unfinished"></translation>
+        <translation>Ausgabepuffer</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="322"/>
         <source>Canvas color</source>
-        <translation type="unfinished"></translation>
+        <translation>Leinwandfarbe</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="324"/>
         <source>Choose the canvas color</source>
-        <translation type="unfinished"></translation>
+        <translation>Leinwandfarbe auswählen</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="193"/>
         <source>Advanced settings</source>
-        <translation type="unfinished">Erweiterte Einstellungen</translation>
+        <translation>Erweiterte Einstellungen</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="29"/>
@@ -409,22 +409,22 @@
     <message>
         <location filename="../qml/CanvasConfig.qml" line="204"/>
         <source>Canvas size</source>
-        <translation type="unfinished"></translation>
+        <translation>Leinwandgröße</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="222"/>
         <source>Width</source>
-        <translation type="unfinished">Breite</translation>
+        <translation>Breite</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="251"/>
         <source>Height</source>
-        <translation type="unfinished">Höhe</translation>
+        <translation>Höhe</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="280"/>
         <source>Frame rate</source>
-        <translation type="unfinished">Bildrate</translation>
+        <translation>Bildrate</translation>
     </message>
 </context>
 <context>
@@ -1028,7 +1028,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="110"/>
         <source>Show current FPS in title bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuelle BpS in der Titelleiste anzeigen</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="122"/>
@@ -1135,17 +1135,17 @@
     <message>
         <location filename="../qml/LayoutEditorDialog.qml" line="94"/>
         <source>Source %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Quelle %1</translation>
     </message>
     <message>
         <location filename="../qml/LayoutEditorDialog.qml" line="234"/>
         <source>Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Quelle</translation>
     </message>
     <message>
         <location filename="../qml/LayoutEditorDialog.qml" line="264"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Schließen</translation>
     </message>
 </context>
 <context>
@@ -1344,12 +1344,12 @@
     <message>
         <location filename="../qml/MainPanel.qml" line="32"/>
         <source>Canvas effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Leinwandeffekte</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="33"/>
         <source>Source effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Quelleneffekte</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="35"/>
@@ -2355,59 +2355,59 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="91"/>
         <source>Edit media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>Mediendateiquelle bearbeiten</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="95"/>
         <source>Edit media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>Medien-URL-Quelle bearbeiten</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="99"/>
         <source>Add media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>Mediendateiquelle hinzufügen</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="100"/>
         <source>Add media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>Medien-URL-Quelle hinzufügen</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="133"/>
         <location filename="../qml/VideoInputAddEdit.qml" line="180"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Beschreibung</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="139"/>
         <location filename="../qml/VideoInputAddEdit.qml" line="186"/>
         <source>Source title</source>
-        <translation type="unfinished"></translation>
+        <translation>Quellentitel</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="149"/>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfad</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="159"/>
         <source>File path</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateipfad</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="160"/>
         <source>Search file to use as source</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei suchen, die als Quelle verwendet werden soll</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="196"/>
         <source>URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="254"/>
         <source>Choose the file to add as source</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei auswählen, die als Quelle hinzugefügt werden soll</translation>
     </message>
 </context>
 <context>
@@ -2451,32 +2451,32 @@
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="95"/>
         <source>Manage source effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Quelleneffekte verwalten</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="107"/>
         <source>Opacity</source>
-        <translation type="unfinished">Deckkraft</translation>
+        <translation>Deckkraft</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="125"/>
         <source>Source opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>Quellendeckkraft</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="136"/>
         <source>Aspect ratio mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Seitenverhältnis-Modus</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="138"/>
         <source>Ignore</source>
-        <translation type="unfinished"></translation>
+        <translation>Ignorieren</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="139"/>
         <source>Keep</source>
-        <translation type="unfinished"></translation>
+        <translation>Behalten</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="140"/>
@@ -2489,27 +2489,27 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="97"/>
         <source>Camera</source>
-        <translation type="unfinished">Kamera</translation>
+        <translation>Kamera</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="99"/>
         <source>Screen</source>
-        <translation type="unfinished">Bildschirm</translation>
+        <translation>Bildschirm</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="101"/>
         <source>Image</source>
-        <translation type="unfinished">Bild</translation>
+        <translation>Bild</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="103"/>
         <source>Video</source>
-        <translation type="unfinished">Video</translation>
+        <translation>Video</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="105"/>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Unbekannt</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="124"/>
@@ -2549,17 +2549,17 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="183"/>
         <source>Manage canvas effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Leinwandeffekte verwalten</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="175"/>
         <source>Edit layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Anordnung verwalten</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="379"/>
         <source>Source %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Quelle %1</translation>
     </message>
 </context>
 <context>
