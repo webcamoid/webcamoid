@@ -1441,7 +1441,7 @@
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="153"/>
         <source>Open externally</source>
-        <translation type="unfinished"></translation>
+        <translation>Ava väliselt</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="158"/>
@@ -1461,17 +1461,17 @@
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="486"/>
         <source>Confirm delete</source>
-        <translation type="unfinished">Kinnita kustutamine</translation>
+        <translation>Kinnita kustutamine</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="494"/>
         <source>Delete this picture permanently?</source>
-        <translation type="unfinished"></translation>
+        <translation>Kas kustutad selle pildi lõplikult?</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="501"/>
         <source>This action can&apos;t be undone.</source>
-        <translation type="unfinished">Seda tegevust ei saa tagasi pöörata.</translation>
+        <translation>Seda tegevust ei saa tagasi pöörata.</translation>
     </message>
 </context>
 <context>
