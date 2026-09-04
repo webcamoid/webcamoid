@@ -1441,7 +1441,7 @@
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="153"/>
         <source>Open externally</source>
-        <translation type="unfinished"></translation>
+        <translation>Extern öffnen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="158"/>
@@ -1461,17 +1461,17 @@
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="486"/>
         <source>Confirm delete</source>
-        <translation type="unfinished">Löschen bestätigen</translation>
+        <translation>Löschen bestätigen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="494"/>
         <source>Delete this picture permanently?</source>
-        <translation type="unfinished"></translation>
+        <translation>Dieses Bild endgültig löschen?</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="501"/>
         <source>This action can&apos;t be undone.</source>
-        <translation type="unfinished">Diese Aktion kann nicht rückgängig gemacht werden.</translation>
+        <translation>Diese Aktion kann nicht rückgängig gemacht werden.</translation>
     </message>
 </context>
 <context>
@@ -4896,17 +4896,17 @@
     <message>
         <location filename="../qml/main.qml" line="172"/>
         <source>Creating &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;%1&lt;/b&gt; virtuelle Kamera erstellen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="182"/>
         <source>Editing &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;%1&lt;/b&gt; virtuelle Kamera bearbeiten</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="192"/>
         <source>Removing &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;%1&lt;/b&gt; virtuelle Kamera entfernen</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="322"/>
