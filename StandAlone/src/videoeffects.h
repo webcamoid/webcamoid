@@ -92,6 +92,7 @@ class VideoEffects: public QObject
         Q_INVOKABLE QString preview() const;
         Q_INVOKABLE AkPluginInfo effectInfo(const QString &effectId) const;
         Q_INVOKABLE QString effectDescription(const QString &effectId) const;
+        Q_INVOKABLE bool effectEnabled(int index) const;
         Q_INVOKABLE AkElement::ElementState state() const;
         Q_INVOKABLE bool chainEffects() const;
         Q_INVOKABLE bool embedControls(const QString &where,
@@ -120,6 +121,7 @@ class VideoEffects: public QObject
         Q_INVOKABLE AkVideoEffectPtr sourceElementAt(qint64 id, int index) const;
         Q_INVOKABLE AkVideoEffectPtr sourcePreviewElement(qint64 id) const;
         Q_INVOKABLE AkPluginInfo sourceEffectInfo(qint64 id, int index) const;
+        Q_INVOKABLE bool sourceEffectEnabled(qint64 id, int index) const;
         Q_INVOKABLE bool sourceChainEffects(qint64 id) const;
         Q_INVOKABLE bool sourcePreserveNullPlugins(qint64 id) const;
         Q_INVOKABLE bool sourceIsEmpty(qint64 id) const;
@@ -150,6 +152,7 @@ class VideoEffects: public QObject
         void oStream(const AkPacket &packet);
         void stateChanged(AkElement::ElementState state);
         void chainEffectsChanged(bool chainEffects);
+        void effectEnabledChanged(int index, bool enabled);
 
         // Per-source signals
         void sourceAdded(qint64 id);
@@ -164,6 +167,7 @@ class VideoEffects: public QObject
         void sourceChainEffectsChanged(qint64 id, bool chainEffects);
         void sourcePreserveNullPluginsChanged(qint64 id, bool preserveNullPlugins);
         void sourceIsEmptyChanged(qint64 id, bool isEmpty);
+        void sourceEffectEnabledChanged(qint64 id, int index, bool enabled);
         void outputTextureReady(GLuint texture, const QSize &size);
 
     public slots:
@@ -175,6 +179,7 @@ class VideoEffects: public QObject
         void setPreview(const QString &preview);
         void setState(AkElement::ElementState state);
         void setChainEffects(bool chainEffects);
+        void setEffectEnabled(int index, bool enabled);
         void resetOutputCaps();
         void resetCanvasColor();
         void resetOutputBufferSize();
@@ -210,6 +215,7 @@ class VideoEffects: public QObject
         void setSourcePreview(qint64 id, const QString &preview);
         void setSourceChainEffects(qint64 id, bool chainEffects);
         void setSourcePreserveNullPlugins(qint64 id, bool preserveNullPlugins);
+        void setSourceEffectEnabled(qint64 id, int index, bool enabled);
         void resetSourceEffects(qint64 id);
         void resetSourcePreview(qint64 id);
         void resetSourceChainEffects(qint64 id);

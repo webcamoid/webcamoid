@@ -19,12 +19,13 @@
 
 #include <QGuiApplication>
 #include <QMutex>
-#include <QSettings>
-#include <QQuickItem>
+#include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQmlProperty>
-#include <QQmlApplicationEngine>
+#include <QQuickItem>
 #include <QRectF>
+#include <QSettings>
+#include <QVector>
 #include <ak.h>
 #include <akfrac.h>
 #include <akglcompositor.h>
@@ -139,6 +140,11 @@ AkPluginInfo VideoEffects::effectInfo(const QString &effectId) const
 QString VideoEffects::effectDescription(const QString &effectId) const
 {
     return this->d->m_glCompositor.effectDescription(effectId);
+}
+
+bool VideoEffects::effectEnabled(int index) const
+{
+    return this->d->m_glCompositor.effectEnabled(index);
 }
 
 AkElement::ElementState VideoEffects::state() const
@@ -345,6 +351,11 @@ AkPluginInfo VideoEffects::sourceEffectInfo(qint64 id, int index) const
     return this->d->m_glCompositor.sourceEffectInfo(id, index);
 }
 
+bool VideoEffects::sourceEffectEnabled(qint64 id, int index) const
+{
+    return this->d->m_glCompositor.sourceEffectEnabled(id, index);
+}
+
 bool VideoEffects::sourceChainEffects(qint64 id) const
 {
     return this->d->m_glCompositor.sourceChainEffects(id);
@@ -506,6 +517,21 @@ void VideoEffects::setSourcePreserveNullPlugins(qint64 id, bool preserveNullPlug
 {
     QMutexLocker locker(&this->d->m_mutex);
     this->d->m_glCompositor.setSourcePreserveNullPlugins(id, preserveNullPlugins);
+}
+
+void VideoEffects::setSourceEffectEnabled(qint64 id, int index, bool enabled)
+{
+    if (this->d->m_glCompositor.sourceEffectEnabled(id, index) == enabled)
+        return;
+
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_glCompositor.setSourceEffectEnabled(id, index, enabled);
+        auto device = this->d->m_sourceDevices.value(id);
+
+        if (!device.isEmpty())
+            this->d->saveSourceEffects(id, device);
+    }
 }
 
 void VideoEffects::resetSourceEffects(qint64 id)
@@ -689,6 +715,19 @@ void VideoEffects::setChainEffects(bool chainEffects)
     }
 
     this->d->saveChainEffects(chainEffects);
+}
+
+void VideoEffects::setEffectEnabled(int index, bool enabled)
+{
+    if (this->d->m_glCompositor.effectEnabled(index) == enabled)
+        return;
+
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_glCompositor.setEffectEnabled(index, enabled);
+    }
+
+    this->d->saveEffects();
 }
 
 void VideoEffects::resetOutputCaps()
@@ -896,6 +935,10 @@ VideoEffectsPrivate::VideoEffectsPrivate(VideoEffects *self):
                      self,
                      &VideoEffects::chainEffectsChanged);
     QObject::connect(&this->m_glCompositor,
+                     &AkGLCompositor::effectEnabledChanged,
+                     self,
+                     &VideoEffects::effectEnabledChanged);
+    QObject::connect(&this->m_glCompositor,
                      &AkGLCompositor::ready,
                      self,
                      &VideoEffects::ready);
@@ -957,6 +1000,10 @@ VideoEffectsPrivate::VideoEffectsPrivate(VideoEffects *self):
                      &AkGLCompositor::sourceIsEmptyChanged,
                      self,
                      &VideoEffects::sourceIsEmptyChanged);
+    QObject::connect(&this->m_glCompositor,
+                     &AkGLCompositor::sourceEffectEnabledChanged,
+                     self,
+                     &VideoEffects::sourceEffectEnabledChanged);
 }
 
 QString VideoEffectsPrivate::encodeDevice(const QString &device) const
@@ -1020,16 +1067,22 @@ void VideoEffectsPrivate::updateEffects()
 
     int size = config.beginReadArray("effects");
     QStringList effects;
+    QVector<bool> enabledStates;
 
     for (int i = 0; i < size; i++) {
         config.setArrayIndex(i);
         effects << config.value("effect").toString();
+        enabledStates << config.value("enabled", true).toBool();
     }
 
     config.endArray();
     config.endGroup();
 
     this->m_glCompositor.setEffects(effects);
+
+    for (int i = 0; i < enabledStates.size(); i++)
+        this->m_glCompositor.setEffectEnabled(i, enabledStates.at(i));
+
     this->updateEffectsProperties();
 }
 
@@ -1058,16 +1111,22 @@ void VideoEffectsPrivate::updateSourceEffects(qint64 id, const QString &device)
 
     int size = config.beginReadArray("effects");
     QStringList effects;
+    QVector<bool> enabledStates;
 
     for (int i = 0; i < size; i++) {
         config.setArrayIndex(i);
         effects << config.value("effect").toString();
+        enabledStates << config.value("enabled", true).toBool();
     }
 
     config.endArray();
     config.endGroup();
 
     this->m_glCompositor.setSourceEffects(id, effects);
+
+    for (int i = 0; i < enabledStates.size(); i++)
+        this->m_glCompositor.setSourceEffectEnabled(id, i, enabledStates.at(i));
+
     this->updateSourceEffectsProperties(id, device);
 }
 
@@ -1137,6 +1196,7 @@ void VideoEffectsPrivate::saveEffects()
     for (auto &effect: this->m_glCompositor.effects()) {
         config.setArrayIndex(i);
         config.setValue("effect", effect);
+        config.setValue("enabled", this->m_glCompositor.effectEnabled(i));
         i++;
     }
 
@@ -1185,6 +1245,7 @@ void VideoEffectsPrivate::saveSourceEffects(qint64 id, const QString &device)
     for (auto &effect: effects) {
         config.setArrayIndex(i);
         config.setValue("effect", effect);
+        config.setValue("enabled", this->m_glCompositor.sourceEffectEnabled(id, i));
         i++;
     }
 

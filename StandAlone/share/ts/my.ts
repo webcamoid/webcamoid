@@ -2308,12 +2308,12 @@
 <context>
     <name>VideoEffectsList</name>
     <message>
-        <location filename="../qml/VideoEffectsList.qml" line="94"/>
+        <location filename="../qml/VideoEffectsList.qml" line="155"/>
         <source>Add effect</source>
         <translation>အကျိုးသက်ရောက်မှုထည့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsList.qml" line="101"/>
+        <location filename="../qml/VideoEffectsList.qml" line="162"/>
         <source>Remove all effects</source>
         <translation>အကျိုးသက်ရောက်မှုအားလုံးဖယ်ရှားပါ</translation>
     </message>

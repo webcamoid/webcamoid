@@ -20,6 +20,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQml.Models
 import Ak
 
 ScrollView {
@@ -32,6 +33,17 @@ ScrollView {
     readonly property int rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     readonly property bool isSource: sourceId >= 0
 
+    // Internal properties
+    property var effectsModel: ListModel {}
+    property bool isDragging: false
+
+    readonly property int itemHeight: AkUnit.create(56 * AkTheme.controlScale, "dp").pixels
+
+    readonly property color activeWindowText: AkTheme.palette.active.windowText
+    readonly property color activeWindow: AkTheme.palette.active.window
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color activeHighlightedText: AkTheme.palette.active.highlightedText
+
     signal openVideoEffectsDialog(int sourceId)
     signal openVideoEffectOptions(int sourceId, int effectIndex)
 
@@ -42,14 +54,50 @@ ScrollView {
         return videoEffects.effects
     }
 
-    Component.onCompleted: effectsList.update()
+    function effectEnabledAt(effectIndex) {
+        if (effectsView.isSource)
+            return videoEffects.sourceEffectEnabled(effectsView.sourceId, effectIndex)
+
+        return videoEffects.effectEnabled(effectIndex)
+    }
+
+    function setEffectEnabledAt(effectIndex, enabled) {
+        if (effectsView.isSource)
+            videoEffects.setSourceEffectEnabled(effectsView.sourceId, effectIndex, enabled)
+        else
+            videoEffects.setEffectEnabled(effectIndex, enabled)
+    }
+
+    function moveEffectAt(from, to) {
+        if (effectsView.isSource)
+            videoEffects.moveSourceEffect(effectsView.sourceId, from, to)
+        else
+            videoEffects.moveEffect(from, to)
+    }
+
+    function buildEffectsModel() {
+        effectsModel.clear()
+        let ids = effectsView.activeEffects()
+
+        for (let i = 0; i < ids.length; i++) {
+            let info = AkPluginInfo.create(videoEffects.effectInfo(ids[i]))
+
+            effectsModel.append({
+                effectIndex: i,
+                label: info.description,
+                enabled: effectsView.effectEnabledAt(i)
+            })
+        }
+    }
+
+    Component.onCompleted: buildEffectsModel()
     onVisibleChanged: {
         if (visible)
-            effectsList.update()
+            buildEffectsModel()
 
         effectsList.forceActiveFocus()
     }
-    onSourceIdChanged: effectsList.update()
+    onSourceIdChanged: buildEffectsModel()
 
     Connections {
         target: videoEffects
@@ -57,19 +105,32 @@ ScrollView {
         function onEffectsChanged()
         {
             if (!effectsView.isSource)
-                effectsList.update()
+                effectsView.buildEffectsModel()
         }
 
         function onSourceEffectsChanged(id)
         {
             if (effectsView.isSource && id === effectsView.sourceId)
-                effectsList.update()
+                effectsView.buildEffectsModel()
+        }
+
+        function onEffectEnabledChanged(index, enabled)
+        {
+            if (!effectsView.isSource)
+                effectsView.buildEffectsModel()
+        }
+
+        function onSourceEffectEnabledChanged(id, index, enabled)
+        {
+            if (effectsView.isSource && id === effectsView.sourceId)
+                effectsView.buildEffectsModel()
         }
     }
 
     ColumnLayout {
-        width: effectsView.width
         layoutDirection: effectsView.rtl? Qt.RightToLeft: Qt.LeftToRight
+        width: effectsView.width
+        clip: true
 
         Label {
             id: deviceInfo
@@ -101,6 +162,7 @@ ScrollView {
             text: qsTr("Remove all effects")
             icon.source: "image://icons/no"
             flat: true
+            visible: effectsList.count > 0
 
             onClicked: {
                 if (effectsView.isSource)
@@ -109,49 +171,208 @@ ScrollView {
                     videoEffects.removeAllEffects()
             }
         }
-        OptionList {
+
+        ListView {
             id: effectsList
-            enableHighlight: false
             Layout.fillWidth: true
-            Layout.minimumHeight: minHeight
+            Layout.minimumHeight: count > 0 ? count * (effectsView.itemHeight + spacing) : 0
+            clip: true
+            spacing: AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
+            cacheBuffer: effectsView.itemHeight * 4
+            interactive: !effectsView.isDragging
 
-            property int minHeight: 0
-
-            function update() {
-                effectsList.minHeight = 0
-                let effects = effectsView.activeEffects()
-
-                for (let i = count - 1; i >= 0; i--)
-                    removeItem(itemAt(i))
-
-                for (let i = effects.length - 1; i >= 0; i--) {
-                    let component = Qt.createComponent("VideoEffectItem.qml")
-
-                    if (component.status !== Component.Ready)
-                        continue
-
-                    let obj = component.createObject(effectsList)
-                    let info = AkPluginInfo.create(videoEffects.effectInfo(effects[i]))
-                    obj.text = info.description
-                    obj.effect = effects[i]
-                    effectsList.minHeight += obj.height
-
-                    obj.onClicked.connect((index => function () {
-                        effectsView.openVideoEffectOptions(effectsView.sourceId,
-                                                           index)
-                    })(i))
-                }
+            // Smooth displacement animation
+            displaced: Transition {
+                NumberAnimation { properties: "x,y"; duration: 250; easing.type: Easing.OutQuad }
             }
 
-            onActiveFocusChanged:
-                if (activeFocus && count > 0)
-                    itemAt(currentIndex).forceActiveFocus()
-            Keys.onUpPressed:
-                if (count > 0)
-                    itemAt(currentIndex).forceActiveFocus()
-            Keys.onDownPressed:
-                if (count > 0)
-                    itemAt(currentIndex).forceActiveFocus()
+            // Using DelegateModel to wrap the ListModel
+            model: DelegateModel {
+                id: visualModel
+                model: effectsView.effectsModel
+
+                delegate: Item {
+                    id: delegateRoot
+                    width: effectsList.width
+                    height: effectsView.itemHeight
+
+                    property int dragStartIndex: -1
+
+                    // Static drop area that stays in place in the list
+                    DropArea {
+                        anchors.fill: parent
+                        keys: ["effect"]
+
+                        onEntered: drag => {
+                            let fromIndex = drag.source.DelegateModel.itemsIndex
+                            let toIndex = delegateRoot.DelegateModel.itemsIndex
+
+                            if (fromIndex !== undefined && toIndex !== undefined && fromIndex !== toIndex) {
+                                visualModel.items.move(fromIndex, toIndex)
+                            }
+                        }
+                    }
+
+                    // Visual item container that will physically move
+                    Rectangle {
+                        id: effectItem
+                        width: parent.width
+                        height: parent.height
+                        color: dragMouseArea.drag.active || effectItemMouseArea.pressed ?
+                                    AkTheme.shade(effectsView.activeHighlight, 0.2) :
+                               rowHover.hovered ?
+                                    AkTheme.shade(effectsView.activeWindow, -0.1) :
+                                    Qt.rgba(0, 0, 0, 0)
+                        z: dragMouseArea.drag.active? 10: 1
+
+                        // Attached Drag properties
+                        Drag.active: dragMouseArea.drag.active
+                        Drag.source: delegateRoot
+                        Drag.keys: ["effect"]
+                        Drag.hotSpot.x: width / 2
+                        Drag.hotSpot.y: height / 2
+
+                        HoverHandler {
+                            id: rowHover
+                        }
+
+                        // Clean state transition to detach coordinates during drag
+                        states: [
+                            State {
+                                when: dragMouseArea.drag.active
+
+                                PropertyChanges {
+                                    target: effectItem
+                                    x: effectItem.x
+                                    y: effectItem.y
+                                }
+                            }
+                        ]
+
+                        // Drag handle
+                        Item {
+                            id: dragHandle
+                            width: parent.height / 2
+                            anchors.left: effectsView.rtl? undefined: parent.left
+                            anchors.right: effectsView.rtl? parent.right: undefined
+                            anchors.top: parent.top
+                            anchors.bottom: parent.bottom
+
+                            AkColorizedImage {
+                                width: 0.8 * Math.min(parent.width, parent.height)
+                                height: width
+                                source: "image://icons/drag"
+                                sourceSize: Qt.size(width, height)
+                                color: dragMouseArea.drag.active?
+                                            effectsView.activeHighlightedText:
+                                            effectsView.activeWindowText
+                                asynchronous: true
+                                mipmap: true
+                                fillMode: Image.PreserveAspectFit
+                                anchors.centerIn: parent
+                            }
+
+                            MouseArea {
+                                id: dragMouseArea
+                                anchors.fill: parent
+                                cursorShape: Qt.OpenHandCursor
+                                drag.target: effectItem
+                                drag.axis: Drag.YAxis
+
+                                onPressed: {
+                                    effectsView.isDragging = true
+                                    delegateRoot.dragStartIndex =
+                                            delegateRoot.DelegateModel.itemsIndex
+                                }
+
+                                onReleased: {
+                                    effectsView.isDragging = false
+                                    let finalIndex = delegateRoot.DelegateModel.itemsIndex
+
+                                    if (delegateRoot.dragStartIndex >= 0
+                                        && finalIndex !== delegateRoot.dragStartIndex) {
+                                        effectsView.moveEffectAt(delegateRoot.dragStartIndex,
+                                                                 finalIndex)
+                                    }
+
+                                    delegateRoot.dragStartIndex = -1
+                                }
+                            }
+                        }
+
+                        // Visibility toggle (enable/disable the effect)
+                        Item {
+                            id: btnVisibility
+                            width: parent.height / 2
+                            anchors.left: effectsView.rtl? undefined: dragHandle.right
+                            anchors.right: effectsView.rtl? dragHandle.left: undefined
+                            anchors.top: parent.top
+                            anchors.bottom: parent.bottom
+
+                            property bool checked: model.enabled
+
+                            AkColorizedImage {
+                                width: 0.8 * Math.min(parent.width, parent.height)
+                                height: width
+                                source: btnVisibility.checked?
+                                            "image://icons/open-eye":
+                                            "image://icons/closed-eye"
+                                sourceSize: Qt.size(width, height)
+                                color: dragMouseArea.drag.active?
+                                            effectsView.activeHighlightedText:
+                                            effectsView.activeWindowText
+                                asynchronous: true
+                                mipmap: true
+                                fillMode: Image.PreserveAspectFit
+                                anchors.centerIn: parent
+                            }
+
+                            MouseArea {
+                                id: visivilityMouseArea
+                                anchors.fill: parent
+
+                                onClicked: {
+                                    btnVisibility.checked = !btnVisibility.checked
+                                    effectsView.setEffectEnabledAt(model.effectIndex,
+                                                                   btnVisibility.checked)
+                                }
+                            }
+                        }
+
+                        // Effect label
+                        ColumnLayout {
+                            anchors.left: effectsView.rtl? undefined: btnVisibility.right
+                            anchors.right: effectsView.rtl? btnVisibility.left: undefined
+                            anchors.verticalCenter: parent.verticalCenter
+                            anchors.leftMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+                            anchors.rightMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+                            spacing: 0
+
+                            Label {
+                                text: model.label
+                                elide: Text.ElideRight
+                                color: dragMouseArea.drag.active?
+                                            effectsView.activeHighlightedText:
+                                            effectsView.activeWindowText
+                                Layout.fillWidth: true
+                            }
+                        }
+
+                        // Click to open options
+                        MouseArea {
+                            id: effectItemMouseArea
+                            anchors.left: effectsView.rtl? parent.left: btnVisibility.right
+                            anchors.right: effectsView.rtl? btnVisibility.left: parent.right
+                            anchors.top: parent.top
+                            anchors.bottom: parent.bottom
+                            acceptedButtons: Qt.LeftButton
+
+                            onClicked: effectsView.openVideoEffectOptions(effectsView.sourceId,
+                                                                          model.effectIndex)
+                        }
+                    }
+                }
+            }
         }
     }
 }

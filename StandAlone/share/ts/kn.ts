@@ -2309,12 +2309,12 @@
 <context>
     <name>VideoEffectsList</name>
     <message>
-        <location filename="../qml/VideoEffectsList.qml" line="94"/>
+        <location filename="../qml/VideoEffectsList.qml" line="155"/>
         <source>Add effect</source>
         <translation>ಎಫೆಕ್ಟ್ ಸೇರಿಸಿ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsList.qml" line="101"/>
+        <location filename="../qml/VideoEffectsList.qml" line="162"/>
         <source>Remove all effects</source>
         <translation>ಎಲ್ಲಾ ಎಫೆಕ್ಟ್‌ಗಳನ್ನು ತೆಗೆದುಹಾಕಿ</translation>
     </message>

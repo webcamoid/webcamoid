@@ -34,6 +34,7 @@ class AkGLPipelineEffect
     public:
         AkVideoEffectPtr element;
         AkPluginInfo info;
+        bool enabled {true};
 
         AkGLPipelineEffect()
         {
@@ -121,6 +122,17 @@ bool AkGLPipeline::preserveNullPlugins() const
 
     return this->d->m_preserveNullPlugins;
 }
+
+bool AkGLPipeline::effectEnabled(int index) const
+{
+    QMutexLocker mutexLocker(&this->d->m_requestMutex);
+
+    if (index < 0 || index >= this->d->m_requestEffects.size())
+        return false;
+
+    return this->d->m_requestEffects.at(index).enabled;
+}
+
 
 bool AkGLPipeline::isEmpty() const
 {
@@ -221,7 +233,7 @@ void AkGLPipeline::process(QOpenGLFramebufferObject *inputFbo,
 
     if (this->d->m_activeChainEffects || !this->d->m_activePreview.element)
         for (auto &effect: this->d->m_activeEffects)
-            if (effect.element)
+            if (effect.element && effect.enabled)
                 runStep(effect.element);
 
     if (this->d->m_activePreview.element)
@@ -246,16 +258,38 @@ void AkGLPipeline::setEffects(const QStringList &effectIds)
         if (curIds == effectIds)
             return;
 
+        // Preserve the enabled state of effects that are still present,
+        // matching them by id in order of appearance so repeated ids in
+        // the list are paired one-to-one with their previous counterparts.
+        QHash<QString, QVector<bool>> previousEnabled;
+
+        for (auto &effect: this->d->m_requestEffects)
+            previousEnabled[effect.info.id()] << effect.enabled;
+
+        QHash<QString, int> consumed;
         QVector<AkGLPipelineEffect> newEffects;
 
         for (auto &effectId: effectIds) {
             auto effect = akPluginManager->create<AkVideoEffect>(effectId);
+            bool enabled = true;
+            auto &queue = previousEnabled[effectId];
+            int &pos = consumed[effectId];
 
-            if (effect)
-                newEffects << AkGLPipelineEffect(effect,
-                                                 akPluginManager->pluginInfo(effectId));
-            else if (this->d->m_preserveNullPlugins)
-                newEffects << AkGLPipelineEffect();
+            if (pos < queue.size()) {
+                enabled = queue.at(pos);
+                pos++;
+            }
+
+            if (effect) {
+                AkGLPipelineEffect newEffect(effect,
+                                             akPluginManager->pluginInfo(effectId));
+                newEffect.enabled = enabled;
+                newEffects << newEffect;
+            } else if (this->d->m_preserveNullPlugins) {
+                AkGLPipelineEffect newEffect;
+                newEffect.enabled = enabled;
+                newEffects << newEffect;
+            }
         }
 
         this->d->m_requestEffects = newEffects;
@@ -314,6 +348,24 @@ void AkGLPipeline::setPreserveNullPlugins(bool preserveNullPlugins)
     }
 
     emit this->preserveNullPluginsChanged(preserveNullPlugins);
+}
+
+void AkGLPipeline::setEffectEnabled(int index, bool enabled)
+{
+    {
+        QMutexLocker mutexLocker(&this->d->m_requestMutex);
+
+        if (index < 0 || index >= this->d->m_requestEffects.size())
+            return;
+
+        if (this->d->m_requestEffects[index].enabled == enabled)
+            return;
+
+        this->d->m_requestEffects[index].enabled = enabled;
+        this->d->m_requestDirty = true;
+    }
+
+    emit this->effectEnabledChanged(index, enabled);
 }
 
 void AkGLPipeline::resetEffects()

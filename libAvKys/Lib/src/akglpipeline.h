@@ -64,6 +64,7 @@ class AKCOMMONS_EXPORT AkGLPipeline: public QObject
         Q_INVOKABLE QString preview() const;
         Q_INVOKABLE bool chainEffects() const;
         Q_INVOKABLE bool preserveNullPlugins() const;
+        Q_INVOKABLE bool effectEnabled(int index) const;
         Q_INVOKABLE bool isEmpty() const;
         Q_INVOKABLE AkVideoEffectPtr elementAt(int index) const;
         Q_INVOKABLE AkVideoEffectPtr previewElement() const;
@@ -85,6 +86,7 @@ class AKCOMMONS_EXPORT AkGLPipeline: public QObject
         void previewChanged(const QString &preview);
         void chainEffectsChanged(bool chainEffects);
         void preserveNullPluginsChanged(bool preserveNullPlugins);
+        void effectEnabledChanged(int index, bool enabled);
         void isEmptyChanged(bool isEmpty);
 
     public Q_SLOTS:
@@ -92,6 +94,7 @@ class AKCOMMONS_EXPORT AkGLPipeline: public QObject
         void setPreview(const QString &effectId);
         void setChainEffects(bool chainEffects);
         void setPreserveNullPlugins(bool preserveNullPlugins);
+        void setEffectEnabled(int index, bool enabled);
         void resetEffects();
         void resetPreview();
         void resetChainEffects();

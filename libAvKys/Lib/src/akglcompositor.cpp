@@ -262,6 +262,11 @@ AkPluginInfo AkGLCompositor::effectInfo(int index) const
     return this->d->m_pipeline.effectInfo(index);
 }
 
+bool AkGLCompositor::effectEnabled(int index) const
+{
+    return this->d->m_pipeline.effectEnabled(index);
+}
+
 bool AkGLCompositor::chainEffects() const
 {
     return this->d->m_pipeline.chainEffects();
@@ -464,6 +469,17 @@ AkPluginInfo AkGLCompositor::sourceEffectInfo(qint64 id, int index) const
     return source->pipeline.effectInfo(index);
 }
 
+bool AkGLCompositor::sourceEffectEnabled(qint64 id, int index) const
+{
+    QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
+    auto source = this->d->m_sources.value(id, nullptr);
+
+    if (!source)
+        return false;
+
+    return source->pipeline.effectEnabled(index);
+}
+
 bool AkGLCompositor::sourceChainEffects(qint64 id) const
 {
     QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
@@ -634,6 +650,17 @@ void AkGLCompositor::setPreserveNullPlugins(bool preserveNullPlugins)
     this->d->m_pipeline.setPreserveNullPlugins(preserveNullPlugins);
     emit this->preserveNullPluginsChanged(preserveNullPlugins);
 }
+
+void AkGLCompositor::setEffectEnabled(int index, bool enabled)
+{
+    {
+        QMutexLocker mutexLocker(&this->d->m_effectsMutex);
+        this->d->m_pipeline.setEffectEnabled(index, enabled);
+    }
+
+    emit this->effectEnabledChanged(index, enabled);
+}
+
 
 void AkGLCompositor::resetEffects()
 {
@@ -927,6 +954,21 @@ void AkGLCompositor::setSourcePreserveNullPlugins(qint64 id,
     }
 
     emit this->sourcePreserveNullPluginsChanged(id, preserveNullPlugins);
+}
+
+void AkGLCompositor::setSourceEffectEnabled(qint64 id, int index, bool enabled)
+{
+    {
+        QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
+        auto source = this->d->m_sources.value(id, nullptr);
+
+        if (!source)
+            return;
+
+        source->pipeline.setEffectEnabled(index, enabled);
+    }
+
+    emit this->sourceEffectEnabledChanged(id, index, enabled);
 }
 
 void AkGLCompositor::resetSourceEffects(qint64 id)
