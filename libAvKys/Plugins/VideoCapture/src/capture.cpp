@@ -224,7 +224,7 @@ AkPacket Capture::rotate(const AkPacket &packet, qreal angle)
 
         for (int y = 0; y < srcH; ++y) {
             auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, y));
-            auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, srcH - 1 - y));
+            auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, srcH - y - 1));
             std::reverse_copy(srcLine, srcLine + srcW, dstLine);
         }
     } else {
@@ -235,7 +235,7 @@ AkPacket Capture::rotate(const AkPacket &packet, qreal angle)
         dst.copyMetadata(src);
 
         if (normalizedAngle == 90) {
-            // 90° clockwise: dst(x, y) = src(srcH - 1 - x, y)
+            // 90° clockwise: dst(x, y) = src(srcH - x - 1, y)
             QVector<const QRgb *> srcLines(srcH);
 
             for (int row = 0; row < srcH; ++row)
@@ -245,15 +245,22 @@ AkPacket Capture::rotate(const AkPacket &packet, qreal angle)
                 auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
 
                 for (int x = 0; x < srcH; ++x)
-                    dstLine[x] = srcLines[srcH - 1 - x][y];
+                    dstLine[x] = srcLines[srcH - x - 1][y];
             }
         } else { // 270°
             // 270° clockwise = 90° counter-clockwise
-            // dst(x, y) = src(x, srcW - 1 - y)
+            // dst(x, y) = src(srcW - y - 1, x)
+            QVector<const QRgb *> srcLines(srcH);
+
+            for (int row = 0; row < srcH; ++row)
+                srcLines[row] = reinterpret_cast<const QRgb *>(src.constLine(0, row));
+
             for (int y = 0; y < srcW; ++y) {
                 auto dstLine = reinterpret_cast<QRgb *>(dst.line(0, y));
-                auto srcLine = reinterpret_cast<const QRgb *>(src.constLine(0, srcW - 1 - y));
-                memcpy(dstLine, srcLine, srcH * sizeof(QRgb));
+                int sx = srcW - y - 1;
+
+                for (int x = 0; x < srcH; ++x)
+                    dstLine[x] = srcLines[x][sx];
             }
         }
     }
