@@ -839,7 +839,7 @@ void CaptureQtPrivate::frameReady(const QVideoFrame &frame)
     }
 
     if (videoPacket) {
-        auto angle = this->cameraRotation(frame);
+        auto angle = -this->cameraRotation(frame);
         AkPacket packet;
 
         if (!qFuzzyIsNull(angle))

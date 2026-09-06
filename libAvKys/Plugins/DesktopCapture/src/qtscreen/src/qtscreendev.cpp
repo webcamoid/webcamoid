@@ -294,13 +294,19 @@ bool QtScreenDev::init()
     if (device.startsWith("window://")) {
         // Window capture
 
-        if (!this->d->m_capturableWindows.contains(device))
+        if (!this->d->m_capturableWindows.contains(device)) {
+            qCritical() << device << "is not a valid window";
+
             return false;
+        }
 
         auto targetWindow = this->d->m_capturableWindows.value(device);
 
-        if (!targetWindow.isValid())
+        if (!targetWindow.isValid()) {
+            qCritical() << "Can't get the target window from" << device;
+
             return false;
+        }
 
         this->d->m_windowCapture = WindowCapturePtr(new QWindowCapture);
         this->d->m_windowCapture->setWindow(targetWindow);
@@ -312,8 +318,10 @@ bool QtScreenDev::init()
                          [=] (QWindowCapture::Error error,
                               const QString &errorString) {
             Q_UNUSED(error)
-            qDebug() << "Error starting window capture:" << errorString;
+            qCritical() << "Error starting window capture:" << errorString;
         });
+
+        qInfo() << "Window capture started";
 
         return true;
     }
@@ -322,13 +330,19 @@ bool QtScreenDev::init()
     auto curScreen = device.remove("screen://").toInt();
     auto screens = QGuiApplication::screens();
 
-    if (curScreen < 0 || curScreen >= screens.size())
+    if (curScreen < 0 || curScreen >= screens.size()) {
+        qCritical() << device << "is out of index";
+
         return false;
+    }
 
     auto screen = screens.value(curScreen);
 
-    if (!screen)
+    if (!screen) {
+        qCritical() << device << "not available in screens";
+
         return false;
+    }
 
     this->d->m_curScreen = screen;
     this->d->m_screenCapture = ScreenCapturePtr::create(screen);
@@ -340,9 +354,11 @@ bool QtScreenDev::init()
                      [=] (QScreenCapture::Error error,
                           const QString &errorString) {
         Q_UNUSED(error)
-        qDebug() << "Error starting screen capture:"
-                 << errorString;
+        qCritical() << "Error starting screen capture:"
+                    << errorString;
     });
+
+    qInfo() << "Screen capture started";
 
     return true;
 }
@@ -365,6 +381,8 @@ bool QtScreenDev::uninit()
     this->d->m_curScreen = nullptr;
     this->d->m_currentFrameSize = QSize();
     this->d->m_threadStatus.waitForFinished();
+
+    qInfo() << "Screen capture stopped";
 
     return true;
 }

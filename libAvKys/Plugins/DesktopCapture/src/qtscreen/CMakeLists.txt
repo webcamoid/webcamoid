@@ -54,7 +54,9 @@ set(SOURCES
     src/qtscreendev.h
     pspec.json)
 
-if (ANDROID)
+set(USE_QT_SCREEN_FFMPEG_CAPTURE ON CACHE BOOL "Use Qt screen FFmpeg capture as media backend")
+
+if (ANDROID AND USE_QT_SCREEN_FFMPEG_CAPTURE)
     set(QT_DEFAULT_MEDIA_BACKEND ffmpeg)
 endif()
 

@@ -1,4 +1,4 @@
-/* Webcamoid, camera capture application.
+ /* Webcamoid, camera capture application.
  * Copyright (C) 2019  Gonzalo Exequiel Pedone
  *
  * Webcamoid is free software: you can redistribute it and/or modify
@@ -672,7 +672,7 @@ AkPacket CaptureNdkCamera::readFrame()
     if (!packet)
         return packet;
 
-    auto angle = this->d->cameraRotation(this->d->m_curDeviceId);
+    auto angle = -this->d->cameraRotation(this->d->m_curDeviceId);
 
     if (qFuzzyIsNull(angle))
         return packet;

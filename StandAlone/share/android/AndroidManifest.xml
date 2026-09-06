@@ -92,7 +92,7 @@
             <meta-data android:name="android.app.extract_android_style" android:value="minimal"/>
             <!-- extract android style -->
         </activity>
-        <service android:name="org.qtproject.qt.android.multimedia.QtScreenCaptureService"
+        <service android:name="org.qtproject.qt.android.multimedia.qffmpeg.QtScreenCaptureService"
                  android:exported="false"
                  android:foregroundServiceType="mediaProjection" />
         <provider android:name="androidx.core.content.FileProvider"

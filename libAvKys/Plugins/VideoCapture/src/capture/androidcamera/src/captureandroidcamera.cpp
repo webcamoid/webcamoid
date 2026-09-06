@@ -802,7 +802,7 @@ AkPacket CaptureAndroidCamera::readFrame()
     if (!packet)
         return packet;
 
-    auto angle = this->d->cameraRotation(this->d->m_curDeviceId);
+    auto angle = -this->d->cameraRotation(this->d->m_curDeviceId);
 
     if (qFuzzyIsNull(angle))
         return packet;
