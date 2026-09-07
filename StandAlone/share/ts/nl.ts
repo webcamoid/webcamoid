@@ -363,7 +363,7 @@
     <message>
         <location filename="../qml/CanvasConfig.qml" line="93"/>
         <source>Landscape</source>
-        <translation type="unfinished"></translation>
+        <translation>Horizontaal</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="120"/>
@@ -384,7 +384,7 @@
     <message>
         <location filename="../qml/CanvasConfig.qml" line="304"/>
         <source>Output buffers</source>
-        <translation type="unfinished"></translation>
+        <translation>Uitvoerbuffers</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="322"/>
@@ -1441,7 +1441,7 @@
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="153"/>
         <source>Open externally</source>
-        <translation type="unfinished"></translation>
+        <translation>Openen in extern programma</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="158"/>
@@ -1461,17 +1461,17 @@
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="486"/>
         <source>Confirm delete</source>
-        <translation type="unfinished">Verwijderen bevestigen</translation>
+        <translation>Verwijderen bevestigen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="494"/>
         <source>Delete this picture permanently?</source>
-        <translation type="unfinished"></translation>
+        <translation>Weet je zeker dat je deze foto wilt verwijderen?</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="501"/>
         <source>This action can&apos;t be undone.</source>
-        <translation type="unfinished">Terugdraaien hiervan is niet mogelijk.</translation>
+        <translation>Terugdraaien hiervan is niet mogelijk.</translation>
     </message>
 </context>
 <context>
@@ -4586,17 +4586,17 @@
     <message>
         <location filename="../qml/main.qml" line="172"/>
         <source>Creating &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;%1&lt;/b&gt; wordt aangemaakt</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="182"/>
         <source>Editing &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;%1&lt;/b&gt; bewerken</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="192"/>
         <source>Removing &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;%1&lt;/b&gt; wordt verwijderd</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="358"/>
