@@ -500,6 +500,9 @@ QStringList QtScreenDevPrivate::windows() const
 
 qreal QtScreenDevPrivate::screenRotation() const
 {
+    if (!this->m_curScreen)
+        return 0.0;
+
     return this->m_curScreen->angleBetween(this->m_curScreen->primaryOrientation(),
                                            this->m_curScreen->orientation());
 }
@@ -565,29 +568,32 @@ void QtScreenDevPrivate::sendFrame(const QVideoFrame &frame)
                           frameImage.height(),
                           this->m_fps);
     AkVideoPacket videoPacket(videoCaps);
+    videoPacket.setRotation(this->screenRotation());
     videoPacket.setPts(frame.startTime());
     videoPacket.setDuration(frame.endTime() - frame.startTime());
     videoPacket.setTimeBase({1, 1000000});
     videoPacket.setIndex(0);
     videoPacket.setId(this->m_id);
 
-    auto lineSize = qMin<size_t>(frameImage.bytesPerLine(),
-                                 videoPacket.lineSize(0));
+    auto iLineSize = size_t(frameImage.bytesPerLine());
+    auto oLineSize = videoPacket.lineSize(0);
+    auto height = frameImage.height();
 
-    for (int y = 0; y < frameImage.height(); ++y) {
-        auto srcLine = frameImage.constScanLine(y);
-        auto dstLine = videoPacket.line(0, y);
-        memcpy(dstLine, srcLine, lineSize);
+    if (iLineSize == oLineSize) {
+        memcpy(videoPacket.data(),
+               frameImage.constBits(),
+               oLineSize * height);
+    } else {
+        auto lineSize = qMin<size_t>(iLineSize, oLineSize);
+
+        for (int y = 0; y < height; ++y) {
+            auto srcLine = frameImage.constScanLine(y);
+            auto dstLine = videoPacket.line(0, y);
+            memcpy(dstLine, srcLine, lineSize);
+        }
     }
 
     frameCopy.unmap();
-
-    if (this->m_curScreen) {
-        auto angle = -this->screenRotation();
-
-        if (!qFuzzyIsNull(angle))
-            videoPacket = self->rotate(videoPacket, angle);
-    }
 
     emit self->oStream(videoPacket);
 }

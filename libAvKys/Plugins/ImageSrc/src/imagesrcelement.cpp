@@ -386,7 +386,7 @@ void ImageSrcElementPrivate::readFrame()
         {
             QReadLocker locker(&this->m_imageReaderMutex);
 
-            if (!this->m_cachedImage.isNull() 
+            if (!this->m_cachedImage.isNull()
                 && !this->m_imageReader.supportsAnimation()) {
                 image = this->m_cachedImage;
                 useCache = true;
@@ -426,12 +426,20 @@ void ImageSrcElementPrivate::readFrame()
                          image.height(),
                          fps);
         AkVideoPacket packet(caps);
-        auto lineSize = qMin<size_t>(image.bytesPerLine(), packet.lineSize(0));
+        auto iLineSize = size_t(image.bytesPerLine());
+        auto oLineSize = packet.lineSize(0);
+        auto height = image.height();
 
-        for (int y = 0; y < image.height(); ++y) {
-            auto srcLine = image.constScanLine(y);
-            auto dstLine = packet.line(0, y);
-            memcpy(dstLine, srcLine, lineSize);
+        if (iLineSize == oLineSize) {
+            memcpy(packet.data(), image.constBits(), oLineSize * height);
+        } else {
+            auto lineSize = qMin(iLineSize, oLineSize);
+
+            for (int y = 0; y < height; ++y) {
+                auto srcLine = image.constScanLine(y);
+                auto dstLine = packet.line(0, y);
+                memcpy(dstLine, srcLine, lineSize);
+            }
         }
 
         auto pts = qRound64(QTime::currentTime().msecsSinceStartOfDay()

@@ -8597,6 +8597,7 @@ AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
     }
 
     fc.outputFrame.copyMetadata(packet);
+    fc.outputFrame.setRotation(packet.rotation());
     this->m_cacheIndex++;
 
     return fc.outputFrame;

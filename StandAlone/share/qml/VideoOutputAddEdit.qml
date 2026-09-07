@@ -20,6 +20,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Qt.labs.settings 1.0
 import Ak
 import AkControls as AK
 import Webcamoid
@@ -41,6 +42,13 @@ Dialog {
     signal edited()
     signal openErrorDialog(string title, string message)
     signal openOutputFormatDialog(int index, variant caps)
+
+    Settings {
+        id: settings
+        category: "VirtualCamera"
+
+        property bool directMode: true
+    }
 
     function addFormat(caps)
     {
@@ -158,10 +166,9 @@ Dialog {
             let caps = formats[i]
             let format = AkVideoCaps.pixelFormatToString(caps.format)
             let fps = AkFrac.create(caps.fps)
-            obj.text =
-                format
-                + " " + caps.width + "x" + caps.height
-                + " " + fps.value + " FPS"
+            obj.text = format
+                       + " " + caps.width + "x" + caps.height
+                       + " " + fps.value + " FPS"
             obj.format = caps.format
             obj.formatWidth = caps.width
             obj.formatHeight = caps.height
@@ -239,22 +246,24 @@ Dialog {
             deviceDescription.text =
                     "Virtual Camera " + mediaTools.currentTime("yyyyMMddhhmmss")
 
-        deviceDescriptionPT.text = deviceDescription.text
         deviceId.text = device
-        deviceIdPT.text = device
 
-        if (virtualCameras.isPassThroughVCam)
+        if (virtualCameras.isPassThroughVCam) {
             fillPTFormat(device)
-        else
-            populateFormats()
+        } else {
+            if (directModeSwitch.checked)
+                fillPTFormat(device)
+            else
+                populateFormats()
+        }
 
         open()
     }
 
-    onVisibleChanged:
-        virtualCameras.isPassThroughVCam?
-            deviceDescriptionPT.forceActiveFocus():
+    onVisibleChanged: {
+        if (visible)
             deviceDescription.forceActiveFocus()
+    }
 
     Connections {
         target: virtualCameras
@@ -281,15 +290,12 @@ Dialog {
     ScrollView {
         id: formatsView
         anchors.fill: parent
-        contentHeight: virtualCameras.isPassThroughVCam?
-                            formatsControlsPT.height:
-                            formatsControls.height
+        contentHeight: formatsControls.height
         clip: true
 
         ColumnLayout {
             id: formatsControls
             width: formatsView.width
-            visible: !virtualCameras.isPassThroughVCam
             layoutDirection: addEdit.rtl? Qt.RightToLeft: Qt.LeftToRight
 
             TextField {
@@ -314,10 +320,31 @@ Dialog {
                 visible: text.length > 0
                 Layout.fillWidth: true
             }
+
+            Switch {
+                id: directModeSwitch
+                text: checked?
+                        qsTr("Direct mode (fast mode)"):
+                        qsTr("Compatibility (slow mode)")
+                checked: settings.directMode
+                visible: !virtualCameras.isPassThroughVCam
+                Layout.fillWidth: true
+
+                onCheckedChanged: {
+                    settings.directMode = checked
+
+                    if (checked)
+                        fillPTFormat(deviceId.text)
+                    else
+                        populateFormats()
+                }
+            }
+
             Button {
                 text: qsTr("Add format")
                 icon.source: "image://icons/add"
                 flat: true
+                visible: !virtualCameras.isPassThroughVCam && !directModeSwitch.checked
 
                 onClicked: {
                     let caps = AkVideoCaps.create()
@@ -328,6 +355,7 @@ Dialog {
                 text: qsTr("Clear formats")
                 icon.source: "image://icons/no"
                 flat: true
+                visible: !virtualCameras.isPassThroughVCam && !directModeSwitch.checked
 
                 onClicked: vcamFormats.clear()
             }
@@ -336,6 +364,7 @@ Dialog {
                 enableHighlight: false
                 Layout.fillWidth: true
                 Layout.minimumHeight: minHeight
+                visible: !virtualCameras.isPassThroughVCam && !directModeSwitch.checked
 
                 property int minHeight: 0
 
@@ -356,35 +385,7 @@ Dialog {
                     if (count > 0)
                         itemAt(currentIndex).forceActiveFocus()
             }
-        }
-        ColumnLayout {
-            id: formatsControlsPT
-            width: formatsView.width
-            visible: virtualCameras.isPassThroughVCam
-            layoutDirection: addEdit.rtl? Qt.RightToLeft: Qt.LeftToRight
 
-            TextField {
-                id: deviceDescriptionPT
-                placeholderText: qsTr("Virtual camera name")
-                selectByMouse: true
-                visible: virtualCameras.canEditVCamDescription && text.length > 0
-                Layout.fillWidth: true
-            }
-            Label {
-                id: lblDeviceDescriptionPT
-                text: deviceDescription.text
-                font.bold: true
-                visible: !virtualCameras.canEditVCamDescription
-                         && text.length > 0
-                         && deviceIdPT.text.length
-                Layout.fillWidth: true
-            }
-            Label {
-                id: deviceIdPT
-                font.italic: true
-                visible: text.length > 0
-                Layout.fillWidth: true
-            }
             AK.LabeledComboBox {
                 id: cbxPixelFormatsPT
                 label: qsTr("Format")
@@ -392,9 +393,11 @@ Dialog {
                 textRole: "description"
                 model: ListModel {}
                 Layout.fillWidth: true
+                visible: virtualCameras.isPassThroughVCam || directModeSwitch.checked
             }
             GridLayout {
                 columns: 2
+                visible: virtualCameras.isPassThroughVCam || directModeSwitch.checked
 
                 Label {
                     id: txtWidthPT
@@ -440,12 +443,9 @@ Dialog {
     }
 
     onAccepted: {
-        let devId = virtualCameras.isPassThroughVCam?
-                        deviceId.text:
-                        deviceIdPT.text
-        let description = virtualCameras.isPassThroughVCam?
-                                deviceDescriptionPT.text:
-                                deviceDescription.text
+        let devId = deviceId.text
+        let description = deviceDescription.text
+        let isDirectMode = virtualCameras.isPassThroughVCam || directModeSwitch.checked
 
         if (virtualCameras.clientsPids.length > 0) {
             let title = devId?
@@ -457,7 +457,7 @@ Dialog {
             return
         }
 
-        if (virtualCameras.isPassThroughVCam) {
+        if (isDirectMode) {
             if (!description) {
                 let title = devId?
                         qsTr("Error editing the virtual camera"):
@@ -481,7 +481,7 @@ Dialog {
 
         let formats = []
 
-        if (virtualCameras.isPassThroughVCam) {
+        if (isDirectMode) {
             let element = cbxPixelFormatsPT.model.get(cbxPixelFormatsPT.currentIndex)
             let fps = AkFrac.create(spbFrameRatePT.value, 1).toVariant()
             let caps = AkVideoCaps.create(element.format,

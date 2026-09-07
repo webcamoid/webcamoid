@@ -799,15 +799,7 @@ AkPacket CaptureAndroidCamera::readFrame()
     this->d->m_curPacket = {};
     this->d->m_mutex.unlock();
 
-    if (!packet)
-        return packet;
-
-    auto angle = -this->d->cameraRotation(this->d->m_curDeviceId);
-
-    if (qFuzzyIsNull(angle))
-        return packet;
-
-    return this->rotate(packet, angle);
+    return packet;
 }
 
 bool CaptureAndroidCamera::isTorchSupported() const
@@ -1908,7 +1900,8 @@ void CaptureAndroidCameraPrivate::imageAvailable(JNIEnv *env,
             continue;
 
         auto pixelSize = packet.pixelSize(i);
-        auto lineSize = qMin<size_t>(iLineSize, packet.lineSize(i));
+        auto oLineSize = packet.lineSize(i);
+        auto lineSize = qMin<size_t>(iLineSize, oLineSize);
 
         if (lineSize < 1)
             continue;
@@ -1928,31 +1921,37 @@ void CaptureAndroidCameraPrivate::imageAvailable(JNIEnv *env,
         auto widthDiv = packet.widthDiv(i);
         auto heightDiv = packet.heightDiv(i);
 
-        if (pixelStride == pixelSize)
-            for (int y = 0; y < packet.caps().height(); ++y) {
-                int ys = y >> heightDiv;
-                auto srcLine = planeData + ys * iLineSize;
-                auto dstLine = packet.line(i, y);
-                memcpy(dstLine, srcLine, lineSize);
+        if (pixelStride == pixelSize) {
+            if (iLineSize == oLineSize && heightDiv == 0) {
+                memcpy(packet.plane(i),
+                       planeData,
+                       oLineSize * height);
+            } else {
+                for (int y = 0; y < height; ++y) {
+                    int ys = y >> heightDiv;
+                    auto srcLine = planeData + ys * iLineSize;
+                    auto dstLine = packet.line(i, y);
+                    memcpy(dstLine, srcLine, lineSize);
+                }
             }
-        else if (pixelSize == 1)
-            for (int y = 0; y < packet.caps().height(); ++y) {
+        } else if (pixelSize == 1) {
+            for (int y = 0; y < height; ++y) {
                 int ys = y >> heightDiv;
                 auto srcLine = planeData + ys * iLineSize;
                 auto dstLine = packet.line(i, y);
 
-                for (int x = 0; x < packet.caps().width(); ++x) {
+                for (int x = 0; x < width; ++x) {
                     int xs = x >> widthDiv;
                     dstLine[xs] = srcLine[xs * pixelStride];
                 }
             }
-        else
-            for (int y = 0; y < packet.caps().height(); ++y) {
+        } else {
+            for (int y = 0; y < height; ++y) {
                 int ys = y >> heightDiv;
                 auto srcLine = planeData + ys * iLineSize;
                 auto dstLine = packet.line(i, y);
 
-                for (int x = 0; x < packet.caps().width(); ++x) {
+                for (int x = 0; x < width; ++x) {
                     int xs = x >> widthDiv;
                     auto iPixel = srcLine + xs * pixelStride;
                     auto oPixel = dstLine + xs * pixelSize;
@@ -1961,6 +1960,7 @@ void CaptureAndroidCameraPrivate::imageAvailable(JNIEnv *env,
                         oPixel[i] = iPixel[i];
                 }
             }
+        }
     }
 
 #if 1
@@ -1971,6 +1971,7 @@ void CaptureAndroidCameraPrivate::imageAvailable(JNIEnv *env,
     auto pts = qint64(timestampNs * self->m_fps.value() / 1e9);
 #endif
 
+    packet.setRotation(self->cameraRotation(self->m_curDeviceId));
     packet.setPts(pts);
     packet.setDuration(1);
     packet.setTimeBase(self->m_fps.invert());

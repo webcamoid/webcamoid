@@ -1945,6 +1945,7 @@ AkPacket CaptureDShowPrivate::processFrame(const AM_MEDIA_TYPE *mediaType,
     if (isRaw) {
         AkVideoPacket packet(caps);
         auto iData = buffer.constData();
+        auto height = packet.caps().height();
 
         for (int plane = 0; plane < packet.planes(); ++plane) {
             auto iLineSize = packet.planes() > 1?
@@ -1955,22 +1956,26 @@ AkPacket CaptureDShowPrivate::processFrame(const AM_MEDIA_TYPE *mediaType,
             auto heightDiv = packet.heightDiv(plane);
 
             if (mirror) {
-                for (int y = 0; y < packet.caps().height(); ++y) {
+                for (int y = 0; y < height; ++y) {
                     int ys = y >> heightDiv;
-                    memcpy(packet.line(plane, packet.caps().height() - y - 1),
+                    memcpy(packet.line(plane, height - y - 1),
                            iData + ys * iLineSize,
                            lineSize);
                 }
             } else {
-                for (int y = 0; y < packet.caps().height(); ++y) {
-                    int ys = y >> heightDiv;
-                    memcpy(packet.line(plane, y),
-                           iData + ys * iLineSize,
-                           lineSize);
+                if (iLineSize == oLineSize && heightDiv == 0) {
+                    memcpy(packet.plane(plane), iData, oLineSize * height);
+                } else {
+                    for (int y = 0; y < height; ++y) {
+                        int ys = y >> heightDiv;
+                        memcpy(packet.line(plane, y),
+                               iData + ys * iLineSize,
+                               lineSize);
+                    }
                 }
             }
 
-            iData += (iLineSize * packet.caps().height()) >> heightDiv;
+            iData += (iLineSize * height) >> heightDiv;
         }
 
         packet.setPts(pts);

@@ -1812,25 +1812,39 @@ AkPacket CaptureV4L2Private::processFrame(const char * const *planeData,
             auto iData = planeData[0];
             auto iLineSize = this->m_v4l2Format.fmt.pix.bytesperline;
             auto oLineSize = this->m_outPacket.lineSize(0);
-            auto lineSize = qMin<size_t>(iLineSize, oLineSize);
 
-            for (int y = 0; y < this->m_v4l2Format.fmt.pix.height; ++y)
-                memcpy(this->m_outPacket.line(0, y),
-                       iData + y * iLineSize,
-                       lineSize);
+            if (iLineSize == oLineSize) {
+                memcpy(this->m_outPacket.line(0, 0),
+                       iData,
+                       oLineSize * size_t(this->m_v4l2Format.fmt.pix.height));
+            } else {
+                auto lineSize = qMin<size_t>(iLineSize, oLineSize);
+
+                for (int y = 0; y < this->m_v4l2Format.fmt.pix.height; ++y)
+                    memcpy(this->m_outPacket.line(0, y),
+                           iData + y * iLineSize,
+                           lineSize);
+            }
         } else {
             for (int plane = 0; plane < this->planesCount(this->m_v4l2Format); ++plane) {
                 auto iData = planeData[plane];
                 auto iLineSize = this->m_v4l2Format.fmt.pix_mp.plane_fmt[plane].bytesperline;
                 auto oLineSize = this->m_outPacket.lineSize(plane);
-                auto lineSize = qMin<size_t>(iLineSize, oLineSize);
                 auto heightDiv = this->m_outPacket.heightDiv(plane);
 
-                for (int y = 0; y < this->m_v4l2Format.fmt.pix_mp.height; ++y) {
-                    int ys = y >> heightDiv;
-                    memcpy(this->m_outPacket.line(plane, y),
-                           iData + ys * iLineSize,
-                           lineSize);
+                if (heightDiv == 0 && iLineSize == oLineSize) {
+                    memcpy(this->m_outPacket.line(plane, 0),
+                           iData,
+                           oLineSize * size_t(this->m_v4l2Format.fmt.pix_mp.height));
+                } else {
+                    auto lineSize = qMin<size_t>(iLineSize, oLineSize);
+
+                    for (int y = 0; y < this->m_v4l2Format.fmt.pix_mp.height; ++y) {
+                        int ys = y >> heightDiv;
+                        memcpy(this->m_outPacket.line(plane, y),
+                               iData + ys * iLineSize,
+                               lineSize);
+                    }
                 }
             }
         }

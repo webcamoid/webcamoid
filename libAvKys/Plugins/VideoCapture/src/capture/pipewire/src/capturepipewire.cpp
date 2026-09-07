@@ -2205,11 +2205,15 @@ void CapturePipeWirePrivate::onProcess(void *userData)
         auto srcBase = reinterpret_cast<quint8 *>(srcData.data);
         auto heightDiv = packet.heightDiv(plane);
 
-        for (int y = 0; y < height; ++y) {
-            auto yp = y >> heightDiv;
-            memcpy(packet.line(plane, y),
-                   srcBase + yp * iLineSize,
-                   copyLineSize);
+        if (heightDiv == 0 && iLineSize == oLineSize) {
+            memcpy(packet.plane(plane), srcBase, oLineSize * height);
+        } else {
+            for (int y = 0; y < height; ++y) {
+                auto yp = y >> heightDiv;
+                memcpy(packet.line(plane, y),
+                       srcBase + yp * iLineSize,
+                       copyLineSize);
+            }
         }
     }
 

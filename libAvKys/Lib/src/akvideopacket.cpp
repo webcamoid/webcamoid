@@ -116,6 +116,7 @@ class AkVideoPacketPrivate
         quint8 *m_data {nullptr};
         size_t m_dataSize {0};
         size_t m_nPlanes {0};
+        qreal m_rotation {0.0};
         quint8 *m_planes[MAX_PLANES];
         size_t m_planeSize[MAX_PLANES];
         size_t m_planeOffset[MAX_PLANES];
@@ -430,6 +431,7 @@ AkVideoPacket::AkVideoPacket(const AkPacket &other):
 
         this->d->m_dataSize = data->d->m_dataSize;
         this->d->m_nPlanes = data->d->m_nPlanes;
+        this->d->m_rotation = data->d->m_rotation;
 
         if (this->d->m_nPlanes > 0) {
             const size_t dataSize = MAX_PLANES * sizeof(size_t);
@@ -462,6 +464,7 @@ AkVideoPacket::AkVideoPacket(const AkVideoPacket &other):
 
     this->d->m_dataSize = other.d->m_dataSize;
     this->d->m_nPlanes = other.d->m_nPlanes;
+    this->d->m_rotation = other.d->m_rotation;
 
     if (this->d->m_nPlanes > 0) {
         const size_t dataSize = MAX_PLANES * sizeof(size_t);
@@ -506,6 +509,7 @@ AkVideoPacket &AkVideoPacket::operator =(const AkPacket &other)
 
         this->d->m_dataSize = data->d->m_dataSize;
         this->d->m_nPlanes = data->d->m_nPlanes;
+        this->d->m_rotation = data->d->m_rotation;
 
         if (this->d->m_nPlanes > 0) {
             const size_t dataSize = MAX_PLANES * sizeof(size_t);
@@ -531,6 +535,7 @@ AkVideoPacket &AkVideoPacket::operator =(const AkPacket &other)
 
         this->d->m_dataSize = 0;
         this->d->m_nPlanes = 0;
+        this->d->m_rotation = 0.0;
     }
 
     this->copyMetadata(other);
@@ -556,6 +561,7 @@ AkVideoPacket &AkVideoPacket::operator =(const AkVideoPacket &other)
 
         this->d->m_dataSize = other.d->m_dataSize;
         this->d->m_nPlanes = other.d->m_nPlanes;
+        this->d->m_rotation = other.d->m_rotation;
 
         if (this->d->m_nPlanes > 0) {
             memcpy(this->d->m_planeSize, other.d->m_planeSize, this->d->m_nPlanes * sizeof(size_t));
@@ -610,6 +616,11 @@ size_t AkVideoPacket::size() const
 size_t AkVideoPacket::planes() const
 {
     return this->d->m_nPlanes;
+}
+
+qreal AkVideoPacket::rotation() const
+{
+    return this->d->m_rotation;
 }
 
 size_t AkVideoPacket::planeSize(int plane) const
@@ -687,6 +698,7 @@ AkVideoPacket AkVideoPacket::copy(int x,
     ocaps.setHeight(height);
     AkVideoPacket dst(ocaps, true, align);
     dst.copyMetadata(*this);
+    dst.d->m_rotation = this->d->m_rotation;
 
     auto maxX = qMin(x + width, this->d->m_caps.width());
     auto maxY = qMin(y + height, this->d->m_caps.height());
@@ -723,6 +735,8 @@ AkVideoPacket AkVideoPacket::copy(int x,
 AkVideoPacket AkVideoPacket::realign(int align) const
 {
     AkVideoPacket dst(this->d->m_caps, true, align);
+    dst.copyMetadata(*this);
+    dst.d->m_rotation = this->d->m_rotation;
     auto height = this->d->m_caps.height();
 
     for (int plane = 0; plane < this->d->m_nPlanes; plane++) {
@@ -746,6 +760,20 @@ AkVideoPacket AkVideoPacket::realign(int align) const
 void AkVideoPacket::fillRgb(QRgb color)
 {
     return this->d->fill(color);
+}
+
+void AkVideoPacket::setRotation(qreal rotation)
+{
+    if (this->d->m_rotation == rotation)
+        return;
+
+    this->d->m_rotation = rotation;
+    emit this->rotationChanged(rotation);
+}
+
+void AkVideoPacket::resetRotation()
+{
+    this->setRotation(0.0);
 }
 
 void AkVideoPacket::registerTypes()

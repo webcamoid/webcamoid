@@ -578,14 +578,23 @@ AkVideoPacket ConvertVideoFFmpegPrivate::convert(const AVFrame *frame)
     for (int plane = 0; plane < nPlanes; ++plane) {
         auto planeData = oFrame.data[plane];
         auto oLineSize = oFrame.linesize[plane];
-        auto lineSize = qMin<size_t>(oPacket.lineSize(plane), oLineSize);
+        auto oPacketLineSize = oPacket.lineSize(plane);
         auto heightDiv = oPacket.heightDiv(plane);
+        auto height = frame->height >> heightDiv;
 
-        for (int y = 0; y < frame->height; ++y) {
-            auto ys = y >> heightDiv;
-            memcpy(oPacket.line(plane, y),
-                   planeData + ys * oLineSize,
-                   lineSize);
+        if (oPacketLineSize == oLineSize && heightDiv == 0) {
+            memcpy(oPacket.plane(plane),
+                   planeData,
+                   oPacketLineSize * height);
+        } else {
+            auto lineSize = qMin<size_t>(oPacketLineSize, oLineSize);
+
+            for (int y = 0; y < height; ++y) {
+                auto ys = y << heightDiv;
+                memcpy(oPacket.line(plane, y),
+                       planeData + ys * oLineSize,
+                       lineSize);
+            }
         }
     }
 

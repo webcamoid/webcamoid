@@ -2404,25 +2404,41 @@ void VCamV4L2LoopBackPrivate::writeFrame(char * const *planeData,
         auto oData = planeData[0];
         auto iLineSize = videoPacket.lineSize(0);
         auto oLineSize = this->m_v4l2Format.fmt.pix.bytesperline;
-        auto lineSize = qMin<size_t>(iLineSize, oLineSize);
+        auto height = this->m_v4l2Format.fmt.pix.height;
 
-        for (int y = 0; y < this->m_v4l2Format.fmt.pix.height; ++y)
-            memcpy(oData + y * oLineSize,
-                   videoPacket.constLine(0, y),
-                   lineSize);
+        if (iLineSize == oLineSize) {
+            memcpy(oData,
+                   videoPacket.constData(),
+                   oLineSize * height);
+        } else {
+            auto lineSize = qMin<size_t>(iLineSize, oLineSize);
+
+            for (int y = 0; y < height; ++y)
+                memcpy(oData + y * oLineSize,
+                       videoPacket.constLine(0, y),
+                       lineSize);
+        }
     } else {
         for (int plane = 0; plane < this->planesCount(this->m_v4l2Format); ++plane) {
             auto oData = planeData[plane];
-            auto oLineSize = this->m_v4l2Format.fmt.pix_mp.plane_fmt[plane].bytesperline;
             auto iLineSize = videoPacket.lineSize(plane);
-            auto lineSize = qMin<size_t>(iLineSize, oLineSize);
+            auto oLineSize = this->m_v4l2Format.fmt.pix_mp.plane_fmt[plane].bytesperline;
             auto heightDiv = videoPacket.heightDiv(plane);
+            auto height = this->m_v4l2Format.fmt.pix_mp.height;
 
-            for (int y = 0; y < this->m_v4l2Format.fmt.pix_mp.height; ++y) {
-                int ys = y >> heightDiv;
-                memcpy(oData + ys * oLineSize,
-                       videoPacket.constLine(plane, y),
-                       lineSize);
+            if (heightDiv == 0 && iLineSize == oLineSize) {
+                memcpy(oData,
+                       videoPacket.constPlane(plane),
+                       oLineSize * height);
+            } else {
+                auto lineSize = qMin<size_t>(iLineSize, oLineSize);
+
+                for (int y = 0; y < height; ++y) {
+                    int ys = y >> heightDiv;
+                    memcpy(oData + ys * oLineSize,
+                           videoPacket.constLine(plane, y),
+                           lineSize);
+                }
             }
         }
     }

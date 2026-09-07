@@ -786,6 +786,7 @@ void CaptureQtPrivate::frameReady(const QVideoFrame &frame)
                               videoFrame.height(),
                               this->m_fps);
         AkVideoPacket packet(videoCaps);
+        packet.setRotation(this->cameraRotation(frame));
         packet.setPts(videoFrame.startTime());
         packet.setDuration(videoFrame.endTime() - videoFrame.startTime());
         packet.setTimeBase({1, 1000000});
@@ -820,33 +821,36 @@ void CaptureQtPrivate::frameReady(const QVideoFrame &frame)
                                   videoFrame.height(),
                                   this->m_fps);
             AkVideoPacket packet(videoCaps);
+            packet.setRotation(this->cameraRotation(frame));
             packet.setPts(videoFrame.startTime());
             packet.setDuration(videoFrame.endTime() - videoFrame.startTime());
             packet.setTimeBase({1, 1000000});
             packet.setIndex(0);
             packet.setId(this->m_id);
 
-            auto lineSize = qMin<size_t>(packet.lineSize(0),
-                                         image.bytesPerLine());
+            auto height = videoFrame.height();
+            auto iLineSize = size_t(image.bytesPerLine());
+            auto oLineSize = packet.lineSize(0);
+            auto lineSize = qMin(iLineSize, oLineSize);
 
-            for (int y = 0; y < videoFrame.height(); ++y)
-                memcpy(packet.line(0, y),
-                       image.constScanLine(y),
-                       lineSize);
+            if (iLineSize == oLineSize) {
+                memcpy(packet.data(),
+                       image.constScanLine(0),
+                       oLineSize * height);
+            } else {
+                for (int y = 0; y < height; ++y)
+                    memcpy(packet.line(0, y),
+                            image.constScanLine(y),
+                            lineSize);
+            }
 
             videoPacket = packet;
         }
     }
 
     if (videoPacket) {
-        auto angle = -this->cameraRotation(frame);
-        AkPacket packet;
-
-        if (!qFuzzyIsNull(angle))
-            packet = self->rotate(videoPacket, angle);
-
         this->m_frameMutex.lockForWrite();
-        this->m_videoPacket = packet;
+        this->m_videoPacket = videoPacket;
         this->m_packetReady.wakeAll();
         this->m_frameMutex.unlock();
     }

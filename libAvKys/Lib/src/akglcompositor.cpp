@@ -36,6 +36,7 @@
 #include <QReadWriteLock>
 #include <QVector>
 #include <QWaitCondition>
+#include <QtMath>
 
 #include "akglcompositor.h"
 #include "ak.h"
@@ -63,6 +64,7 @@ class AkGLCompositorSource
         int zOrder {0};
         qreal opacity {1.0};
         qreal rotation {0.0};
+        qreal packetRotation {0.0};
         Qt::AspectRatioMode aspectRatioMode {Qt::KeepAspectRatio};
         TexturePtr uploadTex {nullptr};
         QOpenGLFramebufferObject *entryFbo {nullptr};
@@ -1482,6 +1484,7 @@ void AkGLCompositorPrivate::processTick()
 
             if (packetSlot && packetSlot->hasFrame) {
                 auto &lastPacket = packetSlot->lastPacket;
+                source->packetRotation = lastPacket.rotation();
                 this->uploadSource(source, lastPacket);
                 this->ensureFboSize(source->effectFbo,
                                     source->entryFbo->width(),
@@ -1721,9 +1724,29 @@ QMatrix4x4 AkGLCompositorPrivate::computeSourceTransform(const SourceSnapshot &s
     float fittedW = rw;
     float fittedH = rh;
 
+    qreal packetRotation = 0.0;
+    {
+        QMutexLocker locker(&snap.source->mutex);
+        packetRotation = snap.source->packetRotation;
+    }
+
+    // Normalize to [0, 360) and check whether the frame comes in
+    // "sideways" (90/270), in which case width and height swap for the
+    // purposes of aspect-ratio fitting.
+    float normalizedPacketRotation = std::fmod(float(packetRotation), 360.0f);
+
+    if (normalizedPacketRotation < 0.0f)
+        normalizedPacketRotation += 360.0f;
+
+    bool swapTexDims =
+            qFuzzyCompare(normalizedPacketRotation, 90.0f)
+            || qFuzzyCompare(normalizedPacketRotation, 270.0f);
+    int texW = swapTexDims? snap.texH: snap.texW;
+    int texH = swapTexDims? snap.texW: snap.texH;
+
     if (snap.aspectRatioMode != Qt::IgnoreAspectRatio
-        && snap.texW > 0 && snap.texH > 0) {
-        float texAspect = float(snap.texW) / float(snap.texH);
+        && texW > 0 && texH > 0) {
+        float texAspect = float(texW) / float(texH);
         float rectPixelW = rw * canvasW;
         float rectPixelH = rh * canvasH;
         float rectAspect = rectPixelW / rectPixelH;
@@ -1736,7 +1759,7 @@ QMatrix4x4 AkGLCompositorPrivate::computeSourceTransform(const SourceSnapshot &s
                 fittedH = rh;
                 fittedW = fittedH * texAspect * canvasH / canvasW;
             }
-    } else if (snap.aspectRatioMode == Qt::KeepAspectRatioByExpanding) {
+        } else if (snap.aspectRatioMode == Qt::KeepAspectRatioByExpanding) {
             if (texAspect > rectAspect) {
                 fittedH = rh;
                 fittedW = fittedH * texAspect * canvasH / canvasW;
@@ -1751,7 +1774,6 @@ QMatrix4x4 AkGLCompositorPrivate::computeSourceTransform(const SourceSnapshot &s
     float cy = ry + rh / 2.0f;
     float ndcCx = cx * 2.0f - 1.0f;
     float ndcCy = cy * 2.0f - 1.0f;
-
     float pixelW = fittedW * canvasW;
     float pixelH = fittedH * canvasH;
 
@@ -1762,8 +1784,11 @@ QMatrix4x4 AkGLCompositorPrivate::computeSourceTransform(const SourceSnapshot &s
     transform.setToIdentity();
     transform.translate(ndcCx, ndcCy, 0.0f);
     transform.scale(1.0f / canvasW, 1.0f / canvasH, 1.0f);
-    transform.rotate(float(snap.rotation), 0.0f, 0.0f, 1.0f);
-    transform.scale(pixelW, pixelH, 1.0f);
+    transform.rotate(float(snap.rotation) - normalizedPacketRotation,
+                     0.0f, 0.0f, 1.0f);
+    transform.scale(swapTexDims ? pixelH : pixelW,
+                    swapTexDims ? pixelW : pixelH,
+                    1.0f);
 
     return transform;
 }

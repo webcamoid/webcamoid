@@ -467,10 +467,11 @@ AkVideoCaps::PixelFormat XlibDevPrivate::pixelFormat(int depth, int bpp) const
 
 qreal XlibDevPrivate::screenRotation() const
 {
-    if (!this->m_display)
+#ifdef HAVE_XRANDR_SUPPORT
+    if (!this->m_display
+        || this->m_targetWindow != this->m_rootWindow)
         return 0.0;
 
-#ifdef HAVE_XRANDR_SUPPORT
     Rotation rotation = 0;
     XRRRotations(this->m_display, this->m_screen, &rotation);
 
@@ -724,32 +725,35 @@ void XlibDevPrivate::readFrame()
 
     auto pts = qRound64(QTime::currentTime().msecsSinceStartOfDay()
                         * fps.value() / 1e3);
+
+    videoPacket.setRotation(this->screenRotation());
     videoPacket.setPts(pts);
     videoPacket.setDuration(1);
     videoPacket.setTimeBase(fps.invert());
     videoPacket.setIndex(0);
     videoPacket.setId(this->m_id);
-    auto lineSize =
-        qMin<size_t>(image->bytes_per_line, videoPacket.lineSize(0));
 
-    for (int y = 0; y < image->height; y++) {
-        auto src = image->data + y * image->bytes_per_line;
-        auto dst = videoPacket.line(0, y);
-        memcpy(dst, src, lineSize);
+    auto iLineSize = size_t(image->bytes_per_line);
+    auto oLineSize = videoPacket.lineSize(0);
+    auto height = image->height;
+
+    if (iLineSize == oLineSize) {
+        memcpy(videoPacket.data(),
+               image->data,
+               oLineSize * height);
+    } else {
+        auto lineSize = qMin(iLineSize, oLineSize);
+
+        for (int y = 0; y < height; ++y) {
+            auto src = image->data + y * image->bytes_per_line;
+            auto dst = videoPacket.line(0, y);
+            memcpy(dst, src, lineSize);
+        }
     }
 
 #ifdef HAVE_XEXT_SUPPORT
     if (!this->m_haveShmExtension)
         XDestroyImage(image);
-#endif
-
-#ifdef HAVE_XRANDR_SUPPORT
-    if (this->m_targetWindow == this->m_rootWindow) {
-        auto angle = -this->screenRotation();
-
-        if (!qFuzzyIsNull(angle))
-            videoPacket = self->rotate(videoPacket, angle);
-    }
 #endif
 
     emit self->oStream(videoPacket);

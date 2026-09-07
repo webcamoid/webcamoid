@@ -1697,13 +1697,22 @@ void WlrootsDevPrivate::readFrameExtCapture(QElapsedTimer &et)
     videoPacket.setIndex(0);
     videoPacket.setId(this->m_id);
 
-    auto lineSize = qMin<size_t>(session->bufferStride,
-                                 videoPacket.lineSize(0));
+    auto iLineSize = size_t(session->bufferStride);
+    auto oLineSize = videoPacket.lineSize(0);
+    auto height = session->bufferHeight;
 
-    for (int y = 0; y < session->bufferHeight; y++) {
-        auto src = reinterpret_cast<quint8 *>(session->shmData) + y * session->bufferStride;
-        auto dst = videoPacket.line(0, y);
-        memcpy(dst, src, lineSize);
+    if (iLineSize == oLineSize) {
+        memcpy(videoPacket.data(),
+               session->shmData,
+               oLineSize * height);
+    } else {
+        auto lineSize = qMin(iLineSize, oLineSize);
+
+        for (int y = 0; y < height; ++y) {
+            auto src = reinterpret_cast<quint8 *>(session->shmData) + y * session->bufferStride;
+            auto dst = videoPacket.line(0, y);
+            memcpy(dst, src, lineSize);
+        }
     }
 
     int intervalMs = qRound(1.e3 * this->m_fps.invert().value());
@@ -1819,12 +1828,22 @@ void WlrootsDevPrivate::readFrameScreencopy(QElapsedTimer &et)
     videoPacket.setIndex(0);
     videoPacket.setId(this->m_id);
 
-    auto lineSize = qMin<size_t>(this->m_bufferStride, videoPacket.lineSize(0));
+    auto iLineSize = size_t(this->m_bufferStride);
+    auto oLineSize = videoPacket.lineSize(0);
+    auto height = this->m_bufferHeight;
 
-    for (int y = 0; y < this->m_bufferHeight; y++) {
-        auto src = reinterpret_cast<quint8 *>(this->m_shmData) + y * this->m_bufferStride;
-        auto dst = videoPacket.line(0, y);
-        memcpy(dst, src, lineSize);
+    if (iLineSize == oLineSize) {
+        memcpy(videoPacket.data(),
+               this->m_shmData,
+               oLineSize * height);
+    } else {
+        auto lineSize = qMin(iLineSize, oLineSize);
+
+        for (int y = 0; y < height; y++) {
+            auto src = reinterpret_cast<quint8 *>(this->m_shmData) + y * this->m_bufferStride;
+            auto dst = videoPacket.line(0, y);
+            memcpy(dst, src, lineSize);
+        }
     }
 
     int intervalMs = qRound(1.e3 * this->m_fps.invert().value());

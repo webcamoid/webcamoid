@@ -277,14 +277,23 @@ AkPacket VideoStreamPrivate::convert(AVFrame *iFrame)
     for (int plane = 0; plane < nPlanes; ++plane) {
         auto planeData = oFrame.data[plane];
         auto oLineSize = oFrame.linesize[plane];
-        auto lineSize = qMin<size_t>(oPacket.lineSize(plane), oLineSize);
+        auto oPacketLineSize = oPacket.lineSize(plane);
         auto heightDiv = oPacket.heightDiv(plane);
+        auto height = iFrame->height >> heightDiv;
 
-        for (int y = 0; y < iFrame->height; ++y) {
-            auto ys = y >> heightDiv;
-            memcpy(oPacket.line(plane, y),
-                   planeData + ys * oLineSize,
-                   lineSize);
+        if (heightDiv == 0 && oPacketLineSize == oLineSize) {
+            memcpy(oPacket.plane(plane),
+                   planeData,
+                   oPacketLineSize * height);
+        } else {
+            auto lineSize = qMin<size_t>(oPacketLineSize, oLineSize);
+
+            for (int y = 0; y < height; ++y) {
+                auto ys = y << heightDiv;
+                memcpy(oPacket.line(plane, y),
+                       planeData + ys * oLineSize,
+                       lineSize);
+            }
         }
     }
 

@@ -1139,14 +1139,22 @@ void PipewireScreenDevPrivate::streamProcessEvent(void *userData)
         return;
 
     AkVideoPacket packet(self->m_curCaps);
-    auto iLineSize = buffer->buffer->datas[0].chunk->stride;
+    auto iLineSize = size_t(buffer->buffer->datas[0].chunk->stride);
     auto oLineSize = packet.lineSize(0);
     auto lineSize = qMin<size_t>(iLineSize, oLineSize);
+    auto height = packet.caps().height();
 
-    for (int y = 0; y < packet.caps().height(); y++)
-        memcpy(packet.line(0, y),
-               reinterpret_cast<quint8 *>(buffer->buffer->datas[0].data) + y * iLineSize,
-               lineSize);
+    if (iLineSize == oLineSize) {
+        memcpy(packet.data(),
+               reinterpret_cast<quint8 *>(buffer->buffer->datas[0].data),
+               oLineSize * height);
+    } else {
+        for (int y = 0; y < height; ++y) {
+            memcpy(packet.line(0, y),
+                   reinterpret_cast<quint8 *>(buffer->buffer->datas[0].data) + y * iLineSize,
+                   lineSize);
+        }
+    }
 
     auto fps = self->m_curCaps.fps();
     auto pts = qRound64(QTime::currentTime().msecsSinceStartOfDay()

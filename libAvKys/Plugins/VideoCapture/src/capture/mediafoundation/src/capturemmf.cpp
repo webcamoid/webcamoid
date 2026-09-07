@@ -528,6 +528,7 @@ AkPacket CaptureMMF::readFrame()
 
             d2Buffer->Lock2D(&data, &stride);
             auto iData = data;
+            auto height = packet.caps().height();
 
             for (int plane = 0; plane < packet.planes(); ++plane) {
                 auto iLineSize = stride
@@ -538,22 +539,28 @@ AkPacket CaptureMMF::readFrame()
                 auto heightDiv = packet.heightDiv(plane);
 
                 if (mirror) {
-                    for (int y = 0; y < packet.caps().height(); ++y) {
+                    for (int y = 0; y < height; ++y) {
                         int ys = y >> heightDiv;
-                        memcpy(packet.line(plane, packet.caps().height() - y - 1),
+                        memcpy(packet.line(plane, height - y - 1),
                                iData + ys * iLineSize,
                                lineSize);
                     }
                 } else {
-                    for (int y = 0; y < packet.caps().height(); ++y) {
-                        int ys = y >> heightDiv;
-                        memcpy(packet.line(plane, y),
-                               iData + ys * iLineSize,
-                               lineSize);
+                    if (iLineSize == oLineSize && heightDiv == 0) {
+                        memcpy(packet.plane(plane),
+                               iData,
+                               oLineSize * height);
+                    } else {
+                        for (int y = 0; y < height; ++y) {
+                            int ys = y >> heightDiv;
+                            memcpy(packet.line(plane, y),
+                                   iData + ys * iLineSize,
+                                   lineSize);
+                        }
                     }
                 }
 
-                iData += (iLineSize * packet.caps().height()) >> heightDiv;
+                iData += (iLineSize * height) >> heightDiv;
             }
 
             d2Buffer->Unlock2D();
@@ -578,6 +585,7 @@ AkPacket CaptureMMF::readFrame()
 
         buffer->Lock(&data, &bufferLength, &currentLength);
         auto iData = data;
+        auto height = packet.caps().height();
 
         for (int plane = 0; plane < packet.planes(); ++plane) {
             auto iLineSize = srcLineSize
@@ -588,22 +596,26 @@ AkPacket CaptureMMF::readFrame()
             auto heightDiv = packet.heightDiv(plane);
 
             if (mirror) {
-                for (int y = 0; y < packet.caps().height(); ++y) {
+                for (int y = 0; y < height; ++y) {
                     int ys = y >> heightDiv;
-                    memcpy(packet.line(plane, packet.caps().height() - y - 1),
+                    memcpy(packet.line(plane, height - y - 1),
                            iData + ys * iLineSize,
                            lineSize);
                 }
             } else {
-                for (int y = 0; y < packet.caps().height(); ++y) {
-                    int ys = y >> heightDiv;
-                    memcpy(packet.line(plane, y),
-                           iData + ys * iLineSize,
-                           lineSize);
+                if (iLineSize == oLineSize && heightDiv == 0) {
+                    memcpy(packet.plane(plane), iData, oLineSize * height);
+                } else {
+                    for (int y = 0; y < height; ++y) {
+                        int ys = y >> heightDiv;
+                        memcpy(packet.line(plane, y),
+                               iData + ys * iLineSize,
+                               lineSize);
+                    }
                 }
             }
 
-            iData += (iLineSize * packet.caps().height()) >> heightDiv;
+            iData += (iLineSize * height) >> heightDiv;
         }
 
         buffer->Unlock();

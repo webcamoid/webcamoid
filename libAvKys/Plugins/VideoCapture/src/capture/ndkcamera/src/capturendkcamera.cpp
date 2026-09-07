@@ -669,15 +669,7 @@ AkPacket CaptureNdkCamera::readFrame()
 
     this->d->m_mutex.unlock();
 
-    if (!packet)
-        return packet;
-
-    auto angle = -this->d->cameraRotation(this->d->m_curDeviceId);
-
-    if (qFuzzyIsNull(angle))
-        return packet;
-
-    return this->rotate(packet, angle);
+    return packet;
 }
 
 bool CaptureNdkCamera::isTorchSupported() const
@@ -1225,16 +1217,21 @@ void CaptureNdkCameraPrivate::imageAvailable(void *context,
             int32_t iLineSize = 0;
             AImage_getPlaneRowStride(image, plane, &iLineSize);
             auto oLineSize = videoPacket.lineSize(plane);
-            auto lineSize = qMin<size_t>(iLineSize, oLineSize);
             auto widthDiv = videoPacket.widthDiv(plane);
             auto heightDiv = videoPacket.heightDiv(plane);
 
             if (pixelStride == 1) {
-                for (int y = 0; y < height; ++y) {
-                    auto ys = y >> heightDiv;
-                    auto srcLine = data + ys * iLineSize;
-                    auto dstLine = videoPacket.line(plane, y);
-                    memcpy(dstLine, srcLine, lineSize);
+                if (heightDiv == 0 && iLineSize == oLineSize) {
+                    memcpy(videoPacket.plane(plane), data, oLineSize * height);
+                } else {
+                    auto lineSize = qMin<size_t>(iLineSize, oLineSize);
+
+                    for (int y = 0; y < height; ++y) {
+                        auto ys = y >> heightDiv;
+                        auto srcLine = data + ys * iLineSize;
+                        auto dstLine = videoPacket.line(plane, y);
+                        memcpy(dstLine, srcLine, lineSize);
+                    }
                 }
             } else {
                 for (int y = 0; y < height; ++y) {
@@ -1262,20 +1259,26 @@ void CaptureNdkCameraPrivate::imageAvailable(void *context,
             int32_t iLineSize = 0;
             AImage_getPlaneRowStride(image, plane, &iLineSize);
             auto oLineSize = videoPacket.lineSize(plane);
-            auto lineSize = qMin<size_t>(iLineSize, oLineSize);
             auto heightDiv = videoPacket.heightDiv(plane);
 
-            for (int y = 0; y < height; ++y) {
-                auto ys = y >> heightDiv;
-                auto srcLine = data + ys * iLineSize;
-                auto dstLine = videoPacket.line(plane, y);
-                memcpy(dstLine, srcLine, lineSize);
+            if (heightDiv == 0 && iLineSize == oLineSize) {
+                memcpy(videoPacket.plane(plane), data, oLineSize * height);
+            } else {
+                auto lineSize = qMin<size_t>(iLineSize, oLineSize);
+
+                for (int y = 0; y < height; ++y) {
+                    auto ys = y >> heightDiv;
+                    auto srcLine = data + ys * iLineSize;
+                    auto dstLine = videoPacket.line(plane, y);
+                    memcpy(dstLine, srcLine, lineSize);
+                }
             }
 
             data += iLineSize * (height >> heightDiv);
         }
     }
 
+    videoPacket.setRotation(self->cameraRotation(self->m_curDeviceId));
     videoPacket.setPts(timestampNs);
     videoPacket.setDuration(1000000000L
                             * self->m_fps.den()

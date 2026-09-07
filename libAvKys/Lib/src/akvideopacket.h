@@ -75,6 +75,11 @@ class AKCOMMONS_EXPORT AkVideoPacket: public AkPacketBase
     Q_PROPERTY(size_t planes
                READ planes
                CONSTANT)
+        Q_PROPERTY(qreal rotation
+                   READ rotation
+                   WRITE setRotation
+                   RESET resetRotation
+                   NOTIFY rotationChanged)
 
     public:
         AkVideoPacket(QObject *parent=nullptr, int align=0);
@@ -92,6 +97,7 @@ class AKCOMMONS_EXPORT AkVideoPacket: public AkPacketBase
         Q_INVOKABLE const AkVideoCaps &caps() const;
         Q_INVOKABLE size_t size() const;
         Q_INVOKABLE size_t planes() const;
+        Q_INVOKABLE qreal rotation() const;
         Q_INVOKABLE size_t planeSize(int plane) const;
         Q_INVOKABLE size_t pixelSize(int plane) const;
         Q_INVOKABLE size_t lineSize(int plane) const;
@@ -155,7 +161,12 @@ class AKCOMMONS_EXPORT AkVideoPacket: public AkPacketBase
     private:
         AkVideoPacketPrivate *d;
 
+    Q_SIGNALS:
+        void rotationChanged(qreal rotation);
+
     public Q_SLOTS:
+        void setRotation(qreal rotation);
+        void resetRotation();
         static void registerTypes();
 };
 

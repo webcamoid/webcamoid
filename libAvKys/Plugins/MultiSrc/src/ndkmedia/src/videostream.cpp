@@ -448,20 +448,29 @@ AkPacket VideoStreamPrivate::readPacket(size_t bufferIndex,
                           height,
                           {qRound64(1000 * frameRate), 1000}});
     auto iData = data + info.offset;
+    auto frameHeight = packet.caps().height();
 
     for (int plane = 0; plane < packet.planes(); ++plane) {
         auto iLineSize = packet.planes() > 1?
-                             stride >> packet.widthDiv(plane):
-                             stride;
+        stride >> packet.widthDiv(plane):
+        stride;
         auto oLineSize = packet.lineSize(plane);
-        auto lineSize = qMin<size_t>(iLineSize, oLineSize);
         auto heightDiv = packet.heightDiv(plane);
+        auto planeHeight = frameHeight >> heightDiv;
 
-        for (int y = 0; y < packet.caps().height(); ++y) {
-            int ys = y >> heightDiv;
-            memcpy(packet.line(plane, y),
-                   iData + ys * iLineSize,
-                   lineSize);
+        if (heightDiv == 0 && iLineSize == oLineSize) {
+            memcpy(packet.plane(plane),
+                   iData,
+                   oLineSize * planeHeight);
+        } else {
+            auto lineSize = qMin<size_t>(iLineSize, oLineSize);
+
+            for (int y = 0; y < planeHeight; ++y) {
+                int ys = y << heightDiv;
+                memcpy(packet.line(plane, y),
+                       iData + ys * iLineSize,
+                       lineSize);
+            }
         }
 
         iData += (iLineSize * sliceHeight) >> heightDiv;

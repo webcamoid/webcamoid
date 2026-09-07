@@ -2591,86 +2591,95 @@
 <context>
     <name>VideoOutputAddEdit</name>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="233"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="734"/>
         <source>Edit Virtual Camera</source>
         <translation>Hariri Kamera ya Bandia</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="234"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="735"/>
         <source>Add Virtual Camera</source>
         <translation>Ongeza Kamera ya Bandia</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="297"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="368"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="797"/>
         <source>Virtual camera name</source>
         <translation>Jina la kamera ya bandia</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="318"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="820"/>
+        <source>Direct mode (fast mode)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="820"/>
+        <source>Compatibility (slow mode)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="834"/>
         <source>Add format</source>
         <translation>Ongeza muundo</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="328"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="845"/>
         <source>Clear formats</source>
         <translation>Futa muundo</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="390"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="881"/>
         <source>Format</source>
         <translation>Muundo</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="401"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="894"/>
         <source>Width</source>
         <translation>Upana</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="414"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="907"/>
         <source>Height</source>
         <translation>Urefu</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="427"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="920"/>
         <source>Frame rate</source>
         <translation>Kiwango cha fremu</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="452"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="942"/>
         <source>Can&apos;t edit the virtual camera</source>
         <translation>Haiwezi kuhariri kamera ya bandia</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="453"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="943"/>
         <source>Can&apos;t add the virtual camera</source>
         <translation>Haiwezi kuongeza kamera ya bandia</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="275"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="463"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="473"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="778"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="953"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="963"/>
         <source>Error editing the virtual camera</source>
         <translation>Hitilafu ya kuhariri kamera ya bandia</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="464"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="474"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="954"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="964"/>
         <source>Error adding the virtual camera</source>
         <translation>Hitilafu ya kuongeza kamera ya bandia</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="465"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="955"/>
         <source>Camera description can&apos;t be empty.</source>
         <translation>Maelezo ya kamera hayawezi kuwa tupu.</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="475"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="965"/>
         <source>Camera description and formats can&apos;t be empty.</source>
         <translation>Maelezo ya kamera na muundo hayawezi kuwa tupu.</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="266"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="769"/>
         <source>Error creating the virtual camera</source>
         <translation>Hitilafu ya kuunda kamera ya bandia</translation>
     </message>

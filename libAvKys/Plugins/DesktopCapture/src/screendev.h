@@ -49,7 +49,6 @@ class ScreenDev: public QObject
         Q_INVOKABLE virtual bool showCursor() const = 0;
         Q_INVOKABLE virtual int cursorSize() const = 0;
         Q_INVOKABLE virtual bool isWindow(const QString &media) const = 0;
-        Q_INVOKABLE AkPacket rotate(const AkPacket &packet, qreal angle);
 
     private:
         ScreenDevPrivate *d;
