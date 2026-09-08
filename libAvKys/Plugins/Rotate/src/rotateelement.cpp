@@ -132,9 +132,10 @@ void RotateElement::process(QOpenGLFramebufferObject *inputFbo,
     if (!outputFbo
         || outputFbo->width()  != dstWidth
         || outputFbo->height() != dstHeight) {
-        delete outputFbo;
-        QOpenGLFramebufferObjectFormat fmt;
-        outputFbo = new QOpenGLFramebufferObject(dstWidth, dstHeight, fmt);
+        if (outputFbo)
+            delete outputFbo;
+
+        outputFbo = new QOpenGLFramebufferObject(dstWidth, dstHeight);
     }
 
     outputFbo->bind();

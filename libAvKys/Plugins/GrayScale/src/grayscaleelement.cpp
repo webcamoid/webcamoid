@@ -106,9 +106,10 @@ void GrayScaleElement::process(QOpenGLFramebufferObject *inputFbo,
     if (!outputFbo
         || outputFbo->width() != width
         || outputFbo->height() != height) {
-        delete outputFbo;
-        QOpenGLFramebufferObjectFormat fmt;
-        outputFbo = new QOpenGLFramebufferObject(width, height, fmt);
+        if (outputFbo)
+            delete outputFbo;
+
+        outputFbo = new QOpenGLFramebufferObject(width, height);
     }
 
     outputFbo->bind();

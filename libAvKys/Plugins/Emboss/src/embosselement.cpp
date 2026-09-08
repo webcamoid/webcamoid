@@ -120,9 +120,7 @@ void EmbossElement::process(QOpenGLFramebufferObject *inputFbo,
         if (outputFbo)
             delete outputFbo;
 
-        outputFbo = new QOpenGLFramebufferObject(width,
-                                                 height,
-                                                 QOpenGLFramebufferObjectFormat());
+        outputFbo = new QOpenGLFramebufferObject(width, height);
     }
 
     // Emboss effect render

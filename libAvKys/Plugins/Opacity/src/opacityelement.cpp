@@ -109,10 +109,13 @@ void OpacityElement::process(QOpenGLFramebufferObject *inputFbo,
     if (width <= 0 || height <= 0)
         return;
 
-    if (!outputFbo || outputFbo->width() != width || outputFbo->height() != height) {
-        delete outputFbo;
-        QOpenGLFramebufferObjectFormat fmt;
-        outputFbo = new QOpenGLFramebufferObject(width, height, fmt);
+    if (!outputFbo
+        || outputFbo->width() != width
+        || outputFbo->height() != height) {
+        if (outputFbo)
+            delete outputFbo;
+
+        outputFbo = new QOpenGLFramebufferObject(width, height);
     }
 
     outputFbo->bind();

@@ -21,7 +21,7 @@
 #include <QMutex>
 #include <QOpenGLBuffer>
 #include <QOpenGLFramebufferObject>
-#include <QOpenGLFramebufferObjectFormat>
+#include <QOpenGLFunctions>
 #include <QQmlEngine>
 #include <QVector>
 
@@ -212,11 +212,17 @@ void AkGLPipeline::process(QOpenGLFramebufferObject *inputFbo,
 
     if (this->d->m_activeEffects.isEmpty()
         && !this->d->m_activePreview.element) {
-        if (inputFbo != outputFbo)
+        if (inputFbo != outputFbo) {
+            outputFbo->bind();
+            this->d->m_gl->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+            this->d->m_gl->glClear(GL_COLOR_BUFFER_BIT);
+            outputFbo->release();
+
             QOpenGLFramebufferObject::blitFramebuffer(outputFbo,
                                                       inputFbo,
                                                       GL_COLOR_BUFFER_BIT,
                                                       GL_NEAREST);
+        }
 
         return;
     }
@@ -239,11 +245,17 @@ void AkGLPipeline::process(QOpenGLFramebufferObject *inputFbo,
     if (this->d->m_activePreview.element)
         runStep(this->d->m_activePreview.element);
 
-    if (src != outputFbo)
+    if (src != outputFbo) {
+        outputFbo->bind();
+        this->d->m_gl->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        this->d->m_gl->glClear(GL_COLOR_BUFFER_BIT);
+        outputFbo->release();
+
         QOpenGLFramebufferObject::blitFramebuffer(outputFbo,
                                                   src,
                                                   GL_COLOR_BUFFER_BIT,
                                                   GL_NEAREST);
+    }
 }
 
 void AkGLPipeline::setEffects(const QStringList &effectIds)
@@ -519,11 +531,8 @@ void AkGLPipelinePrivate::ensureFboSize(QOpenGLFramebufferObject *&fbo,
     if (fbo && fbo->width() == width && fbo->height() == height)
         return;
 
-    QOpenGLFramebufferObjectFormat fmt;
-    fmt.setAttachment(QOpenGLFramebufferObject::NoAttachment);
-
     delete fbo;
-    fbo = new QOpenGLFramebufferObject(width, height, fmt);
+    fbo = new QOpenGLFramebufferObject(width, height);
 }
 
 #include "moc_akglpipeline.cpp"

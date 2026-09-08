@@ -115,10 +115,10 @@ void PixelateElement::process(QOpenGLFramebufferObject *inputFbo,
     if (!outputFbo
         || outputFbo->width() != width
         || outputFbo->height() != height) {
-        delete outputFbo;
-        outputFbo = new QOpenGLFramebufferObject(width,
-                                                 height,
-                                                 QOpenGLFramebufferObjectFormat());
+        if (outputFbo)
+            delete outputFbo;
+
+        outputFbo = new QOpenGLFramebufferObject(width, height);
     }
 
     outputFbo->bind();

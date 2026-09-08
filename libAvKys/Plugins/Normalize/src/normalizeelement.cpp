@@ -130,9 +130,10 @@ void NormalizeElement::process(QOpenGLFramebufferObject *inputFbo,
     if (!outputFbo
         || outputFbo->width()  != width
         || outputFbo->height() != height) {
-        delete outputFbo;
-        QOpenGLFramebufferObjectFormat fmt;
-        outputFbo = new QOpenGLFramebufferObject(width, height, fmt);
+        if (outputFbo)
+            delete outputFbo;
+
+        outputFbo = new QOpenGLFramebufferObject(width, height);
     }
 
     // Read back a small thumbnail instead of the full frame to keep the CPU

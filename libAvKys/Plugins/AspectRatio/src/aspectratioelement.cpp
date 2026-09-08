@@ -129,9 +129,10 @@ void AspectRatioElement::process(QOpenGLFramebufferObject *inputFbo,
     if (!outputFbo
         || outputFbo->width()  != oWidth
         || outputFbo->height() != oHeight) {
-        delete outputFbo;
-        QOpenGLFramebufferObjectFormat fmt;
-        outputFbo = new QOpenGLFramebufferObject(oWidth, oHeight, fmt);
+        if (outputFbo)
+            delete outputFbo;
+
+        outputFbo = new QOpenGLFramebufferObject(oWidth, oHeight);
     }
 
     // Compute source crop for AspectRatioMode_Expanding:

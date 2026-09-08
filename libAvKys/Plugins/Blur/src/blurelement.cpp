@@ -157,9 +157,10 @@ void BlurElement::process(QOpenGLFramebufferObject *inputFbo,
     if (!outputFbo
         || outputFbo->width()  != width
         || outputFbo->height() != height) {
-        delete outputFbo;
-        QOpenGLFramebufferObjectFormat fmt;
-        outputFbo = new QOpenGLFramebufferObject(width, height, fmt);
+        if (outputFbo)
+            delete outputFbo;
+
+        outputFbo = new QOpenGLFramebufferObject(width, height);
     }
 
     int radius = qBound(0, this->d->m_radius, MAX_RADIUS);
@@ -197,10 +198,11 @@ void BlurElement::process(QOpenGLFramebufferObject *inputFbo,
     if (!this->d->m_intermediateFbo
         || this->d->m_intermediateFbo->width()  != width
         || this->d->m_intermediateFbo->height() != height) {
-        delete this->d->m_intermediateFbo;
-        QOpenGLFramebufferObjectFormat fmt;
+        if (this->d->m_intermediateFbo)
+            delete this->d->m_intermediateFbo;
+
         this->d->m_intermediateFbo =
-                new QOpenGLFramebufferObject(width, height, fmt);
+                new QOpenGLFramebufferObject(width, height);
     }
 
     // Horizontal blur

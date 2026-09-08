@@ -241,9 +241,10 @@ void EdgeElement::process(QOpenGLFramebufferObject *inputFbo,
     if (!outputFbo
         || outputFbo->width() != width
         || outputFbo->height() != height) {
-        delete outputFbo;
-        outputFbo = new QOpenGLFramebufferObject(width, height,
-                                                 QOpenGLFramebufferObjectFormat());
+        if (outputFbo)
+            delete outputFbo;
+
+        outputFbo = new QOpenGLFramebufferObject(width, height);
     }
 
     auto sourceFbo = inputFbo;
@@ -256,9 +257,10 @@ void EdgeElement::process(QOpenGLFramebufferObject *inputFbo,
         if (!this->d->m_histFbo
             || this->d->m_histFbo->width() != histW
             || this->d->m_histFbo->height() != histH) {
-            delete this->d->m_histFbo;
-            QOpenGLFramebufferObjectFormat fmt;
-            this->d->m_histFbo = new QOpenGLFramebufferObject(histW, histH, fmt);
+            if (this->d->m_histFbo)
+                delete this->d->m_histFbo;
+
+            this->d->m_histFbo = new QOpenGLFramebufferObject(histW, histH);
         }
 
         this->d->m_histFbo->bind();
@@ -307,9 +309,10 @@ void EdgeElement::process(QOpenGLFramebufferObject *inputFbo,
         if (!this->d->m_eqFbo
             || this->d->m_eqFbo->width() != width
             || this->d->m_eqFbo->height() != height) {
-            delete this->d->m_eqFbo;
-            QOpenGLFramebufferObjectFormat fmt;
-            this->d->m_eqFbo = new QOpenGLFramebufferObject(width, height, fmt);
+            if (this->d->m_eqFbo)
+                delete this->d->m_eqFbo;
+
+            this->d->m_eqFbo = new QOpenGLFramebufferObject(width, height);
         }
 
         this->d->m_eqFbo->bind();
@@ -335,9 +338,10 @@ void EdgeElement::process(QOpenGLFramebufferObject *inputFbo,
     if (!this->d->m_gradFbo
         || this->d->m_gradFbo->width() != width
         || this->d->m_gradFbo->height() != height) {
-        delete this->d->m_gradFbo;
-        QOpenGLFramebufferObjectFormat fmt;
-        this->d->m_gradFbo = new QOpenGLFramebufferObject(width, height, fmt);
+        if (this->d->m_gradFbo)
+            delete this->d->m_gradFbo;
+
+        this->d->m_gradFbo = new QOpenGLFramebufferObject(width, height);
     }
 
     this->d->m_gradFbo->bind();
@@ -362,9 +366,10 @@ void EdgeElement::process(QOpenGLFramebufferObject *inputFbo,
         if (!this->d->m_nmsFbo
             || this->d->m_nmsFbo->width() != width
             || this->d->m_nmsFbo->height() != height) {
-            delete this->d->m_nmsFbo;
-            QOpenGLFramebufferObjectFormat fmt;
-            this->d->m_nmsFbo = new QOpenGLFramebufferObject(width, height, fmt);
+            if (this->d->m_nmsFbo)
+                delete this->d->m_nmsFbo;
+
+            this->d->m_nmsFbo = new QOpenGLFramebufferObject(width, height);
         }
 
         this->d->m_nmsFbo->bind();

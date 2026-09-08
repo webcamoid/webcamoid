@@ -26,7 +26,6 @@
 #include <QOpenGLContext>
 #include <QOpenGLExtraFunctions>
 #include <QOpenGLFramebufferObject>
-#include <QOpenGLFramebufferObjectFormat>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 #include <QPointer>
@@ -1509,10 +1508,12 @@ void AkGLCompositorPrivate::processTick()
     this->ensureFboSize(this->m_effectFbo,
                         this->m_canvasFbo->width(),
                         this->m_canvasFbo->height());
+
     this->m_pipeline.process(this->m_canvasFbo,
                                 this->m_effectFbo,
                                 this->m_id,
                                 pts / 1e9);
+
     emit self->outputTextureReady(this->m_effectFbo->texture(),
                                   this->m_effectFbo->size());
 
@@ -1635,6 +1636,8 @@ void AkGLCompositorPrivate::uploadSource(AkGLCompositorSourcePtr source,
 
     this->ensureFboSize(source->entryFbo, width, height);
     source->entryFbo->bind();
+    self->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    self->glClear(GL_COLOR_BUFFER_BIT);
     this->blitTexture(source->uploadTex->textureId(), width, height);
     source->entryFbo->release();
 }
@@ -1942,11 +1945,8 @@ void AkGLCompositorPrivate::ensureFboSize(QOpenGLFramebufferObject *&fbo,
     if (fbo && fbo->width() == width && fbo->height() == height)
         return;
 
-    QOpenGLFramebufferObjectFormat fmt;
-    fmt.setAttachment(QOpenGLFramebufferObject::NoAttachment);
-
     delete fbo;
-    fbo = new QOpenGLFramebufferObject(width, height, fmt);
+    fbo = new QOpenGLFramebufferObject(width, height);
 }
 
 void AkGLCompositorPrivate::bindBlitAttribs()

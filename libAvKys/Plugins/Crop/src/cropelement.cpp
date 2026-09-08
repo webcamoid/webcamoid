@@ -263,9 +263,10 @@ void CropElement::process(QOpenGLFramebufferObject *inputFbo,
     if (!outputFbo
         || outputFbo->width()  != outWidth
         || outputFbo->height() != outHeight) {
-        delete outputFbo;
-        QOpenGLFramebufferObjectFormat fmt;
-        outputFbo = new QOpenGLFramebufferObject(outWidth, outHeight, fmt);
+        if (outputFbo)
+            delete outputFbo;
+
+        outputFbo = new QOpenGLFramebufferObject(outWidth, outHeight);
     }
 
     // Fill color normalized
