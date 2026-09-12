@@ -2608,12 +2608,12 @@
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="327"/>
         <source>Direct mode (fast mode)</source>
-        <translation type="unfinished"></translation>
+        <translation>Directe modus (snel)</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="328"/>
         <source>Compatibility (slow mode)</source>
-        <translation type="unfinished"></translation>
+        <translation>Compatibiliteit (langzaam)</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="344"/>
