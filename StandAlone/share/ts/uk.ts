@@ -4350,7 +4350,6 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="57"/>
-        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="46"/>
         <source>Keep resolution</source>
         <translation>Зберегти роздільну здатність</translation>
     </message>
@@ -4383,11 +4382,6 @@
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="135"/>
         <source>Choose the filling color</source>
         <translation>Оберіть колір заповнення</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Opacity/share/qml/main.qml" line="28"/>
-        <source>Opacity</source>
-        <translation>Непрозорість</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="33"/>
@@ -5060,11 +5054,6 @@
         <location filename="../../../libAvKys/ExtraPlugins/Warp/share/qml/main.qml" line="43"/>
         <source>Duration (in seconds)</source>
         <translation>Тривалість (у секундах)</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="29"/>
-        <source>Angle %1°</source>
-        <translation>Кут %1°</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Pixelate/share/qml/main.qml" line="27"/>

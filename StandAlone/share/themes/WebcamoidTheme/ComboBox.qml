@@ -157,10 +157,13 @@ T.ComboBox {
     // List of elements
     popup: T.Popup {
         id: popup
-        y: control.height
-           + AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
+        y: control.height + AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
         width: control.width
-        height: Math.min(contentItem.implicitHeight, control.Window.height - topMargin - bottomMargin)
+        height: Math.min(
+            contentItem.implicitHeight, 
+            control.Window.height - 2 * margins
+        )
+        margins: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels        
         implicitHeight: contentItem.implicitHeight + 2 * topPadding
         transformOrigin: Item.Top
         topPadding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
@@ -207,7 +210,8 @@ T.ComboBox {
             implicitHeight: contentHeight
             model: control.delegateModel
             currentIndex: control.highlightedIndex
-            cacheBuffer: 1
+            boundsBehavior: Flickable.StopAtBounds
+            cacheBuffer: 10 
 
             T.ScrollIndicator.vertical: ScrollIndicator {
             }

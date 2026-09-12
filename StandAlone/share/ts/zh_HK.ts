@@ -3703,7 +3703,6 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="57"/>
-        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="46"/>
         <source>Keep resolution</source>
         <translation>保持解析度</translation>
     </message>
@@ -4631,11 +4630,6 @@
         <translation>字幕軌道</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Opacity/share/qml/main.qml" line="28"/>
-        <source>Opacity</source>
-        <translation>不透明度</translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/ExtraPlugins/Otsu/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="61"/>
         <source>Levels</source>
@@ -5058,11 +5052,6 @@
         <location filename="../qml/main.qml" line="849"/>
         <source>Running commands</source>
         <translation>正在執行命令</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="29"/>
-        <source>Angle %1°</source>
-        <translation>角度 %1°</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Pixelate/share/qml/main.qml" line="27"/>

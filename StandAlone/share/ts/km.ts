@@ -3678,7 +3678,6 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="57"/>
-        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="46"/>
         <source>Keep resolution</source>
         <translation>រក្សាការដោះស្រាយ</translation>
     </message>
@@ -4612,11 +4611,6 @@
         <translation>ដានចំណងជើងរង</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Opacity/share/qml/main.qml" line="28"/>
-        <source>Opacity</source>
-        <translation>ភាពអាថ៌កំបាំង</translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/ExtraPlugins/Otsu/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="61"/>
         <source>Levels</source>
@@ -5059,11 +5053,6 @@
         <location filename="../qml/main.qml" line="849"/>
         <source>Running commands</source>
         <translation>កំពុងដំណើរការពាក្យបញ្ជា</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="29"/>
-        <source>Angle %1°</source>
-        <translation>មុំ %1°</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Pixelate/share/qml/main.qml" line="27"/>

@@ -7,10 +7,6 @@
             "id": "VideoSink/VirtualCamera/Impl/v4l2loopback",
             "implements": ["VirtualCameraImpl"],
             "priority": 900,
-            "depends": [
-                "VideoFilter/Flip",
-                "VideoFilter/SwapRB"
-            ],
             "type": "qtplugin"
         }
     ]

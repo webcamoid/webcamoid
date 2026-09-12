@@ -4356,11 +4356,6 @@
         <translation>ছাবটাইটেল ট্ৰেক</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Opacity/share/qml/main.qml" line="28"/>
-        <source>Opacity</source>
-        <translation>অপেছিটি</translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/ExtraPlugins/Otsu/share/qml/main.qml" line="28"/>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="61"/>
         <source>Levels</source>
@@ -4943,7 +4938,6 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="57"/>
-        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="46"/>
         <source>Keep resolution</source>
         <translation>ৰিজ&apos;ল্যুছন ৰাখক</translation>
     </message>
@@ -5059,11 +5053,6 @@
         <location filename="../../../libAvKys/ExtraPlugins/Quark/share/qml/main.qml" line="27"/>
         <source>Strength</source>
         <translation>শক্তি</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="29"/>
-        <source>Angle %1°</source>
-        <translation>কোণ %1°</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Pixelate/share/qml/main.qml" line="27"/>

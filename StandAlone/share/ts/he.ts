@@ -4886,14 +4886,8 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="57"/>
-        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="46"/>
         <source>Keep resolution</source>
         <translation>שמירה על הרזולוציה</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Opacity/share/qml/main.qml" line="28"/>
-        <source>Opacity</source>
-        <translation>אטימות</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="33"/>
@@ -5059,11 +5053,6 @@
         <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="188"/>
         <source>Reset to default values</source>
         <translation>אפס לערכי ברירת מחדל</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Rotate/share/qml/main.qml" line="29"/>
-        <source>Angle %1°</source>
-        <translation>זווית %1°</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Pixelate/share/qml/main.qml" line="27"/>

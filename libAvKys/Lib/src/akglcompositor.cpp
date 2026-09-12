@@ -1724,8 +1724,6 @@ QMatrix4x4 AkGLCompositorPrivate::computeSourceTransform(const SourceSnapshot &s
     float ry = float(snap.rect.y());
     float rw = float(snap.rect.width());
     float rh = float(snap.rect.height());
-    float fittedW = rw;
-    float fittedH = rh;
 
     qreal packetRotation = 0.0;
     {
@@ -1742,53 +1740,53 @@ QMatrix4x4 AkGLCompositorPrivate::computeSourceTransform(const SourceSnapshot &s
         normalizedPacketRotation += 360.0f;
 
     bool swapTexDims =
-            qFuzzyCompare(normalizedPacketRotation, 90.0f)
-            || qFuzzyCompare(normalizedPacketRotation, 270.0f);
-    int texW = swapTexDims? snap.texH: snap.texW;
-    int texH = swapTexDims? snap.texW: snap.texH;
+        qFuzzyCompare(normalizedPacketRotation, 90.0f)
+        || qFuzzyCompare(normalizedPacketRotation, 270.0f);
+    int realTexW = swapTexDims ? snap.texH : snap.texW;
+    int realTexH = swapTexDims ? snap.texW : snap.texH;
 
-    if (snap.aspectRatioMode != Qt::IgnoreAspectRatio
-        && texW > 0 && texH > 0) {
-        float texAspect = float(texW) / float(texH);
-        float rectPixelW = rw * canvasW;
-        float rectPixelH = rh * canvasH;
-        float rectAspect = rectPixelW / rectPixelH;
+    float pixelW = rw * canvasW;
+    float pixelH = rh * canvasH;
+
+    if (snap.aspectRatioMode != Qt::IgnoreAspectRatio && realTexW > 0 && realTexH > 0) {
+        float targetW = rw * canvasW;
+        float targetH = rh * canvasH;
 
         if (snap.aspectRatioMode == Qt::KeepAspectRatio) {
-            if (texAspect > rectAspect) {
-                fittedW = rw;
-                fittedH = fittedW * canvasW / (texAspect * canvasH);
-            } else {
-                fittedH = rh;
-                fittedW = fittedH * texAspect * canvasH / canvasW;
-            }
+            float scaleX = targetW / realTexW;
+            float scaleY = targetH / realTexH;
+            float scale = qMin(scaleX, scaleY);
+            pixelW = scale * realTexW;
+            pixelH = scale * realTexH;
         } else if (snap.aspectRatioMode == Qt::KeepAspectRatioByExpanding) {
-            if (texAspect > rectAspect) {
-                fittedH = rh;
-                fittedW = fittedH * texAspect * canvasH / canvasW;
-            } else {
-                fittedW = rw;
-                fittedH = fittedW * canvasW / (texAspect * canvasH);
-            }
+            float scaleX = targetW / realTexW;
+            float scaleY = targetH / realTexH;
+            float scale = qMax(scaleX, scaleY);
+            pixelW = scale * realTexW;
+            pixelH = scale * realTexH;
         }
     }
+
+    float fittedW = pixelW / canvasW;
+    float fittedH = pixelH / canvasH;
+
+    float boxScaleW = rw > 0.0f ? fittedW / rw : 1.0f;
+    float boxScaleH = rh > 0.0f ? fittedH / rh : 1.0f;
+
+    this->m_lastBoxScale = swapTexDims
+        ? QVector2D(boxScaleH, boxScaleW)
+        : QVector2D(boxScaleW, boxScaleH);
 
     float cx = rx + rw / 2.0f;
     float cy = ry + rh / 2.0f;
     float ndcCx = cx * 2.0f - 1.0f;
     float ndcCy = cy * 2.0f - 1.0f;
-    float pixelW = fittedW * canvasW;
-    float pixelH = fittedH * canvasH;
-
-    this->m_lastBoxScale = {rw > 0.0f? fittedW / rw: 1.0f,
-                            rh > 0.0f? fittedH / rh: 1.0f};
 
     QMatrix4x4 transform;
     transform.setToIdentity();
     transform.translate(ndcCx, ndcCy, 0.0f);
     transform.scale(1.0f / canvasW, 1.0f / canvasH, 1.0f);
-    transform.rotate(float(snap.rotation) - normalizedPacketRotation,
-                     0.0f, 0.0f, 1.0f);
+    transform.rotate(float(snap.rotation) - normalizedPacketRotation, 0.0f, 0.0f, 1.0f);
     transform.scale(swapTexDims ? pixelH : pixelW,
                     swapTexDims ? pixelW : pixelH,
                     1.0f);
