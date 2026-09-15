@@ -32,6 +32,8 @@ class ZoomElementPrivate
         QOpenGLShaderProgram *m_shader {nullptr};
         QOpenGLVertexArrayObject m_vao;
         qreal m_zoom {1.0};
+        qreal m_horizontalPan {0.5};
+        qreal m_verticalPan {0.5};
 };
 
 ZoomElement::ZoomElement(): AkVideoEffect()
@@ -47,6 +49,16 @@ ZoomElement::~ZoomElement()
 qreal ZoomElement::zoom() const
 {
     return this->d->m_zoom;
+}
+
+qreal ZoomElement::horizontalPan() const
+{
+    return this->d->m_horizontalPan;
+}
+
+qreal ZoomElement::verticalPan() const
+{
+    return this->d->m_verticalPan;
 }
 
 bool ZoomElement::init(QOpenGLBuffer *vbo, QOpenGLBuffer *ibo)
@@ -70,6 +82,7 @@ bool ZoomElement::init(QOpenGLBuffer *vbo, QOpenGLBuffer *ibo)
     ibo->bind();
 
     this->d->m_shader->bind();
+
     int posAttr = this->d->m_shader->attributeLocation("aPos");
     this->d->m_shader->enableAttributeArray(posAttr);
     this->d->m_shader->setAttributeBuffer(posAttr,
@@ -140,8 +153,14 @@ void ZoomElement::process(QOpenGLFramebufferObject *inputFbo,
     this->m_gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     this->m_gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     this->m_gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    auto horizontalPan = qBound(0.0, this->d->m_horizontalPan, 1.0);
+    auto verticalPan = qBound(0.0, this->d->m_verticalPan, 1.0);
+
     this->d->m_shader->setUniformValue("uTex",  0);
     this->d->m_shader->setUniformValue("uZoom", float(zoom));
+    this->d->m_shader->setUniformValue("uPanX", float(horizontalPan));
+    this->d->m_shader->setUniformValue("uPanY", float(verticalPan));
 
     this->m_gl->glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
@@ -189,6 +208,34 @@ void ZoomElement::setZoom(qreal zoom)
 void ZoomElement::resetZoom()
 {
     this->setZoom(1.0);
+}
+
+void ZoomElement::setHorizontalPan(qreal pan)
+{
+    if (qFuzzyCompare(this->d->m_horizontalPan, pan))
+        return;
+
+    this->d->m_horizontalPan = pan;
+    emit this->horizontalPanChanged(this->d->m_horizontalPan);
+}
+
+void ZoomElement::setVerticalPan(qreal pan)
+{
+    if (qFuzzyCompare(this->d->m_verticalPan, pan))
+        return;
+
+    this->d->m_verticalPan = pan;
+    emit this->verticalPanChanged(this->d->m_verticalPan);
+}
+
+void ZoomElement::resetHorizontalPan()
+{
+    this->setHorizontalPan(0.5);
+}
+
+void ZoomElement::resetVerticalPan()
+{
+    this->setVerticalPan(0.5);
 }
 
 #include "moc_zoomelement.cpp"

@@ -33,7 +33,6 @@ class CropElementPrivate
         QOpenGLVertexArrayObject m_vao;
         bool m_editMode {false};
         bool m_relative {false};
-        bool m_keepResolution {false};
         qreal m_left {0.0};
         qreal m_right {639.0};
         qreal m_top {0.0};
@@ -61,11 +60,6 @@ bool CropElement::editMode() const
 bool CropElement::relative() const
 {
     return this->d->m_relative;
-}
-
-bool CropElement::keepResolution() const
-{
-    return this->d->m_keepResolution;
 }
 
 qreal CropElement::left() const
@@ -124,6 +118,7 @@ bool CropElement::init(QOpenGLBuffer *vbo, QOpenGLBuffer *ibo)
     ibo->bind();
 
     this->d->m_shader->bind();
+
     int posAttr = this->d->m_shader->attributeLocation("aPos");
     this->d->m_shader->enableAttributeArray(posAttr);
     this->d->m_shader->setAttributeBuffer(posAttr,
@@ -174,7 +169,7 @@ void CropElement::process(QOpenGLFramebufferObject *inputFbo,
         emit this->frameHeightChanged(height);
     }
 
-    // Compute crop rectangle (same logic as original)
+    // Compute crop rectangle
     int rightMax = width - 1;
     int left = this->d->m_relative?
                    qRound(rightMax * this->d->m_left / 100.0):
@@ -215,61 +210,41 @@ void CropElement::process(QOpenGLFramebufferObject *inputFbo,
 
     QRect srcRect(left, top, right - left + 1, bottom - top + 1);
 
-    // Determine output size and UV mapping
-    int outWidth = width;
-    int outHeight = height;
+    int srcW = srcRect.width();
+    int srcH = srcRect.height();
+    int dstW, dstH;
+
+    if (width * srcH <= height * srcW) {
+        dstW = width;
+        dstH = qRound(float(width) * float(srcH) / float(srcW));
+    } else {
+        dstH = height;
+        dstW = qRound(float(height) * float(srcW) / float(srcH));
+    }
+
+    int dstX = (width - dstW) / 2;
+    int dstY = (height - dstH) / 2;
+
     float srcCropX = float(srcRect.left()) / float(width);
-    float srcCropY = 1.0f - float(srcRect.bottom() + 1) / float(height);
+    float srcCropY = float(srcRect.top()) / float(height);
     float srcCropW = float(srcRect.width()) / float(width);
     float srcCropH = float(srcRect.height()) / float(height);
-    float dstCropX = 0.0f;
-    float dstCropY = 0.0f;
-    float dstCropW = 1.0f;
-    float dstCropH = 1.0f;
 
-    if (!this->d->m_editMode) {
-        if (this->d->m_keepResolution) {
-            // Keep original resolution, center the crop
-            QRect dstRect;
-            if (width * srcRect.height() <= height * srcRect.width()) {
-                int dstHeight = width * srcRect.height() / srcRect.width();
-                dstRect = {0,
-                           (height - dstHeight) / 2,
-                           width,
-                           dstHeight};
-            } else {
-                int dstWidth = height * srcRect.width() / srcRect.height();
-                dstRect = {(width - dstWidth) / 2,
-                           0,
-                           dstWidth,
-                           height};
-            }
-            dstCropX = float(dstRect.left()) / float(width);
-            dstCropY = float(dstRect.top()) / float(height);
-            dstCropW = float(dstRect.width()) / float(width);
-            dstCropH = float(dstRect.height()) / float(height);
-        } else {
-            // Change resolution to crop size
-            outWidth = srcRect.width();
-            outHeight = srcRect.height();
-            dstCropX = 0.0f;
-            dstCropY = 0.0f;
-            dstCropW = 1.0f;
-            dstCropH = 1.0f;
-        }
-    }
+    float dstCropX = float(dstX) / float(width);
+    float dstCropY = float(dstY) / float(height);
+    float dstCropW = float(dstW) / float(width);
+    float dstCropH = float(dstH) / float(height);
 
     // Reallocate output FBO if size changed
     if (!outputFbo
-        || outputFbo->width()  != outWidth
-        || outputFbo->height() != outHeight) {
+        || outputFbo->width()  != width
+        || outputFbo->height() != height) {
         if (outputFbo)
             delete outputFbo;
 
-        outputFbo = new QOpenGLFramebufferObject(outWidth, outHeight);
+        outputFbo = new QOpenGLFramebufferObject(width, height);
     }
 
-    // Fill color normalized
     float fillR = float(qRed(this->d->m_fillColor))   / 255.0f;
     float fillG = float(qGreen(this->d->m_fillColor)) / 255.0f;
     float fillB = float(qBlue(this->d->m_fillColor))  / 255.0f;
@@ -277,7 +252,9 @@ void CropElement::process(QOpenGLFramebufferObject *inputFbo,
 
     // Render
     outputFbo->bind();
-    this->m_gl->glViewport(0, 0, outWidth, outHeight);
+    this->m_gl->glViewport(0, 0, width, height);
+    
+    this->m_gl->glClearColor(fillR, fillG, fillB, fillA);
     this->m_gl->glClear(GL_COLOR_BUFFER_BIT);
 
     this->d->m_vao.bind();
@@ -290,14 +267,15 @@ void CropElement::process(QOpenGLFramebufferObject *inputFbo,
     this->m_gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     this->m_gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     this->m_gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
     this->d->m_shader->setUniformValue("uTex",       0);
     this->d->m_shader->setUniformValue("uSrcCrop",   srcCropX, srcCropY, srcCropW, srcCropH);
     this->d->m_shader->setUniformValue("uDstCrop",   dstCropX, dstCropY, dstCropW, dstCropH);
     this->d->m_shader->setUniformValue("uFillColor", fillR, fillG, fillB, fillA);
     this->d->m_shader->setUniformValue("uEditMode",  this->d->m_editMode ? 1.0f : 0.0f);
     this->d->m_shader->setUniformValue("uEditColor", 1.0f, 0.0f, 0.0f, 1.0f); // Red
-    this->d->m_shader->setUniformValue("uWidth",     outWidth);
-    this->d->m_shader->setUniformValue("uHeight",    outHeight);
+    this->d->m_shader->setUniformValue("uWidth",     width);
+    this->d->m_shader->setUniformValue("uHeight",    height);
 
     this->m_gl->glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
@@ -325,7 +303,7 @@ QString CropElement::controlInterfaceProvide(const QString &controlId) const
 }
 
 void CropElement::controlInterfaceConfigure(QQmlContext *context,
-                                              const QString &controlId) const
+                                            const QString &controlId) const
 {
     Q_UNUSED(controlId)
 
@@ -372,15 +350,6 @@ void CropElement::setRelative(bool relative)
     this->setRight(right);
     this->setTop(top);
     this->setBottom(bottom);
-}
-
-void CropElement::setKeepResolution(bool keepResolution)
-{
-    if (this->d->m_keepResolution == keepResolution)
-        return;
-
-    this->d->m_keepResolution = keepResolution;
-    emit this->keepResolutionChanged(this->d->m_keepResolution);
 }
 
 void CropElement::setLeft(qreal left)
@@ -438,11 +407,6 @@ void CropElement::resetRelative()
     this->setRelative(false);
 }
 
-void CropElement::resetKeepResolution()
-{
-    this->setKeepResolution(false);
-}
-
 void CropElement::resetLeft()
 {
     this->setLeft(0.0);
@@ -472,7 +436,6 @@ void CropElement::reset()
 {
     this->resetEditMode();
     this->resetRelative();
-    this->resetKeepResolution();
     this->resetLeft();
     this->resetRight();
     this->resetTop();

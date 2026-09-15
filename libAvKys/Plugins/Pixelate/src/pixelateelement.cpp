@@ -32,7 +32,8 @@ class PixelateElementPrivate
     public:
         QOpenGLShaderProgram *m_shader {nullptr};
         QOpenGLVertexArrayObject m_vao;
-        QSize m_blockSize {8, 8};
+        int m_blockWidth {16};
+        int m_blockHeight {16};
         QMutex m_mutex;
 };
 
@@ -46,9 +47,14 @@ PixelateElement::~PixelateElement()
     delete this->d;
 }
 
-QSize PixelateElement::blockSize() const
+int PixelateElement::blockWidth() const
 {
-    return this->d->m_blockSize;
+    return this->d->m_blockWidth;
+}
+
+int PixelateElement::blockHeight() const
+{
+    return this->d->m_blockHeight;
 }
 
 bool PixelateElement::init(QOpenGLBuffer *vbo, QOpenGLBuffer *ibo)
@@ -106,11 +112,9 @@ void PixelateElement::process(QOpenGLFramebufferObject *inputFbo,
         return;
 
     this->d->m_mutex.lock();
-    QSize blockSize = this->d->m_blockSize;
+    int blockWidth  = qMax(1, this->d->m_blockWidth );
+    int blockHeight = qMax(1, this->d->m_blockHeight);
     this->d->m_mutex.unlock();
-
-    blockSize.setWidth(qMax(1, blockSize.width()));
-    blockSize.setHeight(qMax(1, blockSize.height()));
 
     if (!outputFbo
         || outputFbo->width() != width
@@ -131,8 +135,12 @@ void PixelateElement::process(QOpenGLFramebufferObject *inputFbo,
     this->m_gl->glActiveTexture(GL_TEXTURE0);
     this->m_gl->glBindTexture(GL_TEXTURE_2D, inputFbo->texture());
     this->d->m_shader->setUniformValue("uTexture", 0);
-    this->d->m_shader->setUniformValue("uBlockSize", (float)blockSize.width(), (float)blockSize.height());
-    this->d->m_shader->setUniformValue("uOutputSize", (float)width, (float)height);
+    this->d->m_shader->setUniformValue("uBlockSize",
+                                       float(blockWidth),
+                                       float(blockHeight));
+    this->d->m_shader->setUniformValue("uOutputSize",
+                                       float(width),
+                                       float(height));
 
     this->m_gl->glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
@@ -167,20 +175,36 @@ void PixelateElement::controlInterfaceConfigure(QQmlContext *context,
     context->setContextProperty("controlId", this->objectName());
 }
 
-void PixelateElement::setBlockSize(const QSize &blockSize)
+void PixelateElement::setBlockWidth(int blockWidth)
 {
-    if (blockSize == this->d->m_blockSize)
+    if (blockWidth == this->d->m_blockWidth)
         return;
 
     this->d->m_mutex.lock();
-    this->d->m_blockSize = blockSize;
+    this->d->m_blockWidth = blockWidth;
     this->d->m_mutex.unlock();
-    emit this->blockSizeChanged(blockSize);
+    emit this->blockWidthChanged(blockWidth);
 }
 
-void PixelateElement::resetBlockSize()
+void PixelateElement::setBlockHeight(int blockHeight)
 {
-    this->setBlockSize({8, 8});
+    if (blockHeight == this->d->m_blockHeight)
+        return;
+
+    this->d->m_mutex.lock();
+    this->d->m_blockHeight = blockHeight;
+    this->d->m_mutex.unlock();
+    emit this->blockHeightChanged(blockHeight);
+}
+
+void PixelateElement::resetBlockWidth()
+{
+    this->setBlockWidth(16);
+}
+
+void PixelateElement::resetBlockHeight()
+{
+    this->setBlockHeight(16);
 }
 
 #include "moc_pixelateelement.cpp"

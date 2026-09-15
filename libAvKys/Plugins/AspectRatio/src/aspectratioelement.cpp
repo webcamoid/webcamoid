@@ -33,6 +33,7 @@ class AspectRatioElementPrivate
         QOpenGLVertexArrayObject m_vao;
         int m_width {16};
         int m_height {9};
+        QRgb m_backgroundColor {qRgba(0, 0, 0, 0)};
 };
 
 AspectRatioElement::AspectRatioElement(): AkVideoEffect()
@@ -53,6 +54,11 @@ int AspectRatioElement::width() const
 int AspectRatioElement::height() const
 {
     return this->d->m_height;
+}
+
+QRgb AspectRatioElement::backgroundColor() const
+{
+    return this->d->m_backgroundColor;
 }
 
 bool AspectRatioElement::init(QOpenGLBuffer *vbo, QOpenGLBuffer *ibo)
@@ -99,9 +105,9 @@ bool AspectRatioElement::init(QOpenGLBuffer *vbo, QOpenGLBuffer *ibo)
 }
 
 void AspectRatioElement::process(QOpenGLFramebufferObject *inputFbo,
-                                   QOpenGLFramebufferObject *&outputFbo,
-                                   qint64 streamId,
-                                   qreal pts)
+                                 QOpenGLFramebufferObject *&outputFbo,
+                                 qint64 streamId,
+                                 qreal pts)
 {
     Q_UNUSED(streamId)
     Q_UNUSED(pts)
@@ -109,61 +115,53 @@ void AspectRatioElement::process(QOpenGLFramebufferObject *inputFbo,
     if (!this->d->m_shader || !this->m_gl || !inputFbo)
         return;
 
-    const int inWidth  = inputFbo->width();
-    const int inHeight = inputFbo->height();
+    const int width  = inputFbo->width();
+    const int height = inputFbo->height();
 
-    if (inWidth <= 0 || inHeight <= 0)
+    if (width <= 0 || height <= 0)
         return;
 
-    // Compute output size maintaining aspect ratio
-    int oWidth = qRound(qreal(inHeight)
-                        * qMax(this->d->m_width, 1)
-                        / qMax(this->d->m_height, 1));
-    oWidth = qMin(oWidth, inWidth);
-    int oHeight = qRound(qreal(inWidth)
-                         * qMax(this->d->m_height, 1)
-                         / qMax(this->d->m_width, 1));
-    oHeight = qMin(oHeight, inHeight);
-
-    // Reallocate output FBO if size changed
-    if (!outputFbo
-        || outputFbo->width()  != oWidth
-        || outputFbo->height() != oHeight) {
+    if (!outputFbo 
+        || outputFbo->width() != width
+        || outputFbo->height() != height) {
         if (outputFbo)
             delete outputFbo;
 
-        outputFbo = new QOpenGLFramebufferObject(oWidth, oHeight);
+        outputFbo = new QOpenGLFramebufferObject(width, height);
     }
 
-    // Compute source crop for AspectRatioMode_Expanding:
-    // Scale to fill the output, cropping excess.
-    qreal inputAspect = qreal(inWidth) / qreal(inHeight);
-    qreal outputAspect = qreal(oWidth) / qreal(oHeight);
+    qreal targetAspect = qreal(qMax(this->d->m_width, 1))
+                         / qreal(qMax(this->d->m_height, 1));
+    qreal inputAspect = qreal(width) / qreal(height);
 
-    float srcCropX, srcCropY, srcCropW, srcCropH;
+    int drawWidth, drawHeight;
 
-    if (inputAspect > outputAspect) {
-        // Input is wider: crop left/right sides
-        int cropW = qRound(inHeight * outputAspect);
-        int srcX = (inWidth - cropW) / 2;
-        srcCropX = float(srcX) / float(inWidth);
-        srcCropY = 0.0f;
-        srcCropW = float(cropW) / float(inWidth);
-        srcCropH = 1.0f;
+    if (inputAspect > targetAspect) {
+        drawHeight = height;
+        drawWidth = qRound(height * targetAspect);
     } else {
-        // Input is taller: crop top/bottom
-        int cropH = qRound(inWidth / outputAspect);
-        int srcY = (inHeight - cropH) / 2;
-        srcCropX = 0.0f;
-        srcCropY = 1.0f - float(srcY + cropH) / float(inHeight);  // Invert Y for OpenGL
-        srcCropW = 1.0f;
-        srcCropH = float(cropH) / float(inHeight);
+        drawWidth = width;
+        drawHeight = qRound(width / targetAspect);
     }
 
-    // Render
+    int drawX = (width - drawWidth) / 2;
+    int drawY = (height - drawHeight) / 2;
+
+    float srcCropX = float(drawX) / float(width);
+    float srcCropY = 1.0f - float(drawY + drawHeight) / float(height);
+    float srcCropW = float(drawWidth) / float(width);
+    float srcCropH = float(drawHeight) / float(height);
+
     outputFbo->bind();
-    this->m_gl->glViewport(0, 0, oWidth, oHeight);
+
+    float r = qRed(this->d->m_backgroundColor) / 255.0f;
+    float g = qGreen(this->d->m_backgroundColor) / 255.0f;
+    float b = qBlue(this->d->m_backgroundColor) / 255.0f;
+    float a = qAlpha(this->d->m_backgroundColor) / 255.0f;
+    this->m_gl->glClearColor(r, g, b, a);
     this->m_gl->glClear(GL_COLOR_BUFFER_BIT);
+
+    this->m_gl->glViewport(drawX, drawY, drawWidth, drawHeight);
 
     this->d->m_vao.bind();
     this->d->m_shader->bind();
@@ -175,7 +173,8 @@ void AspectRatioElement::process(QOpenGLFramebufferObject *inputFbo,
     this->m_gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     this->m_gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     this->m_gl->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    this->d->m_shader->setUniformValue("uTex",     0);
+
+    this->d->m_shader->setUniformValue("uTex", 0);
     this->d->m_shader->setUniformValue("uSrcCrop", srcCropX, srcCropY, srcCropW, srcCropH);
 
     this->m_gl->glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
@@ -204,7 +203,7 @@ QString AspectRatioElement::controlInterfaceProvide(const QString &controlId) co
 }
 
 void AspectRatioElement::controlInterfaceConfigure(QQmlContext *context,
-                                                     const QString &controlId) const
+                                                   const QString &controlId) const
 {
     Q_UNUSED(controlId)
 
@@ -238,6 +237,20 @@ void AspectRatioElement::resetWidth()
 void AspectRatioElement::resetHeight()
 {
     this->setHeight(9);
+}
+
+void AspectRatioElement::setBackgroundColor(QRgb color)
+{
+    if (this->d->m_backgroundColor == color)
+        return;
+
+    this->d->m_backgroundColor = color;
+    emit this->backgroundColorChanged(color);
+}
+
+void AspectRatioElement::resetBackgroundColor()
+{
+    this->setBackgroundColor(qRgba(0, 0, 0, 0));
 }
 
 #include "moc_aspectratioelement.cpp"

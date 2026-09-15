@@ -53,14 +53,6 @@ ColumnLayout {
 
         onClicked: Crop.reset()
     }
-    Switch {
-        text: qsTr("Keep resolution")
-        checked: Crop.keepResolution
-        Accessible.name: text
-        Layout.fillWidth: true
-
-        onCheckedChanged: Crop.keepResolution = checked
-    }
     Label {
         id: lblLeft
         text: qsTr("Left")

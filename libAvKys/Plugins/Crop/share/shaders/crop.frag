@@ -53,8 +53,8 @@ void main()
         // Each border segment is clamped to the opposite axis
         bool onLeftBorder   = abs(px - cx1) < border && py >= cy1 && py <= cy2;
         bool onRightBorder  = abs(px - cx2) < border && py >= cy1 && py <= cy2;
-        bool onBottomBorder = abs(py - cy1) < border && px >= cx1 && px <= cx2;
-        bool onTopBorder    = abs(py - cy2) < border && px >= cx1 && px <= cx2;
+        bool onTopBorder    = abs(py - cy1) < border && px >= cx1 && px <= cx2;
+        bool onBottomBorder = abs(py - cy2) < border && px >= cx1 && px <= cx2;
         bool onBorder = onLeftBorder || onRightBorder || onBottomBorder || onTopBorder;
 
         gl_FragColor = onBorder ? uEditColor : pixel;
@@ -74,6 +74,7 @@ void main()
             // This ensures transparent parts of the crop show the fill color
             // instead of replacing it entirely.
             mediump float outA = src.a + uFillColor.a * (1.0 - src.a);
+
             if (outA > 0.0) {
                 mediump vec3 outRgb = (src.rgb * src.a + uFillColor.rgb * uFillColor.a * (1.0 - src.a)) / outA;
                 gl_FragColor = vec4(outRgb, outA);

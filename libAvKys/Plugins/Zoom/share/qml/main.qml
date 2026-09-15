@@ -20,6 +20,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import AkControls as AK
 
 ColumnLayout {
     Label {
@@ -38,5 +39,39 @@ ColumnLayout {
         Accessible.name: lblZoom.text
 
         onValueChanged: Zoom.zoom = value
+    }
+    Label {
+        id: lblHorizontalPan
+        text: qsTr("Horizontal pan")
+        font.bold: true
+        Layout.fillWidth: true
+    }
+    AK.StickySlider {
+        id: sldHorizontalPan
+        value: Zoom.horizontalPan
+        stepSize: 0.1
+        from: 0.0
+        to: 1.0
+        Layout.fillWidth: true
+        Accessible.name: lblHorizontalPan.text
+
+        onValueChanged: Zoom.horizontalPan = value
+    }
+    Label {
+        id: lblVerticalPan
+        text: qsTr("Vertical pan")
+        font.bold: true
+        Layout.fillWidth: true
+    }
+    AK.StickySlider {
+        id: sldVerticalPan
+        value: Zoom.verticalPan
+        stepSize: 0.1
+        from: 0.0
+        to: 1.0
+        Layout.fillWidth: true
+        Accessible.name: lblVerticalPan.text
+
+        onValueChanged: Zoom.verticalPan = value
     }
 }

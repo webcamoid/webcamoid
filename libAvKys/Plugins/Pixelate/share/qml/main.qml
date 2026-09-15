@@ -22,37 +22,43 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 ColumnLayout {
-    Label {
-        id: txtBlockWidth
-        text: qsTr("Block width")
-        font.bold: true
-        Layout.fillWidth: true
-    }
-    SpinBox {
-        id: spinWidth
-        from: 1
-        to: 4096
-        value: Pixelate.blockSize.width
-        editable: true
-        Accessible.name: txtBlockWidth.text
+    id: root
+    layoutDirection: rtl? Qt.RightToLeft: Qt.LeftToRight
 
-        onValueChanged: Pixelate.blockSize = Qt.size(value, spinHeight.value)
-    }
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
 
-    Label {
-        id: txtBlockHeight
-        text: qsTr("Block height")
-        font.bold: true
-        Layout.fillWidth: true
-    }
-    SpinBox {
-        id: spinHeight
-        from: 1
-        to: 4096
-        value: Pixelate.blockSize.height
-        editable: true
-        Accessible.name: txtBlockHeight.text
+    GridLayout {
+        columns: 2
+        layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
 
-        onValueChanged: Pixelate.blockSize = Qt.size(spinWidth.value, value)
+        Label {
+            id: txtBlockWidth
+            text: qsTr("Block width")
+        }
+        SpinBox {
+            id: spinWidth
+            from: 1
+            to: 4096
+            value: Pixelate.blockWidth
+            editable: true
+            Accessible.name: txtBlockWidth.text
+
+            onValueChanged: Pixelate.blockWidth = Number(value)
+        }
+
+        Label {
+            id: txtBlockHeight
+            text: qsTr("Block height")
+        }
+        SpinBox {
+            id: spinHeight
+            from: 1
+            to: 4096
+            value: Pixelate.blockHeight
+            editable: true
+            Accessible.name: txtBlockHeight.text
+
+            onValueChanged: Pixelate.blockHeight = Number(value)
+        }
     }
 }

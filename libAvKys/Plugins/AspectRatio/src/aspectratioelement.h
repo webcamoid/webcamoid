@@ -20,6 +20,7 @@
 #ifndef ASPECTRATIOELEMENT_H
 #define ASPECTRATIOELEMENT_H
 
+#include <qrgb.h>
 #include <iak/akvideoeffect.h>
 
 class AspectRatioElementPrivate;
@@ -37,6 +38,11 @@ class AspectRatioElement: public AkVideoEffect
                WRITE setHeight
                RESET resetHeight
                NOTIFY heightChanged)
+    Q_PROPERTY(QRgb backgroundColor
+               READ backgroundColor
+               WRITE setBackgroundColor
+               RESET resetBackgroundColor
+               NOTIFY backgroundColorChanged)
 
     public:
         AspectRatioElement();
@@ -44,6 +50,8 @@ class AspectRatioElement: public AkVideoEffect
 
         Q_INVOKABLE int width() const;
         Q_INVOKABLE int height() const;
+        Q_INVOKABLE QRgb backgroundColor() const;
+
         Q_INVOKABLE bool init(QOpenGLBuffer *vbo,
                               QOpenGLBuffer *ibo) override;
         Q_INVOKABLE void process(QOpenGLFramebufferObject *inputFbo,
@@ -63,12 +71,15 @@ class AspectRatioElement: public AkVideoEffect
     signals:
         void widthChanged(int width);
         void heightChanged(int height);
+        void backgroundColorChanged(QRgb color);
 
     public slots:
         void setWidth(int width);
         void setHeight(int height);
         void resetWidth();
         void resetHeight();
+        void setBackgroundColor(QRgb color);
+        void resetBackgroundColor();
 };
 
 #endif // ASPECTRATIOELEMENT_H

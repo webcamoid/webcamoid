@@ -3029,7 +3029,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="47"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="235"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="257"/>
         <source>Number of colors</source>
         <translation>Numero di colori</translation>
     </message>
@@ -3161,7 +3161,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="49"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="44"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="48"/>
         <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="48"/>
         <location filename="../../../libAvKys/ExtraPlugins/Ripple/share/qml/main.qml" line="43"/>
@@ -3320,6 +3320,7 @@
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="208"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="137"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="214"/>
+        <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="69"/>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="87"/>
         <source>Background color</source>
         <translation>Colore sfondo</translation>
@@ -3345,6 +3346,7 @@
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="210"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="139"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="216"/>
+        <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="71"/>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="89"/>
         <source>Choose the background color</source>
         <translation>Scegli il colore sfondo</translation>
@@ -3374,7 +3376,7 @@
         <location filename="../../../libAvKys/ExtraPlugins/ColorFilter/share/qml/main.qml" line="67"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorReplace/share/qml/main.qml" line="81"/>
         <location filename="../../../libAvKys/ExtraPlugins/FalseColor/share/qml/main.qml" line="72"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="52"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="56"/>
         <source>Soft</source>
         <translation>Morbido</translation>
     </message>
@@ -3737,7 +3739,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="245"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="113"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="135"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="93"/>
         <source>Blur</source>
         <translation>Sfocatura</translation>
@@ -3973,54 +3975,59 @@
         <translation>Seleziona colore marcatore</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="56"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="60"/>
         <source>Hard</source>
         <translation>Duro</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="60"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="64"/>
         <source>Luminance soft</source>
         <translation>Luminanza morbida</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="64"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="68"/>
         <source>Luminance hard</source>
         <translation>Luminanza dura</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="75"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="79"/>
         <source>Cooling</source>
         <translation>Raffreddamento</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="95"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="99"/>
         <source>Dissolve</source>
         <translation>Dissolvenza</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="132"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="117"/>
+        <source>Turbulence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="154"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="109"/>
-        <location filename="../../../libAvKys/Plugins/Zoom/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/Plugins/Zoom/share/qml/main.qml" line="28"/>
         <source>Zoom</source>
         <translation>Zoom</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="251"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="273"/>
         <source>Cold color</source>
         <translation>Colore freddo</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="253"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="275"/>
         <source>Choose the fire cold color</source>
         <translation>Scegli il colore freddo del fuoco</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="260"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="282"/>
         <source>Hot color</source>
         <translation>Colore caldo</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="262"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="284"/>
         <source>Choose the fire hot color</source>
         <translation>Scegli il colore caldo del fuoco</translation>
     </message>
@@ -4038,7 +4045,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cartoon/share/qml/main.qml" line="92"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="150"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="172"/>
         <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="91"/>
         <location filename="../../../libAvKys/ExtraPlugins/Life/share/qml/main.qml" line="46"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="125"/>
@@ -4058,7 +4065,7 @@
         <translation>Scegli il colore della linea</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="173"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="195"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="146"/>
         <location filename="../../../libAvKys/ExtraPlugins/Ripple/share/qml/main.qml" line="135"/>
         <source>Luma threshold</source>
@@ -4066,13 +4073,13 @@
         <translation>Soglia luma</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="194"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="216"/>
         <source>Alpha diff</source>
         <extracomment>Alpha channel, also known as the transparency component of a pixel in an image.</extracomment>
         <translation>Differenza alfa</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="217"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="239"/>
         <source>Alpha variation</source>
         <extracomment>Alpha channel, also known as the transparency component of a pixel in an image.</extracomment>
         <translation>Variazione alfa</translation>
@@ -4464,12 +4471,6 @@
         <translation>Rumore</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/ExtraPlugins/Shagadelic/share/qml/main.qml" line="40"/>
-        <location filename="../../../libAvKys/ExtraPlugins/Shagadelic/share/qml/main.qml" line="46"/>
-        <source>Mask</source>
-        <translation>Maschera</translation>
-    </message>
-    <message>
         <location filename="../../../libAvKys/Plugins/Temperature/share/qml/main.qml" line="27"/>
         <source>Temperature</source>
         <translation>Temperatura</translation>
@@ -4495,32 +4496,32 @@
         <translation>Seleziona unità di ritaglio</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="100"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="92"/>
         <source>Top</source>
         <translation>Superiore</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="117"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="109"/>
         <source>Bottom</source>
         <translation>Inferiore</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="66"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="58"/>
         <source>Left</source>
         <translation>Sinistra</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="83"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="75"/>
         <source>Right</source>
         <translation>Destra</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="133"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="125"/>
         <source>Fill color</source>
         <translation>Colore di riempimento</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="135"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="127"/>
         <source>Choose the filling color</source>
         <translation>Scegli il colore di riempimento</translation>
     </message>
@@ -4668,22 +4669,22 @@
         <translation>Rifletti verticalmente</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="34"/>
         <source>Width</source>
         <translation>Larghezza</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="33"/>
+        <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="40"/>
         <source>Aspect ratio width</source>
         <translation>Larghezza proporzioni</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="45"/>
+        <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="52"/>
         <source>Height</source>
         <translation>Altezza</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="51"/>
+        <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="58"/>
         <source>Aspect ratio height</source>
         <translation>Altezza proporzioni</translation>
     </message>
@@ -4755,11 +4756,6 @@
         <location filename="../../../libAvKys/ExtraPlugins/ColorReplace/share/qml/main.qml" line="50"/>
         <source>Select the new color</source>
         <translation>Seleziona il nuovo colore</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="57"/>
-        <source>Keep resolution</source>
-        <translation>Mantieni risoluzione</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="33"/>
@@ -5055,12 +5051,12 @@
         <translation>Reimposta ai valori predefiniti</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Pixelate/share/qml/main.qml" line="27"/>
+        <location filename="../../../libAvKys/Plugins/Pixelate/share/qml/main.qml" line="36"/>
         <source>Block width</source>
         <translation>Larghezza blocco</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Pixelate/share/qml/main.qml" line="44"/>
+        <location filename="../../../libAvKys/Plugins/Pixelate/share/qml/main.qml" line="51"/>
         <source>Block height</source>
         <translation>Altezza blocco</translation>
     </message>
@@ -5082,6 +5078,31 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Nervous/share/qml/main.qml" line="42"/>
         <source>Smooth</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Zoom/share/qml/main.qml" line="45"/>
+        <source>Horizontal pan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/Zoom/share/qml/main.qml" line="62"/>
+        <source>Vertical pan</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Shagadelic/share/qml/main.qml" line="27"/>
+        <source>Red intensity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Shagadelic/share/qml/main.qml" line="45"/>
+        <source>Green intensity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Shagadelic/share/qml/main.qml" line="63"/>
+        <source>Blue intensity</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -20,8 +20,15 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import Ak
+import AkControls as AK
 
 ColumnLayout {
+    id: root
+    layoutDirection: rtl? Qt.RightToLeft: Qt.LeftToRight
+
+    readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
+
     Label {
         id: txtWidth
         text: qsTr("Width")
@@ -57,5 +64,15 @@ ColumnLayout {
         Layout.fillWidth: true
 
         onTextChanged: AspectRatio.height = Number(text)
+    }
+    AK.ColorButton {
+        text: qsTr("Background color")
+        currentColor: AkUtils.fromRgba(AspectRatio.backgroundColor)
+        title: qsTr("Choose the background color")
+        showAlphaChannel: true
+        horizontalAlignment: root.rtl? Text.AlignRight: Text.AlignLeft
+        Layout.fillWidth: true
+
+        onCurrentColorChanged: AspectRatio.backgroundColor = AkUtils.toRgba(currentColor)
     }
 }

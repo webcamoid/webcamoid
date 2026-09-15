@@ -39,11 +39,6 @@ class CropElement: public AkVideoEffect
                WRITE setRelative
                RESET resetRelative
                NOTIFY relativeChanged)
-    Q_PROPERTY(bool keepResolution
-               READ keepResolution
-               WRITE setKeepResolution
-               RESET resetKeepResolution
-               NOTIFY keepResolutionChanged)
     Q_PROPERTY(qreal left
                READ left
                WRITE setLeft
@@ -82,7 +77,6 @@ class CropElement: public AkVideoEffect
 
         Q_INVOKABLE bool editMode() const;
         Q_INVOKABLE bool relative() const;
-        Q_INVOKABLE bool keepResolution() const;
         Q_INVOKABLE qreal left() const;
         Q_INVOKABLE qreal right() const;
         Q_INVOKABLE qreal top() const;
@@ -109,7 +103,6 @@ class CropElement: public AkVideoEffect
     signals:
         void editModeChanged(bool editMode);
         void relativeChanged(bool relative);
-        void keepResolutionChanged(bool keepResolution);
         void leftChanged(qreal left);
         void rightChanged(qreal right);
         void topChanged(qreal top);
@@ -121,7 +114,6 @@ class CropElement: public AkVideoEffect
     public slots:
         void setEditMode(bool editMode);
         void setRelative(bool relative);
-        void setKeepResolution(bool keepResolution);
         void setLeft(qreal left);
         void setRight(qreal right);
         void setTop(qreal top);
@@ -129,7 +121,6 @@ class CropElement: public AkVideoEffect
         void setFillColor(QRgb fillColor);
         void resetEditMode();
         void resetRelative();
-        void resetKeepResolution();
         void resetLeft();
         void resetRight();
         void resetTop();

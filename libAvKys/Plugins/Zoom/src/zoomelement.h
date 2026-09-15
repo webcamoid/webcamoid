@@ -33,12 +33,27 @@ class ZoomElement: public AkVideoEffect
                WRITE setZoom
                RESET resetZoom
                NOTIFY zoomChanged)
+               
+    Q_PROPERTY(qreal horizontalPan
+               READ horizontalPan
+               WRITE setHorizontalPan
+               RESET resetHorizontalPan
+               NOTIFY horizontalPanChanged)
+               
+    Q_PROPERTY(qreal verticalPan
+               READ verticalPan
+               WRITE setVerticalPan
+               RESET resetVerticalPan
+               NOTIFY verticalPanChanged)
 
     public:
         ZoomElement();
         ~ZoomElement();
 
         Q_INVOKABLE qreal zoom() const;
+        Q_INVOKABLE qreal horizontalPan() const;
+        Q_INVOKABLE qreal verticalPan() const;
+
         Q_INVOKABLE bool init(QOpenGLBuffer *vbo,
                               QOpenGLBuffer *ibo) override;
         Q_INVOKABLE void process(QOpenGLFramebufferObject *inputFbo,
@@ -57,10 +72,16 @@ class ZoomElement: public AkVideoEffect
 
     signals:
         void zoomChanged(qreal zoom);
+        void horizontalPanChanged(qreal pan);
+        void verticalPanChanged(qreal pan);
 
     public slots:
         void setZoom(qreal zoom);
         void resetZoom();
+        void setHorizontalPan(qreal pan);
+        void resetHorizontalPan();
+        void setVerticalPan(qreal pan);
+        void resetVerticalPan();
 };
 
 #endif // ZOOMELEMENT_H

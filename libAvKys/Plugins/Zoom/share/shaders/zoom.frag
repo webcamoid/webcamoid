@@ -18,17 +18,22 @@
  */
 
 uniform highp sampler2D uTex;
-uniform mediump float uZoom;  // Zoom factor (> 0)
+uniform mediump float uZoom;      // Zoom factor (> 0)
+uniform mediump float uPanX;      // Horizontal pan [0.0, 1.0]
+uniform mediump float uPanY;      // Vertical pan [0.0, 1.0]
 
 varying mediump vec2 vTexCoord;
 
 void main()
 {
-    // Map the full-screen quad UVs to source texture coordinates.
-    // Center the texture and scale by 1/zoom.
+    mediump float invZoom = 1.0 / uZoom;
+    
+    mediump float centerX = (1.0 - invZoom) * uPanX + 0.5 * invZoom;
+    mediump float centerY = (1.0 - invZoom) * uPanY + 0.5 * invZoom;
+
     mediump vec2 srcTex = vec2(
-        0.5 + (vTexCoord.x - 0.5) / uZoom,
-        0.5 + (vTexCoord.y - 0.5) / uZoom
+        centerX + (vTexCoord.x - 0.5) * invZoom,
+        centerY + (vTexCoord.y - 0.5) * invZoom
     );
 
     // If the source coordinate falls outside [0,1], the pixel is outside

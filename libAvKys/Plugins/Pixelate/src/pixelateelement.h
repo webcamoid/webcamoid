@@ -27,17 +27,23 @@ class PixelateElementPrivate;
 class PixelateElement: public AkVideoEffect
 {
     Q_OBJECT
-    Q_PROPERTY(QSize blockSize
-               READ blockSize
-               WRITE setBlockSize
-               RESET resetBlockSize
-               NOTIFY blockSizeChanged)
+    Q_PROPERTY(int blockWidth
+               READ blockWidth
+               WRITE setBlockWidth
+               RESET resetBlockWidth
+               NOTIFY blockWidthChanged)
+    Q_PROPERTY(int blockHeight
+               READ blockHeight
+               WRITE setBlockHeight
+               RESET resetBlockHeight
+               NOTIFY blockHeightChanged)
 
     public:
         PixelateElement();
         ~PixelateElement();
 
-        Q_INVOKABLE QSize blockSize() const;
+        Q_INVOKABLE int blockWidth() const;
+        Q_INVOKABLE int blockHeight() const;
         Q_INVOKABLE bool init(QOpenGLBuffer *vbo,
                               QOpenGLBuffer *ibo) override;
         Q_INVOKABLE void process(QOpenGLFramebufferObject *inputFbo,
@@ -55,11 +61,14 @@ class PixelateElement: public AkVideoEffect
                                        const QString &controlId) const override;
 
     signals:
-        void blockSizeChanged(const QSize &blockSize);
+        void blockWidthChanged(int blockWidth);
+        void blockHeightChanged(int blockHeight);
 
     public slots:
-        void setBlockSize(const QSize &blockSize);
-        void resetBlockSize();
+        void setBlockWidth(int blockWidth);
+        void setBlockHeight(int blockHeight);
+        void resetBlockWidth();
+        void resetBlockHeight();
 };
 
 #endif // PIXELATEELEMENT_H
