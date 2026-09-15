@@ -3997,19 +3997,19 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="99"/>
         <source>Dissolve</source>
-        <translation>Lahusta</translation>
+        <translation>Lahustamine</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="117"/>
         <source>Turbulence</source>
-        <translation type="unfinished"></translation>
+        <translation>Turbulents</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="154"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="109"/>
         <location filename="../../../libAvKys/Plugins/Zoom/share/qml/main.qml" line="28"/>
         <source>Zoom</source>
-        <translation>Zoom</translation>
+        <translation>Suum</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="273"/>
@@ -5083,27 +5083,27 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Zoom/share/qml/main.qml" line="45"/>
         <source>Horizontal pan</source>
-        <translation type="unfinished"></translation>
+        <translation>Püstsuunas panoraamimine</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Zoom/share/qml/main.qml" line="62"/>
         <source>Vertical pan</source>
-        <translation type="unfinished"></translation>
+        <translation>Rõhtsuunas panoraamimine</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Shagadelic/share/qml/main.qml" line="27"/>
         <source>Red intensity</source>
-        <translation type="unfinished"></translation>
+        <translation>Punase värvi intensiivsus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Shagadelic/share/qml/main.qml" line="45"/>
         <source>Green intensity</source>
-        <translation type="unfinished"></translation>
+        <translation>Rohelise värvi intensiivsus</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Shagadelic/share/qml/main.qml" line="63"/>
         <source>Blue intensity</source>
-        <translation type="unfinished"></translation>
+        <translation>Sinise värvi intensiivsus</translation>
     </message>
 </context>
 </TS>
