@@ -228,6 +228,11 @@ void TemperatureElement::resetTemperature()
     this->setTemperature(6500);
 }
 
+void TemperatureElement::reset()
+{
+    this->resetTemperature();
+}
+
 void TemperatureElementPrivate::colorFromTemperature(qreal temperature,
                                                      qreal *r,
                                                      qreal *g,

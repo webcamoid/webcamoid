@@ -49,6 +49,11 @@ class AKCOMMONS_EXPORT AkGLCompositor:
                WRITE setCanvasColor
                RESET resetCanvasColor
                NOTIFY canvasColorChanged)
+    Q_PROPERTY(bool asyncRead
+               READ asyncRead
+               WRITE setAsyncRead
+               RESET resetAsyncRead
+               NOTIFY asyncReadChanged)
     Q_PROPERTY(size_t outputBufferSize
                READ outputBufferSize
                WRITE setOutputBufferSize
@@ -90,6 +95,7 @@ class AKCOMMONS_EXPORT AkGLCompositor:
 
         Q_INVOKABLE AkVideoCaps outputCaps() const;
         Q_INVOKABLE QRgb canvasColor() const;
+        Q_INVOKABLE bool asyncRead() const;
         Q_INVOKABLE size_t outputBufferSize() const;
 
         // Global data for all available effects in all pipelines.
@@ -139,6 +145,7 @@ class AKCOMMONS_EXPORT AkGLCompositor:
     Q_SIGNALS:
         void outputCapsChanged(const AkVideoCaps &outputCaps);
         void canvasColorChanged(QRgb canvasColor);
+        void asyncReadChanged(bool asyncRead);
         void outputBufferSizeChanged(size_t outputBufferSize);
         void availableEffectsChanged(const QStringList &availableEffects);
         void frameCaptured(const QImage &frame);
@@ -174,10 +181,12 @@ class AKCOMMONS_EXPORT AkGLCompositor:
     public Q_SLOTS:
         void setOutputCaps(const AkVideoCaps &outputCaps);
         void setCanvasColor(QRgb canvasColor);
+        void setAsyncRead(bool asyncRead);
         void setOutputBufferSize(size_t outputBufferSize);
         bool setState(AkElement::ElementState state) override;
         void resetOutputCaps();
         void resetCanvasColor();
+        void resetAsyncRead();
         void resetOutputBufferSize();
         void captureFrame();
 
@@ -193,6 +202,7 @@ class AKCOMMONS_EXPORT AkGLCompositor:
         void resetPreserveNullPlugins();
         void moveEffect(int from, int to);
         void removeEffect(int index);
+        void resetEffect(int index);
         void removeAllEffects();
         void applyPreview();
 
@@ -215,6 +225,7 @@ class AKCOMMONS_EXPORT AkGLCompositor:
         void resetSourcePreserveNullPlugins(qint64 id);
         void moveSourceEffect(qint64 id, int from, int to);
         void removeSourceEffect(qint64 id, int index);
+        void resetSourceEffect(qint64 id, int index);
         void removeAllSourceEffects(qint64 id);
         void applySourcePreview(qint64 id);
 

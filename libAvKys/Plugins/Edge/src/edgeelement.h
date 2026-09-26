@@ -106,6 +106,7 @@ class EdgeElement: public AkVideoEffect
         void resetEqualize();
         void resetLineColor();
         void resetBackgroundColor();
+        void reset() override;
 };
 
 #endif // EDGEELEMENT_H

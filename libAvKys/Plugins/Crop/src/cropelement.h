@@ -126,7 +126,7 @@ class CropElement: public AkVideoEffect
         void resetTop();
         void resetBottom();
         void resetFillColor();
-        void reset();
+        void reset() override;
 };
 
 #endif // CROPELEMENT_H

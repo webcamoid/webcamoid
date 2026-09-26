@@ -60,6 +60,7 @@ class BlurElement: public AkVideoEffect
     public slots:
         void setRadius(int radius);
         void resetRadius();
+        void reset() override;
 };
 
 #endif // BLURELEMENT_H

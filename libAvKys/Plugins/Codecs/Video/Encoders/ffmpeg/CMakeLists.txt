@@ -50,6 +50,19 @@ pkg_check_modules(FFMPEG
                   libavcodec
                   libavutil)
 
+# Opcional libjpeg-turbo support if available
+pkg_check_modules(TURBOJPEG QUIET libturbojpeg)
+
+if(TURBOJPEG_FOUND)
+    message(STATUS "libjpeg-turbo (TurboJPEG API) found: ${TURBOJPEG_LIBRARIES}")
+    add_definitions(-DHAVE_LIBJPEG_TURBO)
+    include_directories(${TURBOJPEG_INCLUDE_DIRS})
+    set(HAVE_TURBOJPEG_SUPPORT TRUE)
+else()
+    message(STATUS "libturbojpeg not found, using FFmpeg MJPEG encoder")
+    set(HAVE_TURBOJPEG_SUPPORT FALSE)
+endif()
+
 if (NOT NOFFMPEG AND FFMPEG_FOUND)
     qt_add_plugin(VideoEncoder_ffmpeg
                   SHARED
@@ -81,9 +94,15 @@ target_link_directories(VideoEncoder_ffmpeg
                         PUBLIC
                         ${FFMPEG_LIBRARY_DIRS})
 target_link_libraries(VideoEncoder_ffmpeg
+                      PRIVATE
                       ${QT_LIBS}
                       ${FFMPEG_LIBRARIES}
                       avkys)
+
+if(HAVE_TURBOJPEG_SUPPORT)
+    target_link_directories(VideoEncoder_ffmpeg PRIVATE ${TURBOJPEG_LIBRARY_DIRS})
+    target_link_libraries(VideoEncoder_ffmpeg PRIVATE ${TURBOJPEG_LIBRARIES})
+endif()
 
 if (NOT NOFFMPEG AND FFMPEG_FOUND)
     install(TARGETS VideoEncoder_ffmpeg

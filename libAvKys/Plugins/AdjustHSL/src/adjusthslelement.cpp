@@ -248,4 +248,11 @@ void AdjustHSLElement::resetLuminance()
     this->setLuminance(0);
 }
 
+void AdjustHSLElement::reset()
+{
+    this->resetHue();
+    this->resetSaturation();
+    this->resetLuminance();
+}
+
 #include "moc_adjusthslelement.cpp"

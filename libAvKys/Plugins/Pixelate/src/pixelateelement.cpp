@@ -207,4 +207,10 @@ void PixelateElement::resetBlockHeight()
     this->setBlockHeight(16);
 }
 
+void PixelateElement::reset()
+{
+    this->resetBlockWidth();
+    this->resetBlockHeight();
+}
+
 #include "moc_pixelateelement.cpp"

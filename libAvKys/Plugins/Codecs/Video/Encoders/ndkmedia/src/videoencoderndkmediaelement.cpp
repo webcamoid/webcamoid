@@ -19,8 +19,10 @@
 
 #include <QJniObject>
 #include <QMutex>
+#include <QQueue>
 #include <QThread>
 #include <QVariant>
+#include <QWaitCondition>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akvideocaps.h>
@@ -49,6 +51,7 @@
 #endif
 
 #define PROCESSING_TIMEOUT 3000
+#define DEFAULT_FRAME_BUFFER_SIZE 5
 
 #define VideoCodecID_amvp8  AkCompressedVideoCaps::VideoCodecID(AK_MAKE_FOURCC(0xA, 'V', 'P', '8'))
 #define VideoCodecID_amvp9  AkCompressedVideoCaps::VideoCodecID(AK_MAKE_FOURCC(0xA, 'V', 'P', '9'))
@@ -414,6 +417,13 @@ class VideoEncoderNDKMediaElementPrivate
         bool m_paused {false};
         qint64 m_encodedTimePts {0};
 
+        size_t m_frameBufferSize {DEFAULT_FRAME_BUFFER_SIZE};
+        QQueue<AkVideoPacket> m_frameQueue;
+        QMutex m_frameQueueMutex;
+        QWaitCondition m_frameQueueCondition;
+        QThread *m_frameProcessingThread {nullptr};
+        bool m_runFrameProcessingLoop {false};
+
         explicit VideoEncoderNDKMediaElementPrivate(VideoEncoderNDKMediaElement *self);
         ~VideoEncoderNDKMediaElementPrivate();
         static const char *errorToStr(media_status_t status);
@@ -431,6 +441,10 @@ class VideoEncoderNDKMediaElementPrivate
         void encodeFrame(const AkVideoPacket &src);
         void sendFrame(const uint8_t *data,
                        const AMediaCodecBufferInfo &info) const;
+        void startFrameProcessingThread();
+        void stopFrameProcessingThread();
+        void frameProcessingLoop();
+        void processFrame(const AkVideoPacket &packet);
 };
 
 VideoEncoderNDKMediaElement::VideoEncoderNDKMediaElement():
@@ -500,6 +514,11 @@ qint64 VideoEncoderNDKMediaElement::encodedTimePts() const
     return this->d->m_encodedTimePts;
 }
 
+size_t VideoEncoderNDKMediaElement::frameBufferSize() const
+{
+    return this->d->m_frameBufferSize;
+}
+
 bool VideoEncoderNDKMediaElement::hasHardwareSupport(const QString &codec) const
 {
     auto it = std::find_if(this->d->m_codecs.constBegin(),
@@ -514,24 +533,30 @@ bool VideoEncoderNDKMediaElement::hasHardwareSupport(const QString &codec) const
     return it->isHardware;
 }
 
+bool VideoEncoderNDKMediaElement::checkDiscardFrame(const AkVideoPacket &packet) const
+{
+    return this->discardFrame(packet);
+}
+
+void VideoEncoderNDKMediaElement::applyRegulateFps(const AkVideoPacket &packet)
+{
+    this->regulateFps(packet);
+}
+
 AkPacket VideoEncoderNDKMediaElement::iVideoStream(const AkVideoPacket &packet)
 {
-    QMutexLocker mutexLocker(&this->d->m_mutex);
+    QMutexLocker mutexLocker(&this->d->m_frameQueueMutex);
 
-    if (this->d->m_paused || !this->d->m_initialized)
+    if (!this->d->m_runFrameProcessingLoop)
         return {};
 
-    if (this->discardFrame(packet))
+    // If the buffer is full, discard the incoming frame instead of
+    // blocking the input thread.
+    if (size_t(this->d->m_frameQueue.size()) >= this->d->m_frameBufferSize)
         return {};
 
-    this->d->m_videoConverter.begin();
-    auto src = this->d->m_videoConverter.convert(packet);
-    this->d->m_videoConverter.end();
-
-    if (!src)
-        return {};
-
-    this->regulateFps(src);
+    this->d->m_frameQueue.enqueue(packet);
+    this->d->m_frameQueueCondition.wakeOne();
 
     return {};
 }
@@ -539,6 +564,20 @@ AkPacket VideoEncoderNDKMediaElement::iVideoStream(const AkVideoPacket &packet)
 void VideoEncoderNDKMediaElement::encodeFrame(const AkVideoPacket &packet)
 {
     this->d->encodeFrame(packet);
+}
+
+void VideoEncoderNDKMediaElement::setFrameBufferSize(size_t frameBufferSize)
+{
+    if (frameBufferSize == this->d->m_frameBufferSize)
+        return;
+
+    this->d->m_frameBufferSize = frameBufferSize;
+    emit this->frameBufferSizeChanged(frameBufferSize);
+}
+
+void VideoEncoderNDKMediaElement::resetFrameBufferSize()
+{
+    this->setFrameBufferSize(DEFAULT_FRAME_BUFFER_SIZE);
 }
 
 bool VideoEncoderNDKMediaElement::setState(ElementState state)
@@ -995,6 +1034,7 @@ bool VideoEncoderNDKMediaElementPrivate::init()
 
     this->m_encodedTimePts = 0;
     this->m_initialized = true;
+    this->startFrameProcessingThread();
     qInfo() << "NDK video encoder started";
 
     return true;
@@ -1002,6 +1042,8 @@ bool VideoEncoderNDKMediaElementPrivate::init()
 
 void VideoEncoderNDKMediaElementPrivate::uninit()
 {
+    this->stopFrameProcessingThread();
+
     QMutexLocker mutexLocker(&this->m_mutex);
 
     if (!this->m_initialized)
@@ -1064,6 +1106,74 @@ void VideoEncoderNDKMediaElementPrivate::uninit()
 
     this->m_paused = false;
     this->m_outputMediaFormat = {};
+}
+
+void VideoEncoderNDKMediaElementPrivate::startFrameProcessingThread()
+{
+    this->stopFrameProcessingThread();
+
+    this->m_runFrameProcessingLoop = true;
+    this->m_frameProcessingThread =
+            QThread::create([this] () { this->frameProcessingLoop(); });
+    this->m_frameProcessingThread->start();
+}
+
+void VideoEncoderNDKMediaElementPrivate::stopFrameProcessingThread()
+{
+    if (!this->m_frameProcessingThread)
+        return;
+
+    {
+        QMutexLocker locker(&this->m_frameQueueMutex);
+        this->m_runFrameProcessingLoop = false;
+        this->m_frameQueue.clear();
+        this->m_frameQueueCondition.wakeAll();
+    }
+
+    this->m_frameProcessingThread->wait();
+    delete this->m_frameProcessingThread;
+    this->m_frameProcessingThread = nullptr;
+}
+
+void VideoEncoderNDKMediaElementPrivate::frameProcessingLoop()
+{
+    forever {
+        AkVideoPacket packet;
+
+        {
+            QMutexLocker locker(&this->m_frameQueueMutex);
+
+            while (this->m_runFrameProcessingLoop && this->m_frameQueue.isEmpty())
+                this->m_frameQueueCondition.wait(&this->m_frameQueueMutex);
+
+            if (!this->m_runFrameProcessingLoop && this->m_frameQueue.isEmpty())
+                break;
+
+            packet = this->m_frameQueue.dequeue();
+        }
+
+        this->processFrame(packet);
+    }
+}
+
+void VideoEncoderNDKMediaElementPrivate::processFrame(const AkVideoPacket &packet)
+{
+    QMutexLocker mutexLocker(&this->m_mutex);
+
+    if (this->m_paused || !this->m_initialized)
+        return;
+
+    if (self->checkDiscardFrame(packet))
+        return;
+
+    this->m_videoConverter.begin();
+    auto src = this->m_videoConverter.convert(packet);
+    this->m_videoConverter.end();
+
+    if (!src)
+        return;
+
+    self->applyRegulateFps(src);
 }
 
 void VideoEncoderNDKMediaElementPrivate::updateHeaders()

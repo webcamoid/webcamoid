@@ -42,6 +42,9 @@ class NormalizeElement: public AkVideoEffect
 
     private:
         NormalizeElementPrivate *d;
+
+    public slots:
+        void reset() override;
 };
 
 #endif // NORMALIZEELEMENT_H

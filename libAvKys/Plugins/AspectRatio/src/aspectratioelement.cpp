@@ -121,7 +121,7 @@ void AspectRatioElement::process(QOpenGLFramebufferObject *inputFbo,
     if (width <= 0 || height <= 0)
         return;
 
-    if (!outputFbo 
+    if (!outputFbo
         || outputFbo->width() != width
         || outputFbo->height() != height) {
         if (outputFbo)
@@ -229,6 +229,15 @@ void AspectRatioElement::setHeight(int height)
     emit this->heightChanged(height);
 }
 
+void AspectRatioElement::setBackgroundColor(QRgb color)
+{
+    if (this->d->m_backgroundColor == color)
+        return;
+
+    this->d->m_backgroundColor = color;
+    emit this->backgroundColorChanged(color);
+}
+
 void AspectRatioElement::resetWidth()
 {
     this->setWidth(16);
@@ -239,18 +248,16 @@ void AspectRatioElement::resetHeight()
     this->setHeight(9);
 }
 
-void AspectRatioElement::setBackgroundColor(QRgb color)
-{
-    if (this->d->m_backgroundColor == color)
-        return;
-
-    this->d->m_backgroundColor = color;
-    emit this->backgroundColorChanged(color);
-}
-
 void AspectRatioElement::resetBackgroundColor()
 {
     this->setBackgroundColor(qRgba(0, 0, 0, 0));
+}
+
+void AspectRatioElement::reset()
+{
+    this->resetWidth();
+    this->resetHeight();
+    this->resetBackgroundColor();
 }
 
 #include "moc_aspectratioelement.cpp"

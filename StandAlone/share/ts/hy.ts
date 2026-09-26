@@ -382,17 +382,27 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="304"/>
+        <location filename="../qml/CanvasConfig.qml" line="305"/>
+        <source>Canvas output buffers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="316"/>
+        <source>Enable asynchronous read</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="332"/>
         <source>Output buffers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="322"/>
+        <location filename="../qml/CanvasConfig.qml" line="352"/>
         <source>Canvas color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="324"/>
+        <location filename="../qml/CanvasConfig.qml" line="354"/>
         <source>Choose the canvas color</source>
         <translation type="unfinished"></translation>
     </message>
@@ -407,22 +417,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="204"/>
+        <location filename="../qml/CanvasConfig.qml" line="205"/>
         <source>Canvas size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="222"/>
+        <location filename="../qml/CanvasConfig.qml" line="223"/>
         <source>Width</source>
         <translation type="unfinished">Լայնություն</translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="251"/>
+        <location filename="../qml/CanvasConfig.qml" line="252"/>
         <source>Height</source>
         <translation type="unfinished">Բարձրություն</translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="280"/>
+        <location filename="../qml/CanvasConfig.qml" line="281"/>
         <source>Frame rate</source>
         <translation type="unfinished">Կադրերի արագություն</translation>
     </message>
@@ -1185,97 +1195,97 @@
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="31"/>
         <source>Local streaming advanced options</source>
-        <translation>Տեղական հեռարձակման ընդլայնված կարգավորումներ</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="130"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="148"/>
         <source>Local streaming quality</source>
-        <translation>Տեղական հեռարձակման որակ</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="155"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="173"/>
         <source>Streaming quality</source>
-        <translation>Հեռարձակման որակ</translation>
+        <translation type="unfinished">Հեռարձակման որակ</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="208"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="226"/>
         <source>Custom</source>
-        <translation>Անհատական</translation>
+        <translation type="unfinished">Անհատական</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="211"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="229"/>
         <source>Video quality: %1×%2 %3 FPS</source>
-        <translation>Տեսանյութի որակ՝ %1×%2 %3 FPS</translation>
+        <translation type="unfinished">Տեսանյութի որակ՝ %1×%2 %3 FPS</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="212"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="230"/>
         <source>Video bitrate: %1 Mbps</source>
-        <translation>Տեսանյութի բիթրեյթ՝ %1 Մբ/վ</translation>
+        <translation type="unfinished">Տեսանյութի բիթրեյթ՝ %1 Մբ/վ</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="213"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="231"/>
         <source>Audio sample rate: %1 kHz</source>
-        <translation>Ձայնի նմուշի հաճախականություն՝ %1 կՀց</translation>
+        <translation type="unfinished">Ձայնի նմուշի հաճախականություն՝ %1 կՀց</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="214"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="232"/>
         <source>Audio bitrate: %1 kbps</source>
-        <translation>Ձայնի բիթրեյթ՝ %1 կբ/վ</translation>
-    </message>
-    <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="223"/>
-        <source>Video quality</source>
-        <translation>Տեսանյութի որակ</translation>
+        <translation type="unfinished">Ձայնի բիթրեյթ՝ %1 կբ/վ</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="241"/>
+        <source>Video quality</source>
+        <translation type="unfinished">Տեսանյութի որակ</translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="259"/>
         <source>Output width</source>
-        <translation>Ելքի լայնություն</translation>
+        <translation type="unfinished">Ելքի լայնություն</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="264"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="282"/>
         <source>Output height</source>
-        <translation>Ելքի բարձրություն</translation>
+        <translation type="unfinished">Ելքի բարձրություն</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="287"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="305"/>
         <source>Output frame rate</source>
-        <translation>Ելքի կադրերի հաճախականություն</translation>
+        <translation type="unfinished">Ելքի կադրերի հաճախականություն</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="310"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="328"/>
         <source>Video bitrate (kbps)</source>
-        <translation>Տեսանյութի բիթրեյթ (կբ/վ)</translation>
+        <translation type="unfinished">Տեսանյութի բիթրեյթ (կբ/վ)</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="330"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="348"/>
         <source>Keyframes stride (ms)</source>
-        <translation>Հիմնական կադրերի քայլ (մվ)</translation>
+        <translation type="unfinished">Հիմնական կադրերի քայլ (մվ)</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="349"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="367"/>
         <source>Video codec</source>
-        <translation>Տեսանյութի կոդեկ</translation>
+        <translation type="unfinished">Տեսանյութի կոդեկ</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="432"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="456"/>
         <source>Audio quality</source>
-        <translation>Ձայնի որակ</translation>
+        <translation type="unfinished">Ձայնի որակ</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="450"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="474"/>
         <source>Sample rate</source>
-        <translation>Նմուշի հաճախականություն</translation>
+        <translation type="unfinished">Նմուշի հաճախականություն</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="473"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="497"/>
         <source>Audio bitrate (kbps)</source>
-        <translation>Ձայնի բիթրեյթ (կբ/վ)</translation>
+        <translation type="unfinished">Ձայնի բիթրեյթ (կբ/վ)</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="494"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="518"/>
         <source>Audio codec</source>
-        <translation>Ձայնային կոդեկ</translation>
+        <translation type="unfinished">Ձայնային կոդեկ</translation>
     </message>
 </context>
 <context>
@@ -1421,7 +1431,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1415"/>
+        <location filename="../../src/mediatools.cpp" line="1436"/>
         <source>%1/log %2.txt</source>
         <translation>%1/մատյան %2.txt</translation>
     </message>
@@ -1850,127 +1860,127 @@
         <translation>Ընդլայնված կարգավորումներ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="240"/>
+        <location filename="../qml/Streaming.qml" line="241"/>
         <source>Video quality</source>
         <translation>Տեսանյութի որակ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="258"/>
+        <location filename="../qml/Streaming.qml" line="259"/>
         <source>Output width</source>
         <translation>Ելքի լայնություն</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="281"/>
+        <location filename="../qml/Streaming.qml" line="282"/>
         <source>Output height</source>
         <translation>Ելքի բարձրություն</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="304"/>
+        <location filename="../qml/Streaming.qml" line="305"/>
         <source>Output frame rate</source>
         <translation>Ելքի կադրերի հաճախականություն</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="327"/>
+        <location filename="../qml/Streaming.qml" line="328"/>
         <source>Video bitrate (kbps)</source>
         <translation>Տեսանյութի բիթրեյթ (կբ/վ)</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="347"/>
+        <location filename="../qml/Streaming.qml" line="348"/>
         <source>Keyframes stride (ms)</source>
         <translation>Հիմնական կադրերի քայլ (մվ)</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="364"/>
+        <location filename="../qml/Streaming.qml" line="365"/>
         <source>Video codec</source>
         <translation>Տեսանյութի կոդեկ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="447"/>
+        <location filename="../qml/Streaming.qml" line="448"/>
         <source>Audio quality</source>
         <translation>Ձայնի որակ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="465"/>
+        <location filename="../qml/Streaming.qml" line="466"/>
         <source>Sample rate</source>
         <translation>Նմուշի հաճախականություն</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="488"/>
+        <location filename="../qml/Streaming.qml" line="489"/>
         <source>Audio bitrate (kbps)</source>
         <translation>Ձայնի բիթրեյթ (կբ/վ)</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="509"/>
+        <location filename="../qml/Streaming.qml" line="510"/>
         <source>Audio codec</source>
         <translation>Ձայնային կոդեկ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="532"/>
+        <location filename="../qml/Streaming.qml" line="533"/>
         <source>Streaming platform settings</source>
         <translation>Հեռարձակման հարթակի կարգավորումներ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="543"/>
+        <location filename="../qml/Streaming.qml" line="544"/>
         <source>Platform</source>
         <translation>Հարթակ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="551"/>
+        <location filename="../qml/Streaming.qml" line="552"/>
         <source>Add platform</source>
         <translation>Ավելացնել հարթակ</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="558"/>
+        <location filename="../qml/Streaming.qml" line="559"/>
         <source>Remove platform</source>
         <translation>Հեռացնել հարթակը</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="572"/>
+        <location filename="../qml/Streaming.qml" line="573"/>
         <source>Website</source>
         <translation>Կայք</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="592"/>
+        <location filename="../qml/Streaming.qml" line="593"/>
         <source>Visit website</source>
         <translation>Այցելել կայք</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="607"/>
+        <location filename="../qml/Streaming.qml" line="608"/>
         <source>Streaming URL</source>
         <translation>Հեռարձակման URL</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="638"/>
+        <location filename="../qml/Streaming.qml" line="639"/>
         <source>Hide streaming URL</source>
         <translation>Թաքցնել հեռարձակման URL-ը</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="639"/>
+        <location filename="../qml/Streaming.qml" line="640"/>
         <source>Show streaming URL</source>
         <translation>Ցույց տալ հեռարձակման URL-ը</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="658"/>
+        <location filename="../qml/Streaming.qml" line="659"/>
         <source>Streaming key</source>
         <translation>Հեռարձակման բանալի</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="691"/>
+        <location filename="../qml/Streaming.qml" line="692"/>
         <source>Hide streaming key</source>
         <translation>Թաքցնել հեռարձակման բանալին</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="692"/>
+        <location filename="../qml/Streaming.qml" line="693"/>
         <source>Show streaming key</source>
         <translation>Ցույց տալ հեռարձակման բանալին</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="711"/>
+        <location filename="../qml/Streaming.qml" line="712"/>
         <source>Streaming configuration help</source>
         <translation>Հեռարձակման կոնֆիգուրացիայի օգնություն</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="723"/>
+        <location filename="../qml/Streaming.qml" line="724"/>
         <source>Get streaming key</source>
         <translation>Ստանալ հեռարձակման բանալին</translation>
     </message>
@@ -2285,6 +2295,16 @@
         <location filename="../qml/VideoEffectOptions.qml" line="101"/>
         <source>Remove %1 video effect</source>
         <translation>Հեռացնել %1 տեսաէֆեկտը</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoEffectOptions.qml" line="115"/>
+        <source>Reset</source>
+        <translation type="unfinished">Վերականգնել</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoEffectOptions.qml" line="120"/>
+        <source>Reset %1 to default values</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2824,72 +2844,72 @@
         <translation>Ընդլայնված կարգավորումներ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="268"/>
+        <location filename="../qml/VideoRecording.qml" line="269"/>
         <source>Video quality</source>
         <translation>Տեսանյութի որակ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="286"/>
+        <location filename="../qml/VideoRecording.qml" line="287"/>
         <source>Output width</source>
         <translation>Ելքի լայնություն</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="309"/>
+        <location filename="../qml/VideoRecording.qml" line="310"/>
         <source>Output height</source>
         <translation>Ելքի բարձրություն</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="332"/>
+        <location filename="../qml/VideoRecording.qml" line="333"/>
         <source>Output Frame rate</source>
         <translation>Ելքի Կադրերի արագություն</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="357"/>
+        <location filename="../qml/VideoRecording.qml" line="358"/>
         <source>Audio quality</source>
         <translation>Ձայնի որակ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="375"/>
+        <location filename="../qml/VideoRecording.qml" line="376"/>
         <source>Sample rate</source>
         <translation>Նմուշի հաճախականություն</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="400"/>
+        <location filename="../qml/VideoRecording.qml" line="401"/>
         <source>File format and codecs</source>
         <translation>Ֆայլի ֆորմատ և կոդեկներ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="411"/>
+        <location filename="../qml/VideoRecording.qml" line="412"/>
         <source>Configure the file format</source>
         <translation>Կարգավորել ֆայլի ֆորմատը</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="413"/>
+        <location filename="../qml/VideoRecording.qml" line="414"/>
         <source>Configure the file format for recording</source>
         <translation>Կարգավորել ձայնագրման ֆայլի ֆորմատը</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="421"/>
+        <location filename="../qml/VideoRecording.qml" line="422"/>
         <source>Configure the video codec</source>
         <translation>Կարգավորել տեսանյութի կոդեկը</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="423"/>
+        <location filename="../qml/VideoRecording.qml" line="424"/>
         <source>Configure the video codec for recording</source>
         <translation>Կարգավորել ձայնագրման տեսանյութի կոդեկը</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="431"/>
+        <location filename="../qml/VideoRecording.qml" line="432"/>
         <source>Configure the audio codec</source>
         <translation>Կարգավորել ձայնային կոդեկը</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="434"/>
+        <location filename="../qml/VideoRecording.qml" line="435"/>
         <source>Configure the audio codec for recording</source>
         <translation>Կարգավորել ձայնագրման ձայնային կոդեկը</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="468"/>
+        <location filename="../qml/VideoRecording.qml" line="469"/>
         <source>Select the folder to save your videos</source>
         <translation>Ընտրեք պանակը՝ ձեր տեսանյութերը պահելու համար</translation>
     </message>
@@ -3668,43 +3688,37 @@
         <translation>Ընտրել կտրման միավորը</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="50"/>
         <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="184"/>
         <source>Reset</source>
         <translation>Վերականգնել</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="52"/>
-        <source>Reset parameters</source>
-        <translation>Վերականգնել պարամետրերը</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="58"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="51"/>
         <source>Left</source>
         <translation>Ձախ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="75"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="68"/>
         <source>Right</source>
         <translation>Աջ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="92"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="85"/>
         <source>Top</source>
         <translation>Վերև</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="109"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="102"/>
         <source>Bottom</source>
         <translation>Ներքև</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="125"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="118"/>
         <source>Fill color</source>
         <translation>Լրացման գույն</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="127"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="120"/>
         <source>Choose the filling color</source>
         <translation>Ընտրել լրացման գույնը</translation>
     </message>

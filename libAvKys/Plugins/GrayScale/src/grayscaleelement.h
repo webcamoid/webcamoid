@@ -42,6 +42,9 @@ class GrayScaleElement: public AkVideoEffect
 
     private:
         GrayScaleElementPrivate *d;
+
+    public slots:
+        void reset() override;
 };
 
 #endif // GRAYSCALEELEMENT_H

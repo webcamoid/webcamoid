@@ -60,6 +60,7 @@ class ChangeHSLElement: public AkVideoEffect
     public slots:
         void setKernel(const QVariantList &kernel);
         void resetKernel();
+        void reset() override;
 };
 
 #endif // CHANGEHSLELEMENT_H

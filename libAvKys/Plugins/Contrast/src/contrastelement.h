@@ -60,6 +60,7 @@ class ContrastElement: public AkVideoEffect
     public slots:
         void setContrast(int contrast);
         void resetContrast();
+        void reset() override;
 };
 
 #endif // CONTRASTELEMENT_H

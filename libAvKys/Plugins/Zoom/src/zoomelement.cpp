@@ -205,11 +205,6 @@ void ZoomElement::setZoom(qreal zoom)
     emit this->zoomChanged(this->d->m_zoom);
 }
 
-void ZoomElement::resetZoom()
-{
-    this->setZoom(1.0);
-}
-
 void ZoomElement::setHorizontalPan(qreal pan)
 {
     if (qFuzzyCompare(this->d->m_horizontalPan, pan))
@@ -228,6 +223,11 @@ void ZoomElement::setVerticalPan(qreal pan)
     emit this->verticalPanChanged(this->d->m_verticalPan);
 }
 
+void ZoomElement::resetZoom()
+{
+    this->setZoom(1.0);
+}
+
 void ZoomElement::resetHorizontalPan()
 {
     this->setHorizontalPan(0.5);
@@ -236,6 +236,13 @@ void ZoomElement::resetHorizontalPan()
 void ZoomElement::resetVerticalPan()
 {
     this->setVerticalPan(0.5);
+}
+
+void ZoomElement::reset()
+{
+    this->resetZoom();
+    this->resetHorizontalPan();
+    this->resetVerticalPan();
 }
 
 #include "moc_zoomelement.cpp"

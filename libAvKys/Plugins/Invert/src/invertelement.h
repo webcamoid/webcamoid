@@ -42,6 +42,9 @@ class InvertElement: public AkVideoEffect
 
     private:
         InvertElementPrivate *d;
+
+    public slots:
+        void reset() override;
 };
 
 #endif // INVERTELEMENT_H

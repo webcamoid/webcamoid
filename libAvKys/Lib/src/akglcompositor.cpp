@@ -49,7 +49,7 @@
 #include "akvideoconverter.h"
 #include "akvideopacket.h"
 
-#define DEFAULT_OUTPUT_BUFFER_SIZE 2
+#define DEFAULT_OUTPUT_BUFFER_SIZE 3
 
 using TexturePtr = QSharedPointer<QOpenGLTexture>;
 using BufferPtr = QSharedPointer<QOpenGLBuffer>;
@@ -145,9 +145,9 @@ class AkGLCompositorPrivate
         QElapsedTimer m_clock;
         AkVideoCaps m_outputCaps;
         QRgb m_canvasColor {qRgba(0, 0, 0, 0)};
+        bool m_asyncRead {false};
         size_t m_outputBufferSize {DEFAULT_OUTPUT_BUFFER_SIZE};
         AkGLPipeline m_pipeline;
-        AkVideoConverter m_outputConverter;
         QStringList m_availableEffects;
         QMutex m_packetMutex;
         qint64 m_id {-1};
@@ -208,6 +208,11 @@ AkVideoCaps AkGLCompositor::outputCaps() const
 QRgb AkGLCompositor::canvasColor() const
 {
     return this->d->m_canvasColor;
+}
+
+bool AkGLCompositor::asyncRead() const
+{
+    return this->d->m_asyncRead;
 }
 
 size_t AkGLCompositor::outputBufferSize() const
@@ -532,6 +537,15 @@ void AkGLCompositor::setCanvasColor(QRgb canvasColor)
     emit this->canvasColorChanged(canvasColor);
 }
 
+void AkGLCompositor::setAsyncRead(bool asyncRead)
+{
+    if (this->d->m_asyncRead == asyncRead)
+        return;
+
+    this->d->m_asyncRead = asyncRead;
+    emit this->asyncReadChanged(asyncRead);
+}
+
 void AkGLCompositor::setOutputBufferSize(size_t outputBufferSize)
 {
     if (this->d->m_outputBufferSize == outputBufferSize)
@@ -592,6 +606,11 @@ void AkGLCompositor::resetOutputCaps()
 void AkGLCompositor::resetCanvasColor()
 {
     this->setCanvasColor(qRgba(0, 0, 0, 0));
+}
+
+void AkGLCompositor::resetAsyncRead()
+{
+    this->setAsyncRead(false);
 }
 
 void AkGLCompositor::resetOutputBufferSize()
@@ -701,6 +720,13 @@ void AkGLCompositor::removeEffect(int index)
     }
 
     emit this->effectsChanged(this->effects());
+}
+
+void AkGLCompositor::resetEffect(int index)
+{
+    QMutexLocker mutexLocker(&this->d->m_effectsMutex);
+
+    this->d->m_pipeline.resetEffect(index);
 }
 
 void AkGLCompositor::removeAllEffects()
@@ -1026,6 +1052,17 @@ void AkGLCompositor::removeSourceEffect(qint64 id, int index)
     }
 
     emit this->sourceEffectsChanged(id, effects);
+}
+
+void AkGLCompositor::resetSourceEffect(qint64 id, int index)
+{
+    QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
+    auto source = this->d->m_sources.value(id, nullptr);
+
+    if (!source)
+        return;
+
+    source->pipeline.resetEffect(index);
 }
 
 void AkGLCompositor::removeAllSourceEffects(qint64 id)
@@ -1773,9 +1810,9 @@ QMatrix4x4 AkGLCompositorPrivate::computeSourceTransform(const SourceSnapshot &s
     float boxScaleW = rw > 0.0f ? fittedW / rw : 1.0f;
     float boxScaleH = rh > 0.0f ? fittedH / rh : 1.0f;
 
-    this->m_lastBoxScale = swapTexDims
-        ? QVector2D(boxScaleH, boxScaleW)
-        : QVector2D(boxScaleW, boxScaleH);
+    this->m_lastBoxScale = swapTexDims?
+        QVector2D(boxScaleH, boxScaleW):
+        QVector2D(boxScaleW, boxScaleH);
 
     float cx = rx + rw / 2.0f;
     float cy = ry + rh / 2.0f;
@@ -1819,7 +1856,7 @@ void AkGLCompositorPrivate::readAndEmit(qint64 pts)
 
     this->m_effectFbo->bind();
 
-    if (this->m_supportsPBO) {
+    if (this->m_asyncRead && this->m_supportsPBO) {
         auto outputBufferSize = qBound<size_t>(2, this->m_outputBufferSize, 16);
         this->m_packPbo.resize(outputBufferSize);
 
@@ -1827,6 +1864,7 @@ void AkGLCompositorPrivate::readAndEmit(qint64 pts)
             if (!buffer) {
                 buffer = BufferPtr::create(QOpenGLBuffer::PixelPackBuffer);
                 buffer->create();
+                buffer->setUsagePattern(QOpenGLBuffer::StreamRead);
             }
 
         if (this->m_packPboSize != requiredSize) {
@@ -1891,29 +1929,22 @@ void AkGLCompositorPrivate::readAndEmit(qint64 pts)
                 this->m_readbackBufferSize = requiredSize;
             }
 
-                self->glReadPixels(0, 0, outWidth, outHeight,
-                                   GL_RGBA, GL_UNSIGNED_BYTE,
-                                   this->m_readbackBuffer);
-                auto dst = reinterpret_cast<quint8 *>(this->m_outputPacket.data());
-                size_t copyBytes = qMin<size_t>(outLineSize, packetLineSize);
-                for (int y = 0; y < outHeight; ++y)
-                    memcpy(dst + y * packetLineSize,
-                           this->m_readbackBuffer + y * outLineSize, copyBytes);
+            self->glReadPixels(0, 0, outWidth, outHeight,
+                                GL_RGBA, GL_UNSIGNED_BYTE,
+                                this->m_readbackBuffer);
+            auto dst = reinterpret_cast<quint8 *>(this->m_outputPacket.data());
+            size_t copyBytes = qMin<size_t>(outLineSize, packetLineSize);
+
+            for (int y = 0; y < outHeight; ++y)
+                memcpy(dst + y * packetLineSize,
+                        this->m_readbackBuffer + y * outLineSize, copyBytes);
         }
     }
 
     this->m_effectFbo->release();
 
-    this->m_outputConverter.setOutputCaps(this->m_outputCaps);
-    this->m_outputConverter.begin();
-    auto dst = this->m_outputConverter.convert(this->m_outputPacket);
-    this->m_outputConverter.end();
-
-    if (!dst)
-        return;
-
     if (this->m_packetMutex.tryLock()) {
-        emit self->oStream(dst);
+        emit self->oStream(this->m_outputPacket);
         this->m_packetMutex.unlock();
     }
 }

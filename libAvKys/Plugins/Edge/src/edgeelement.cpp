@@ -573,4 +573,14 @@ void EdgeElement::resetBackgroundColor()
     this->setBackgroundColor(qRgb(0, 0, 0));
 }
 
+void EdgeElement::reset()
+{
+    this->resetCanny();
+    this->resetThLow();
+    this->resetThHi();
+    this->resetEqualize();
+    this->resetLineColor();
+    this->resetBackgroundColor();
+}
+
 #include "moc_edgeelement.cpp"

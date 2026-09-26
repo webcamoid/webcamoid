@@ -50,6 +50,9 @@ class AKCOMMONS_EXPORT AkVideoStreamer: public AkElement
     Q_PROPERTY(AkStreamingStats stats
                READ stats
                NOTIFY statsChanged)
+    Q_PROPERTY(bool hasActiveClients
+               READ hasActiveClients
+               NOTIFY hasActiveClientsChanged)
 
     public:
         enum ProtocolID
@@ -80,6 +83,7 @@ class AKCOMMONS_EXPORT AkVideoStreamer: public AkElement
         Q_INVOKABLE QStringList destinations() const;
         Q_INVOKABLE StreamingState streamState() const;
         Q_INVOKABLE AkStreamingStats stats() const;
+        Q_INVOKABLE virtual bool hasActiveClients() const;
 
         // Protocols supported by the plugin
         Q_INVOKABLE virtual QStringList protocols() const = 0;
@@ -92,6 +96,7 @@ class AKCOMMONS_EXPORT AkVideoStreamer: public AkElement
         Q_INVOKABLE virtual QStringList supportedFormats(const QString &protocol) const = 0;
         Q_INVOKABLE virtual QString defaultFormat(const QString &protocol) const;
         Q_INVOKABLE virtual QString formatForUrl(const QString &url) const;
+        Q_INVOKABLE virtual bool isVideoOnlyFormat(const QString &format) const;
         Q_INVOKABLE virtual QList<AkCodecID> supportedCodecs(const QString &format,
                                                              AkCodecType type) const = 0;
         Q_INVOKABLE virtual AkCodecID defaultCodec(const QString &format,
@@ -115,6 +120,7 @@ class AKCOMMONS_EXPORT AkVideoStreamer: public AkElement
         void destinationsChanged(const QStringList &destinations);
         void streamStateChanged(StreamingState state);
         void statsChanged(const AkStreamingStats &stats);
+        void hasActiveClientsChanged(bool hasActiveClients);
         void streamCapsUpdated(AkCodecType type, const AkCompressedCaps &caps);
         void streamBitrateUpdated(AkCodecType type, int bitrate);
         void streamHeadersUpdated(AkCodecType type, const QByteArray &headers);

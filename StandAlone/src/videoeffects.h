@@ -49,6 +49,11 @@ class VideoEffects: public QObject
                WRITE setCanvasColor
                RESET resetCanvasColor
                NOTIFY canvasColorChanged)
+    Q_PROPERTY(bool asyncRead
+               READ asyncRead
+               WRITE setAsyncRead
+               RESET resetAsyncRead
+               NOTIFY asyncReadChanged)
     Q_PROPERTY(size_t outputBufferSize
                READ outputBufferSize
                WRITE setOutputBufferSize
@@ -86,6 +91,7 @@ class VideoEffects: public QObject
         // Global output pipeline
         Q_INVOKABLE AkVideoCaps outputCaps() const;
         Q_INVOKABLE QRgb canvasColor() const;
+        Q_INVOKABLE bool asyncRead() const;
         Q_INVOKABLE size_t outputBufferSize() const;
         Q_INVOKABLE QStringList availableEffects() const;
         Q_INVOKABLE QStringList effects() const;
@@ -145,6 +151,7 @@ class VideoEffects: public QObject
         // Global output pipeline
         void outputCapsChanged(const AkVideoCaps &outputCaps);
         void canvasColorChanged(QRgb canvasColor);
+        void asyncReadChanged(bool asyncRead);
         void outputBufferSizeChanged(size_t outputBufferSize);
         void availableEffectsChanged(const QStringList &availableEffects);
         void effectsChanged(const QStringList &effects);
@@ -174,6 +181,7 @@ class VideoEffects: public QObject
         // Global output pipeline
         void setOutputCaps(const AkVideoCaps &outputCaps);
         void setCanvasColor(QRgb canvasColor);
+        void setAsyncRead(bool asyncRead);
         void setOutputBufferSize(size_t outputBufferSize);
         void setEffects(const QStringList &effects);
         void setPreview(const QString &preview);
@@ -182,6 +190,7 @@ class VideoEffects: public QObject
         void setEffectEnabled(int index, bool enabled);
         void resetOutputCaps();
         void resetCanvasColor();
+        void resetAsyncRead();
         void resetOutputBufferSize();
         void resetEffects();
         void resetPreview();
@@ -191,6 +200,7 @@ class VideoEffects: public QObject
         void applyPreview();
         void moveEffect(int from, int to);
         void removeEffect(int index);
+        void resetEffect(int index);
         void removeAllEffects();
         void updateAvailableEffects();
         void linkLayoutEditor();
@@ -222,6 +232,7 @@ class VideoEffects: public QObject
         void resetSourcePreserveNullPlugins(qint64 id);
         void moveSourceEffect(qint64 id, int from, int to);
         void removeSourceEffect(qint64 id, int index);
+        void resetSourceEffect(qint64 id, int index);
         void removeAllSourceEffects(qint64 id);
         void applySourcePreview(qint64 id);
 };

@@ -196,6 +196,11 @@ void NormalizeElement::uninit()
     }
 }
 
+void NormalizeElement::reset()
+{
+
+}
+
 void NormalizeElementPrivate::histogram(const quint8 *rgba,
                                         int width,
                                         int height,

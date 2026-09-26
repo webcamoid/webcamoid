@@ -426,6 +426,19 @@ void AkGLPipeline::removeEffect(int index)
     this->d->m_requestDirty = true;
 }
 
+void AkGLPipeline::resetEffect(int index)
+{
+    QMutexLocker mutexLocker(&this->d->m_requestMutex);
+
+    if (index < 0 || index >= this->d->m_requestEffects.size())
+        return;
+
+    auto element = this->d->m_requestEffects.at(index).element;
+
+    if (element)
+        element->reset();
+}
+
 void AkGLPipeline::removeAllEffects()
 {
     QMutexLocker mutexLocker(&this->d->m_requestMutex);

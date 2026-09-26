@@ -84,7 +84,7 @@ class LocalStreamingPrivate
         QQmlApplicationEngine *m_engine {nullptr};
         quint32 m_localPort {8080};
         QString m_localResource {"stream"};
-        QString m_localFormat {"webm"};
+        QString m_localFormat {"mjpeg"};
         QString m_location;
         bool m_enabled {false};
 
@@ -113,8 +113,8 @@ class LocalStreamingPrivate
 
         QMetaObject::Connection m_audioHeadersChangedConnection;
         QMetaObject::Connection m_videoHeadersChangedConnection;
+        std::atomic<bool> m_hasActiveClients {false};
         QMutex m_mutex;
-        AkVideoPacket m_curPacket;
         AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
         QTimer m_ipCheckTimer;
 
@@ -176,7 +176,7 @@ QString LocalStreaming::location() const
 QString LocalStreaming::defaultURL() const
 {
     auto host = this->d->getLocalIPAddress();
-    QString ext = "webm";
+    QString ext = "mjpeg";
     auto formatParts = this->d->m_defaultFormat.split(':');
 
     if (formatParts.size() >= 2)
@@ -245,6 +245,11 @@ QString LocalStreaming::defaultVideoFormat() const
     return this->d->m_defaultFormat;
 }
 
+bool LocalStreaming::hasActiveClients() const
+{
+    return this->d->m_hasActiveClients;
+}
+
 QString LocalStreaming::formatDescription(const QString &format) const
 {
     auto formatParts = format.split(':');
@@ -265,6 +270,24 @@ QString LocalStreaming::formatDescription(const QString &format) const
         return {};
 
     return it->description;
+}
+
+bool LocalStreaming::isVideoOnlyFormat(const QString &format) const
+{
+    auto formatParts = format.split(':');
+
+    if (formatParts.size() < 2)
+        return false;
+
+    auto pluginID = formatParts[0];
+    auto muxerID = formatParts[1];
+
+    auto muxerPlugin = akPluginManager->create<AkVideoStreamer>(pluginID);
+
+    if (!muxerPlugin)
+        return false;
+
+    return muxerPlugin->isVideoOnlyFormat(muxerID);
 }
 
 QString LocalStreaming::codec(AkCaps::CapsType type) const
@@ -359,7 +382,7 @@ AkPropertyOptions LocalStreaming::codecOptions(AkCaps::CapsType type) const
 }
 
 QVariant LocalStreaming::codecOptionValue(AkCaps::CapsType type,
-                                     const QString &option) const
+                                          const QString &option) const
 {
     switch (type) {
     case AkCaps::CapsAudio:
@@ -411,9 +434,6 @@ void LocalStreaming::setLocation(const QString &location)
         return;
 
     this->d->m_enabled = !location.isEmpty();
-    this->d->m_location = location;
-    emit this->locationChanged(location);
-    this->d->saveLocation(location);
 
     // Reload codecs based on the new location format
     auto format = this->d->formatFromLocation(location);
@@ -422,12 +442,22 @@ void LocalStreaming::setLocation(const QString &location)
         auto defaultAudio = this->d->defaultCodec(format, AkCaps::CapsAudio);
         auto defaultVideo = this->d->defaultCodec(format, AkCaps::CapsVideo);
 
-        if (!defaultAudio.isEmpty())
+        if (!defaultAudio.isEmpty()) {
             this->setCodec(AkCaps::CapsAudio, defaultAudio);
+        } else if (this->d->m_audioEncoder) {
+            this->d->m_audioEncoder  = {};
+            this->d->m_audioPluginID.clear();
+            emit this->codecChanged(AkCaps::CapsAudio, QString());
+            this->d->saveCodec(AkCaps::CapsAudio, QString());
+        }
 
         if (!defaultVideo.isEmpty())
             this->setCodec(AkCaps::CapsVideo, defaultVideo);
     }
+
+    this->d->m_location = location;
+    emit this->locationChanged(location);
+    this->d->saveLocation(location);
 }
 
 void LocalStreaming::setAudioCaps(const AkAudioCaps &audioCaps)
@@ -707,10 +737,8 @@ void LocalStreaming::resetBitrate(AkCaps::CapsType type)
 
 AkPacket LocalStreaming::iStream(const AkPacket &packet)
 {
-    if (packet.type() == AkPacket::PacketVideo) {
-        QMutexLocker locker(&this->d->m_mutex);
-        this->d->m_curPacket = packet;
-    }
+    if (!this->d->m_hasActiveClients.load(std::memory_order_relaxed))
+        return {};
 
     if (this->d->m_isStreaming) {
         switch (packet.type()) {
@@ -854,7 +882,8 @@ void LocalStreamingPrivate::initSupportedFormats()
                             codecsPriority << LocalStreamingPluginPriority {id, codec.priority};
                     }
 
-                if (audioPluginsID.isEmpty())
+                if (audioPluginsID.isEmpty()
+                    && !muxerPlugin->isVideoOnlyFormat(muxer))
                     continue;
 
                 std::sort(codecsPriority.begin(),
@@ -1175,11 +1204,23 @@ void LocalStreamingPrivate::loadConfigs()
     // If no saved codecs, use defaults from location format
     auto format = this->formatFromLocation(this->m_location);
 
-    if (savedAudio.isEmpty() && !format.isEmpty())
-        savedAudio = this->defaultCodec(format, AkCaps::CapsAudio);
+    if (!format.isEmpty()) {
+        auto validAudioCodecs = self->supportedCodecs(format, AkCaps::CapsAudio);
 
-    if (savedVideo.isEmpty() && !format.isEmpty())
-        savedVideo = this->defaultCodec(format, AkCaps::CapsVideo);
+        if (!savedAudio.isEmpty() && !validAudioCodecs.contains(savedAudio))
+            savedAudio.clear();
+
+        auto validVideoCodecs = self->supportedCodecs(format, AkCaps::CapsVideo);
+
+        if (!savedVideo.isEmpty() && !validVideoCodecs.contains(savedVideo))
+            savedVideo.clear();
+
+        if (savedAudio.isEmpty())
+            savedAudio = this->defaultCodec(format, AkCaps::CapsAudio);
+
+        if (savedVideo.isEmpty())
+            savedVideo = this->defaultCodec(format, AkCaps::CapsVideo);
+    }
 
     auto tryLoadEncoder = [this](const QString &id, AkCaps::CapsType type) {
         auto parts = id.split(':');
@@ -1217,7 +1258,9 @@ void LocalStreamingPrivate::loadConfigs()
         }
     };
 
-    tryLoadEncoder(savedAudio, AkCaps::CapsAudio);
+    if (!savedAudio.isEmpty())
+        tryLoadEncoder(savedAudio, AkCaps::CapsAudio);
+
     tryLoadEncoder(savedVideo, AkCaps::CapsVideo);
 }
 
@@ -1238,13 +1281,15 @@ void LocalStreamingPrivate::printStreamingParameters()
     qInfo() << "Local streaming parameters:";
     qInfo() << "    Location:" << this->m_location;
 
-    qInfo() << "    Audio:";
-    qInfo() << "        sample format:" << this->m_audioCaps.format();
-    qInfo() << "        channels:" << this->m_audioCaps.channels();
-    qInfo() << "        layout:" << this->m_audioCaps.layout();
-    qInfo() << "        sample rate:" << this->m_audioCaps.rate();
-    qInfo() << "        codec:" << self->codec(AkCaps::CapsAudio);
-    qInfo() << "        bitrate:" << this->m_audioBitrate;
+    if (this->m_audioEncoder) {
+        qInfo() << "    Audio:";
+        qInfo() << "        sample format:" << this->m_audioCaps.format();
+        qInfo() << "        channels:" << this->m_audioCaps.channels();
+        qInfo() << "        layout:" << this->m_audioCaps.layout();
+        qInfo() << "        sample rate:" << this->m_audioCaps.rate();
+        qInfo() << "        codec:" << self->codec(AkCaps::CapsAudio);
+        qInfo() << "        bitrate:" << this->m_audioBitrate;
+    }
 
     qInfo() << "    Video:";
     qInfo() << "        pixel format:" << this->m_videoCaps.format();
@@ -1286,6 +1331,14 @@ bool LocalStreamingPrivate::init()
     streamer->setDestinations(destinations);
 
     this->m_streamer = streamer;
+
+    QObject::connect(this->m_streamer.data(),
+                     &AkVideoStreamer::hasActiveClientsChanged,
+                     [this] (bool hasActiveClients) {
+                         this->m_hasActiveClients.store(hasActiveClients,
+                                                        std::memory_order_relaxed);
+                         emit self->hasActiveClientsChanged(hasActiveClients);
+                     });
 
     // Configure video encoder
     this->m_videoEncoder->setInputCaps(this->m_videoCaps);
@@ -1362,6 +1415,16 @@ void LocalStreamingPrivate::uninit()
     qInfo() << "Stopping local streaming";
     this->m_isStreaming = false;
 
+    if (this->m_streamer) {
+        QObject::disconnect(this->m_streamer.data(),
+                            &AkVideoStreamer::hasActiveClientsChanged,
+                            nullptr, nullptr);
+    }
+
+    this->m_hasActiveClients.store(false,
+                                   std::memory_order_relaxed);
+    emit self->hasActiveClientsChanged(false);
+
     if (this->m_videoEncoder) {
         this->m_videoEncoder->setState(AkElement::ElementStateNull);
         QObject::disconnect(this->m_videoHeadersChangedConnection);
@@ -1415,6 +1478,10 @@ void LocalStreamingPrivate::saveLocation(const QString &location)
 
     if (resource.isEmpty())
         resource = "stream";
+
+    this->m_localPort = port;
+    this->m_localResource = resource;
+    this->m_localFormat = format;
 
     config.setValue("localPort", port);
     config.setValue("localResource", resource);

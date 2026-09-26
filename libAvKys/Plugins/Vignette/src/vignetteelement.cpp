@@ -268,4 +268,12 @@ void VignetteElement::resetSoftness()
     this->setSoftness(0.5);
 }
 
+void VignetteElement::reset()
+{
+    this->resetColor();
+    this->resetAspect();
+    this->resetScale();
+    this->resetSoftness();
+}
+
 #include "moc_vignetteelement.cpp"

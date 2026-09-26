@@ -111,6 +111,21 @@ ScrollView {
                 view.effectRemoved()
             }
         }
+        Button {
+            text: qsTr("Reset")
+            icon.source: "image://icons/reset"
+            flat: true
+            Layout.leftMargin: view.leftMargin
+            Layout.rightMargin: view.rightMargin
+            Accessible.description: qsTr("Reset %1 to default values").arg(view.effectDescription)
+
+            onClicked: {
+                if (view.isSource)
+                    videoEffects.resetSourceEffect(view.sourceId, view.effectIndex)
+                else
+                    videoEffects.resetEffect(view.effectIndex)
+            }
+        }
         ColumnLayout {
             id: itmEffectControls
             objectName: "itmEffectControls"

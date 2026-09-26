@@ -60,6 +60,7 @@ class TemperatureElement: public AkVideoEffect
     public slots:
         void setTemperature(qreal temperature);
         void resetTemperature();
+        void reset() override;
 };
 
 #endif // TEMPERATUREELEMENT_H

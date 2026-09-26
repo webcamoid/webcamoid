@@ -69,6 +69,7 @@ class EmbossElement: public AkVideoEffect
         void setBias(qreal bias);
         void resetFactor();
         void resetBias();
+        void reset() override;
 };
 
 #endif // EmbossELEMENT_H

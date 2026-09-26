@@ -49,7 +49,7 @@ class AKCOMMONS_EXPORT AkVideoEffect: public QObject
                                          QOpenGLFramebufferObject *&outputFbo,
                                          qint64 streamId,
                                          qreal pts) = 0;
-        Q_INVOKABLE virtual void uninit() {}
+        Q_INVOKABLE virtual void uninit() = 0;
 
     protected:
         QOpenGLFunctions *m_gl {nullptr};
@@ -60,6 +60,7 @@ class AKCOMMONS_EXPORT AkVideoEffect: public QObject
 
     public Q_SLOTS:
         void setGLFunctions(QOpenGLFunctions *gl);
+        virtual void reset() = 0;
 };
 
 #endif // AKVIDEOEFFECT_H

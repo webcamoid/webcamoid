@@ -179,4 +179,9 @@ void ContrastElement::resetContrast()
     this->setContrast(0);
 }
 
+void ContrastElement::reset()
+{
+    this->resetContrast();
+}
+
 #include "moc_contrastelement.cpp"

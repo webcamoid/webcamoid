@@ -36,6 +36,8 @@ Dialog {
                 wdgMainWidget.height: wdgMainWidget.height * 0.5
     modal: true
 
+    onOpened: dialogLayout.syncFromStreaming()
+
     property real physicalWidth: wdgMainWidget.width / Screen.pixelDensity
     property real physicalHeight: wdgMainWidget.height / Screen.pixelDensity
 
@@ -52,10 +54,22 @@ Dialog {
             id: dialogLayout
             width: scrollView.width
 
+            property string currentFormat:
+                localStreaming.locationFormat(localStreaming.location)
+            property string currentVideoCodec:
+                localStreaming.codec(AkCaps.CapsVideo)
+            property string currentAudioCodec:
+                localStreaming.codec(AkCaps.CapsAudio)
             property var videoEncoderOptions:
                 localStreaming.codecOptions(AkCaps.CapsVideo)
-            readonly property string currentFormat:
-                localStreaming.locationFormat(localStreaming.location)
+
+            function syncFromStreaming()
+            {
+                dialogLayout.currentFormat = localStreaming.locationFormat(localStreaming.location)
+                dialogLayout.currentVideoCodec = localStreaming.codec(AkCaps.CapsVideo)
+                dialogLayout.currentAudioCodec = localStreaming.codec(AkCaps.CapsAudio)
+                dialogLayout.videoEncoderOptions = localStreaming.codecOptions(AkCaps.CapsVideo)
+            }
 
             readonly property var vc: AkVideoCaps.create(localStreaming.videoCaps)
             property int vbr: localStreaming.bitrate(AkCaps.CapsVideo)
@@ -112,8 +126,12 @@ Dialog {
                 }
 
                 function onCodecChanged(type, codec) {
-                    if (type === AkCaps.CapsVideo)
+                    if (type === AkCaps.CapsVideo) {
                         dialogLayout.videoEncoderOptions = localStreaming.codecOptions(AkCaps.CapsVideo)
+                        dialogLayout.currentVideoCodec = codec
+                    } else if (type === AkCaps.CapsAudio) {
+                        dialogLayout.currentAudioCodec = codec
+                    }
                 }
 
                 function onBitrateChanged(type, bitrate) {
@@ -354,7 +372,7 @@ Dialog {
                                 .map(c => localStreaming.codecDescription(c))
                 currentIndex: {
                     let codecs = localStreaming.supportedCodecs(dialogLayout.currentFormat, AkCaps.CapsVideo)
-                    let idx = codecs.indexOf(localStreaming.codec(AkCaps.CapsVideo))
+                    let idx = codecs.indexOf(dialogLayout.currentVideoCodec)
 
                     return idx < 0? 0: idx
                 }
@@ -428,87 +446,94 @@ Dialog {
 
             // Audio
 
-            Label {
-                text: qsTr("Audio quality")
-                font: AkTheme.fontSettings.h6
-                Layout.leftMargin: scrollView.leftMargin
-                Layout.rightMargin: scrollView.rightMargin
-                Layout.topMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
-                Layout.bottomMargin: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
-                Layout.fillWidth: true
-            }
-
-            GridLayout {
-                columns: 2
-                layoutDirection: scrollView.rtl? Qt.RightToLeft: Qt.LeftToRight
-                Layout.leftMargin: scrollView.leftMargin
-                Layout.rightMargin: scrollView.rightMargin
+            ColumnLayout {
+                id: audioSection
+                visible: !localStreaming.isVideoOnlyFormat(dialogLayout.currentFormat)
+                spacing: 0
                 Layout.fillWidth: true
 
                 Label {
-                    id: txtAudioSampleRate
-                    text: qsTr("Sample rate")
-                }
-                SpinBox {
-                    id: spbAudioSampleRate
-                    value: AkAudioCaps.create(localStreaming.audioCaps).rate
-                    from: 4000
-                    to: 512000
-                    stepSize: 1000
-                    editable: true
-                    Accessible.name: txtAudioSampleRate.text
+                    text: qsTr("Audio quality")
+                    font: AkTheme.fontSettings.h6
+                    Layout.leftMargin: scrollView.leftMargin
                     Layout.rightMargin: scrollView.rightMargin
+                    Layout.topMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+                    Layout.bottomMargin: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
+                    Layout.fillWidth: true
+                }
 
-                    onValueChanged: {
-                        if (dialogLayout.updatingFromPreset)
-                            return
-                        let audioCaps = AkAudioCaps.create(localStreaming.audioCaps)
-                        audioCaps.rate = value
-                        localStreaming.audioCaps = audioCaps.toVariant()
+                GridLayout {
+                    columns: 2
+                    layoutDirection: scrollView.rtl? Qt.RightToLeft: Qt.LeftToRight
+                    Layout.leftMargin: scrollView.leftMargin
+                    Layout.rightMargin: scrollView.rightMargin
+                    Layout.fillWidth: true
+
+                    Label {
+                        id: txtAudioSampleRate
+                        text: qsTr("Sample rate")
+                    }
+                    SpinBox {
+                        id: spbAudioSampleRate
+                        value: AkAudioCaps.create(localStreaming.audioCaps).rate
+                        from: 4000
+                        to: 512000
+                        stepSize: 1000
+                        editable: true
+                        Accessible.name: txtAudioSampleRate.text
+                        Layout.rightMargin: scrollView.rightMargin
+
+                        onValueChanged: {
+                            if (dialogLayout.updatingFromPreset)
+                                return
+
+                            let audioCaps = AkAudioCaps.create(localStreaming.audioCaps)
+                            audioCaps.rate = value
+                            localStreaming.audioCaps = audioCaps.toVariant()
+                        }
+                    }
+                    Label {
+                        id: txtAudioBitrate
+                        text: qsTr("Audio bitrate (kbps)")
+                    }
+                    SpinBox {
+                        id: spbAudioBitrate
+                        value: localStreaming.bitrate(AkCaps.CapsAudio) / 1000
+                        from: 8
+                        to: 50000
+                        stepSize: 8
+                        editable: true
+                        Accessible.name: txtAudioBitrate.text
+                        Layout.rightMargin: scrollView.rightMargin
+
+                        onValueModified: {
+                            if (!dialogLayout.updatingFromPreset)
+                                localStreaming.setBitrate(AkCaps.CapsAudio, value * 1000)
+                        }
                     }
                 }
 
-                Label {
-                    id: txtAudioBitrate
-                    text: qsTr("Audio bitrate (kbps)")
-                }
-                SpinBox {
-                    id: spbAudioBitrate
-                    value: localStreaming.bitrate(AkCaps.CapsAudio) / 1000
-                    from: 8
-                    to: 50000
-                    stepSize: 8
-                    editable: true
-                    Accessible.name: txtAudioBitrate.text
+                AK.LabeledComboBox {
+                    id: audioCodecCombo
+                    label: qsTr("Audio codec")
+                    Layout.leftMargin: scrollView.leftMargin
                     Layout.rightMargin: scrollView.rightMargin
+                    Layout.fillWidth: true
+                    model: localStreaming.supportedCodecs(dialogLayout.currentFormat, AkCaps.CapsAudio)
+                                         .map(c => localStreaming.codecDescription(c))
 
-                    onValueModified: {
-                        if (!dialogLayout.updatingFromPreset)
-                            localStreaming.setBitrate(AkCaps.CapsAudio, value * 1000)
+                    currentIndex: {
+                        let codecs = localStreaming.supportedCodecs(dialogLayout.currentFormat, AkCaps.CapsAudio)
+                        let idx = codecs.indexOf(dialogLayout.currentAudioCodec)
+
+                        return idx < 0? 0: idx
                     }
-                }
-            }
+                    onCurrentIndexChanged: {
+                        let codecs = localStreaming.supportedCodecs(dialogLayout.currentFormat, AkCaps.CapsAudio)
 
-            AK.LabeledComboBox {
-                id: audioCodecCombo
-                label: qsTr("Audio codec")
-                Layout.leftMargin: scrollView.leftMargin
-                Layout.rightMargin: scrollView.rightMargin
-                Layout.fillWidth: true
-                model: localStreaming.supportedCodecs(dialogLayout.currentFormat, AkCaps.CapsAudio)
-                                .map(c => localStreaming.codecDescription(c))
-                currentIndex: {
-                    let codecs = localStreaming.supportedCodecs(dialogLayout.currentFormat, AkCaps.CapsAudio)
-                    let idx = codecs.indexOf(localStreaming.codec(AkCaps.CapsAudio))
-
-                    return idx < 0? 0: idx
-                }
-
-                onCurrentIndexChanged: {
-                    let codecs = localStreaming.supportedCodecs(dialogLayout.currentFormat, AkCaps.CapsAudio)
-
-                    if (currentIndex >= 0 && currentIndex < codecs.length)
-                        localStreaming.setCodec(AkCaps.CapsAudio, codecs[currentIndex])
+                        if (currentIndex >= 0 && currentIndex < codecs.length)
+                            localStreaming.setCodec(AkCaps.CapsAudio, codecs[currentIndex])
+                    }
                 }
             }
         }

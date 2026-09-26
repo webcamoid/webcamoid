@@ -18,8 +18,10 @@
  */
 
 #include <QMutex>
+#include <QQueue>
 #include <QThread>
 #include <QVariant>
+#include <QWaitCondition>
 #include <akfrac.h>
 #include <akpacket.h>
 #include <akvideocaps.h>
@@ -28,6 +30,10 @@
 #include <akvideopacket.h>
 #include <akcompressedvideopacket.h>
 #include <iak/akelement.h>
+
+#ifdef HAVE_LIBJPEG_TURBO
+#include <turbojpeg.h>
+#endif
 
 extern "C" {
     #include <libavcodec/avcodec.h>
@@ -38,13 +44,15 @@ extern "C" {
 
 #include "videoencoderffmpegelement.h"
 
+#define DEFAULT_FRAME_BUFFER_SIZE 5
 #define CODEC_COMPLIANCE FF_COMPLIANCE_VERY_STRICT
 
-#define VideoCodecID_ffvp8  AkCompressedVideoCaps::VideoCodecID(AK_MAKE_FOURCC(0xFF, 'V', 'P', '8'))
-#define VideoCodecID_ffvp9  AkCompressedVideoCaps::VideoCodecID(AK_MAKE_FOURCC(0xFF, 'V', 'P', '9'))
-#define VideoCodecID_ffav1  AkCompressedVideoCaps::VideoCodecID(AK_MAKE_FOURCC(0xFF, 'A', 'V', '1'))
-#define VideoCodecID_ffh264 AkCompressedVideoCaps::VideoCodecID(AK_MAKE_FOURCC(0xFF, 'A', 'V', 'C'))
-#define VideoCodecID_ffhevc AkCompressedVideoCaps::VideoCodecID(AK_MAKE_FOURCC(0xFF, 'H', 'E', 'V'))
+#define VideoCodecID_ffvp8   AkCompressedVideoCaps::VideoCodecID(AK_MAKE_FOURCC(0xFF, 'V', 'P', '8'))
+#define VideoCodecID_ffvp9   AkCompressedVideoCaps::VideoCodecID(AK_MAKE_FOURCC(0xFF, 'V', 'P', '9'))
+#define VideoCodecID_ffav1   AkCompressedVideoCaps::VideoCodecID(AK_MAKE_FOURCC(0xFF, 'A', 'V', '1'))
+#define VideoCodecID_ffh264  AkCompressedVideoCaps::VideoCodecID(AK_MAKE_FOURCC(0xFF, 'A', 'V', 'C'))
+#define VideoCodecID_ffhevc  AkCompressedVideoCaps::VideoCodecID(AK_MAKE_FOURCC(0xFF, 'H', 'E', 'V'))
+#define VideoCodecID_ffmjpeg AkCompressedVideoCaps::VideoCodecID(AK_MAKE_FOURCC(0xFF, 'M', 'J', 'P'))
 
 struct FFmpegCodecs
 {
@@ -54,12 +62,13 @@ struct FFmpegCodecs
     static inline const FFmpegCodecs *table()
     {
         static const FFmpegCodecs ffmpegVideoEncCodecsTable[] = {
-            {VideoCodecID_ffvp8                         , AV_CODEC_ID_VP8 },
-            {VideoCodecID_ffvp9                         , AV_CODEC_ID_VP9 },
-            {VideoCodecID_ffav1                         , AV_CODEC_ID_AV1 },
-            {VideoCodecID_ffh264                        , AV_CODEC_ID_H264},
-            {VideoCodecID_ffhevc                        , AV_CODEC_ID_HEVC},
-            {AkCompressedVideoCaps::VideoCodecID_unknown, AV_CODEC_ID_NONE},
+            {VideoCodecID_ffmjpeg                       , AV_CODEC_ID_MJPEG},
+            {VideoCodecID_ffvp8                         , AV_CODEC_ID_VP8  },
+            {VideoCodecID_ffvp9                         , AV_CODEC_ID_VP9  },
+            {VideoCodecID_ffav1                         , AV_CODEC_ID_AV1  },
+            {VideoCodecID_ffh264                        , AV_CODEC_ID_H264 },
+            {VideoCodecID_ffhevc                        , AV_CODEC_ID_HEVC },
+            {AkCompressedVideoCaps::VideoCodecID_unknown, AV_CODEC_ID_NONE },
         };
 
         return ffmpegVideoEncCodecsTable;
@@ -252,6 +261,19 @@ class VideoEncoderFFmpegElementPrivate
         bool m_paused {false};
         qint64 m_encodedTimePts {0};
 
+        size_t m_frameBufferSize {DEFAULT_FRAME_BUFFER_SIZE};
+        QQueue<AkVideoPacket> m_frameQueue;
+        QMutex m_frameQueueMutex;
+        QWaitCondition m_frameQueueCondition;
+        QThread *m_frameProcessingThread {nullptr};
+        bool m_runFrameProcessingLoop {false};
+
+#ifdef HAVE_LIBJPEG_TURBO
+        bool m_useTurboJpeg {false};
+        tjhandle m_tjHandle {nullptr};
+        QByteArray m_tjBuffer;
+#endif
+
         explicit VideoEncoderFFmpegElementPrivate(VideoEncoderFFmpegElement *self);
         ~VideoEncoderFFmpegElementPrivate();
         bool isAvailable(const QString &codec) const;
@@ -269,6 +291,18 @@ class VideoEncoderFFmpegElementPrivate
                                       int level,
                                       const char *fmt,
                                       va_list vl);
+        void startFrameProcessingThread();
+        void stopFrameProcessingThread();
+        void frameProcessingLoop();
+        void processFrame(const AkVideoPacket &packet);
+
+#ifdef HAVE_LIBJPEG_TURBO
+        static int akFormatToTjPixelFormat(AkVideoCaps::PixelFormat format);
+        bool initTurboJpeg();
+        void uninitTurboJpeg();
+        bool compressWithTurbo(const AkVideoPacket &src,
+                               AVPacket *avPacket);
+#endif // HAVE_LIBJPEG_TURBO
 };
 
 VideoEncoderFFmpegElement::VideoEncoderFFmpegElement():
@@ -354,6 +388,11 @@ bool VideoEncoderFFmpegElement::globalHeaders() const
     return this->d->m_globalHeaders;
 }
 
+size_t VideoEncoderFFmpegElement::frameBufferSize() const
+{
+    return this->d->m_frameBufferSize;
+}
+
 AkPropertyOptions VideoEncoderFFmpegElement::options() const
 {
     auto it = std::find_if(this->d->m_codecs.constBegin(),
@@ -382,24 +421,30 @@ bool VideoEncoderFFmpegElement::hasHardwareSupport(const QString &codec) const
     return it->isHardware;
 }
 
+bool VideoEncoderFFmpegElement::checkDiscardFrame(const AkVideoPacket &packet) const
+{
+    return this->discardFrame(packet);
+}
+
+void VideoEncoderFFmpegElement::applyRegulateFps(const AkVideoPacket &packet)
+{
+    this->regulateFps(packet);
+}
+
 AkPacket VideoEncoderFFmpegElement::iVideoStream(const AkVideoPacket &packet)
 {
-    QMutexLocker mutexLocker(&this->d->m_mutex);
+    QMutexLocker mutexLocker(&this->d->m_frameQueueMutex);
 
-    if (this->d->m_paused || !this->d->m_initialized)
+    if (!this->d->m_runFrameProcessingLoop)
         return {};
 
-    if (this->discardFrame(packet))
+    // If the buffer is full, discard the incoming frame instead of
+    // blocking the input thread.
+    if (size_t(this->d->m_frameQueue.size()) >= this->d->m_frameBufferSize)
         return {};
 
-    this->d->m_videoConverter.begin();
-    auto src = this->d->m_videoConverter.convert(packet);
-    this->d->m_videoConverter.end();
-
-    if (!src)
-        return {};
-
-    this->regulateFps(src);
+    this->d->m_frameQueue.enqueue(packet);
+    this->d->m_frameQueueCondition.wakeOne();
 
     return {};
 }
@@ -416,6 +461,20 @@ void VideoEncoderFFmpegElement::setGlobalHeaders(bool globalHeaders)
 
     this->d->m_globalHeaders = globalHeaders;
     emit this->globalHeadersChanged(globalHeaders);
+}
+
+void VideoEncoderFFmpegElement::setFrameBufferSize(size_t frameBufferSize)
+{
+    if (frameBufferSize == this->d->m_frameBufferSize)
+        return;
+
+    this->d->m_frameBufferSize = frameBufferSize;
+    emit this->frameBufferSizeChanged(frameBufferSize);
+}
+
+void VideoEncoderFFmpegElement::resetFrameBufferSize()
+{
+    this->setFrameBufferSize(DEFAULT_FRAME_BUFFER_SIZE);
 }
 
 void VideoEncoderFFmpegElement::resetGlobalHeaders()
@@ -569,6 +628,20 @@ bool VideoEncoderFFmpegElementPrivate::isAvailable(const QString &codec) const
 
                 break;
             }
+
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 13, 100)
+        const AVColorRange *avRanges = nullptr;
+        int nRanges = 0;
+        avcodec_get_supported_config(nullptr,
+                                     encoder,
+                                     AV_CODEC_CONFIG_COLOR_RANGE,
+                                     0,
+                                     reinterpret_cast<const void **>(&avRanges),
+                                     &nRanges);
+
+        if (avRanges && nRanges > 0)
+            context->color_range = avRanges[0];
+#endif
 
         context->pix_fmt = preferredFormat;
         context->width = 640;
@@ -820,6 +893,20 @@ void VideoEncoderFFmpegElementPrivate::listCodecs()
                           menu[units[option.name()]]};
             }
 
+#ifdef HAVE_LIBJPEG_TURBO
+        if (QString(codec->name) == "mjpeg") {
+            options << AkPropertyOption("quality",
+                                        "Quality",
+                                        "JPEG compression quality (1-100)",
+                                        AkPropertyOption::OptionType_Number,
+                                        1,   // min
+                                        100, // max
+                                        1,   // step
+                                        75,  // default
+                                        {}); // menu
+        }
+#endif
+
         QString description = QString(codec->long_name).isEmpty()?
                                 QString(codec->name):
                                 QString(codec->long_name);
@@ -891,7 +978,13 @@ void VideoEncoderFFmpegElementPrivate::adjustDefaults()
     };
 
     for (auto &codec: this->m_codecs) {
-        if (codec.name == "libvpx" || codec.name == "libvpx-vp9") {
+        if (codec.name == "mjpeg") {
+            for (auto &option: codec.options)
+                if (option.name() == "huffman")
+                    setDefaultValue(option, menuOption(option.menu(), "default"));
+                else if (option.name() == "force_duplicated_matrix")
+                    setDefaultValue(option, true);
+        } else if (codec.name == "libvpx" || codec.name == "libvpx-vp9") {
             for (auto &option: codec.options) {
                 if (option.name() == "quality")
                     setDefaultValue(option, menuOption(option.menu(), "realtime"));
@@ -1136,6 +1229,20 @@ bool VideoEncoderFFmpegElementPrivate::init()
     if (this->m_globalHeaders)
         this->m_context->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 
+#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 13, 100)
+    const AVColorRange *avRanges = nullptr;
+    int nRanges = 0;
+    avcodec_get_supported_config(nullptr,
+                                 encoder,
+                                 AV_CODEC_CONFIG_COLOR_RANGE,
+                                 0,
+                                 reinterpret_cast<const void **>(&avRanges),
+                                 &nRanges);
+
+    if (avRanges && nRanges > 0)
+        this->m_context->color_range = avRanges[0];
+#endif
+
     auto options = this->readCodecOptions();
     auto result = avcodec_open2(this->m_context, encoder, &options);
     av_dict_free(&options);
@@ -1148,17 +1255,27 @@ bool VideoEncoderFFmpegElementPrivate::init()
         return false;
     }
 
+#ifdef HAVE_LIBJPEG_TURBO
+    if (self->codec() == "mjpeg") {
+        if (!this->initTurboJpeg())
+            qWarning() << "TurboJPEG not available, falling back to FFmpeg MJPEG encoder";
+    }
+#endif
+
     this->updateHeaders();
     self->restartFpsControl();
 
     this->m_encodedTimePts = 0;
     this->m_initialized = true;
+    this->startFrameProcessingThread();
 
     return true;
 }
 
 void VideoEncoderFFmpegElementPrivate::uninit()
 {
+    this->stopFrameProcessingThread();
+
     QMutexLocker mutexLocker(&this->m_mutex);
 
     if (!this->m_initialized)
@@ -1187,7 +1304,79 @@ void VideoEncoderFFmpegElementPrivate::uninit()
     this->m_codecParameters.clear();
     self->restartFpsControl();
 
+#ifdef HAVE_LIBJPEG_TURBO
+    this->uninitTurboJpeg();
+#endif
+
     this->m_paused = false;
+}
+
+void VideoEncoderFFmpegElementPrivate::startFrameProcessingThread()
+{
+    this->stopFrameProcessingThread();
+
+    this->m_runFrameProcessingLoop = true;
+    this->m_frameProcessingThread =
+            QThread::create([this] () { this->frameProcessingLoop(); });
+    this->m_frameProcessingThread->start();
+}
+
+void VideoEncoderFFmpegElementPrivate::stopFrameProcessingThread()
+{
+    if (!this->m_frameProcessingThread)
+        return;
+
+    {
+        QMutexLocker locker(&this->m_frameQueueMutex);
+        this->m_runFrameProcessingLoop = false;
+        this->m_frameQueue.clear();
+        this->m_frameQueueCondition.wakeAll();
+    }
+
+    this->m_frameProcessingThread->wait();
+    delete this->m_frameProcessingThread;
+    this->m_frameProcessingThread = nullptr;
+}
+
+void VideoEncoderFFmpegElementPrivate::frameProcessingLoop()
+{
+    forever {
+        AkVideoPacket packet;
+
+        {
+            QMutexLocker locker(&this->m_frameQueueMutex);
+
+            while (this->m_runFrameProcessingLoop && this->m_frameQueue.isEmpty())
+                this->m_frameQueueCondition.wait(&this->m_frameQueueMutex);
+
+            if (!this->m_runFrameProcessingLoop && this->m_frameQueue.isEmpty())
+                break;
+
+            packet = this->m_frameQueue.dequeue();
+        }
+
+        this->processFrame(packet);
+    }
+}
+
+void VideoEncoderFFmpegElementPrivate::processFrame(const AkVideoPacket &packet)
+{
+    QMutexLocker mutexLocker(&this->m_mutex);
+
+    if (this->m_paused || !this->m_initialized)
+        return;
+
+    if (self->checkDiscardFrame(packet))
+        return;
+
+    this->m_videoConverter.begin();
+    auto src = this->m_videoConverter.convert(packet);
+    this->m_videoConverter.end();
+
+    if (!src)
+        return;
+
+    self->applyRegulateFps(src);
 }
 
 void VideoEncoderFFmpegElementPrivate::updateHeaders()
@@ -1268,6 +1457,11 @@ void VideoEncoderFFmpegElementPrivate::updateOutputCaps()
                 inputCaps.format():
                 it->formats.first();
 
+#ifdef HAVE_LIBJPEG_TURBO
+    if (self->codec() == "mjpeg")
+        format = AkVideoCaps::Format_yuv420p;
+#endif
+
     auto fps = inputCaps.fps();
 
     if (!fps)
@@ -1292,6 +1486,24 @@ void VideoEncoderFFmpegElementPrivate::encodeFrame(const AkVideoPacket &src)
 {
     this->m_id = src.id();
     this->m_index = src.index();
+
+#ifdef HAVE_LIBJPEG_TURBO
+    if (this->m_useTurboJpeg && self->codec() == "mjpeg") {
+        AVPacket avPacket;
+        av_init_packet(&avPacket);
+        avPacket.data = nullptr;
+        avPacket.size = 0;
+
+        if (this->compressWithTurbo(src, &avPacket)) {
+            this->sendFrame(&avPacket);
+            this->m_encodedTimePts = src.pts() + src.duration();
+            emit self->encodedTimePtsChanged(this->m_encodedTimePts);
+            return;
+        } else {
+            qWarning() << "TurboJPEG compression failed, falling back to FFmpeg";
+        }
+    }
+#endif
 
     // Write the current frame.
     auto frame = av_frame_alloc();
@@ -1388,5 +1600,134 @@ void VideoEncoderFFmpegElementPrivate::ffmpegLogCallback(void *ptr,
             break;
     }
 }
+
+#ifdef HAVE_LIBJPEG_TURBO
+int VideoEncoderFFmpegElementPrivate::akFormatToTjPixelFormat(AkVideoCaps::PixelFormat format)
+{
+    switch (format) {
+    case AkVideoCaps::Format_rgb24: return TJPF_RGB;
+    case AkVideoCaps::Format_bgr24: return TJPF_BGR;
+    case AkVideoCaps::Format_rgba:  return TJPF_RGBA;
+    case AkVideoCaps::Format_bgra:  return TJPF_BGRA;
+    case AkVideoCaps::Format_rgbx:  return TJPF_RGBX;
+    case AkVideoCaps::Format_bgrx:  return TJPF_BGRX;
+    case AkVideoCaps::Format_xrgb:  return TJPF_XRGB;
+    case AkVideoCaps::Format_xbgr:  return TJPF_XBGR;
+    case AkVideoCaps::Format_argb:  return TJPF_ARGB;
+    case AkVideoCaps::Format_abgr:  return TJPF_ABGR;
+    default:                        return TJPF_RGB;
+    }
+}
+
+bool VideoEncoderFFmpegElementPrivate::initTurboJpeg()
+{
+    if (this->m_tjHandle)
+        return true;
+
+    this->m_tjHandle = tjInitCompress();
+
+    if (!this->m_tjHandle) {
+        qWarning() << "Failed to initialize TurboJPEG compressor";
+
+        return false;
+    }
+
+    int width = self->inputCaps().width();
+    int height = self->inputCaps().height();
+    this->m_tjBuffer.resize(int(tjBufSize(width, height, TJSAMP_420)));
+
+    this->m_useTurboJpeg = true;
+    qInfo() << "TurboJPEG initialized for fast MJPEG encoding";
+
+    return true;
+}
+
+void VideoEncoderFFmpegElementPrivate::uninitTurboJpeg()
+{
+    if (this->m_tjHandle) {
+        tjDestroy(this->m_tjHandle);
+        this->m_tjHandle = nullptr;
+    }
+
+    this->m_tjBuffer.clear();
+    this->m_useTurboJpeg = false;
+}
+
+bool VideoEncoderFFmpegElementPrivate::compressWithTurbo(const AkVideoPacket &src,
+                                                          AVPacket *avPacket)
+{
+    if (!this->m_tjHandle || !src)
+        return false;
+
+    auto format = src.caps().format();
+    int width = src.caps().width();
+    int height = src.caps().height();
+    unsigned long jpegSize = 0;
+    int rc = -1;
+    int quality = qBound(1, self->optionValue("quality").toInt(), 100);
+
+    // Case 1: YUV420P format (the most common)
+    if (format == AkVideoCaps::Format_yuv420p && src.planes() >= 3) {
+        const unsigned char *yuvPlanes[3] = {
+            reinterpret_cast<const unsigned char *>(src.constPlane(0)),
+            reinterpret_cast<const unsigned char *>(src.constPlane(1)),
+            reinterpret_cast<const unsigned char *>(src.constPlane(2))
+        };
+        int strides[3] = {
+            int(src.lineSize(0)),
+            int(src.lineSize(1)),
+            int(src.lineSize(2))
+        };
+
+        auto dstBuf = reinterpret_cast<unsigned char *>(this->m_tjBuffer.data());
+
+        rc = tjCompressFromYUVPlanes(this->m_tjHandle,
+                                      yuvPlanes,
+                                      width,
+                                      strides,
+                                      height,
+                                      TJSAMP_420,
+                                      &dstBuf,
+                                      &jpegSize,
+                                      quality,
+                                      TJFLAG_FASTDCT | TJFLAG_NOREALLOC);
+    }
+    // Case 2: RGB/RGBA/etc format
+    else {
+        int pixelFormat = akFormatToTjPixelFormat(format);
+        int pitch = src.lineSize(0);
+        const unsigned char *srcBuf = src.constPlane(0);
+        auto dstBuf = reinterpret_cast<unsigned char *>(this->m_tjBuffer.data());
+
+        rc = tjCompress2(this->m_tjHandle,
+                         srcBuf,
+                         width,
+                         pitch,
+                         height,
+                         pixelFormat,
+                         &dstBuf,
+                         &jpegSize,
+                         TJSAMP_420,
+                         quality,
+                         TJFLAG_FASTDCT | TJFLAG_NOREALLOC);
+    }
+
+    if (rc < 0) {
+        qWarning() << "TurboJPEG compression failed:" << tjGetErrorStr();
+
+        return false;
+    }
+
+    // Fill AVPacket
+    avPacket->data = reinterpret_cast<uint8_t *>(this->m_tjBuffer.data());
+    avPacket->size = int(jpegSize);
+    avPacket->pts = src.pts();
+    avPacket->dts = src.pts();
+    avPacket->duration = src.duration();
+    avPacket->flags = AV_PKT_FLAG_KEY;
+
+    return true;
+}
+#endif // HAVE_LIBJPEG_TURBO
 
 #include "moc_videoencoderffmpegelement.cpp"

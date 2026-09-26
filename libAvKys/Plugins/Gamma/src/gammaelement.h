@@ -60,6 +60,7 @@ class GammaElement: public AkVideoEffect
     public slots:
         void setGamma(int gamma);
         void resetGamma();
+        void reset() override;
 };
 
 #endif // GAMMAELEMENT_H

@@ -88,6 +88,7 @@ class VignetteElement: public AkVideoEffect
         void resetAspect();
         void resetScale();
         void resetSoftness();
+        void reset() override;
 };
 
 #endif // VIGNETTEELEMENT_H

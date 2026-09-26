@@ -69,6 +69,7 @@ class PixelateElement: public AkVideoEffect
         void setBlockHeight(int blockHeight);
         void resetBlockWidth();
         void resetBlockHeight();
+        void reset() override;
 };
 
 #endif // PIXELATEELEMENT_H

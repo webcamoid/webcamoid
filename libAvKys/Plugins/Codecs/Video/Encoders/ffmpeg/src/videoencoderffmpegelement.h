@@ -32,6 +32,11 @@ class VideoEncoderFFmpegElement: public AkVideoEncoder
                WRITE setGlobalHeaders
                RESET resetGlobalHeaders
                NOTIFY globalHeadersChanged)
+    Q_PROPERTY(size_t frameBufferSize
+               READ frameBufferSize
+               WRITE setFrameBufferSize
+               RESET resetFrameBufferSize
+               NOTIFY frameBufferSizeChanged)
 
     public:
         VideoEncoderFFmpegElement();
@@ -43,12 +48,15 @@ class VideoEncoderFFmpegElement: public AkVideoEncoder
         Q_INVOKABLE AkCompressedVideoCaps outputCaps() const override;
         Q_INVOKABLE QByteArray headers() const override;
         Q_INVOKABLE qint64 encodedTimePts() const override;
+        Q_INVOKABLE size_t frameBufferSize() const;
         Q_INVOKABLE bool globalHeaders() const;
         Q_INVOKABLE AkPropertyOptions options() const override;
         Q_INVOKABLE bool hasHardwareSupport(const QString &codec) const override;
 
     private:
         VideoEncoderFFmpegElementPrivate *d;
+        bool checkDiscardFrame(const AkVideoPacket &packet) const;
+        void applyRegulateFps(const AkVideoPacket &packet);
 
     protected:
         AkPacket iVideoStream(const AkVideoPacket &packet) override;
@@ -56,11 +64,16 @@ class VideoEncoderFFmpegElement: public AkVideoEncoder
 
     signals:
         void globalHeadersChanged(bool globalHeaders);
+        void frameBufferSizeChanged(size_t frameBufferSize);
 
     public slots:
         void setGlobalHeaders(bool globalHeaders);
+        void setFrameBufferSize(size_t frameBufferSize);
         void resetGlobalHeaders();
+        void resetFrameBufferSize();
         bool setState(AkElement::ElementState state) override;
+
+    friend class VideoEncoderFFmpegElementPrivate;
 };
 
 #endif // VIDEOENCODERFFMPEGELEMENT_H

@@ -382,17 +382,27 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="304"/>
+        <location filename="../qml/CanvasConfig.qml" line="305"/>
+        <source>Canvas output buffers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="316"/>
+        <source>Enable asynchronous read</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="332"/>
         <source>Output buffers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="322"/>
+        <location filename="../qml/CanvasConfig.qml" line="352"/>
         <source>Canvas color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="324"/>
+        <location filename="../qml/CanvasConfig.qml" line="354"/>
         <source>Choose the canvas color</source>
         <translation type="unfinished"></translation>
     </message>
@@ -407,22 +417,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="204"/>
+        <location filename="../qml/CanvasConfig.qml" line="205"/>
         <source>Canvas size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="222"/>
+        <location filename="../qml/CanvasConfig.qml" line="223"/>
         <source>Width</source>
         <translation type="unfinished">चौड़ाई</translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="251"/>
+        <location filename="../qml/CanvasConfig.qml" line="252"/>
         <source>Height</source>
         <translation type="unfinished">ऊंचाई</translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="280"/>
+        <location filename="../qml/CanvasConfig.qml" line="281"/>
         <source>Frame rate</source>
         <translation type="unfinished">फ़्रेम दर</translation>
     </message>
@@ -1185,97 +1195,97 @@
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="31"/>
         <source>Local streaming advanced options</source>
-        <translation>स्थानीय स्ट्रीमिंग उन्नत विकल्प</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="130"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="148"/>
         <source>Local streaming quality</source>
-        <translation>स्थानीय स्ट्रीमिंग गुणवत्ता</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="155"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="173"/>
         <source>Streaming quality</source>
-        <translation>स्ट्रीमिंग गुणवत्ता</translation>
+        <translation type="unfinished">स्ट्रीमिंग गुणवत्ता</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="208"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="226"/>
         <source>Custom</source>
-        <translation>कस्टम</translation>
+        <translation type="unfinished">कस्टम</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="211"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="229"/>
         <source>Video quality: %1×%2 %3 FPS</source>
-        <translation>वीडियो गुणवत्ता: %1×%2 %3 FPS</translation>
+        <translation type="unfinished">वीडियो गुणवत्ता: %1×%2 %3 FPS</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="212"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="230"/>
         <source>Video bitrate: %1 Mbps</source>
-        <translation>वीडियो बिटरेट: %1 Mbps</translation>
+        <translation type="unfinished">वीडियो बिटरेट: %1 Mbps</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="213"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="231"/>
         <source>Audio sample rate: %1 kHz</source>
-        <translation>ऑडियो सैंपल दर: %1 kHz</translation>
+        <translation type="unfinished">ऑडियो सैंपल दर: %1 kHz</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="214"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="232"/>
         <source>Audio bitrate: %1 kbps</source>
-        <translation>ऑडियो बिटरेट: %1 kbps</translation>
-    </message>
-    <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="223"/>
-        <source>Video quality</source>
-        <translation>वीडियो गुणवत्ता</translation>
+        <translation type="unfinished">ऑडियो बिटरेट: %1 kbps</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="241"/>
+        <source>Video quality</source>
+        <translation type="unfinished">वीडियो गुणवत्ता</translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="259"/>
         <source>Output width</source>
-        <translation>आउटपुट चौड़ाई</translation>
+        <translation type="unfinished">आउटपुट चौड़ाई</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="264"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="282"/>
         <source>Output height</source>
-        <translation>आउटपुट ऊंचाई</translation>
+        <translation type="unfinished">आउटपुट ऊंचाई</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="287"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="305"/>
         <source>Output frame rate</source>
-        <translation>आउटपुट फ़्रेम दर</translation>
+        <translation type="unfinished">आउटपुट फ़्रेम दर</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="310"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="328"/>
         <source>Video bitrate (kbps)</source>
-        <translation>वीडियो बिटरेट (kbps)</translation>
+        <translation type="unfinished">वीडियो बिटरेट (kbps)</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="330"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="348"/>
         <source>Keyframes stride (ms)</source>
-        <translation>कीफ्रेम स्ट्राइड (मिलीसेकंड)</translation>
+        <translation type="unfinished">कीफ्रेम स्ट्राइड (मिलीसेकंड)</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="349"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="367"/>
         <source>Video codec</source>
-        <translation>वीडियो कोडेक</translation>
+        <translation type="unfinished">वीडियो कोडेक</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="432"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="456"/>
         <source>Audio quality</source>
-        <translation>ऑडियो गुणवत्ता</translation>
+        <translation type="unfinished">ऑडियो गुणवत्ता</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="450"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="474"/>
         <source>Sample rate</source>
-        <translation>सैंपल दर</translation>
+        <translation type="unfinished">सैंपल दर</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="473"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="497"/>
         <source>Audio bitrate (kbps)</source>
-        <translation>ऑडियो बिटरेट (kbps)</translation>
+        <translation type="unfinished">ऑडियो बिटरेट (kbps)</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="494"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="518"/>
         <source>Audio codec</source>
-        <translation>ऑडियो कोडेक</translation>
+        <translation type="unfinished">ऑडियो कोडेक</translation>
     </message>
 </context>
 <context>
@@ -1421,7 +1431,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1415"/>
+        <location filename="../../src/mediatools.cpp" line="1436"/>
         <source>%1/log %2.txt</source>
         <translation>%1/लॉग %2.txt</translation>
     </message>
@@ -1850,127 +1860,127 @@
         <translation>उन्नत सेटिंग्स</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="240"/>
+        <location filename="../qml/Streaming.qml" line="241"/>
         <source>Video quality</source>
         <translation>वीडियो गुणवत्ता</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="258"/>
+        <location filename="../qml/Streaming.qml" line="259"/>
         <source>Output width</source>
         <translation>आउटपुट चौड़ाई</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="281"/>
+        <location filename="../qml/Streaming.qml" line="282"/>
         <source>Output height</source>
         <translation>आउटपुट ऊंचाई</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="304"/>
+        <location filename="../qml/Streaming.qml" line="305"/>
         <source>Output frame rate</source>
         <translation>आउटपुट फ़्रेम दर</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="327"/>
+        <location filename="../qml/Streaming.qml" line="328"/>
         <source>Video bitrate (kbps)</source>
         <translation>वीडियो बिटरेट (kbps)</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="347"/>
+        <location filename="../qml/Streaming.qml" line="348"/>
         <source>Keyframes stride (ms)</source>
         <translation>कीफ्रेम स्ट्राइड (मिलीसेकंड)</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="364"/>
+        <location filename="../qml/Streaming.qml" line="365"/>
         <source>Video codec</source>
         <translation>वीडियो कोडेक</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="447"/>
+        <location filename="../qml/Streaming.qml" line="448"/>
         <source>Audio quality</source>
         <translation>ऑडियो गुणवत्ता</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="465"/>
+        <location filename="../qml/Streaming.qml" line="466"/>
         <source>Sample rate</source>
         <translation>सैंपल दर</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="488"/>
+        <location filename="../qml/Streaming.qml" line="489"/>
         <source>Audio bitrate (kbps)</source>
         <translation>ऑडियो बिटरेट (kbps)</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="509"/>
+        <location filename="../qml/Streaming.qml" line="510"/>
         <source>Audio codec</source>
         <translation>ऑडियो कोडेक</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="532"/>
+        <location filename="../qml/Streaming.qml" line="533"/>
         <source>Streaming platform settings</source>
         <translation>स्ट्रीमिंग प्लेटफ़ॉर्म सेटिंग्स</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="543"/>
+        <location filename="../qml/Streaming.qml" line="544"/>
         <source>Platform</source>
         <translation>प्लेटफ़ॉर्म</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="551"/>
+        <location filename="../qml/Streaming.qml" line="552"/>
         <source>Add platform</source>
         <translation>प्लेटफ़ॉर्म जोड़ें</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="558"/>
+        <location filename="../qml/Streaming.qml" line="559"/>
         <source>Remove platform</source>
         <translation>प्लेटफ़ॉर्म हटाएं</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="572"/>
+        <location filename="../qml/Streaming.qml" line="573"/>
         <source>Website</source>
         <translation>वेबसाइट</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="592"/>
+        <location filename="../qml/Streaming.qml" line="593"/>
         <source>Visit website</source>
         <translation>वेबसाइट पर जाएं</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="607"/>
+        <location filename="../qml/Streaming.qml" line="608"/>
         <source>Streaming URL</source>
         <translation>स्ट्रीमिंग URL</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="638"/>
+        <location filename="../qml/Streaming.qml" line="639"/>
         <source>Hide streaming URL</source>
         <translation>स्ट्रीमिंग URL छिपाएं</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="639"/>
+        <location filename="../qml/Streaming.qml" line="640"/>
         <source>Show streaming URL</source>
         <translation>स्ट्रीमिंग URL दिखाएं</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="658"/>
+        <location filename="../qml/Streaming.qml" line="659"/>
         <source>Streaming key</source>
         <translation>स्ट्रीमिंग कुंजी</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="691"/>
+        <location filename="../qml/Streaming.qml" line="692"/>
         <source>Hide streaming key</source>
         <translation>स्ट्रीमिंग कुंजी छिपाएं</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="692"/>
+        <location filename="../qml/Streaming.qml" line="693"/>
         <source>Show streaming key</source>
         <translation>स्ट्रीमिंग कुंजी दिखाएं</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="711"/>
+        <location filename="../qml/Streaming.qml" line="712"/>
         <source>Streaming configuration help</source>
         <translation>स्ट्रीमिंग कॉन्फ़िगरेशन सहायता</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="723"/>
+        <location filename="../qml/Streaming.qml" line="724"/>
         <source>Get streaming key</source>
         <translation>स्ट्रीमिंग कुंजी प्राप्त करें</translation>
     </message>
@@ -2285,6 +2295,16 @@
         <location filename="../qml/VideoEffectOptions.qml" line="101"/>
         <source>Remove %1 video effect</source>
         <translation>%1 वीडियो प्रभाव हटाएं</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoEffectOptions.qml" line="115"/>
+        <source>Reset</source>
+        <translation type="unfinished">रीसेट</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoEffectOptions.qml" line="120"/>
+        <source>Reset %1 to default values</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2824,72 +2844,72 @@
         <translation>उन्नत सेटिंग्स</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="268"/>
+        <location filename="../qml/VideoRecording.qml" line="269"/>
         <source>Video quality</source>
         <translation>वीडियो गुणवत्ता</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="286"/>
+        <location filename="../qml/VideoRecording.qml" line="287"/>
         <source>Output width</source>
         <translation>आउटपुट चौड़ाई</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="309"/>
+        <location filename="../qml/VideoRecording.qml" line="310"/>
         <source>Output height</source>
         <translation>आउटपुट ऊंचाई</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="332"/>
+        <location filename="../qml/VideoRecording.qml" line="333"/>
         <source>Output Frame rate</source>
         <translation>आउटपुट फ़्रेम दर</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="357"/>
+        <location filename="../qml/VideoRecording.qml" line="358"/>
         <source>Audio quality</source>
         <translation>ऑडियो गुणवत्ता</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="375"/>
+        <location filename="../qml/VideoRecording.qml" line="376"/>
         <source>Sample rate</source>
         <translation>सैंपल दर</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="400"/>
+        <location filename="../qml/VideoRecording.qml" line="401"/>
         <source>File format and codecs</source>
         <translation>फ़ाइल प्रारूप और कोडेक</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="411"/>
+        <location filename="../qml/VideoRecording.qml" line="412"/>
         <source>Configure the file format</source>
         <translation>फ़ाइल प्रारूप कॉन्फ़िगर करें</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="413"/>
+        <location filename="../qml/VideoRecording.qml" line="414"/>
         <source>Configure the file format for recording</source>
         <translation>रिकॉर्डिंग के लिए फ़ाइल प्रारूप कॉन्फ़िगर करें</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="421"/>
+        <location filename="../qml/VideoRecording.qml" line="422"/>
         <source>Configure the video codec</source>
         <translation>वीडियो कोडेक कॉन्फ़िगर करें</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="423"/>
+        <location filename="../qml/VideoRecording.qml" line="424"/>
         <source>Configure the video codec for recording</source>
         <translation>रिकॉर्डिंग के लिए वीडियो कोडेक कॉन्फ़िगर करें</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="431"/>
+        <location filename="../qml/VideoRecording.qml" line="432"/>
         <source>Configure the audio codec</source>
         <translation>ऑडियो कोडेक कॉन्फ़िगर करें</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="434"/>
+        <location filename="../qml/VideoRecording.qml" line="435"/>
         <source>Configure the audio codec for recording</source>
         <translation>रिकॉर्डिंग के लिए ऑडियो कोडेक कॉन्फ़िगर करें</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="468"/>
+        <location filename="../qml/VideoRecording.qml" line="469"/>
         <source>Select the folder to save your videos</source>
         <translation>अपने वीडियो सहेजने के लिए फ़ोल्डर चुनें</translation>
     </message>
@@ -3668,43 +3688,37 @@
         <translation>क्रॉपिंग यूनिट चुनें</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="50"/>
         <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="184"/>
         <source>Reset</source>
         <translation>रीसेट</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="52"/>
-        <source>Reset parameters</source>
-        <translation>पैरामीटर्स रीसेट करें</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="58"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="51"/>
         <source>Left</source>
         <translation>बाएं</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="75"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="68"/>
         <source>Right</source>
         <translation>दाएं</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="92"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="85"/>
         <source>Top</source>
         <translation>शीर्ष</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="109"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="102"/>
         <source>Bottom</source>
         <translation>नीचे</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="125"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="118"/>
         <source>Fill color</source>
         <translation>भरने का रंग</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="127"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="120"/>
         <source>Choose the filling color</source>
         <translation>भरने का रंग चुनें</translation>
     </message>

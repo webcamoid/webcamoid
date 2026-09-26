@@ -382,17 +382,27 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="304"/>
+        <location filename="../qml/CanvasConfig.qml" line="305"/>
+        <source>Canvas output buffers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="316"/>
+        <source>Enable asynchronous read</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CanvasConfig.qml" line="332"/>
         <source>Output buffers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="322"/>
+        <location filename="../qml/CanvasConfig.qml" line="352"/>
         <source>Canvas color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="324"/>
+        <location filename="../qml/CanvasConfig.qml" line="354"/>
         <source>Choose the canvas color</source>
         <translation type="unfinished"></translation>
     </message>
@@ -407,22 +417,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="204"/>
+        <location filename="../qml/CanvasConfig.qml" line="205"/>
         <source>Canvas size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="222"/>
+        <location filename="../qml/CanvasConfig.qml" line="223"/>
         <source>Width</source>
         <translation type="unfinished">පළල</translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="251"/>
+        <location filename="../qml/CanvasConfig.qml" line="252"/>
         <source>Height</source>
         <translation type="unfinished">උස</translation>
     </message>
     <message>
-        <location filename="../qml/CanvasConfig.qml" line="280"/>
+        <location filename="../qml/CanvasConfig.qml" line="281"/>
         <source>Frame rate</source>
         <translation type="unfinished">පද්ධති අනුපාතය</translation>
     </message>
@@ -1185,97 +1195,97 @@
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="31"/>
         <source>Local streaming advanced options</source>
-        <translation>දේශීය සජීවී විකාශයේ උසස් විකල්ප</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="130"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="148"/>
         <source>Local streaming quality</source>
-        <translation>දේශීය සජීවී විකාශයේ ගුණාත්මකභාවය</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="155"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="173"/>
         <source>Streaming quality</source>
-        <translation>සජීවී විකාශයේ ගුණාත්මකභාවය</translation>
+        <translation type="unfinished">සජීවී විකාශයේ ගුණාත්මකභාවය</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="208"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="226"/>
         <source>Custom</source>
-        <translation>අභිමත</translation>
+        <translation type="unfinished">අභිමත</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="211"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="229"/>
         <source>Video quality: %1×%2 %3 FPS</source>
-        <translation>වීඩියෝ ගුණාත්මකභාවය: %1×%2 %3 FPS</translation>
+        <translation type="unfinished">වීඩියෝ ගුණාත්මකභාවය: %1×%2 %3 FPS</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="212"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="230"/>
         <source>Video bitrate: %1 Mbps</source>
-        <translation>වීඩියෝ බිට් අනුපාතය: %1 Mbps</translation>
+        <translation type="unfinished">වීඩියෝ බිට් අනුපාතය: %1 Mbps</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="213"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="231"/>
         <source>Audio sample rate: %1 kHz</source>
-        <translation>ශ්‍රව්‍ය සාම්පල් අනුපාතය: %1 kHz</translation>
+        <translation type="unfinished">ශ්‍රව්‍ය සාම්පල් අනුපාතය: %1 kHz</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="214"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="232"/>
         <source>Audio bitrate: %1 kbps</source>
-        <translation>ශ්‍රව්‍ය බිට් අනුපාතය: %1 kbps</translation>
-    </message>
-    <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="223"/>
-        <source>Video quality</source>
-        <translation>වීඩියෝ ගුණාත්මකභාවය</translation>
+        <translation type="unfinished">ශ්‍රව්‍ය බිට් අනුපාතය: %1 kbps</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="241"/>
+        <source>Video quality</source>
+        <translation type="unfinished">වීඩියෝ ගුණාත්මකභාවය</translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="259"/>
         <source>Output width</source>
-        <translation>ප්‍රතිදාන පළල</translation>
+        <translation type="unfinished">ප්‍රතිදාන පළල</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="264"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="282"/>
         <source>Output height</source>
-        <translation>ප්‍රතිදාන උස</translation>
+        <translation type="unfinished">ප්‍රතිදාන උස</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="287"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="305"/>
         <source>Output frame rate</source>
-        <translation>ප්‍රතිදාන පද්ධති අනුපාතය</translation>
+        <translation type="unfinished">ප්‍රතිදාන පද්ධති අනුපාතය</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="310"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="328"/>
         <source>Video bitrate (kbps)</source>
-        <translation>වීඩියෝ බිට් අනුපාතය (kbps)</translation>
+        <translation type="unfinished">වීඩියෝ බිට් අනුපාතය (kbps)</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="330"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="348"/>
         <source>Keyframes stride (ms)</source>
-        <translation>මූල රාමු පරතරය (මිලිතත්පර)</translation>
+        <translation type="unfinished">මූල රාමු පරතරය (මිලිතත්පර)</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="349"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="367"/>
         <source>Video codec</source>
-        <translation>වීඩියෝ කොඩෙක්</translation>
+        <translation type="unfinished">වීඩියෝ කොඩෙක්</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="432"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="456"/>
         <source>Audio quality</source>
-        <translation>ශ්‍රව්‍ය ගුණාත්මකභාවය</translation>
+        <translation type="unfinished">ශ්‍රව්‍ය ගුණාත්මකභාවය</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="450"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="474"/>
         <source>Sample rate</source>
-        <translation>සාම්පල් අනුපාතය</translation>
+        <translation type="unfinished">සාම්පල් අනුපාතය</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="473"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="497"/>
         <source>Audio bitrate (kbps)</source>
-        <translation>ශ්‍රව්‍ය බිට් අනුපාතය (kbps)</translation>
+        <translation type="unfinished">ශ්‍රව්‍ය බිට් අනුපාතය (kbps)</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="494"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="518"/>
         <source>Audio codec</source>
-        <translation>ශ්‍රව්‍ය කොඩෙක්</translation>
+        <translation type="unfinished">ශ්‍රව්‍ය කොඩෙක්</translation>
     </message>
 </context>
 <context>
@@ -1421,7 +1431,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1415"/>
+        <location filename="../../src/mediatools.cpp" line="1436"/>
         <source>%1/log %2.txt</source>
         <translation>%1/ලොග් %2.txt</translation>
     </message>
@@ -1850,127 +1860,127 @@
         <translation>උසස් සැකසුම්</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="240"/>
+        <location filename="../qml/Streaming.qml" line="241"/>
         <source>Video quality</source>
         <translation>වීඩියෝ ගුණාත්මකභාවය</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="258"/>
+        <location filename="../qml/Streaming.qml" line="259"/>
         <source>Output width</source>
         <translation>ප්‍රතිදාන පළල</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="281"/>
+        <location filename="../qml/Streaming.qml" line="282"/>
         <source>Output height</source>
         <translation>ප්‍රතිදාන උස</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="304"/>
+        <location filename="../qml/Streaming.qml" line="305"/>
         <source>Output frame rate</source>
         <translation>ප්‍රතිදාන පද්ධති අනුපාතය</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="327"/>
+        <location filename="../qml/Streaming.qml" line="328"/>
         <source>Video bitrate (kbps)</source>
         <translation>වීඩියෝ බිට් අනුපාතය (kbps)</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="347"/>
+        <location filename="../qml/Streaming.qml" line="348"/>
         <source>Keyframes stride (ms)</source>
         <translation>මූල රාමු පරතරය (මිලිතත්පර)</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="364"/>
+        <location filename="../qml/Streaming.qml" line="365"/>
         <source>Video codec</source>
         <translation>වීඩියෝ කොඩෙක්</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="447"/>
+        <location filename="../qml/Streaming.qml" line="448"/>
         <source>Audio quality</source>
         <translation>ශ්‍රව්‍ය ගුණාත්මකභාවය</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="465"/>
+        <location filename="../qml/Streaming.qml" line="466"/>
         <source>Sample rate</source>
         <translation>සාම්පල් අනුපාතය</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="488"/>
+        <location filename="../qml/Streaming.qml" line="489"/>
         <source>Audio bitrate (kbps)</source>
         <translation>ශ්‍රව්‍ය බිට් අනුපාතය (kbps)</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="509"/>
+        <location filename="../qml/Streaming.qml" line="510"/>
         <source>Audio codec</source>
         <translation>ශ්‍රව්‍ය කොඩෙක්</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="532"/>
+        <location filename="../qml/Streaming.qml" line="533"/>
         <source>Streaming platform settings</source>
         <translation>සජීවී විකාශයේ වේදිකා සැකසුම්</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="543"/>
+        <location filename="../qml/Streaming.qml" line="544"/>
         <source>Platform</source>
         <translation>වේදිකාව</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="551"/>
+        <location filename="../qml/Streaming.qml" line="552"/>
         <source>Add platform</source>
         <translation>වේදිකාව එක් කරන්න</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="558"/>
+        <location filename="../qml/Streaming.qml" line="559"/>
         <source>Remove platform</source>
         <translation>වේදිකාව ඉවත් කරන්න</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="572"/>
+        <location filename="../qml/Streaming.qml" line="573"/>
         <source>Website</source>
         <translation>වෙබ් අඩවිය</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="592"/>
+        <location filename="../qml/Streaming.qml" line="593"/>
         <source>Visit website</source>
         <translation>වෙබ් අඩවියට පිවිසෙන්න</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="607"/>
+        <location filename="../qml/Streaming.qml" line="608"/>
         <source>Streaming URL</source>
         <translation>සජීවී විකාශය URL</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="638"/>
+        <location filename="../qml/Streaming.qml" line="639"/>
         <source>Hide streaming URL</source>
         <translation>සජීවී විකාශය URL සඟවන්න</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="639"/>
+        <location filename="../qml/Streaming.qml" line="640"/>
         <source>Show streaming URL</source>
         <translation>සජීවී විකාශය URL පෙන්වන්න</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="658"/>
+        <location filename="../qml/Streaming.qml" line="659"/>
         <source>Streaming key</source>
         <translation>සජීවී විකාශය යතුර</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="691"/>
+        <location filename="../qml/Streaming.qml" line="692"/>
         <source>Hide streaming key</source>
         <translation>සජීවී විකාශය යතුර සඟවන්න</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="692"/>
+        <location filename="../qml/Streaming.qml" line="693"/>
         <source>Show streaming key</source>
         <translation>සජීවී විකාශය යතුර පෙන්වන්න</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="711"/>
+        <location filename="../qml/Streaming.qml" line="712"/>
         <source>Streaming configuration help</source>
         <translation>සජීවී විකාශයේ වින්‍යාස උදව්</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="723"/>
+        <location filename="../qml/Streaming.qml" line="724"/>
         <source>Get streaming key</source>
         <translation>සජීවී විකාශය යතුර ලබා ගන්න</translation>
     </message>
@@ -2285,6 +2295,16 @@
         <location filename="../qml/VideoEffectOptions.qml" line="101"/>
         <source>Remove %1 video effect</source>
         <translation>%1 වීඩියෝ ප්‍රයෝගය ඉවත් කරන්න</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoEffectOptions.qml" line="115"/>
+        <source>Reset</source>
+        <translation type="unfinished">යළි සකසන්න</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoEffectOptions.qml" line="120"/>
+        <source>Reset %1 to default values</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2824,72 +2844,72 @@
         <translation>උසස් සැකසුම්</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="268"/>
+        <location filename="../qml/VideoRecording.qml" line="269"/>
         <source>Video quality</source>
         <translation>වීඩියෝ ගුණාත්මකභාවය</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="286"/>
+        <location filename="../qml/VideoRecording.qml" line="287"/>
         <source>Output width</source>
         <translation>ප්‍රතිදාන පළල</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="309"/>
+        <location filename="../qml/VideoRecording.qml" line="310"/>
         <source>Output height</source>
         <translation>ප්‍රතිදාන උස</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="332"/>
+        <location filename="../qml/VideoRecording.qml" line="333"/>
         <source>Output Frame rate</source>
         <translation>ප්‍රතිදාන පද්ධති අනුපාතය</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="357"/>
+        <location filename="../qml/VideoRecording.qml" line="358"/>
         <source>Audio quality</source>
         <translation>ශ්‍රව්‍ය ගුණාත්මකභාවය</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="375"/>
+        <location filename="../qml/VideoRecording.qml" line="376"/>
         <source>Sample rate</source>
         <translation>සාම්පල් අනුපාතය</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="400"/>
+        <location filename="../qml/VideoRecording.qml" line="401"/>
         <source>File format and codecs</source>
         <translation>ගොනු ආකෘතිය සහ කොඩෙක්</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="411"/>
+        <location filename="../qml/VideoRecording.qml" line="412"/>
         <source>Configure the file format</source>
         <translation>ගොනු ආකෘතිය වින්‍යාස කරන්න</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="413"/>
+        <location filename="../qml/VideoRecording.qml" line="414"/>
         <source>Configure the file format for recording</source>
         <translation>පටිගත කිරීම සඳහා ගොනු ආකෘතිය වින්‍යාස කරන්න</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="421"/>
+        <location filename="../qml/VideoRecording.qml" line="422"/>
         <source>Configure the video codec</source>
         <translation>වීඩියෝ කොඩෙක් වින්‍යාස කරන්න</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="423"/>
+        <location filename="../qml/VideoRecording.qml" line="424"/>
         <source>Configure the video codec for recording</source>
         <translation>පටිගත කිරීම සඳහා වීඩියෝ කොඩෙක් වින්‍යාස කරන්න</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="431"/>
+        <location filename="../qml/VideoRecording.qml" line="432"/>
         <source>Configure the audio codec</source>
         <translation>ශ්‍රව්‍ය කොඩෙක් වින්‍යාස කරන්න</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="434"/>
+        <location filename="../qml/VideoRecording.qml" line="435"/>
         <source>Configure the audio codec for recording</source>
         <translation>පටිගත කිරීම සඳහා ශ්‍රව්‍ය කොඩෙක් වින්‍යාස කරන්න</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="468"/>
+        <location filename="../qml/VideoRecording.qml" line="469"/>
         <source>Select the folder to save your videos</source>
         <translation>ඔබගේ වීඩියෝ සුරැකීමට ෆෝල්ඩරය තෝරන්න</translation>
     </message>
@@ -3588,43 +3608,37 @@
         <translation>කපා ඉවත් කිරීමේ ඒකකය තෝරන්න</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="50"/>
         <location filename="../../../libAvKys/Plugins/VideoCapture/src/share/qml/main.qml" line="184"/>
         <source>Reset</source>
         <translation>යළි සකසන්න</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="52"/>
-        <source>Reset parameters</source>
-        <translation>පරාමිති යළි සකසන්න</translation>
-    </message>
-    <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="58"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="51"/>
         <source>Left</source>
         <translation>වම</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="75"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="68"/>
         <source>Right</source>
         <translation>දකුණ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="92"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="85"/>
         <source>Top</source>
         <translation>ඉහළ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="109"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="102"/>
         <source>Bottom</source>
         <translation>පහළ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="125"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="118"/>
         <source>Fill color</source>
         <translation>පිරවුම් වර්ණය</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="127"/>
+        <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="120"/>
         <source>Choose the filling color</source>
         <translation>පිරවුම් වර්ණය තෝරන්න</translation>
     </message>

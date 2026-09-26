@@ -85,6 +85,11 @@ AkStreamingStats AkVideoStreamer::stats() const
     return this->d->m_stats;
 }
 
+bool AkVideoStreamer::hasActiveClients() const
+{
+    return false;
+}
+
 bool AkVideoStreamer::supportsUrl(const QString &url) const
 {
     return !this->protocolForUrl(url).isEmpty();
@@ -109,6 +114,11 @@ QString AkVideoStreamer::formatForUrl(const QString &url) const
         return ext;
 
     return this->defaultFormat(protocol);
+}
+
+bool AkVideoStreamer::isVideoOnlyFormat(const QString &format) const
+{
+    return false;
 }
 
 AkCompressedCaps AkVideoStreamer::streamCaps(AkCodecType type) const

@@ -69,6 +69,7 @@ class FlipElement: public AkVideoEffect
         void setVerticalFlip(bool verticalFlip);
         void resetHorizontalFlip();
         void resetVerticalFlip();
+        void reset() override;
 };
 
 #endif // FLIPELEMENT_H

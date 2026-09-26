@@ -78,6 +78,7 @@ class AdjustHSLElement: public AkVideoEffect
         void resetHue();
         void resetSaturation();
         void resetLuminance();
+        void reset() override;
 };
 
 #endif // ADJUSTHSLELEMENT_H

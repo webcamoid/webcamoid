@@ -188,11 +188,12 @@ AK.MenuOption {
 
             // Advanced settings (collapsible)
 
-            CheckBox {
+            Switch {
                 id: chkAdvanced
                 text: qsTr("Advanced settings")
                 Layout.leftMargin: root.leftMargin
                 Layout.rightMargin: root.rightMargin
+                Layout.fillWidth: true
                 checked: false
             }
 
@@ -298,10 +299,38 @@ AK.MenuOption {
                             videoEffects.outputCaps = newCaps.toVariant()
                         }
                     }
+                }
+
+                Label {
+                    text: qsTr("Canvas output buffers")
+                    font: AkTheme.fontSettings.h6
+                    Layout.leftMargin: root.leftMargin
+                    Layout.rightMargin: root.rightMargin
+                    Layout.topMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+                    Layout.bottomMargin: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
+                    Layout.fillWidth: true
+                }
+
+                Switch {
+                    id: chkAsyncRead
+                    text: qsTr("Enable asynchronous read")
+                    checked: videoEffects.asyncRead
+                    Layout.fillWidth: true
+
+                    onCheckedChanged: videoEffects.asyncRead = checked
+                }
+
+                GridLayout {
+                    columns: 2
+                    layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
+                    Layout.leftMargin: root.leftMargin
+                    Layout.rightMargin: root.rightMargin
+                    Layout.fillWidth: true
 
                     Label {
                         id: txtCanvasOutputBuffers
                         text: qsTr("Output buffers")
+                        enabled: chkAsyncRead.checked
                     }
                     SpinBox {
                         id: spbCanvasOutputBuffers
@@ -310,6 +339,7 @@ AK.MenuOption {
                         to: 16
                         stepSize: 1
                         editable: true
+                        enabled: chkAsyncRead.checked
                         Accessible.name: txtCanvasOutputBuffers.text
                         Layout.rightMargin: root.rightMargin
 

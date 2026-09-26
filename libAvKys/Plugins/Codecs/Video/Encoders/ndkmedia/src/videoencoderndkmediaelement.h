@@ -27,6 +27,11 @@ class VideoEncoderNDKMediaElementPrivate;
 class VideoEncoderNDKMediaElement: public AkVideoEncoder
 {
     Q_OBJECT
+    Q_PROPERTY(size_t frameBufferSize
+               READ frameBufferSize
+               WRITE setFrameBufferSize
+               RESET resetFrameBufferSize
+               NOTIFY frameBufferSizeChanged)
 
     public:
         VideoEncoderNDKMediaElement();
@@ -38,17 +43,27 @@ class VideoEncoderNDKMediaElement: public AkVideoEncoder
         Q_INVOKABLE AkCompressedVideoCaps outputCaps() const override;
         Q_INVOKABLE QByteArray headers() const override;
         Q_INVOKABLE qint64 encodedTimePts() const override;
+        Q_INVOKABLE size_t frameBufferSize() const;
         Q_INVOKABLE bool hasHardwareSupport(const QString &codec) const override;
 
     private:
         VideoEncoderNDKMediaElementPrivate *d;
+        bool checkDiscardFrame(const AkVideoPacket &packet) const;
+        void applyRegulateFps(const AkVideoPacket &packet);
 
     protected:
         AkPacket iVideoStream(const AkVideoPacket &packet) override;
         void encodeFrame(const AkVideoPacket &packet) override;
 
+    signals:
+        void frameBufferSizeChanged(size_t frameBufferSize);
+
     public slots:
+        void setFrameBufferSize(size_t frameBufferSize);
+        void resetFrameBufferSize();
         bool setState(AkElement::ElementState state) override;
+
+    friend class VideoEncoderNDKMediaElementPrivate;
 };
 
 #endif // VIDEOENCODERNDKMEDIAELEMENT_H

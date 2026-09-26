@@ -141,4 +141,9 @@ void InvertElement::uninit()
     }
 }
 
+void InvertElement::reset()
+{
+
+}
+
 #include "moc_invertelement.cpp"

@@ -223,4 +223,10 @@ void FlipElement::resetVerticalFlip()
     this->setVerticalFlip(false);
 }
 
+void FlipElement::reset()
+{
+    this->resetHorizontalFlip();
+    this->resetVerticalFlip();
+}
+
 #include "moc_flipelement.cpp"

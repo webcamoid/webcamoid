@@ -209,4 +209,9 @@ void ChangeHSLElement::resetKernel()
     this->setKernel(kernel);
 }
 
+void ChangeHSLElement::reset()
+{
+    this->resetKernel();
+}
+
 #include "moc_changehslelement.cpp"

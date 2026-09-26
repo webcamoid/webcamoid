@@ -179,7 +179,7 @@ ScrollView {
                 }
             }
 
-            onActivated: {
+            onCurrentIndexChanged: {
                 let formatId = formatCombo.model[currentIndex]
 
                 if (view.localFormatId !== formatId) {

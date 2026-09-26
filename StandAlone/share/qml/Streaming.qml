@@ -220,11 +220,12 @@ AK.MenuOption {
 
             // Advanced settings (collapsible)
 
-            CheckBox {
+            Switch {
                 id: chkAdvanced
                 text: qsTr("Advanced settings")
                 Layout.leftMargin: root.leftMargin
                 Layout.rightMargin: root.rightMargin
+                Layout.fillWidth: true
                 checked: false
             }
 

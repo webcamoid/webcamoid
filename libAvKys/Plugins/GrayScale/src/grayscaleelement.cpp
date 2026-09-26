@@ -141,4 +141,9 @@ void GrayScaleElement::uninit()
     }
 }
 
+void GrayScaleElement::reset()
+{
+
+}
+
 #include "moc_grayscaleelement.cpp"

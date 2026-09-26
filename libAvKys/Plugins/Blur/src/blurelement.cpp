@@ -304,6 +304,11 @@ void BlurElement::resetRadius()
     this->setRadius(8);
 }
 
+void BlurElement::reset()
+{
+    this->resetRadius();
+}
+
 void BlurElementPrivate::setupAttributes(QOpenGLShaderProgram *shader,
                                          QOpenGLBuffer *vbo,
                                          QOpenGLBuffer *ibo) const

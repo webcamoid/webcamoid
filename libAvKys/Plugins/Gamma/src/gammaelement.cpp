@@ -179,4 +179,9 @@ void GammaElement::resetGamma()
     this->setGamma(0);
 }
 
+void GammaElement::reset()
+{
+    this->resetGamma();
+}
+
 #include "moc_gammaelement.cpp"

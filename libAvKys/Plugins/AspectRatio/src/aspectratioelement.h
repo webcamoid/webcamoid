@@ -76,10 +76,11 @@ class AspectRatioElement: public AkVideoEffect
     public slots:
         void setWidth(int width);
         void setHeight(int height);
+        void setBackgroundColor(QRgb color);
         void resetWidth();
         void resetHeight();
-        void setBackgroundColor(QRgb color);
         void resetBackgroundColor();
+        void reset() override;
 };
 
 #endif // ASPECTRATIOELEMENT_H

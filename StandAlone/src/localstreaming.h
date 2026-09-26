@@ -75,6 +75,9 @@ class LocalStreaming: public QObject
     Q_PROPERTY(QString defaultVideoFormat
                READ defaultVideoFormat
                CONSTANT)
+    Q_PROPERTY(bool hasActiveClients
+               READ hasActiveClients
+               NOTIFY hasActiveClientsChanged)
 
     public:
         LocalStreaming(QQmlApplicationEngine *engine=nullptr,
@@ -92,7 +95,9 @@ class LocalStreaming: public QObject
         Q_INVOKABLE QString locationFormat(const QString &location) const;
         Q_INVOKABLE QStringList videoFormats() const;
         Q_INVOKABLE QString defaultVideoFormat() const;
+        Q_INVOKABLE bool hasActiveClients() const;
         Q_INVOKABLE QString formatDescription(const QString &format) const;
+        Q_INVOKABLE bool isVideoOnlyFormat(const QString &format) const;
         Q_INVOKABLE QString codec(AkCaps::CapsType type) const;
         Q_INVOKABLE QString defaultCodec(const QString &format,
                                          AkCaps::CapsType type) const;
@@ -110,6 +115,7 @@ class LocalStreaming: public QObject
 
     signals:
         void locationChanged(const QString &location);
+        void hasActiveClientsChanged(bool hasActiveClients);
         void audioCapsChanged(const AkAudioCaps &audioCaps);
         void videoCapsChanged(const AkVideoCaps &videoCaps);
         void videoGOPChanged(int videoGOP);

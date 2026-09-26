@@ -55,6 +55,7 @@ class VideoEffectsPrivate
         QString encodeDevice(const QString &device) const;
         void updateOutputCaps();
         void updateCanvasColor();
+        void updateAsyncRead();
         void updateOutputBufferSize();
         void updateChainEffects();
         void updateEffects();
@@ -63,6 +64,7 @@ class VideoEffectsPrivate
         void updateSourceEffectsProperties(qint64 id, const QString &device);
         void saveOutputCaps(const AkVideoCaps &caps);
         void saveCanvasColor(QRgb canvasColor);
+        void saveAsyncRead(bool asyncRead);
         void saveOutputBufferSize(size_t outputBufferSize);
         void saveChainEffects(bool chainEffects);
         void saveEffects();
@@ -83,6 +85,7 @@ VideoEffects::VideoEffects(QQmlApplicationEngine *engine, QObject *parent):
     this->updateAvailableEffects();
     this->d->updateOutputCaps();
     this->d->updateCanvasColor();
+    this->d->updateAsyncRead();
     this->d->updateOutputBufferSize();
     this->d->updateChainEffects();
     this->d->updateEffects();
@@ -110,6 +113,11 @@ AkVideoCaps VideoEffects::outputCaps() const
 QRgb VideoEffects::canvasColor() const
 {
     return this->d->m_glCompositor.canvasColor();
+}
+
+bool VideoEffects::asyncRead() const
+{
+    return this->d->m_glCompositor.asyncRead();
 }
 
 size_t VideoEffects::outputBufferSize() const
@@ -590,6 +598,17 @@ void VideoEffects::removeSourceEffect(qint64 id, int index)
     }
 }
 
+void VideoEffects::resetSourceEffect(qint64 id, int index)
+{
+    if (index < 0 || index >= this->d->m_glCompositor.sourceEffects(id).size())
+        return;
+
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_glCompositor.resetSourceEffect(id, index);
+    }
+}
+
 void VideoEffects::removeAllSourceEffects(qint64 id)
 {
     if (this->d->m_glCompositor.sourceIsEmpty(id))
@@ -641,6 +660,20 @@ void VideoEffects::setCanvasColor(QRgb canvasColor)
     }
 
     emit this->canvasColorChanged(canvasColor);
+}
+
+void VideoEffects::setAsyncRead(bool asyncRead)
+{
+    if (this->d->m_glCompositor.asyncRead() == asyncRead)
+        return;
+
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_glCompositor.setAsyncRead(asyncRead);
+        this->d->saveAsyncRead(asyncRead);
+    }
+
+    emit this->asyncReadChanged(asyncRead);
 }
 
 void VideoEffects::setOutputBufferSize(size_t outputBufferSize)
@@ -740,6 +773,11 @@ void VideoEffects::resetCanvasColor()
     this->setCanvasColor(qRgba(0, 0, 0, 0));
 }
 
+void VideoEffects::resetAsyncRead()
+{
+    this->setAsyncRead(false);
+}
+
 void VideoEffects::resetOutputBufferSize()
 {
     this->setOutputBufferSize(DEFAULT_OUTPUT_BUFFER_SIZE);
@@ -831,6 +869,17 @@ void VideoEffects::removeEffect(int index)
 
     emit this->effectsChanged(this->effects());
     this->d->saveEffects();
+}
+
+void VideoEffects::resetEffect(int index)
+{
+    if (index < 0 || index >= this->d->m_glCompositor.effects().size())
+        return;
+
+    {
+        QMutexLocker locker(&this->d->m_mutex);
+        this->d->m_glCompositor.resetEffect(index);
+    }
 }
 
 void VideoEffects::removeAllEffects()
@@ -1044,6 +1093,14 @@ void VideoEffectsPrivate::updateCanvasColor()
     config.endGroup();
 }
 
+void VideoEffectsPrivate::updateAsyncRead()
+{
+    QSettings config;
+    config.beginGroup("VideoEffects");
+    this->m_glCompositor.setAsyncRead(config.value("canvasAsyncRead", false).toBool());
+    config.endGroup();
+}
+
 void VideoEffectsPrivate::updateOutputBufferSize()
 {
     QSettings config;
@@ -1166,6 +1223,14 @@ void VideoEffectsPrivate::saveCanvasColor(QRgb canvasColor)
     QSettings config;
     config.beginGroup("VideoEffects");
     config.setValue("canvasColor", canvasColor);
+    config.endGroup();
+}
+
+void VideoEffectsPrivate::saveAsyncRead(bool asyncRead)
+{
+    QSettings config;
+    config.beginGroup("VideoEffects");
+    config.setValue("canvasAsyncRead", asyncRead);
     config.endGroup();
 }
 

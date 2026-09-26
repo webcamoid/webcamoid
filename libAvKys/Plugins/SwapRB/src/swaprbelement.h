@@ -42,6 +42,9 @@ class SwapRBElement: public AkVideoEffect
 
     private:
         SwapRBElementPrivate *d;
+
+    public slots:
+        void reset() override;
 };
 
 #endif // SWAPRBELEMENT_H

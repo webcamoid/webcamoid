@@ -22,6 +22,7 @@
 #include <QDesktopServices>
 #include <QDir>
 #include <QFileInfo>
+#include <QLockFile>
 #include <QMutex>
 #include <QProcess>
 #include <QQmlApplicationEngine>
@@ -30,7 +31,6 @@
 #include <QQuickWindow>
 #include <QRegularExpression>
 #include <QSettings>
-#include <QSharedMemory>
 #include <QStandardPaths>
 #include <QThread>
 #include <QtConcurrent>
@@ -119,14 +119,13 @@ class MediaToolsPrivate
         MediaTools *self;
         bool m_singleInstance {true};
         bool m_firstRun {true};
-
-#if QT_CONFIG(sharedmemory)
-        QSharedMemory m_singleInstanceSM {
-            QString("%1.%2.%3").arg(QApplication::applicationName(),
-                                    QApplication::organizationName(),
-                                    QApplication::organizationDomain())
+        QLockFile m_singleInstanceLock {
+            QDir(QStandardPaths::writableLocation(QStandardPaths::TempLocation))
+            .filePath(QString("%1.%2.%3.lock")
+            .arg(QApplication::applicationName(),
+                 QApplication::organizationName(),
+                 QApplication::organizationDomain()))
         };
-#endif
         QQmlApplicationEngine *m_engine {nullptr};
         AudioInputsPtr m_audioInputs;
         AudioOutputsPtr m_audioOutputs;
@@ -148,6 +147,7 @@ class MediaToolsPrivate
         bool m_showFps {false};
         QMap<qint64, qint64> m_videoSourceAudioIds;
         QMap<qint64, QString> m_videoSourceAudioDevices;
+        bool m_localStreamingPacketReaderActive {false};
 
         // Show interstitial ads every 1 minute
         int m_adTimeDiff {1 * 60};
@@ -1063,14 +1063,35 @@ bool MediaTools::init(const CliOptions &cliOptions)
                      &Streaming::stateChanged,
                      this,
                      updatePacketReaders);
-    QObject::connect(this->d->m_localStreaming.data(),
-                     &LocalStreaming::stateChanged,
-                     this,
-                     updatePacketReaders);
     QObject::connect(this->d->m_virtualCameras.data(),
                      &VirtualCameras::stateChanged,
                      this,
                      updatePacketReaders);
+
+    auto updateLocalStreamingPacketReader = [this] {
+        bool shouldBeActive =
+        this->d->m_localStreaming->state() == AkElement::ElementStatePlaying
+        && this->d->m_localStreaming->hasActiveClients();
+
+        if (shouldBeActive == this->d->m_localStreamingPacketReaderActive)
+            return;
+
+        this->d->m_localStreamingPacketReaderActive = shouldBeActive;
+
+        if (shouldBeActive)
+            this->d->m_videoEffects->addPacketReader();
+        else
+            this->d->m_videoEffects->removePacketReader();
+    };
+
+    QObject::connect(this->d->m_localStreaming.data(),
+                     &LocalStreaming::stateChanged,
+                     this,
+                     updateLocalStreamingPacketReader);
+    QObject::connect(this->d->m_localStreaming.data(),
+                     &LocalStreaming::hasActiveClientsChanged,
+                     this,
+                     updateLocalStreamingPacketReader);
     QObject::connect(this->d->m_virtualCameras.data(),
                      &VirtualCameras::outputsChanged,
                      this,
@@ -1503,12 +1524,9 @@ void MediaToolsPrivate::registerNatives()
 
 bool MediaToolsPrivate::isSecondInstance()
 {
-#if QT_CONFIG(sharedmemory)
-    return !this->m_singleInstanceSM.create(1024)
-           && this->m_singleInstanceSM.error() == QSharedMemory::AlreadyExists;
-#else
-    return false;
-#endif
+    this->m_singleInstanceLock.setStaleLockTime(0);
+
+    return !this->m_singleInstanceLock.tryLock();
 }
 
 void MediaToolsPrivate::hasNewInstance()

@@ -139,4 +139,9 @@ void SwapRBElement::uninit()
     }
 }
 
+void SwapRBElement::reset()
+{
+
+}
+
 #include "moc_swaprbelement.cpp"

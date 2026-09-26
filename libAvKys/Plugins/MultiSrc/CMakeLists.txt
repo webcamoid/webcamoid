@@ -22,4 +22,3 @@ project(MultiSrc)
 
 add_subdirectory(src)
 add_subdirectory(src/ffmpeg)
-add_subdirectory(src/ndkmedia)

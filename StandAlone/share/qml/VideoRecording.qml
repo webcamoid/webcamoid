@@ -250,11 +250,12 @@ AK.MenuOption {
 
             // Advanced settings (collapsible)
 
-            CheckBox {
+            Switch {
                 id: chkAdvanced
                 text: qsTr("Advanced settings")
                 Layout.leftMargin: videoRecording.leftMargin
                 Layout.rightMargin: videoRecording.rightMargin
+                Layout.fillWidth: true
                 checked: false
             }
 

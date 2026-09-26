@@ -101,6 +101,7 @@ class AKCOMMONS_EXPORT AkGLPipeline: public QObject
         void resetPreserveNullPlugins();
         void moveEffect(int from, int to);
         void removeEffect(int index);
+        void resetEffect(int index);
         void removeAllEffects();
         void applyPreview();
 

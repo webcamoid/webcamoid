@@ -46,13 +46,6 @@ ColumnLayout {
 
         onToggled: Crop.relative = checked
     }
-    Button {
-        text: qsTr("Reset")
-        icon.source: "image://icons/reset"
-        Accessible.description: qsTr("Reset parameters")
-
-        onClicked: Crop.reset()
-    }
     Label {
         id: lblLeft
         text: qsTr("Left")

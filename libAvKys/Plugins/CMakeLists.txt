@@ -33,7 +33,10 @@ add_subdirectory(ImageSrc)
 add_subdirectory(MultiSrc)
 add_subdirectory(PacketSync)
 add_subdirectory(VideoCapture)
-add_subdirectory(VirtualCamera)
+
+if (NOT APPLE AND NOT ANDROID)
+    add_subdirectory(VirtualCamera)
+endif ()
 
 if (NOT NOVIDEOEFFECTS)
     add_subdirectory(AdjustHSL)

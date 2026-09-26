@@ -199,4 +199,10 @@ void EmbossElement::resetBias()
     this->setBias(128);
 }
 
+void EmbossElement::reset()
+{
+    this->resetFactor();
+    this->resetBias();
+}
+
 #include "moc_embosselement.cpp"
