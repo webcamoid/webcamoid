@@ -38,30 +38,46 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              REQUIRED)
 find_package(PkgConfig)
 
-set(SOURCES
-    src/videoencoderffmpeg.cpp
-    src/videoencoderffmpeg.h
-    src/videoencoderffmpegelement.cpp
-    src/videoencoderffmpegelement.h
-    pspec.json)
-
 pkg_check_modules(FFMPEG
                   libavformat
                   libavcodec
                   libavutil)
 
 # Opcional libjpeg-turbo support if available
-pkg_check_modules(TURBOJPEG QUIET libturbojpeg)
+pkg_check_modules(TURBOJPEG libturbojpeg)
 
-if(TURBOJPEG_FOUND)
-    message(STATUS "libjpeg-turbo (TurboJPEG API) found: ${TURBOJPEG_LIBRARIES}")
+if (TURBOJPEG_FOUND)
     add_definitions(-DHAVE_LIBJPEG_TURBO)
-    include_directories(${TURBOJPEG_INCLUDE_DIRS})
-    set(HAVE_TURBOJPEG_SUPPORT TRUE)
-else()
-    message(STATUS "libturbojpeg not found, using FFmpeg MJPEG encoder")
-    set(HAVE_TURBOJPEG_SUPPORT FALSE)
-endif()
+endif ()
+
+if (ANDROID)
+    # Check if JNI support is available
+    include(CheckCXXSourceCompiles)
+    set(CMAKE_REQUIRED_LIBRARIES Qt${QT_VERSION_MAJOR}::Core)
+    check_cxx_source_compiles("
+    #include <QJniObject>
+    int main() { return 0; }
+    " QJNIOBJECT_FOUND)
+
+    if (QJNIOBJECT_FOUND)
+        list(APPEND QT_COMPONENTS
+            CorePrivate)
+        find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
+                    CorePrivate
+                    REQUIRED)
+    endif ()
+
+    if (QJNIOBJECT_FOUND)
+        add_definitions(-DUSE_JNI)
+    endif ()
+endif ()
+
+set(SOURCES
+    src/videoencoderffmpeg.cpp
+    src/videoencoderffmpeg.h
+    src/videoencoderffmpegelement.cpp
+    src/videoencoderffmpegelement.h
+    pspec.json)
 
 if (NOT NOFFMPEG AND FFMPEG_FOUND)
     qt_add_plugin(VideoEncoder_ffmpeg
@@ -88,6 +104,11 @@ target_include_directories(VideoEncoder_ffmpeg
                            ${FFMPEG_INCLUDE_DIRS}
                            PRIVATE
                            ../../../../../Lib/src)
+
+if (TURBOJPEG_FOUND)
+    target_include_directories(VideoEncoder_ffmpeg PUBLIC ${TURBOJPEG_INCLUDE_DIRS})
+endif ()
+
 target_compile_definitions(VideoEncoder_ffmpeg PRIVATE AVKYS_PLUGIN_VIDEOENCODER_FFMPEG)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_directories(VideoEncoder_ffmpeg
@@ -99,10 +120,10 @@ target_link_libraries(VideoEncoder_ffmpeg
                       ${FFMPEG_LIBRARIES}
                       avkys)
 
-if(HAVE_TURBOJPEG_SUPPORT)
+if (TURBOJPEG_FOUND)
     target_link_directories(VideoEncoder_ffmpeg PRIVATE ${TURBOJPEG_LIBRARY_DIRS})
     target_link_libraries(VideoEncoder_ffmpeg PRIVATE ${TURBOJPEG_LIBRARIES})
-endif()
+endif ()
 
 if (NOT NOFFMPEG AND FFMPEG_FOUND)
     install(TARGETS VideoEncoder_ffmpeg

@@ -215,6 +215,7 @@ class CaptureDShowPrivate
         QVariantList m_globalCameraControls;
         QVariantMap m_localImageControls;
         QVariantMap m_localCameraControls;
+        bool m_filterOutSWCameras {false};
 
         explicit CaptureDShowPrivate(CaptureDShow *self);
         QString devicePath(IPropertyBag *propertyBag) const;
@@ -2038,7 +2039,8 @@ void CaptureDShowPrivate::updateDevices()
              * so prevent loading them to reduce the failure vector.
              */
 
-            if (devicePath.startsWith("@device:sw:" + videoInputDeviceCID + "\\")) {
+            if (this->m_filterOutSWCameras
+                && devicePath.startsWith("@device:sw:" + videoInputDeviceCID + "\\")) {
                 moniker->Release();
 
                 continue;
