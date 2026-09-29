@@ -758,7 +758,7 @@ bool MediaTools::init(const CliOptions &cliOptions)
 {
     if (!globalMediaToolsLogger.m_mediaTools) {
         auto logPath =
-                QStandardPaths::writableLocation(QStandardPaths::DownloadLocation);
+                QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
         auto logFile = QDir(logPath).absoluteFilePath("log.txt");
         globalMediaToolsLogger.setMediaTools(this);
         globalMediaToolsLogger.setFileName(logFile);
