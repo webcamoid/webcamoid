@@ -348,93 +348,93 @@
     <message>
         <location filename="../qml/CanvasConfig.qml" line="28"/>
         <source>Canvas</source>
-        <translation type="unfinished"></translation>
+        <translation>Tuval</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="92"/>
         <source>Orientation</source>
-        <translation type="unfinished"></translation>
+        <translation>Yön</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="93"/>
         <source>Portrait</source>
-        <translation type="unfinished"></translation>
+        <translation>Dikey</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="93"/>
         <source>Landscape</source>
-        <translation type="unfinished"></translation>
+        <translation>Yatay</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="120"/>
         <location filename="../qml/CanvasConfig.qml" line="139"/>
         <source>Canvas resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Tuval çözünürlüğü</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="178"/>
         <source>Custom</source>
-        <translation type="unfinished">Özel</translation>
+        <translation>Özel</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="182"/>
         <source>%1×%2 @ %3 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1×%2 @ %3 FPS</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="305"/>
         <source>Canvas output buffers</source>
-        <translation type="unfinished"></translation>
+        <translation>Tuval çıktı tamponları</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="316"/>
         <source>Enable asynchronous read</source>
-        <translation type="unfinished"></translation>
+        <translation>Eşzamansız okumayı etkinleştir</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="332"/>
         <source>Output buffers</source>
-        <translation type="unfinished"></translation>
+        <translation>Çıktı tamponları</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="352"/>
         <source>Canvas color</source>
-        <translation type="unfinished"></translation>
+        <translation>Tuval rengi</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="354"/>
         <source>Choose the canvas color</source>
-        <translation type="unfinished"></translation>
+        <translation>Tuval rengini seç</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="193"/>
         <source>Advanced settings</source>
-        <translation type="unfinished">Gelişmiş ayarlar</translation>
+        <translation>Gelişmiş ayarlar</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="29"/>
         <source>Configure the composition canvas resolution, frame rate, and color.</source>
-        <translation type="unfinished"></translation>
+        <translation>Birleştirme tuvalinin çözünürlüğünü, kare hızını ve rengini yapılandırın.</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="205"/>
         <source>Canvas size</source>
-        <translation type="unfinished"></translation>
+        <translation>Tuval boyutu</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="223"/>
         <source>Width</source>
-        <translation type="unfinished">Genişlik</translation>
+        <translation>Genişlik</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="252"/>
         <source>Height</source>
-        <translation type="unfinished">Yükseklik</translation>
+        <translation>Yükseklik</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="281"/>
         <source>Frame rate</source>
-        <translation type="unfinished">Kare hızı</translation>
+        <translation>Kare hızı</translation>
     </message>
 </context>
 <context>
@@ -1038,7 +1038,7 @@
     <message>
         <location filename="../qml/GeneralConfig.qml" line="110"/>
         <source>Show current FPS in title bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Başlık çubuğunda anlık FPS değerini göster</translation>
     </message>
     <message>
         <location filename="../qml/GeneralConfig.qml" line="122"/>
@@ -1145,17 +1145,17 @@
     <message>
         <location filename="../qml/LayoutEditorDialog.qml" line="94"/>
         <source>Source %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaynak %1</translation>
     </message>
     <message>
         <location filename="../qml/LayoutEditorDialog.qml" line="234"/>
         <source>Source</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaynak</translation>
     </message>
     <message>
         <location filename="../qml/LayoutEditorDialog.qml" line="264"/>
         <source>Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Kapat</translation>
     </message>
 </context>
 <context>
@@ -1195,97 +1195,97 @@
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="31"/>
         <source>Local streaming advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation>Yerel yayın gelişmiş seçenekleri</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="148"/>
         <source>Local streaming quality</source>
-        <translation type="unfinished"></translation>
+        <translation>Yerel yayın kalitesi</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="173"/>
         <source>Streaming quality</source>
-        <translation type="unfinished">Yayın kalitesi</translation>
+        <translation>Yayın kalitesi</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="226"/>
         <source>Custom</source>
-        <translation type="unfinished">Özel</translation>
+        <translation>Özel</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="229"/>
         <source>Video quality: %1×%2 %3 FPS</source>
-        <translation type="unfinished">Video kalitesi: %1×%2 %3 FPS</translation>
+        <translation>Video kalitesi: %1×%2 %3 FPS</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="230"/>
         <source>Video bitrate: %1 Mbps</source>
-        <translation type="unfinished">Video bit hızı: %1 Mbps</translation>
+        <translation>Video bit hızı: %1 Mbps</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="231"/>
         <source>Audio sample rate: %1 kHz</source>
-        <translation type="unfinished">Ses örnekleme oranı: %1 kHz</translation>
+        <translation>Ses örnekleme oranı: %1 kHz</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="232"/>
         <source>Audio bitrate: %1 kbps</source>
-        <translation type="unfinished">Ses bit hızı: %1 kbps</translation>
+        <translation>Ses bit hızı: %1 kbps</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="241"/>
         <source>Video quality</source>
-        <translation type="unfinished">Video kalitesi</translation>
+        <translation>Video kalitesi</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="259"/>
         <source>Output width</source>
-        <translation type="unfinished">Çıktı genişliği</translation>
+        <translation>Çıktı genişliği</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="282"/>
         <source>Output height</source>
-        <translation type="unfinished">Çıktı yüksekliği</translation>
+        <translation>Çıktı yüksekliği</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="305"/>
         <source>Output frame rate</source>
-        <translation type="unfinished">Çıktı kare hızı</translation>
+        <translation>Çıktı kare hızı</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="328"/>
         <source>Video bitrate (kbps)</source>
-        <translation type="unfinished">Video bit hızı (kbps)</translation>
+        <translation>Video bit hızı (kbps)</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="348"/>
         <source>Keyframes stride (ms)</source>
-        <translation type="unfinished">Anahtar kare aralığı (ms)</translation>
+        <translation>Anahtar kare aralığı (ms)</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="367"/>
         <source>Video codec</source>
-        <translation type="unfinished">Video kodeki</translation>
+        <translation>Video kodeki</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="456"/>
         <source>Audio quality</source>
-        <translation type="unfinished">Ses kalitesi</translation>
+        <translation>Ses kalitesi</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="474"/>
         <source>Sample rate</source>
-        <translation type="unfinished">Örnekleme oranı</translation>
+        <translation>Örnekleme oranı</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="497"/>
         <source>Audio bitrate (kbps)</source>
-        <translation type="unfinished">Ses bit hızı (kbps)</translation>
+        <translation>Ses bit hızı (kbps)</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="518"/>
         <source>Audio codec</source>
-        <translation type="unfinished">Ses kodeği</translation>
+        <translation>Ses kodeği</translation>
     </message>
 </context>
 <context>
@@ -1354,12 +1354,12 @@
     <message>
         <location filename="../qml/MainPanel.qml" line="32"/>
         <source>Canvas effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Tuval efektleri</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="33"/>
         <source>Source effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaynak efektleri</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="35"/>
@@ -1450,7 +1450,7 @@
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="153"/>
         <source>Open externally</source>
-        <translation type="unfinished"></translation>
+        <translation>Harici olarak aç</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="158"/>
@@ -1470,17 +1470,17 @@
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="486"/>
         <source>Confirm delete</source>
-        <translation type="unfinished">Silmeyi onayla</translation>
+        <translation>Silmeyi onayla</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="494"/>
         <source>Delete this picture permanently?</source>
-        <translation type="unfinished"></translation>
+        <translation>Bu resim kalıcı olarak silinsin mi?</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaViewerDialog.qml" line="501"/>
         <source>This action can&apos;t be undone.</source>
-        <translation type="unfinished">Bu işlem geri alınamaz.</translation>
+        <translation>Bu işlem geri alınamaz.</translation>
     </message>
 </context>
 <context>
@@ -2298,12 +2298,12 @@
     <message>
         <location filename="../qml/VideoEffectOptions.qml" line="115"/>
         <source>Reset</source>
-        <translation type="unfinished">Sıfırla</translation>
+        <translation>Sıfırla</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectOptions.qml" line="120"/>
         <source>Reset %1 to default values</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 için varsayılan değerlere sıfırla</translation>
     </message>
 </context>
 <context>
@@ -2374,59 +2374,59 @@
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="91"/>
         <source>Edit media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>Medya dosyası kaynağını düzenle</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="95"/>
         <source>Edit media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>Medya URL kaynağını düzenle</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="99"/>
         <source>Add media file source</source>
-        <translation type="unfinished"></translation>
+        <translation>Medya dosyası kaynağı ekle</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="100"/>
         <source>Add media URL source</source>
-        <translation type="unfinished"></translation>
+        <translation>Medya URL kaynağı ekle</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="133"/>
         <location filename="../qml/VideoInputAddEdit.qml" line="180"/>
         <source>Description</source>
-        <translation type="unfinished"></translation>
+        <translation>Tanım</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="139"/>
         <location filename="../qml/VideoInputAddEdit.qml" line="186"/>
         <source>Source title</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaynak başlığı</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="149"/>
         <source>Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Yol</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="159"/>
         <source>File path</source>
-        <translation type="unfinished"></translation>
+        <translation>Dosya yolu</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="160"/>
         <source>Search file to use as source</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaynak olarak kullanılacak dosyayı ara</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="196"/>
         <source>URL</source>
-        <translation type="unfinished"></translation>
+        <translation>URL</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="254"/>
         <source>Choose the file to add as source</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaynak olarak eklenecek dosyayı seç</translation>
     </message>
 </context>
 <context>
@@ -2470,37 +2470,37 @@
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="95"/>
         <source>Manage source effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaynak efektlerini yönet</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="107"/>
         <source>Opacity</source>
-        <translation type="unfinished">Opaklık</translation>
+        <translation>Opaklık</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="125"/>
         <source>Source opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaynak opaklığı</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="136"/>
         <source>Aspect ratio mode</source>
-        <translation type="unfinished"></translation>
+        <translation>En boy oranı modu</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="138"/>
         <source>Ignore</source>
-        <translation type="unfinished"></translation>
+        <translation>Yok say</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="139"/>
         <source>Keep</source>
-        <translation type="unfinished"></translation>
+        <translation>Sakla</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputOptions.qml" line="140"/>
         <source>Keep by expanding</source>
-        <translation type="unfinished"></translation>
+        <translation>Genişleterek sakla</translation>
     </message>
 </context>
 <context>
@@ -2508,27 +2508,27 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="97"/>
         <source>Camera</source>
-        <translation type="unfinished">Kamera</translation>
+        <translation>Kamera</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="99"/>
         <source>Screen</source>
-        <translation type="unfinished">Ekran</translation>
+        <translation>Ekran</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="101"/>
         <source>Image</source>
-        <translation type="unfinished">Resim</translation>
+        <translation>Resim</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="103"/>
         <source>Video</source>
-        <translation type="unfinished">Video</translation>
+        <translation>Video</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="105"/>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Bilinmiyor</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="124"/>
@@ -2568,17 +2568,17 @@
     <message>
         <location filename="../qml/VideoInputs.qml" line="183"/>
         <source>Manage canvas effects</source>
-        <translation type="unfinished"></translation>
+        <translation>Tuval efektlerini yönet</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="175"/>
         <source>Edit layout</source>
-        <translation type="unfinished"></translation>
+        <translation>Düzeni düzenle</translation>
     </message>
     <message>
         <location filename="../qml/VideoInputs.qml" line="379"/>
         <source>Source %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaynak %1</translation>
     </message>
 </context>
 <context>
@@ -2627,12 +2627,12 @@
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="327"/>
         <source>Direct mode (fast mode)</source>
-        <translation type="unfinished"></translation>
+        <translation>Doğrudan mod (hızlı mod)</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="328"/>
         <source>Compatibility (slow mode)</source>
-        <translation type="unfinished"></translation>
+        <translation>Uyumluluk (yavaş mod)</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputAddEdit.qml" line="344"/>
@@ -3901,7 +3901,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="117"/>
         <source>Turbulence</source>
-        <translation type="unfinished"></translation>
+        <translation>Çalkantı</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="154"/>
@@ -4782,17 +4782,17 @@
     <message>
         <location filename="../qml/main.qml" line="172"/>
         <source>Creating &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;%1&lt;/b&gt; sanal kamera oluşturuluyor</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="182"/>
         <source>Editing &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;%1&lt;/b&gt; sanal kamera düzenleniyor</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="192"/>
         <source>Removing &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;%1&lt;/b&gt; sanal kamera kaldırılıyor</translation>
     </message>
     <message>
         <location filename="../qml/main.qml" line="322"/>
@@ -5096,27 +5096,27 @@
     <message>
         <location filename="../../../libAvKys/Plugins/Zoom/share/qml/main.qml" line="45"/>
         <source>Horizontal pan</source>
-        <translation type="unfinished"></translation>
+        <translation>Yatay hareket</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Zoom/share/qml/main.qml" line="62"/>
         <source>Vertical pan</source>
-        <translation type="unfinished"></translation>
+        <translation>Dikey hareket</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Shagadelic/share/qml/main.qml" line="27"/>
         <source>Red intensity</source>
-        <translation type="unfinished"></translation>
+        <translation>Kırmızı yoğunluğu</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Shagadelic/share/qml/main.qml" line="45"/>
         <source>Green intensity</source>
-        <translation type="unfinished"></translation>
+        <translation>Yeşil yoğunluğu</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Shagadelic/share/qml/main.qml" line="63"/>
         <source>Blue intensity</source>
-        <translation type="unfinished"></translation>
+        <translation>Mavi yoğunluğu</translation>
     </message>
 </context>
 </TS>
