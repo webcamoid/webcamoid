@@ -659,7 +659,7 @@ bool VideoEncoderFFmpegElementPrivate::isAvailable(const QString &codec) const
             ++nFormats;
 #endif
 
-        AVPixelFormat preferredFormat = AV_PIX_FMT_YUV420P;
+        AVPixelFormat preferredFormat = AV_PIX_FMT_NONE;
 
         for (int i = 0; i < nFormats; i++)
             if (PixelFormatsTable::isFFPixelFormatSupported(avFormats[i])) {
@@ -667,6 +667,11 @@ bool VideoEncoderFFmpegElementPrivate::isAvailable(const QString &codec) const
 
                 break;
             }
+
+        if (preferredFormat == AV_PIX_FMT_NONE && nFormats > 0)
+            preferredFormat = avFormats[0];
+        else if (preferredFormat == AV_PIX_FMT_NONE)
+            preferredFormat = AV_PIX_FMT_YUV420P;
 
 #if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 13, 100)
         const AVColorRange *avRanges = nullptr;
@@ -689,6 +694,29 @@ bool VideoEncoderFFmpegElementPrivate::isAvailable(const QString &codec) const
         context->time_base = {context->framerate.den, context->framerate.num};
         context->bit_rate = 1500000;
         context->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+
+        AVBufferRef *hw_device_ctx = nullptr;
+        auto codecLower = codec.toLower();
+
+        if (codecLower.contains("_amf"))
+            av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_AMF, nullptr, nullptr, 0);
+        else if (codecLower.contains("_mediacodec"))
+            av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_MEDIACODEC, nullptr, nullptr, 0);
+        else if (codecLower.contains("_mf"))
+            av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_D3D11VA, nullptr, nullptr, 0);
+        else if (codecLower.contains("_nvenc"))
+            av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_CUDA, nullptr, nullptr, 0);
+        else if (codecLower.contains("_qsv"))
+            av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_QSV, nullptr, nullptr, 0);
+        else if (codecLower.contains("_vaapi"))
+            av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_VAAPI, nullptr, nullptr, 0);
+        else if (codecLower.contains("_videotoolbox"))
+            av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_VIDEOTOOLBOX, nullptr, nullptr, 0);
+        else if (codecLower.contains("_vulkan"))
+            av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_VULKAN, nullptr, nullptr, 0);
+
+        if (hw_device_ctx)
+            context->hw_device_ctx = av_buffer_ref(hw_device_ctx);
 
         isAvailable = avcodec_open2(context, encoder, nullptr) >= 0;
 
@@ -738,6 +766,9 @@ bool VideoEncoderFFmpegElementPrivate::isAvailable(const QString &codec) const
         }
 
         avcodec_free_context(&context);
+
+        if (hw_device_ctx)
+            av_buffer_unref(&hw_device_ctx);
     }
 
     if (ffmpegVideoEncAvailableCodecsSize < 32) {
@@ -1339,6 +1370,55 @@ bool VideoEncoderFFmpegElementPrivate::init()
         this->m_context->color_range = avRanges[0];
 #endif
 
+    auto codecLower = codecName.toLower();
+    AVBufferRef *hw_device_ctx = nullptr;
+    AVBufferRef *hw_frames_ctx = nullptr;
+    bool isPureHardware = false;
+
+    if (codecLower.contains("_amf"))
+        av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_AMF, nullptr, nullptr, 0);
+    else if (codecLower.contains("_mediacodec"))
+        av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_MEDIACODEC, nullptr, nullptr, 0);
+    else if (codecLower.contains("_mf"))
+        av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_D3D11VA, nullptr, nullptr, 0);
+    else if (codecLower.contains("_nvenc"))
+        av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_CUDA, nullptr, nullptr, 0);
+    else if (codecLower.contains("_qsv"))
+        av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_QSV, nullptr, nullptr, 0);
+    else if (codecLower.contains("_vaapi")) {
+        av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_VAAPI, nullptr, nullptr, 0);
+        isPureHardware = true;
+    } else if (codecLower.contains("_videotoolbox"))
+        av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_VIDEOTOOLBOX, nullptr, nullptr, 0);
+    else if (codecLower.contains("_vulkan")) {
+        av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_VULKAN, nullptr, nullptr, 0);
+        isPureHardware = true;
+    }
+
+    if (hw_device_ctx) {
+        this->m_context->hw_device_ctx = av_buffer_ref(hw_device_ctx);
+
+        if (isPureHardware) {
+            hw_frames_ctx = av_hwframe_ctx_alloc(hw_device_ctx);
+            AVHWFramesContext *frames_ctx = (AVHWFramesContext *)hw_frames_ctx->data;
+            frames_ctx->format = codecName.contains("_vaapi")?
+                                        AV_PIX_FMT_VAAPI:
+                                        AV_PIX_FMT_VULKAN;
+            frames_ctx->sw_format = this->m_context->pix_fmt;
+            frames_ctx->width = this->m_context->width;
+            frames_ctx->height = this->m_context->height;
+            frames_ctx->initial_pool_size = 10;
+
+            if (av_hwframe_ctx_init(hw_frames_ctx) >= 0) {
+                this->m_context->hw_frames_ctx = av_buffer_ref(hw_frames_ctx);
+                this->m_context->pix_fmt = frames_ctx->format;
+            } else {
+                qCritical() << "Failed to init hardware frames context";
+                av_buffer_unref(&hw_frames_ctx);
+            }
+        }
+    }
+
     auto options = this->readCodecOptions();
 
     if (codecName.contains("mediacodec")) {
@@ -1358,6 +1438,12 @@ bool VideoEncoderFFmpegElementPrivate::init()
 
     int result = avcodec_open2(this->m_context, encoder, &options);
     av_dict_free(&options);
+
+    if (hw_device_ctx)
+        av_buffer_unref(&hw_device_ctx);
+
+    if (hw_frames_ctx)
+        av_buffer_unref(&hw_frames_ctx);
 
     if (result < 0) {
         char error[1024];
@@ -1397,23 +1483,31 @@ void VideoEncoderFFmpegElementPrivate::uninit()
 
     this->m_initialized = false;
 
-    auto result = avcodec_send_frame(this->m_context, nullptr);
+    if (this->m_context) {
+        auto result = avcodec_send_frame(this->m_context, nullptr);
 
-    if (result >= 0) {
-        auto packet = av_packet_alloc();
+        if (result >= 0) {
+            auto packet = av_packet_alloc();
 
-        while (avcodec_receive_packet(this->m_context, packet) >= 0)
-            this->sendFrame(packet);
+            while (avcodec_receive_packet(this->m_context, packet) >= 0)
+                this->sendFrame(packet);
 
-        av_packet_free(&packet);
-    } else {
-        char error[1024];
-        av_strerror(result, error, 1024);
-        qCritical() << "Failed to encode the frame:" << error;
+            av_packet_free(&packet);
+        } else {
+            char error[1024];
+            av_strerror(result, error, 1024);
+            qCritical() << "Failed to encode the frame:" << error;
+        }
+
+        if (this->m_context->hw_device_ctx)
+            av_buffer_unref(&this->m_context->hw_device_ctx);
+
+        if (this->m_context->hw_frames_ctx)
+            av_buffer_unref(&this->m_context->hw_frames_ctx);
+
+        avcodec_free_context(&this->m_context);
+        this->m_context = nullptr;
     }
-
-    avcodec_free_context(&this->m_context);
-    this->m_context = nullptr;
 
     this->m_codecParameters.clear();
     self->restartFpsControl();
@@ -1620,28 +1714,68 @@ void VideoEncoderFFmpegElementPrivate::encodeFrame(const AkVideoPacket &src)
     }
 #endif
 
-    // Write the current frame.
-    auto frame = av_frame_alloc();
+    AVPixelFormat sw_format = this->m_context->pix_fmt;
+
+    if (this->m_context->hw_frames_ctx)
+        sw_format = reinterpret_cast<AVHWFramesContext *>(this->m_context->hw_frames_ctx->data)->sw_format;
+
+    auto sw_frame = av_frame_alloc();
 
     for (int plane = 0; plane < src.planes(); ++plane) {
-        frame->linesize[plane] = src.lineSize(plane);
-        frame->data[plane] = const_cast<quint8 *>(src.constPlane(plane));
+        sw_frame->linesize[plane] = src.lineSize(plane);
+        sw_frame->data[plane] = const_cast<quint8 *>(src.constPlane(plane));
     }
 
-    frame->format = this->m_context->pix_fmt;
-    frame->width = this->m_context->width;
-    frame->height = this->m_context->height;
-    frame->pts = src.pts();
+    sw_frame->format = sw_format;
+    sw_frame->width = this->m_context->width;
+    sw_frame->height = this->m_context->height;
+    sw_frame->pts = src.pts();
 
 #if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 30, 100)
-    frame->duration = src.duration();
+    sw_frame->duration = src.duration();
 #else
-    frame->pkt_duration = src.duration();
+    sw_frame->pkt_duration = src.duration();
 #endif
 
-    frame->time_base = this->m_context->time_base;
+    sw_frame->time_base = this->m_context->time_base;
 
-    int send_result = avcodec_send_frame(this->m_context, frame);
+    AVFrame *frame_to_encode = nullptr;
+
+    if (this->m_context->hw_frames_ctx) {
+        frame_to_encode = av_frame_alloc();
+        frame_to_encode->format = this->m_context->pix_fmt;
+        frame_to_encode->width = this->m_context->width;
+        frame_to_encode->height = this->m_context->height;
+        frame_to_encode->pts = src.pts();
+
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(57, 30, 100)
+        frame_to_encode->duration = src.duration();
+#else
+        frame_to_encode->pkt_duration = src.duration();
+#endif
+
+        frame_to_encode->time_base = this->m_context->time_base;
+
+        if (av_hwframe_get_buffer(this->m_context->hw_frames_ctx, frame_to_encode, 0) < 0) {
+            qCritical() << "Failed to allocate hardware frame buffer";
+            av_frame_free(&frame_to_encode);
+            av_frame_free(&sw_frame);
+
+            return;
+        }
+
+        if (av_hwframe_transfer_data(frame_to_encode, sw_frame, 0) < 0) {
+            qCritical() << "Failed to transfer data to hardware frame";
+            av_frame_free(&frame_to_encode);
+            av_frame_free(&sw_frame);
+
+            return;
+        }
+    } else {
+        frame_to_encode = sw_frame;
+    }
+
+    int send_result = avcodec_send_frame(this->m_context, frame_to_encode);
 
     if (send_result == AVERROR(EAGAIN)) {
         auto packet = av_packet_alloc();
@@ -1650,10 +1784,14 @@ void VideoEncoderFFmpegElementPrivate::encodeFrame(const AkVideoPacket &src)
             this->sendFrame(packet);
 
         av_packet_free(&packet);
-        send_result = avcodec_send_frame(this->m_context, frame);
+        send_result = avcodec_send_frame(this->m_context, frame_to_encode);
     }
 
-    av_frame_free(&frame);
+    if (frame_to_encode && frame_to_encode != sw_frame)
+        av_frame_free(&frame_to_encode);
+
+    av_frame_free(&sw_frame);
+
     auto packet = av_packet_alloc();
 
     while (avcodec_receive_packet(this->m_context, packet) >= 0)

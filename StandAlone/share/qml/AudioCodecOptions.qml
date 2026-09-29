@@ -84,6 +84,7 @@ Dialog {
             case AkPropertyOption.OptionType_String:
                 if (option.menu.length < 1) {
                     let cString = controlString.createObject(mainLayout)
+                    cString.visible = advancedSwitch.checked
                     cString.key = option.name
                     cString.description = option.description
                     cString.value = value
@@ -91,6 +92,7 @@ Dialog {
                     cString.onControlChanged.connect(updateValues)
                 } else {
                     let cMenu = controlMenu.createObject(mainLayout)
+                    cMenu.visible = advancedSwitch.checked
                     cMenu.key = option.name
                     cMenu.defaultValue = option.defaultValue
                     cMenu.label = option.description
@@ -109,6 +111,7 @@ Dialog {
 
                     if ((maximumValue - minimumValue) <= maxSteps * stepSize) {
                         let cRangeDiscrete = controlRangeDiscrete.createObject(mainLayout)
+                        cRangeDiscrete.visible = advancedSwitch.checked
                         cRangeDiscrete.key = option.name
                         cRangeDiscrete.description = option.description
                         cRangeDiscrete.defaultValue = option.defaultValue
@@ -119,6 +122,7 @@ Dialog {
                         cRangeDiscrete.onControlChanged.connect(updateValues)
                     } else {
                         let cRange = controlRange.createObject(mainLayout)
+                        cRange.visible = advancedSwitch.checked
                         cRange.key = option.name
                         cRange.description = option.description
                         cRange.value = value
@@ -127,6 +131,7 @@ Dialog {
                     }
                 } else {
                     let cMenu = controlMenu.createObject(mainLayout)
+                    cMenu.visible = advancedSwitch.checked
                     cMenu.key = option.name
                     cMenu.defaultValue = option.defaultValue
                     cMenu.label = option.description
@@ -138,6 +143,7 @@ Dialog {
 
             case AkPropertyOption.OptionType_Boolean:
                 let cBoolean = controlBoolean.createObject(mainLayout)
+                cBoolean.visible = advancedSwitch.checked
                 cBoolean.key = option.name
                 cBoolean.defaultValue = option.defaultValue
                 cBoolean.text = option.description
@@ -148,6 +154,7 @@ Dialog {
 
             case AkPropertyOption.OptionType_Flags:
                 let cFlags = controlFlags.createObject(mainLayout)
+                cFlags.visible = advancedSwitch.checked
                 cFlags.key = option.name
                 cFlags.defaultValue = option.defaultValue
                 cFlags.title = option.description
@@ -158,6 +165,7 @@ Dialog {
 
             case AkPropertyOption.OptionType_Frac:
                 let cFrac = controlFrac.createObject(mainLayout)
+                cFrac.visible = advancedSwitch.checked
                 cFrac.key = option.name
                 cFrac.description = option.description
                 cFrac.value = value
@@ -252,12 +260,18 @@ Dialog {
                 }
                 Layout.fillWidth: true
             }
-            Label {
-                text: qsTr("Advanced options")
-                font: AkTheme.fontSettings.h6
+            Switch {
+                id: advancedSwitch
+                text: qsTr("Show advanced options")
+                checked: false
+                Layout.fillWidth: true
                 Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
                 Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
-                Layout.fillWidth: true
+
+                onCheckedChanged: {
+                    for (let i = startChildren; i < mainLayout.children.length; i++) 
+                        mainLayout.children[i].visible = checked
+                }
             }
         }
     }
@@ -281,7 +295,7 @@ Dialog {
             codecs.indexOf(recording.defaultCodec(recording.videoFormat,
                                                   AkCaps.CapsAudio))
         bitrate.text = recording.defaultBitrate(AkCaps.CapsAudio)
-
+        advancedSwitch.checked = false
         for (let i in mainLayout.children)
             if (mainLayout.children[i].reset)
                 mainLayout.children[i].reset()
@@ -390,11 +404,11 @@ Dialog {
             signal controlChanged(string key, variant value)
 
             function restore() {
-                value = multiplier * recording.codecOptionValue(AkCaps.CapsAudio, key)
+                value = spbRange.multiplier * recording.codecOptionValue(AkCaps.CapsAudio, key)
             }
 
             function reset() {
-                spbRange.value = multiplier * defaultValue
+                spbRange.value = spbRange.multiplier * defaultValue
             }
 
             Label {

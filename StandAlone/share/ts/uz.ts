@@ -191,24 +191,24 @@
         <translation>Audio Kodek Sozlamalari</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="223"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="231"/>
         <source>Audio codec</source>
         <translation>Audio kodek</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="240"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="248"/>
         <source>Bitrate</source>
         <translation>Bit tezligi</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="247"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="255"/>
         <source>Bitrate (bits/secs)</source>
         <translation>Bit tezligi (bit/sek)</translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="256"/>
-        <source>Advanced options</source>
-        <translation>Qo&apos;shimcha sozlamalar</translation>
+        <location filename="../qml/AudioCodecOptions.qml" line="265"/>
+        <source>Show advanced options</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2254,34 +2254,34 @@
         <translation>Video Kodek Sozlamalari</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="234"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="243"/>
         <source>Video codec</source>
         <translation>Video kodek</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="251"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="260"/>
         <source>Bitrate</source>
         <translation>Bit tezligi</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="258"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="267"/>
         <source>Bitrate (bits/secs)</source>
         <translation>Bit tezligi (bit/sek)</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="268"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="277"/>
         <source>Keyframes stride (ms)</source>
         <translation>Kalit kadrlar oralig&apos;i (ms)</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="275"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="284"/>
         <source>1000</source>
         <translation>1000</translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="284"/>
-        <source>Advanced options</source>
-        <translation>Qo&apos;shimcha sozlamalar</translation>
+        <location filename="../qml/VideoCodecOptions.qml" line="294"/>
+        <source>Show advanced options</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2347,14 +2347,14 @@
         <translation>Video Format Sozlamalari</translation>
     </message>
     <message>
-        <location filename="../qml/VideoFormatOptions.qml" line="208"/>
+        <location filename="../qml/VideoFormatOptions.qml" line="216"/>
         <source>File format</source>
         <translation>Fayl formati</translation>
     </message>
     <message>
-        <location filename="../qml/VideoFormatOptions.qml" line="223"/>
-        <source>Advanced options</source>
-        <translation>Qo&apos;shimcha sozlamalar</translation>
+        <location filename="../qml/VideoFormatOptions.qml" line="232"/>
+        <source>Show advanced options</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
