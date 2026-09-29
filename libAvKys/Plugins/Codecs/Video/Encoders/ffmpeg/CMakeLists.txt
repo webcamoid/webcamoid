@@ -43,33 +43,23 @@ pkg_check_modules(FFMPEG
                   libavcodec
                   libavutil)
 
+if (ANDROID)
+    include(CheckCXXSourceCompiles)
+    set(CMAKE_REQUIRED_LIBRARIES Qt${QT_VERSION_MAJOR}::Core)
+    check_cxx_source_compiles("#include <QJniObject>
+                               int main() { return 0; }"
+                              QJNIOBJECT_FOUND)
+
+    if (QJNIOBJECT_FOUND)
+        add_definitions(-DUSE_JNI)
+    endif ()
+endif ()
+
 # Opcional libjpeg-turbo support if available
 pkg_check_modules(TURBOJPEG libturbojpeg)
 
 if (TURBOJPEG_FOUND)
     add_definitions(-DHAVE_LIBJPEG_TURBO)
-endif ()
-
-if (ANDROID)
-    # Check if JNI support is available
-    include(CheckCXXSourceCompiles)
-    set(CMAKE_REQUIRED_LIBRARIES Qt${QT_VERSION_MAJOR}::Core)
-    check_cxx_source_compiles("
-    #include <QJniObject>
-    int main() { return 0; }
-    " QJNIOBJECT_FOUND)
-
-    if (QJNIOBJECT_FOUND)
-        list(APPEND QT_COMPONENTS
-            CorePrivate)
-        find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
-                    CorePrivate
-                    REQUIRED)
-    endif ()
-
-    if (QJNIOBJECT_FOUND)
-        add_definitions(-DUSE_JNI)
-    endif ()
 endif ()
 
 set(SOURCES

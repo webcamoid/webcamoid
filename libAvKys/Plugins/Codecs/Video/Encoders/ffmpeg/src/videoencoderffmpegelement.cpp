@@ -22,11 +22,10 @@
 #include <QThread>
 #include <QVariant>
 #include <QWaitCondition>
-#include <algorithm>
 
 #ifdef USE_JNI
-#include <QJniEnvironment>
 #include <QJniObject>
+#include <QJniEnvironment>
 #endif
 
 #include <akfrac.h>
@@ -51,6 +50,11 @@ extern "C" {
 
 #include "videoencoderffmpegelement.h"
 
+#if 0
+// Warning, on my tests, some codecs seems to crash when this mode is enabled
+#define ENABLE_MEDIACODEC_VBR
+#endif
+
 #define DEFAULT_FRAME_BUFFER_SIZE 5
 #define CODEC_COMPLIANCE FF_COMPLIANCE_VERY_STRICT
 
@@ -65,17 +69,18 @@ struct FFmpegCodecs
 {
     AkVideoEncoderCodecID codecID;
     AVCodecID ffCodecID;
+    const char *mimeType;
 
     static inline const FFmpegCodecs *table()
     {
         static const FFmpegCodecs ffmpegVideoEncCodecsTable[] = {
-            {VideoCodecID_ffmjpeg                       , AV_CODEC_ID_MJPEG},
-            {VideoCodecID_ffvp8                         , AV_CODEC_ID_VP8  },
-            {VideoCodecID_ffvp9                         , AV_CODEC_ID_VP9  },
-            {VideoCodecID_ffav1                         , AV_CODEC_ID_AV1  },
-            {VideoCodecID_ffh264                        , AV_CODEC_ID_H264 },
-            {VideoCodecID_ffhevc                        , AV_CODEC_ID_HEVC },
-            {AkCompressedVideoCaps::VideoCodecID_unknown, AV_CODEC_ID_NONE },
+            {VideoCodecID_ffmjpeg                       , AV_CODEC_ID_MJPEG, "multipart/x-mixed-replace;boundary=boundary_string"},
+            {VideoCodecID_ffvp8                         , AV_CODEC_ID_VP8  , "video/x-vnd.on2.vp8"                               },
+            {VideoCodecID_ffvp9                         , AV_CODEC_ID_VP9  , "video/x-vnd.on2.vp9"                               },
+            {VideoCodecID_ffav1                         , AV_CODEC_ID_AV1  , "video/av01"                                        },
+            {VideoCodecID_ffh264                        , AV_CODEC_ID_H264 , "video/avc"                                         },
+            {VideoCodecID_ffhevc                        , AV_CODEC_ID_HEVC , "video/hevc"                                        },
+            {AkCompressedVideoCaps::VideoCodecID_unknown, AV_CODEC_ID_NONE , ""},
         };
 
         return ffmpegVideoEncCodecsTable;
@@ -122,10 +127,25 @@ struct FFmpegCodecs
         return codec;
     }
 
+    static inline const FFmpegCodecs *byMimeType(const QString &mimeType)
+    {
+        auto codec = table();
+
+        for (;
+             codec->codecID != AkCompressedVideoCaps::VideoCodecID_unknown;
+             codec++) {
+            if (codec->mimeType == mimeType)
+                return codec;
+        }
+
+        return codec;
+    }
+
     static inline bool isCodecBanned(const QString &codecName)
     {
         static const char *ffmpegVideoEncBannedCodecsTable[] = {
             "libx264rgb",
+            "av1_mediacodec", // Very unestable
             nullptr
         };
 
@@ -147,6 +167,7 @@ struct CodecInfo
     QString description;
     AkVideoEncoderCodecID codecID;
     AkVideoCaps::PixelFormatList formats;
+    QVector<AkVideoEncoder::BitrateMode> bitrateModes;
     AkPropertyOptions options;
     bool isHardware {false};
 };
@@ -288,15 +309,6 @@ class VideoEncoderFFmpegElementPrivate
         void adjustDefaults();
         AkPropertyOption::OptionType optionType(AVOptionType avType) const;
         AVDictionary *readCodecOptions() const;
-
-#ifdef USE_JNI
-        QString mediaCodecMimeForCodecID(AVCodecID codecId);
-        int androidBitrateModeConstant(const QString &mode);
-        QString selectAndroidMediaCodec(AVCodecID codecId,
-                                        const QStringList &bitrateModeCandidates,
-                                        QString &selectedBitrateMode);
-#endif
-
         bool init();
         void uninit();
         void updateHeaders();
@@ -312,13 +324,20 @@ class VideoEncoderFFmpegElementPrivate
         void frameProcessingLoop();
         void processFrame(const AkVideoPacket &packet);
 
+#ifdef USE_JNI
+        QVector<CodecInfo> listNDKCodecsForMime(const AVCodec *codec,
+                                                const QString &description,
+                                                const AkPropertyOptions &options,
+                                                const QVector<AkVideoCaps::PixelFormat> &formats);
+#endif
+
 #ifdef HAVE_LIBJPEG_TURBO
         static int akFormatToTjPixelFormat(AkVideoCaps::PixelFormat format);
         bool initTurboJpeg();
         void uninitTurboJpeg();
         bool compressWithTurbo(const AkVideoPacket &src,
                                AVPacket *avPacket);
-#endif // HAVE_LIBJPEG_TURBO
+#endif
 };
 
 VideoEncoderFFmpegElement::VideoEncoderFFmpegElement():
@@ -561,6 +580,10 @@ bool VideoEncoderFFmpegElement::setState(ElementState state)
 VideoEncoderFFmpegElementPrivate::VideoEncoderFFmpegElementPrivate(VideoEncoderFFmpegElement *self):
     self(self)
 {
+#ifndef QT_DEBUG
+    av_log_set_level(AV_LOG_QUIET);
+#endif
+
 #ifdef Q_OS_ANDROID
     static std::once_flag videoEncoderFFmpegElementCallOnce;
     std::call_once(videoEncoderFFmpegElementCallOnce, [] {
@@ -776,8 +799,11 @@ void VideoEncoderFFmpegElementPrivate::listCodecs()
             if (supportedFormats.contains(avFormats[i]))
                 formats << PixelFormatsTable::byFFFormat(avFormats[i])->format;
 
-        if (formats.isEmpty())
+        if (formats.isEmpty()) {
+            qWarning() << "Failed to list the supported pixel formats for" << codec->name;
+
             continue;
+        }
 
         AkPropertyOptions options;
         QMap<QString, AkMenu> menu;
@@ -927,11 +953,39 @@ void VideoEncoderFFmpegElementPrivate::listCodecs()
                                 QString(codec->name):
                                 QString(codec->long_name);
 
+#ifdef USE_JNI
+        if (QString(codec->name).contains("mediacodec")) {
+            auto ndkCodecs = this->listNDKCodecsForMime(codec,
+                                                        description,
+                                                        options,
+                                                        formats);
+            if (ndkCodecs.isEmpty())
+                continue;
+
+            for (auto &ndkCodec :ndkCodecs)
+                if (ndkCodec.isHardware)
+                    hwCodecs << ndkCodec;
+                else
+                    swCodecs << ndkCodec;
+
+            continue;
+        }
+#endif
+
+        QVector<AkVideoEncoder::BitrateMode> bitrateModes;
+
+        if (QString(codec->name).contains("mediacodec"))
+            bitrateModes << AkVideoEncoder::BitrateMode_CBR;
+        else
+            bitrateModes << AkVideoEncoder::BitrateMode_VBR
+                         << AkVideoEncoder::BitrateMode_CBR;
+
         if (codec->capabilities & (AV_CODEC_CAP_HARDWARE | AV_CODEC_CAP_HYBRID)) {
             hwCodecs << CodecInfo {QString(codec->name),
                                    description,
                                    FFmpegCodecs::byFFCodecID(codec->id)->codecID,
                                    formats,
+                                   bitrateModes,
                                    options,
                                    true};
         } else {
@@ -939,6 +993,7 @@ void VideoEncoderFFmpegElementPrivate::listCodecs()
                                    description,
                                    FFmpegCodecs::byFFCodecID(codec->id)->codecID,
                                    formats,
+                                   bitrateModes,
                                    options,
                                    false};
         }
@@ -949,7 +1004,7 @@ void VideoEncoderFFmpegElementPrivate::listCodecs()
     qInfo() << "Video codecs found:";
 
     for (auto &info: this->m_codecs)
-        qInfo() << "    " << info.name;
+        qInfo() << QString("    %1 (%2)").arg(info.name).arg(info.description).toStdString().c_str();
 }
 
 void VideoEncoderFFmpegElementPrivate::adjustDefaults()
@@ -1179,163 +1234,13 @@ AVDictionary *VideoEncoderFFmpegElementPrivate::readCodecOptions() const
     return options;
 }
 
-#ifdef USE_JNI
-// Mirrors the AVCodecID -> MIME mapping done internally by FFmpeg's
-// mediacodec_init() (libavcodec/mediacodecenc.c). Kept in sync by hand
-// since FFmpeg doesn't expose it.
-QString VideoEncoderFFmpegElementPrivate::mediaCodecMimeForCodecID(AVCodecID codecId)
-{
-    switch (codecId) {
-    case AV_CODEC_ID_H264:
-        return QStringLiteral("video/avc");
-    case AV_CODEC_ID_HEVC:
-        return QStringLiteral("video/hevc");
-    case AV_CODEC_ID_VP8:
-        return QStringLiteral("video/x-vnd.on2.vp8");
-    case AV_CODEC_ID_VP9:
-        return QStringLiteral("video/x-vnd.on2.vp9");
-    case AV_CODEC_ID_MPEG4:
-        return QStringLiteral("video/mp4v-es");
-    case AV_CODEC_ID_AV1:
-        return QStringLiteral("video/av01");
-    default:
-        return {};
-    }
-}
-
-// android.media.MediaCodecInfo.EncoderCapabilities.BITRATE_MODE_*.
-// These happen to line up 1:1 with FFmpeg's own BitrateMode enum and
-// with the "cq"/"vbr"/"cbr"/"cbr_fd" option names, which is why the
-// rest of the code can shuttle the same strings between both APIs.
-int VideoEncoderFFmpegElementPrivate::androidBitrateModeConstant(const QString &mode)
-{
-    if (mode == QStringLiteral("cq"))
-        return 0;
-
-    if (mode == QStringLiteral("vbr"))
-        return 1;
-
-    if (mode == QStringLiteral("cbr"))
-        return 2;
-
-    if (mode == QStringLiteral("cbr_fd"))
-        return 3;
-
-    return -1;
-}
-
-// Walks android.media.MediaCodecList looking for a hardware encoder for
-// codecId that supports one of bitrateModeCandidates, tried in order.
-// On success, returns the concrete MediaCodec component name (to force
-// via FFmpeg's "codec_name" option) and sets selectedBitrateMode to
-// whichever candidate it actually supports. On failure -because the
-// query itself couldn't be completed, or because no encoder on this
-// device supports any of the candidates- returns an empty string and
-// leaves selectedBitrateMode untouched, so the caller can fall back to
-// plain open()-and-retry.
-QString VideoEncoderFFmpegElementPrivate::selectAndroidMediaCodec(AVCodecID codecId,
-                                                                  const QStringList &bitrateModeCandidates,
-                                                                  QString &selectedBitrateMode)
-{
-    auto mime = mediaCodecMimeForCodecID(codecId);
-
-    if (mime.isEmpty())
-        return {};
-
-    QJniEnvironment jniEnv;
-
-    // MediaCodecList.REGULAR_CODECS = 1
-    QJniObject codecList("android/media/MediaCodecList", "I", jint(1));
-
-    if (!codecList.isValid() || jniEnv.checkAndClearExceptions())
-        return {};
-
-    auto codecInfos =
-            codecList.callObjectMethod("getCodecInfos",
-                                       "()[Landroid/media/MediaCodecInfo;");
-
-    if (!codecInfos.isValid() || jniEnv.checkAndClearExceptions())
-        return {};
-
-    auto codecInfosArray = static_cast<jobjectArray>(codecInfos.object());
-    auto nCodecs = jniEnv->GetArrayLength(codecInfosArray);
-
-    for (int i = 0; i < nCodecs; i++) {
-        QJniObject codecInfo(jniEnv->GetObjectArrayElement(codecInfosArray, i));
-
-        if (!codecInfo.isValid())
-            continue;
-
-        if (!codecInfo.callMethod<jboolean>("isEncoder", "()Z"))
-            continue;
-
-        auto supportedTypes =
-                codecInfo.callObjectMethod("getSupportedTypes",
-                                           "()[Ljava/lang/String;");
-
-        if (!supportedTypes.isValid())
-            continue;
-
-        auto typesArray = static_cast<jobjectArray>(supportedTypes.object());
-        auto nTypes = jniEnv->GetArrayLength(typesArray);
-        bool supportsMime = false;
-
-        for (int j = 0; j < nTypes && !supportsMime; j++) {
-            QJniObject type(jniEnv->GetObjectArrayElement(typesArray, j));
-            supportsMime = type.isValid() && type.toString() == mime;
-        }
-
-        if (!supportsMime)
-            continue;
-
-        auto capabilities =
-                codecInfo.callObjectMethod("getCapabilitiesForType",
-                                           "(Ljava/lang/String;)"
-                                           "Landroid/media/MediaCodecInfo$CodecCapabilities;",
-                                           QJniObject::fromString(mime).object<jstring>());
-
-        if (jniEnv.checkAndClearExceptions() || !capabilities.isValid())
-            continue;
-
-        auto encoderCapabilities =
-                capabilities.callObjectMethod("getEncoderCapabilities",
-                                              "()Landroid/media/MediaCodecInfo$EncoderCapabilities;");
-
-        if (jniEnv.checkAndClearExceptions() || !encoderCapabilities.isValid())
-            continue;
-
-        for (auto &mode: bitrateModeCandidates) {
-            auto modeConst = androidBitrateModeConstant(mode);
-
-            if (modeConst < 0)
-                continue;
-
-            auto isSupported =
-                    encoderCapabilities.callMethod<jboolean>("isBitrateModeSupported",
-                                                              "(I)Z",
-                                                              jint(modeConst));
-
-            if (jniEnv.checkAndClearExceptions())
-                continue;
-
-            if (isSupported) {
-                selectedBitrateMode = mode;
-
-                return codecInfo.callObjectMethod("getName",
-                                                   "()Ljava/lang/String;").toString();
-            }
-        }
-    }
-
-    return {};
-}
-#endif
-
 bool VideoEncoderFFmpegElementPrivate::init()
 {
     this->uninit();
 
-    qInfo() << "Initilizing" << self->codec() << "codec";
+    auto codecName = self->codec();
+
+    qInfo() << "Initilizing" << codecName << "codec";
     auto inputCaps = self->inputCaps();
 
     if (!inputCaps) {
@@ -1345,7 +1250,7 @@ bool VideoEncoderFFmpegElementPrivate::init()
     }
 
     auto encoder =
-            avcodec_find_encoder_by_name(self->codec().toStdString().c_str());
+            avcodec_find_encoder_by_name(codecName.toStdString().c_str());
 
     if (!encoder) {
         qCritical() << "Encoder not found";
@@ -1353,99 +1258,48 @@ bool VideoEncoderFFmpegElementPrivate::init()
         return false;
     }
 
-    // Some hardware wrappers (the Android *_mediacodec encoders, in
-    // particular) don't honor AVCodecContext::rc_min_rate/rc_max_rate at
-    // all; instead they expose their own private "bitrate_mode" option
-    // (cq/vbr/cbr/cbr_fd) that maps 1:1 to Android's
-    // MediaCodecInfo.EncoderCapabilities bitrate modes. Not every
-    // concrete codec instance supports every mode (e.g. many only do
-    // CBR), and FFmpeg doesn't expose a capability query for it, so we
-    // detect whether the option exists and, if it does, build a list of
-    // (bitrate mode, forced component name) attempts to try in order.
-    AVClass *privClass = const_cast<AVClass *>(encoder->priv_class);
-    bool hasBitrateModeOption =
-            privClass
-            && av_opt_find(&privClass,
-                           "bitrate_mode",
-                           nullptr,
-                           0,
-                           AV_OPT_SEARCH_FAKE_OBJ) != nullptr;
-    bool bitrateModeOverridden = self->isOptionSet("bitrate_mode");
+    this->m_context = avcodec_alloc_context3(encoder);
 
-    struct BitrateModeAttempt
-    {
-        QString bitrateMode;
-        QString codecName; // Forces FFmpeg's "codec_name" option; empty
-                           // means let FFmpeg pick automatically.
-    };
+    if (!this->m_context) {
+        qCritical() << "Context not created";
 
-    QVector<BitrateModeAttempt> attempts;
-
-    if (hasBitrateModeOption && !bitrateModeOverridden) {
-        auto preferred = self->bitrateMode() == AkVideoEncoder::BitrateMode_CBR?
-                              QStringLiteral("cbr"):
-                              QStringLiteral("vbr");
-        auto fallback = preferred == QStringLiteral("cbr")?
-                              QStringLiteral("vbr"):
-                              QStringLiteral("cbr");
-
-#ifdef USE_JNI
-        // Ask Android directly which concrete MediaCodec on this device
-        // supports which of our two candidate modes, and pin that
-        // component + mode as the first attempt.
-        QString confirmedMode;
-        auto confirmedCodecName =
-                selectAndroidMediaCodec(encoder->id,
-                                        {preferred, fallback},
-                                        confirmedMode);
-
-        if (!confirmedCodecName.isEmpty())
-            attempts << BitrateModeAttempt {confirmedMode, confirmedCodecName};
-#endif
-
-        // Safety net: keep the plain open()-and-retry path too, in case
-        // the capability query above wasn't available (older Android,
-        // JNI issue), found nothing, or -on some vendor- lies about what
-        // it actually supports.
-        for (auto &mode: {preferred, fallback})
-            if (!std::any_of(attempts.cbegin(), attempts.cend(),
-                             [&mode] (const BitrateModeAttempt &attempt) {
-                                return attempt.bitrateMode == mode
-                                       && attempt.codecName.isEmpty();
-                             }))
-                attempts << BitrateModeAttempt {mode, {}};
-    } else {
-        // Either the codec has no such concept (regular software
-        // encoders, where rc_min_rate/rc_max_rate below already do the
-        // job), or the user picked "bitrate_mode" explicitly from the
-        // codec's own options: leave it alone.
-        attempts << BitrateModeAttempt {{}, {}};
+        return false;
     }
 
-    int result = AVERROR_UNKNOWN;
+    this->m_context->pix_fmt =
+        PixelFormatsTable::byFormat(this->m_videoConverter.outputCaps().format())->ffFormat;
+    this->m_context->width = this->m_videoConverter.outputCaps().width();
+    this->m_context->height = this->m_videoConverter.outputCaps().height();
+    this->m_context->framerate =
+        {int(this->m_videoConverter.outputCaps().fps().num()),
+         int(this->m_videoConverter.outputCaps().fps().den())};
+    this->m_context->time_base = {this->m_context->framerate.den,
+                                  this->m_context->framerate.num};
 
-    for (int i = 0; i < attempts.size(); i++) {
-        auto &attempt = attempts[i];
+    auto it = std::find_if(this->m_codecs.constBegin(),
+                           this->m_codecs.constEnd(),
+                           [&codecName] (const CodecInfo &codec) -> bool {
+                               return codec.name == codecName;
+                           });
+    QVector<AkVideoEncoder::BitrateMode> bitrateModes;
 
-        this->m_context = avcodec_alloc_context3(encoder);
+    if (it != this->m_codecs.constEnd())
+        bitrateModes = it->bitrateModes;
 
-        if (!this->m_context) {
-            qCritical() << "Context not created";
+    if (bitrateModes.isEmpty()) {
+        qCritical() << "Can't guess the bitrate modes supported by" << codecName;
+        avcodec_free_context(&this->m_context);
+        this->m_context = nullptr;
 
-            return false;
-        }
+        return false;
+    }
 
-        this->m_context->pix_fmt =
-                PixelFormatsTable::byFormat(this->m_videoConverter.outputCaps().format())->ffFormat;
-        this->m_context->width = this->m_videoConverter.outputCaps().width();
-        this->m_context->height = this->m_videoConverter.outputCaps().height();
-        this->m_context->framerate =
-            {int(this->m_videoConverter.outputCaps().fps().num()),
-             int(this->m_videoConverter.outputCaps().fps().den())};
-        this->m_context->time_base = {this->m_context->framerate.den,
-                                      this->m_context->framerate.num};
+    auto bitrateMode = self->bitrateMode();
 
-        switch (self->bitrateMode()) {
+    if (!bitrateModes.contains(bitrateMode))
+        bitrateMode = bitrateModes.first();
+
+    switch (bitrateMode) {
         case AkVideoEncoder::BitrateMode_CBR:
             this->m_context->bit_rate     = self->bitrate();
             this->m_context->rc_min_rate  = self->bitrate();
@@ -1462,67 +1316,55 @@ bool VideoEncoderFFmpegElementPrivate::init()
             this->m_context->rc_buffer_size = 0;
 
             break;
-        }
+    }
 
-        this->m_context->gop_size =
-                qMax(self->gop() * this->m_videoConverter.outputCaps().fps().num()
-                     / (1000 * this->m_videoConverter.outputCaps().fps().den()), 1);
+    this->m_context->gop_size =
+        qMax(self->gop() * this->m_videoConverter.outputCaps().fps().num()
+        / (1000 * this->m_videoConverter.outputCaps().fps().den()), 1);
 
-        if (this->m_globalHeaders)
-            this->m_context->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
+    if (this->m_globalHeaders)
+        this->m_context->flags |= AV_CODEC_FLAG_GLOBAL_HEADER;
 
 #if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(61, 13, 100)
-        const AVColorRange *avRanges = nullptr;
-        int nRanges = 0;
-        avcodec_get_supported_config(nullptr,
-                                     encoder,
-                                     AV_CODEC_CONFIG_COLOR_RANGE,
-                                     0,
-                                     reinterpret_cast<const void **>(&avRanges),
-                                     &nRanges);
+    const AVColorRange *avRanges = nullptr;
+    int nRanges = 0;
+    avcodec_get_supported_config(nullptr,
+                                 encoder,
+                                 AV_CODEC_CONFIG_COLOR_RANGE,
+                                 0,
+                                 reinterpret_cast<const void **>(&avRanges),
+                                 &nRanges);
 
-        if (avRanges && nRanges > 0)
-            this->m_context->color_range = avRanges[0];
+    if (avRanges && nRanges > 0)
+        this->m_context->color_range = avRanges[0];
 #endif
 
-        auto options = this->readCodecOptions();
+    auto options = this->readCodecOptions();
 
-        if (!attempt.bitrateMode.isEmpty())
-            av_dict_set(&options,
-                        "bitrate_mode",
-                        attempt.bitrateMode.toStdString().c_str(),
-                        0);
+    if (codecName.contains("mediacodec")) {
+        av_dict_set(&options, "ndk_codec", "1", 0);
 
-        if (!attempt.codecName.isEmpty())
-            av_dict_set(&options,
-                        "codec_name",
-                        attempt.codecName.toStdString().c_str(),
-                        0);
+        if (this->m_context->codec->id == AV_CODEC_ID_H264
+            || this->m_context->codec->id == AV_CODEC_ID_HEVC)
+            av_dict_set(&options, "ndk_async", "1", 0);
+        else
+            av_dict_set(&options, "ndk_async", "0", 0);
 
-        result = avcodec_open2(this->m_context, encoder, &options);
-        av_dict_free(&options);
-
-        if (result >= 0) {
-            if (i > 0)
-                qWarning() << self->codec()
-                           << "doesn't support bitrate mode"
-                           << attempts.first().bitrateMode
-                           << "on this device, falling back to"
-                           << attempt.bitrateMode
-                           << (attempt.codecName.isEmpty()?
-                                   QString():
-                                   QStringLiteral(" (%1)").arg(attempt.codecName));
-
-            break;
-        }
-
-        avcodec_free_context(&this->m_context);
+        if (bitrateMode == AkVideoEncoder::BitrateMode_CBR)
+            av_dict_set(&options, "bitrate_mode", "cbr", 0);
+        else
+            av_dict_set(&options, "bitrate_mode", "vbr", 0);
     }
+
+    int result = avcodec_open2(this->m_context, encoder, &options);
+    av_dict_free(&options);
 
     if (result < 0) {
         char error[1024];
         av_strerror(result, error, 1024);
-        qCritical() << "Failed to open" << self->codec() << "codec:" << error;
+        qCritical() << "Failed to open" << codecName << "codec:" << error;
+        avcodec_free_context(&this->m_context);
+        this->m_context = nullptr;
 
         return false;
     }
@@ -1770,6 +1612,7 @@ void VideoEncoderFFmpegElementPrivate::encodeFrame(const AkVideoPacket &src)
             this->sendFrame(&avPacket);
             this->m_encodedTimePts = src.pts() + src.duration();
             emit self->encodedTimePtsChanged(this->m_encodedTimePts);
+
             return;
         } else {
             qWarning() << "TurboJPEG compression failed, falling back to FFmpeg";
@@ -1796,21 +1639,31 @@ void VideoEncoderFFmpegElementPrivate::encodeFrame(const AkVideoPacket &src)
     frame->pkt_duration = src.duration();
 #endif
 
-    frame->time_base = {int(src.timeBase().num()), int(src.timeBase().den())};
+    frame->time_base = this->m_context->time_base;
 
-    auto result = avcodec_send_frame(this->m_context, frame);
-    av_frame_free(&frame);
+    int send_result = avcodec_send_frame(this->m_context, frame);
 
-    if (result >= 0) {
+    if (send_result == AVERROR(EAGAIN)) {
         auto packet = av_packet_alloc();
 
         while (avcodec_receive_packet(this->m_context, packet) >= 0)
             this->sendFrame(packet);
 
         av_packet_free(&packet);
-    } else {
+        send_result = avcodec_send_frame(this->m_context, frame);
+    }
+
+    av_frame_free(&frame);
+    auto packet = av_packet_alloc();
+
+    while (avcodec_receive_packet(this->m_context, packet) >= 0)
+        this->sendFrame(packet);
+
+    av_packet_free(&packet);
+
+    if (send_result < 0 && send_result != AVERROR(EAGAIN)) {
         char error[1024];
-        av_strerror(result, error, 1024);
+        av_strerror(send_result, error, 1024);
         qCritical() << "Failed to encode the frame:" << error;
     }
 
@@ -1821,7 +1674,10 @@ void VideoEncoderFFmpegElementPrivate::encodeFrame(const AkVideoPacket &src)
 void VideoEncoderFFmpegElementPrivate::sendFrame(const AVPacket *avPacket) const
 {
     AkCompressedVideoPacket packet(this->m_outputCaps, avPacket->size);
-    memcpy(packet.data(), avPacket->data, packet.size());
+
+    if (packet.size() > 0)
+        memcpy(packet.data(), avPacket->data, packet.size());
+
     packet.setFlags(avPacket->flags & AV_PKT_FLAG_KEY?
                         AkCompressedVideoPacket::VideoPacketTypeFlag_KeyFrame:
                         AkCompressedVideoPacket::VideoPacketTypeFlag_None);
@@ -1872,6 +1728,147 @@ void VideoEncoderFFmpegElementPrivate::ffmpegLogCallback(void *ptr,
             break;
     }
 }
+
+#ifdef USE_JNI
+QVector<CodecInfo> VideoEncoderFFmpegElementPrivate::listNDKCodecsForMime(const AVCodec *codec,
+                                                                          const QString &description,
+                                                                          const AkPropertyOptions &options,
+                                                                          const QVector<AkVideoCaps::PixelFormat> &formats)
+{
+    QVector<CodecInfo> result;
+    QJniEnvironment env;
+
+    auto codecInfo = FFmpegCodecs::byFFCodecID(codec->id);
+    qInfo() << "Getting default MediaCodec for" << codec->name << codecInfo->mimeType;
+
+    // 1. Create a minimum MediaFormat for the requested MIME type
+    auto jMimeStr = QJniObject::fromString(codecInfo->mimeType);
+    auto mediaFormat =
+        QJniObject::callStaticObjectMethod("android/media/MediaFormat",
+                                           "createVideoFormat",
+                                           "(Ljava/lang/String;II)Landroid/media/MediaFormat;",
+                                           jMimeStr.object<jstring>(),
+                                           640,
+                                           480);
+
+    if (!mediaFormat.isValid()) {
+        qWarning() << "Failed to create MediaFormat for" << codecInfo->mimeType;
+
+        return result;
+    }
+
+    // 2. Instantiate MediaCodecList with REGULAR_CODECS
+    // (filters out invalid internal components)
+    auto regularCodecsConst =
+        QJniObject::getStaticField<jint>("android/media/MediaCodecList",
+                                         "REGULAR_CODECS");
+    QJniObject mediaCodecList("android/media/MediaCodecList",
+                              "(I)V",
+                              regularCodecsConst);
+
+    if (!mediaCodecList.isValid()) {
+        qWarning() << "Failed to initialize MediaCodecList";
+
+        return result;
+    }
+
+    // 3. Obtain the name of the system's default encoder
+    auto jDefaultCodecName =
+        mediaCodecList.callObjectMethod("findEncoderForFormat",
+                                        "(Landroid/media/MediaFormat;)Ljava/lang/String;",
+                                        mediaFormat.object());
+
+    if (!jDefaultCodecName.isValid() || jDefaultCodecName.object() == nullptr) {
+        qWarning() << "No default encoder found for mime type:" << codecInfo->mimeType;
+
+        return result;
+    }
+
+    auto ndkName = jDefaultCodecName.toString();
+
+    // 4. Obtain the MediaCodecInfo for that default codec to evaluate if it is
+    // hardware.
+    QJniObject targetCodecInfo;
+    auto codecInfos =
+        mediaCodecList.callObjectMethod("getCodecInfos",
+                                        "()[Landroid/media/MediaCodecInfo;");
+
+    if (codecInfos.isValid()) {
+        auto codecArray = static_cast<jobjectArray>(codecInfos.object());
+        auto numCodecs = env->GetArrayLength(codecArray);
+
+        for (jsize i = 0; i < numCodecs; ++i) {
+            QJniObject codecInfo(env->GetObjectArrayElement(codecArray, i));
+
+            if (codecInfo.isValid()
+                && codecInfo.callObjectMethod("getName",
+                                              "()Ljava/lang/String;").toString() == ndkName) {
+                targetCodecInfo = codecInfo;
+
+                break;
+            }
+        }
+    }
+
+    // 5. Determine if it is hardware accelerated
+    bool isHardware = false;
+    jint sdkInt = QJniObject::getStaticField<jint>("android/os/Build$VERSION",
+                                                   "SDK_INT");
+
+    if (sdkInt >= 29 && targetCodecInfo.isValid()) {
+        isHardware =
+            targetCodecInfo.callMethod<jboolean>("isHardwareAccelerated",
+                                                 "()Z");
+    } else {
+        isHardware = !ndkName.startsWith("OMX.google.", Qt::CaseInsensitive)
+        && !ndkName.startsWith("c2.android.", Qt::CaseInsensitive)
+        && !ndkName.startsWith("OMX.SEC.", Qt::CaseInsensitive);
+    }
+
+    // 6. Query supported bitrate modes dynamically
+    QVector<AkVideoEncoder::BitrateMode> bitrateModes;
+
+    if (targetCodecInfo.isValid()) {
+        auto codecCaps = targetCodecInfo.callObjectMethod("getCapabilitiesForType",
+                                                          "(Ljava/lang/String;)Landroid/media/MediaCodecInfo$CodecCapabilities;",
+                                                          jMimeStr.object<jstring>());
+
+        if (codecCaps.isValid()) {
+            auto encoderCaps =
+                codecCaps.callObjectMethod("getEncoderCapabilities",
+                                           "()Landroid/media/MediaCodecInfo$EncoderCapabilities;");
+
+            if (encoderCaps.isValid()) {
+                jint vbrMode = QJniObject::getStaticField<jint>(
+                    "android/media/MediaCodecInfo$EncoderCapabilities",
+                    "BITRATE_MODE_VBR");
+                jint cbrMode = QJniObject::getStaticField<jint>(
+                    "android/media/MediaCodecInfo$EncoderCapabilities",
+                    "BITRATE_MODE_CBR");
+
+                if (encoderCaps.callMethod<jboolean>("isBitrateModeSupported", "(I)Z", vbrMode))
+                    bitrateModes << AkVideoEncoder::BitrateMode_VBR;
+
+                if (encoderCaps.callMethod<jboolean>("isBitrateModeSupported", "(I)Z", cbrMode))
+                    bitrateModes << AkVideoEncoder::BitrateMode_CBR;
+            }
+        }
+    }
+
+    if (bitrateModes.isEmpty())
+        bitrateModes << AkVideoEncoder::BitrateMode_CBR;
+
+    result << CodecInfo {QString(codec->name),
+                         description,
+                         FFmpegCodecs::byFFCodecID(codec->id)->codecID,
+                         formats,
+                         bitrateModes,
+                         options,
+                         isHardware};
+
+    return result;
+}
+#endif // USE_JNI
 
 #ifdef HAVE_LIBJPEG_TURBO
 int VideoEncoderFFmpegElementPrivate::akFormatToTjPixelFormat(AkVideoCaps::PixelFormat format)

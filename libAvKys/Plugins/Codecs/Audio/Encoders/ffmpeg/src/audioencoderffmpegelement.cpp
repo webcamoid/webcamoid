@@ -1077,7 +1077,10 @@ void AudioEncoderFFmpegElementPrivate::encodeFrame(const AkAudioPacket &src)
 void AudioEncoderFFmpegElementPrivate::sendFrame(const AVPacket *avPacket) const
 {
     AkCompressedAudioPacket packet(this->m_outputCaps, avPacket->size);
-    memcpy(packet.data(), avPacket->data, packet.size());
+
+    if (packet.size() > 0)
+        memcpy(packet.data(), avPacket->data, packet.size());
+
     packet.setFlags(avPacket->flags & AV_PKT_FLAG_KEY?
                         AkCompressedAudioPacket::AudioPacketTypeFlag_KeyFrame:
                         AkCompressedAudioPacket::AudioPacketTypeFlag_None);

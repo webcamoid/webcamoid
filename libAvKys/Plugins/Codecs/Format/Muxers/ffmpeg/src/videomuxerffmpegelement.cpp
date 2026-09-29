@@ -69,7 +69,7 @@ struct VideoMuxer
     inline static const VideoMuxer *table()
     {
         static const VideoMuxer ffmpegMuxerFormatsTable[] = {
-            {"webm", "video/webm", "Webm (FFmpeg)", "webm", AkVideoMuxer::FormatID_webm,
+            {"webm", "video/webm", "Webm", "webm", AkVideoMuxer::FormatID_webm,
                 {AudioCodecID_ffvorbis,
                  AudioCodecID_ffopus,
                  AkCompressedAudioCaps::AudioCodecID_unknown},
@@ -77,7 +77,7 @@ struct VideoMuxer
                  VideoCodecID_ffvp9,
                  VideoCodecID_ffav1,
                  AkCompressedVideoCaps::VideoCodecID_unknown}},
-            {"mp4", "video/mp4", "MP4 (FFmpeg)", "mp4", AkVideoMuxer::FormatID_mp4,
+            {"mp4", "video/mp4", "MP4", "mp4", AkVideoMuxer::FormatID_mp4,
                 {AudioCodecID_ffaac,
                  AudioCodecID_ffmp3,
                  AkCompressedAudioCaps::AudioCodecID_unknown},
@@ -802,6 +802,8 @@ void VideoMuxerFFmpegElementPrivate::uninit()
     this->m_context = nullptr;
 
     this->m_paused = false;
+
+    qDebug() << "Total of packets writen:" << this->m_packetPos;
 }
 
 void VideoMuxerFFmpegElementPrivate::packetReady(const AkPacket &packet)
@@ -850,7 +852,9 @@ void VideoMuxerFFmpegElementPrivate::packetReady(const AkPacket &packet)
             qCritical() << "Failed to write the video packet:" << error;
     }
 
+    av_packet_unref(avPacket);
     av_packet_free(&avPacket);
+
     this->m_packetPos++;
 }
 

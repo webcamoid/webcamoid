@@ -23,4 +23,3 @@ project(FormatMuxers)
 include(../../../../cmake/ProjectCommons.cmake)
 
 add_subdirectory(ffmpeg)
-add_subdirectory(ndkmedia)
