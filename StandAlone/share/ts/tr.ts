@@ -208,7 +208,7 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="265"/>
         <source>Show advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation>Gelişmiş seçenekleri göster</translation>
     </message>
 </context>
 <context>
@@ -2280,7 +2280,7 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="294"/>
         <source>Show advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation>Gelişmiş seçenekleri göster</translation>
     </message>
 </context>
 <context>
@@ -2353,7 +2353,7 @@
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="232"/>
         <source>Show advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation>Gelişmiş seçenekleri göster</translation>
     </message>
 </context>
 <context>
