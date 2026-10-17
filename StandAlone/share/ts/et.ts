@@ -208,7 +208,7 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="265"/>
         <source>Show advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation>Näita seadistusi oskuskasutajatele</translation>
     </message>
 </context>
 <context>
@@ -384,12 +384,12 @@
     <message>
         <location filename="../qml/CanvasConfig.qml" line="305"/>
         <source>Canvas output buffers</source>
-        <translation type="unfinished"></translation>
+        <translation>Kanvaa väljundpuhvrid</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="316"/>
         <source>Enable asynchronous read</source>
-        <translation type="unfinished"></translation>
+        <translation>Kasuta asünkroonset lugemist</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="332"/>
@@ -1195,77 +1195,77 @@
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="32"/>
         <source>Local streaming advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation>Kohaliku voogedastuse täpsemad valikud</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="119"/>
         <source>Local streaming quality</source>
-        <translation type="unfinished"></translation>
+        <translation>Kohaliku voogedastuse kvaliteet</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="144"/>
         <source>Streaming quality</source>
-        <translation type="unfinished">Voogedastuse kvaliteet</translation>
+        <translation>Voogedastuse kvaliteet</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="197"/>
         <source>Custom</source>
-        <translation type="unfinished">Kohandatud</translation>
+        <translation>Kohandatud</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="200"/>
         <source>Video quality: %1×%2 %3 FPS</source>
-        <translation type="unfinished">Videokvaliteet: %1×%2 %3 FPS</translation>
+        <translation>Videokvaliteet: %1×%2 %3 FPS</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="201"/>
         <source>Video bitrate: %1 Mbps</source>
-        <translation type="unfinished">Videobitikiirus: %1 Mbps</translation>
+        <translation>Video bitikiirus: %1 Mbps</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="202"/>
         <source>Audio sample rate: %1 kHz</source>
-        <translation type="unfinished">Heli diskreetimissagedus: %1 kHz</translation>
+        <translation>Heli diskreetimissagedus: %1 kHz</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="203"/>
         <source>Audio bitrate: %1 kbps</source>
-        <translation type="unfinished">Helibitikiirus: %1 kbps</translation>
+        <translation>Heli bitikiirus: %1 kbps</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="212"/>
         <source>Video quality</source>
-        <translation type="unfinished">Videokvaliteet</translation>
+        <translation>Videokvaliteet</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="230"/>
         <source>Output width</source>
-        <translation type="unfinished">Väljundlaius</translation>
+        <translation>Väljundlaius</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="253"/>
         <source>Output height</source>
-        <translation type="unfinished">Väljundkõrgus</translation>
+        <translation>Väljundkõrgus</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="276"/>
         <source>Output frame rate</source>
-        <translation type="unfinished">Väljundkaadrisagedus</translation>
+        <translation>Väljundi kaadrisagedus</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="299"/>
         <source>Video bitrate (kbps)</source>
-        <translation type="unfinished">Videobitikiirus (kbps)</translation>
+        <translation>Video bitikiirus (kbps)</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="319"/>
         <source>Keyframes stride (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Võtmekaadri samm (ms)</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="407"/>
-        <source>Placeholder</source>
-        <translation type="unfinished"></translation>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="367"/>
+        <source>Video codec</source>
+        <translation>Videokoodek</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="416"/>
@@ -1320,17 +1320,22 @@
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="342"/>
         <source>Audio quality</source>
-        <translation type="unfinished">Helikvaliteet</translation>
+        <translation>Helikvaliteet</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="360"/>
         <source>Sample rate</source>
-        <translation type="unfinished">Diskreetimissagedus</translation>
+        <translation>Diskreetimissagedus</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="383"/>
         <source>Audio bitrate (kbps)</source>
-        <translation type="unfinished">Helibitikiirus (kbps)</translation>
+        <translation>Heli bitikiirus (kbps)</translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="518"/>
+        <source>Audio codec</source>
+        <translation>Audiokoodek</translation>
     </message>
 </context>
 <context>
@@ -1950,7 +1955,7 @@
     <message>
         <location filename="../qml/Streaming.qml" line="305"/>
         <source>Output frame rate</source>
-        <translation>Väljundkaadrisagedus</translation>
+        <translation>Väljundi kaadrisagedus</translation>
     </message>
     <message>
         <location filename="../qml/Streaming.qml" line="328"/>
@@ -2354,7 +2359,7 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="294"/>
         <source>Show advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation>Näita seadistusi oskuskasutajatele</translation>
     </message>
 </context>
 <context>
@@ -2372,12 +2377,12 @@
     <message>
         <location filename="../qml/VideoEffectOptions.qml" line="115"/>
         <source>Reset</source>
-        <translation type="unfinished">Lähtesta</translation>
+        <translation>Lähtesta</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectOptions.qml" line="120"/>
         <source>Reset %1 to default values</source>
-        <translation type="unfinished"></translation>
+        <translation>Lähtesta %1 vaikimisi väärtusteks</translation>
     </message>
 </context>
 <context>
@@ -2427,7 +2432,7 @@
     <message>
         <location filename="../qml/VideoFormatOptions.qml" line="232"/>
         <source>Show advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation>Näita seadistusi oskuskasutajatele</translation>
     </message>
 </context>
 <context>
@@ -2944,7 +2949,7 @@
     <message>
         <location filename="../qml/VideoRecording.qml" line="333"/>
         <source>Output Frame rate</source>
-        <translation>Väljundkaadrisagedus</translation>
+        <translation>Väljundi kaadrisagedus</translation>
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="358"/>
