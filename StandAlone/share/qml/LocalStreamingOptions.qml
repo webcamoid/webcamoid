@@ -20,7 +20,6 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import Qt.labs.settings 1.0
 import Ak
 import AkControls as AK
 import Webcamoid
@@ -28,11 +27,6 @@ import Webcamoid
 ScrollView {
     id: view
 
-    property int localPort: 8080
-    property string localResource: "stream"
-    property string localFormatId: localStreaming.locationFormat(localStreaming.location)
-                                    || localStreaming.defaultVideoFormat
-    property string localFormat: view.extensionForFormat(view.localFormatId)
     property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     property int rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
@@ -40,60 +34,24 @@ ScrollView {
     signal removed()
     signal openLocalStreamingAdvancedDialog()
 
-    // Extracts the muxer/extension part ("webm", "mp4", etc.) from a
-    // canonical "pluginID:name" format id. Falls back to the input itself
-    // if it doesn't follow that convention.
-    function extensionForFormat(formatId)
+    // Copies the text to the clipboard.
+    function copyToClipboard(text)
     {
-        if (!formatId)
-            return ""
-
-        let parts = formatId.split(':')
-
-        return parts.length > 1? parts[1]: formatId
-    }
-
-    function parseLocalUrl(url)
-    {
-        if (!url)
-            return { port: 8080, resource: "stream", format: "webm" }
-
-        let match = url.match(/:(\d+)\/(.+)\.(webm|mp4)$/i)
-
-        if (match) {
-            return {
-                port: parseInt(match[1]),
-                resource: match[2],
-                format: match[3].toLowerCase()
-            }
-        }
-
-        let addrMatch = url.match(/(https?:\/\/[^:]+)/)
-
-        if (addrMatch)
-            return { port: 8080, resource: "stream", format: "webm" }
-
-        return { port: 8080, resource: "stream", format: "webm" }
-    }
-
-    function buildLocalUrl()
-    {
-        let address = localStreaming.location
-        let addrMatch = address.match(/(https?:\/\/[^:/]+)/)
-        let base = addrMatch? addrMatch[1]: "http://localhost"
-
-        return base + ":" + view.localPort + "/" + view.localResource + "." + view.localFormat
-    }
-
-    function updateLocalUrl()
-    {
-        localStreaming.location = view.buildLocalUrl()
+        clipboardHelper.text = text
+        clipboardHelper.selectAll()
+        clipboardHelper.copy()
     }
 
     ColumnLayout {
         width: view.width
         spacing: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
         layoutDirection: view.rtl? Qt.RightToLeft: Qt.LeftToRight
+        clip: true
+
+        TextEdit {
+            id: clipboardHelper
+            visible: false
+        }
 
         Button {
             text: qsTr("Remove")
@@ -106,88 +64,71 @@ ScrollView {
                 view.removed()
             }
         }
-        RowLayout {
+
+        // Ports
+
+        GridLayout {
+            columns: 2
             layoutDirection: view.rtl? Qt.RightToLeft: Qt.LeftToRight
             Layout.leftMargin: view.leftMargin
             Layout.rightMargin: view.rightMargin
             Layout.fillWidth: true
 
             Label {
-                text: qsTr("Port")
-                font.bold: true
+                id: httpPort
+                text: qsTr("HTTP port")
             }
             SpinBox {
-                id: portSpinBox
+                id: httpPortSpinBox
+                value: localStreaming.httpPort
                 from: 1024
                 to: 65535
-                value: view.localPort
+                editable: true
+                Layout.leftMargin: view.leftMargin
+                Layout.rightMargin: view.rightMargin
+                Accessible.name: httpPort.text
 
-                onValueChanged: {
-                    if (view.localPort !== value) {
-                        view.localPort = value
-                        view.updateLocalUrl()
-                    }
+                // The ports are not quantities: no thousands separators.
+                textFromValue: function (value, locale) {
+                    return String(value)
                 }
+                valueFromText: function (text, locale) {
+                    let port = parseInt(text)
+
+                    return isNaN(port)? value: port
+                }
+
+                onValueModified: localStreaming.httpPort = value
+            }
+
+            Label {
+                id: rtspPort
+                text: qsTr("RTSP port")
+            }
+            SpinBox {
+                id: rtspPortSpinBox
+                value: localStreaming.rtspPort
+                from: 1024
+                to: 65535
+                editable: true
+                Layout.leftMargin: view.leftMargin
+                Layout.rightMargin: view.rightMargin
+                Accessible.name: rtspPort.text
+
+                textFromValue: function (value, locale) {
+                    return String(value)
+                }
+                valueFromText: function (text, locale) {
+                    let port = parseInt(text)
+
+                    return isNaN(port)? value: port
+                }
+
+                onValueModified: localStreaming.rtspPort = value
             }
         }
 
-        Label {
-            text: qsTr("Format")
-            font.bold: true
-            Layout.leftMargin: view.leftMargin
-            Layout.rightMargin: view.rightMargin
-            Layout.fillWidth: true
-        }
-        ComboBox {
-            id: formatCombo
-            model: localStreaming.videoFormats
-            Layout.leftMargin: view.leftMargin
-            Layout.rightMargin: view.rightMargin
-            Layout.fillWidth: true
-
-            // The model holds canonical "pluginID:name" ids; show the
-            // human-readable description instead of the raw id.
-            delegate: ItemDelegate {
-                width: formatCombo.width
-                text: view.extensionForFormat(modelData)
-                highlighted: formatCombo.highlightedIndex === index
-            }
-            displayText: currentIndex >= 0 && currentIndex < model.length?
-                             view.extensionForFormat(model[currentIndex]):
-                             ""
-
-            // Keep the selection in sync whenever the available formats or
-            // the current location-derived format id change.
-            function syncCurrentIndex()
-            {
-                let idx = formatCombo.model.indexOf(view.localFormatId)
-
-                if (idx < 0)
-                    idx = formatCombo.model.indexOf(localStreaming.defaultVideoFormat)
-
-                formatCombo.currentIndex = idx >= 0? idx: 0
-            }
-
-            Component.onCompleted: formatCombo.syncCurrentIndex()
-
-            Connections {
-                target: view
-
-                function onLocalFormatIdChanged()
-                {
-                    formatCombo.syncCurrentIndex()
-                }
-            }
-
-            onCurrentIndexChanged: {
-                let formatId = formatCombo.model[currentIndex]
-
-                if (view.localFormatId !== formatId) {
-                    view.localFormatId = formatId
-                    view.updateLocalUrl()
-                }
-            }
-        }
+        // Resource name
 
         Label {
             text: qsTr("Resource name")
@@ -198,19 +139,118 @@ ScrollView {
         }
         TextField {
             id: resourceField
-            text: view.localResource
+            text: localStreaming.resource
             placeholderText: "stream"
+            selectByMouse: true
+            validator: RegularExpressionValidator {
+                regularExpression: /[A-Za-z0-9_.-]+/
+            }
+            Layout.leftMargin: view.leftMargin
+            Layout.rightMargin: view.rightMargin
+            Layout.fillWidth: true
+            Accessible.name: qsTr("Resource name")
+
+            onEditingFinished: {
+                localStreaming.resource = text
+
+                // An empty name goes back to the default one.
+                text = localStreaming.resource
+            }
+
+            Connections {
+                target: localStreaming
+
+                function onResourceChanged(resource)
+                {
+                    resourceField.text = resource
+                }
+            }
+        }
+
+        // Authentication
+
+        Switch {
+            id: authSwitch
+            text: qsTr("Enable authentication")
+            checked: localStreaming.authEnabled
             Layout.leftMargin: view.leftMargin
             Layout.rightMargin: view.rightMargin
             Layout.fillWidth: true
 
-            onEditingFinished: {
-                if (view.localResource !== text) {
-                    view.localResource = text
-                    view.updateLocalUrl()
+            onToggled: localStreaming.authEnabled = checked
+        }
+
+        // Empty credentials are filled when the authentication is enabled.
+
+        ColumnLayout {
+            visible: localStreaming.authEnabled
+            spacing: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            Layout.fillWidth: true
+
+            Label {
+                text: qsTr("User")
+                font.bold: true
+                Layout.leftMargin: view.leftMargin
+                Layout.rightMargin: view.rightMargin
+                Layout.fillWidth: true
+            }
+            TextField {
+                id: userField
+                text: localStreaming.user
+                selectByMouse: true
+                Layout.leftMargin: view.leftMargin
+                Layout.rightMargin: view.rightMargin
+                Layout.fillWidth: true
+                Accessible.name: qsTr("User")
+
+                onEditingFinished: {
+                    localStreaming.user = text
+                    text = localStreaming.user
+                }
+
+                Connections {
+                    target: localStreaming
+
+                    function onUserChanged(user)
+                    {
+                        userField.text = user
+                    }
+                }
+            }
+
+            Label {
+                text: qsTr("Password")
+                font.bold: true
+                Layout.leftMargin: view.leftMargin
+                Layout.rightMargin: view.rightMargin
+                Layout.fillWidth: true
+            }
+            TextField {
+                id: passwordField
+                text: localStreaming.password
+                selectByMouse: true
+                Layout.leftMargin: view.leftMargin
+                Layout.rightMargin: view.rightMargin
+                Layout.fillWidth: true
+                Accessible.name: qsTr("Password")
+
+                onEditingFinished: {
+                    localStreaming.password = text
+                    text = localStreaming.password
+                }
+
+                Connections {
+                    target: localStreaming
+
+                    function onPasswordChanged(password)
+                    {
+                        passwordField.text = password
+                    }
                 }
             }
         }
+
+        // Streaming URL
 
         Label {
             text: qsTr("Streaming URL")
@@ -219,26 +259,44 @@ ScrollView {
             Layout.rightMargin: view.rightMargin
             Layout.fillWidth: true
         }
-        AK.ActionTextField {
-            id: localStreamingUrlField
-            icon.source: "image://icons/internet"
-            labelText: {
-                // Dummy dependencies to force reevaluation
-                view.localPort
-                view.localResource
-                view.localFormat
-
-                return view.buildLocalUrl()
-            }
-            placeholderText: localStreaming.defaultURL
-            buttonText: qsTr("Open URL in the webbrowser")
-            readOnly: true
+        RowLayout {
+            layoutDirection: view.rtl? Qt.RightToLeft: Qt.LeftToRight
             Layout.leftMargin: view.leftMargin
             Layout.rightMargin: view.rightMargin
             Layout.fillWidth: true
 
-            onButtonClicked: Qt.openUrlExternally(localStreaming.location)
+            // The streams are chosen in the web page, and the RTSP ones are
+            // found by the ONVIF discovery.
+            AK.ActionTextField {
+                id: localStreamingUrlField
+                icon.source: "image://icons/internet"
+                labelText: localStreaming.location
+                placeholderText: localStreaming.defaultURL
+                buttonText: qsTr("Open URL in the webbrowser")
+                readOnly: true
+                Layout.fillWidth: true
+
+                onButtonClicked: Qt.openUrlExternally(localStreaming.location)
+            }
+            Button {
+                text: qsTr("Copy")
+                icon.source: "image://icons/copy"
+                flat: true
+                display: AbstractButton.IconOnly
+                enabled: localStreaming.location !== ""
+                implicitWidth: implicitHeight
+                ToolTip.visible: hovered
+                ToolTip.text: help
+                Accessible.name: text
+                Accessible.description: help
+
+                readonly property string help:
+                    qsTr("Copy the URL to the clipboard")
+
+                onClicked: view.copyToClipboard(localStreaming.location)
+            }
         }
+
         Button {
             id: btnAdvancedOptions
             text: qsTr("Advanced options")
@@ -249,12 +307,5 @@ ScrollView {
 
             onClicked: view.openLocalStreamingAdvancedDialog()
         }
-    }
-
-    Settings {
-        category: "LocalStreamingConfigs"
-
-        property alias localPort: view.localPort
-        property alias localResource: view.localResource
     }
 }

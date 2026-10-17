@@ -62,6 +62,7 @@ ScrollView {
         width: view.width
         spacing: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
         layoutDirection: view.rtl? Qt.RightToLeft: Qt.LeftToRight
+        clip: true
 
         Label {
             id: deviceInfo

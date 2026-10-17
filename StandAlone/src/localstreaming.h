@@ -43,6 +43,41 @@ class LocalStreaming: public QObject
     Q_PROPERTY(QString defaultURL
                READ defaultURL
                CONSTANT)
+    Q_PROPERTY(int httpPort
+               READ httpPort
+               WRITE setHttpPort
+               RESET resetHttpPort
+               NOTIFY httpPortChanged)
+    Q_PROPERTY(int rtspPort
+               READ rtspPort
+               WRITE setRtspPort
+               RESET resetRtspPort
+               NOTIFY rtspPortChanged)
+    Q_PROPERTY(QString resource
+               READ resource
+               WRITE setResource
+               RESET resetResource
+               NOTIFY resourceChanged)
+    Q_PROPERTY(bool authEnabled
+               READ authEnabled
+               WRITE setAuthEnabled
+               RESET resetAuthEnabled
+               NOTIFY authEnabledChanged)
+    Q_PROPERTY(QString user
+               READ user
+               WRITE setUser
+               RESET resetUser
+               NOTIFY userChanged)
+    Q_PROPERTY(QString password
+               READ password
+               WRITE setPassword
+               RESET resetPassword
+               NOTIFY passwordChanged)
+    Q_PROPERTY(QString placeholderImage
+               READ placeholderImage
+               WRITE setPlaceholderImage
+               RESET resetPlaceholderImage
+               NOTIFY placeholderImageChanged)
     Q_PROPERTY(AkAudioCaps audioCaps
                READ audioCaps
                WRITE setAudioCaps
@@ -86,6 +121,13 @@ class LocalStreaming: public QObject
 
         Q_INVOKABLE QString location() const;
         Q_INVOKABLE QString defaultURL() const;
+        Q_INVOKABLE int httpPort() const;
+        Q_INVOKABLE int rtspPort() const;
+        Q_INVOKABLE QString resource() const;
+        Q_INVOKABLE bool authEnabled() const;
+        Q_INVOKABLE QString user() const;
+        Q_INVOKABLE QString password() const;
+        Q_INVOKABLE QString placeholderImage() const;
         Q_INVOKABLE AkAudioCaps audioCaps() const;
         Q_INVOKABLE AkVideoCaps videoCaps() const;
         Q_INVOKABLE int videoGOP() const;
@@ -115,6 +157,13 @@ class LocalStreaming: public QObject
 
     signals:
         void locationChanged(const QString &location);
+        void httpPortChanged(int httpPort);
+        void rtspPortChanged(int rtspPort);
+        void resourceChanged(const QString &resource);
+        void authEnabledChanged(bool authEnabled);
+        void userChanged(const QString &user);
+        void passwordChanged(const QString &password);
+        void placeholderImageChanged(const QString &placeholderImage);
         void hasActiveClientsChanged(bool hasActiveClients);
         void audioCapsChanged(const AkAudioCaps &audioCaps);
         void videoCapsChanged(const AkVideoCaps &videoCaps);
@@ -132,6 +181,13 @@ class LocalStreaming: public QObject
 
     public slots:
         void setLocation(const QString &location);
+        void setHttpPort(int httpPort);
+        void setRtspPort(int rtspPort);
+        void setResource(const QString &resource);
+        void setAuthEnabled(bool authEnabled);
+        void setUser(const QString &user);
+        void setPassword(const QString &password);
+        void setPlaceholderImage(const QString &placeholderImage);
         void setAudioCaps(const AkAudioCaps &audioCaps);
         void setVideoCaps(const AkVideoCaps &videoCaps);
         void setVideoGOP(int gop);
@@ -142,6 +198,13 @@ class LocalStreaming: public QObject
                                  const QVariant &value);
         void setBitrate(AkCaps::CapsType type, int bitrate);
         void resetLocation();
+        void resetHttpPort();
+        void resetRtspPort();
+        void resetResource();
+        void resetAuthEnabled();
+        void resetUser();
+        void resetPassword();
+        void resetPlaceholderImage();
         void resetAudioCaps();
         void resetVideoCaps();
         void resetVideoGOP();

@@ -1193,137 +1193,210 @@
 <context>
     <name>LocalStreamingAdvanced</name>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="31"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="32"/>
         <source>Local streaming advanced options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="148"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="119"/>
         <source>Local streaming quality</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="173"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="144"/>
         <source>Streaming quality</source>
         <translation type="unfinished">Qualité du streaming</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="226"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="197"/>
         <source>Custom</source>
         <translation type="unfinished">Personnalisé</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="229"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="200"/>
         <source>Video quality: %1×%2 %3 FPS</source>
         <translation type="unfinished">Qualité vidéo : %1×%2 %3 FPS</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="230"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="201"/>
         <source>Video bitrate: %1 Mbps</source>
         <translation type="unfinished">Débit vidéo : %1 Mbps</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="231"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="202"/>
         <source>Audio sample rate: %1 kHz</source>
         <translation type="unfinished">Taux d&apos;échantillonnage audio : %1 kHz</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="232"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="203"/>
         <source>Audio bitrate: %1 kbps</source>
         <translation type="unfinished">Débit audio : %1 kbps</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="241"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="212"/>
         <source>Video quality</source>
         <translation type="unfinished">Qualité vidéo</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="259"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="230"/>
         <source>Output width</source>
         <translation type="unfinished">Largeur de sortie</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="282"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="253"/>
         <source>Output height</source>
         <translation type="unfinished">Hauteur de sortie</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="305"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="276"/>
         <source>Output frame rate</source>
         <translation type="unfinished">Fréquence d&apos;images de sortie</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="328"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="299"/>
         <source>Video bitrate (kbps)</source>
         <translation type="unfinished">Débit vidéo (kbps)</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="348"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="319"/>
         <source>Keyframes stride (ms)</source>
         <translation type="unfinished">Pas des images clés (ms)</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="367"/>
-        <source>Video codec</source>
-        <translation type="unfinished">Codec vidéo</translation>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="407"/>
+        <source>Placeholder</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="456"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="416"/>
+        <source>Image shown while there is no video. If it is empty, random noise is shown. The audio is silence.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="431"/>
+        <source>Image file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="434"/>
+        <source>Placeholder image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="451"/>
+        <source>Browse</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="463"/>
+        <source>Search an image to be used as placeholder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="468"/>
+        <source>Clear</source>
+        <translation type="unfinished">Effacer</translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="480"/>
+        <source>Remove the placeholder image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="490"/>
+        <source>Select the placeholder image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="492"/>
+        <source>Image files (*.png *.jpg *.jpeg *.bmp *.gif *.webp)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="493"/>
+        <source>All files (*)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="342"/>
         <source>Audio quality</source>
         <translation type="unfinished">Qualité audio</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="474"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="360"/>
         <source>Sample rate</source>
         <translation type="unfinished">Taux d&apos;échantillonnage</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="497"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="383"/>
         <source>Audio bitrate (kbps)</source>
         <translation type="unfinished">Débit audio (kbps)</translation>
-    </message>
-    <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="518"/>
-        <source>Audio codec</source>
-        <translation type="unfinished">Codec audio</translation>
     </message>
 </context>
 <context>
     <name>LocalStreamingOptions</name>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="99"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="57"/>
         <source>Remove</source>
-        <translation>Supprimer</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="116"/>
-        <source>Port</source>
-        <translation>Port</translation>
+        <location filename="../qml/LocalStreamingOptions.qml" line="79"/>
+        <source>HTTP port</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="135"/>
-        <source>Format</source>
-        <translation>Format</translation>
+        <location filename="../qml/LocalStreamingOptions.qml" line="106"/>
+        <source>RTSP port</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="193"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="134"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="151"/>
         <source>Resource name</source>
-        <translation>Nom de la ressource</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="216"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="174"/>
+        <source>Enable authentication</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingOptions.qml" line="191"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="204"/>
+        <source>User</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingOptions.qml" line="222"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="235"/>
+        <source>Password</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingOptions.qml" line="256"/>
         <source>Streaming URL</source>
-        <translation>URL de streaming</translation>
+        <translation type="unfinished">URL de streaming</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="234"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="275"/>
         <source>Open URL in the webbrowser</source>
-        <translation>Ouvrir l&apos;URL dans le navigateur web</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="244"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="282"/>
+        <source>Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingOptions.qml" line="294"/>
+        <source>Copy the URL to the clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingOptions.qml" line="302"/>
         <source>Advanced options</source>
-        <translation>Options avancées</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1996,57 +2069,57 @@
 <context>
     <name>StreamingPlatformOptions</name>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="71"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="72"/>
         <source>Remove</source>
         <translation>Retirer</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="83"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="84"/>
         <source>Website</source>
         <translation>Site web</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="103"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="104"/>
         <source>Visit website</source>
         <translation>Visiter le site web</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="118"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="119"/>
         <source>Streaming URL</source>
         <translation>URL de streaming</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="149"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="150"/>
         <source>Hide streaming URL</source>
         <translation>Masquer l&apos;URL de streaming</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="150"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="151"/>
         <source>Show streaming URL</source>
         <translation>Afficher l&apos;URL de streaming</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="169"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="170"/>
         <source>Streaming key</source>
         <translation>Clé de streaming</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="202"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="203"/>
         <source>Hide streaming key</source>
         <translation>Masquer la clé de streaming</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="203"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="204"/>
         <source>Show streaming key</source>
         <translation>Afficher la clé de streaming</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="222"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="223"/>
         <source>Streaming configuration help</source>
         <translation>Aide à la configuration du streaming</translation>
     </message>
     <message>
-        <location filename="../qml/StreamingPlatformOptions.qml" line="234"/>
+        <location filename="../qml/StreamingPlatformOptions.qml" line="235"/>
         <source>Get streaming key</source>
         <translation>Obtenir la clé de streaming</translation>
     </message>
@@ -2736,6 +2809,16 @@
         <source>Please choose an image file</source>
         <translation>Veuillez choisir un fichier image</translation>
     </message>
+    <message>
+        <location filename="../qml/VideoOutputPicture.qml" line="115"/>
+        <source>Image files (*.png *.jpg *.jpeg *.bmp *.gif *.webp)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoOutputPicture.qml" line="116"/>
+        <source>All files (*)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>VideoOutputs</name>
@@ -2950,22 +3033,22 @@
 <context>
     <name>VirtualCameraOptions</name>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="78"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="79"/>
         <source>Edit</source>
         <translation>Modifier</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="90"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="91"/>
         <source>Can&apos;t Edit The Virtual Camera</source>
         <translation>Impossible de modifier la caméra virtuelle</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="97"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="98"/>
         <source>Set output picture</source>
         <translation>Définir l&apos;image de sortie</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="108"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="109"/>
         <source>Remove</source>
         <translation>Supprimer</translation>
     </message>
@@ -2975,7 +3058,7 @@
         <translation>Erreur lors de la suppression de la caméra virtuelle</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="121"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="122"/>
         <source>Can&apos;t Remove The Virtual Camera</source>
         <translation>Impossible de supprimer la caméra virtuelle</translation>
     </message>

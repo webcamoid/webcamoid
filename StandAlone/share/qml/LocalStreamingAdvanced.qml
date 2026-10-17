@@ -22,6 +22,7 @@ import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtCore
+import Qt.labs.platform as LABS
 import Ak
 import AkControls as AK
 import Webcamoid
@@ -36,10 +37,11 @@ Dialog {
                 wdgMainWidget.height: wdgMainWidget.height * 0.5
     modal: true
 
-    onOpened: dialogLayout.syncFromStreaming()
-
     property real physicalWidth: wdgMainWidget.width / Screen.pixelDensity
     property real physicalHeight: wdgMainWidget.height / Screen.pixelDensity
+    readonly property string filePrefix: Ak.platform() == "windows"?
+                                            "file:///":
+                                            "file://"
 
     ScrollView {
         id: scrollView
@@ -53,23 +55,6 @@ Dialog {
         ColumnLayout {
             id: dialogLayout
             width: scrollView.width
-
-            property string currentFormat:
-                localStreaming.locationFormat(localStreaming.location)
-            property string currentVideoCodec:
-                localStreaming.codec(AkCaps.CapsVideo)
-            property string currentAudioCodec:
-                localStreaming.codec(AkCaps.CapsAudio)
-            property var videoEncoderOptions:
-                localStreaming.codecOptions(AkCaps.CapsVideo)
-
-            function syncFromStreaming()
-            {
-                dialogLayout.currentFormat = localStreaming.locationFormat(localStreaming.location)
-                dialogLayout.currentVideoCodec = localStreaming.codec(AkCaps.CapsVideo)
-                dialogLayout.currentAudioCodec = localStreaming.codec(AkCaps.CapsAudio)
-                dialogLayout.videoEncoderOptions = localStreaming.codecOptions(AkCaps.CapsVideo)
-            }
 
             readonly property var vc: AkVideoCaps.create(localStreaming.videoCaps)
             property int vbr: localStreaming.bitrate(AkCaps.CapsVideo)
@@ -119,20 +104,6 @@ Dialog {
 
             Connections {
                 target: localStreaming
-
-                function onCodecOptionsChanged(type, options) {
-                    if (type === AkCaps.CapsVideo)
-                        dialogLayout.videoEncoderOptions = options
-                }
-
-                function onCodecChanged(type, codec) {
-                    if (type === AkCaps.CapsVideo) {
-                        dialogLayout.videoEncoderOptions = localStreaming.codecOptions(AkCaps.CapsVideo)
-                        dialogLayout.currentVideoCodec = codec
-                    } else if (type === AkCaps.CapsAudio) {
-                        dialogLayout.currentAudioCodec = codec
-                    }
-                }
 
                 function onBitrateChanged(type, bitrate) {
                     if (type === AkCaps.CapsVideo)
@@ -360,95 +331,10 @@ Dialog {
                 }
             }
 
-            // Video codec
-
-            AK.LabeledComboBox {
-                id: videoCodecCombo
-                label: qsTr("Video codec")
-                Layout.leftMargin: scrollView.leftMargin
-                Layout.rightMargin: scrollView.rightMargin
-                Layout.fillWidth: true
-                model: localStreaming.supportedCodecs(dialogLayout.currentFormat, AkCaps.CapsVideo)
-                                .map(c => localStreaming.codecDescription(c))
-                currentIndex: {
-                    let codecs = localStreaming.supportedCodecs(dialogLayout.currentFormat, AkCaps.CapsVideo)
-                    let idx = codecs.indexOf(dialogLayout.currentVideoCodec)
-
-                    return idx < 0? 0: idx
-                }
-
-                onCurrentIndexChanged: {
-                    let codecs = localStreaming.supportedCodecs(dialogLayout.currentFormat, AkCaps.CapsVideo)
-
-                    if (currentIndex >= 0 && currentIndex < codecs.length)
-                        localStreaming.setCodec(AkCaps.CapsVideo, codecs[currentIndex])
-                }
-            }
-
-            Repeater {
-                readonly property var relevantOptions: [
-                    "deadline",
-                    "latency",
-                    "preset",
-                    "quality",
-                    "scenario",
-                    "speed",
-                    "tune",
-                    "usage"
-                ]
-
-                model: {
-                    let opts = []
-
-                    for (let i = 0; i < dialogLayout.videoEncoderOptions.length; i++) {
-                        let opt = AkPropertyOption.create(dialogLayout.videoEncoderOptions[i])
-
-                        if (relevantOptions.indexOf(opt.name) >= 0
-                            && opt.menu.length > 0)
-                            opts.push({
-                                name:        opt.name,
-                                description: opt.description,
-                                choices:     opt.menu.map(m => AkMenuOption.create(m))
-                            })
-                    }
-
-                    return opts
-                }
-
-                AK.LabeledComboBox {
-                    label: modelData.description.length > 0?
-                             qsTr(modelData.description):
-                             qsTr(modelData.name)
-                    Layout.leftMargin: scrollView.leftMargin
-                    Layout.rightMargin: scrollView.rightMargin
-                    Layout.fillWidth: true
-                    model: modelData.choices.map(c => c.description.length > 0?
-                                                      c.description:
-                                                      c.name)
-                    currentIndex: {
-                        let cur = localStreaming.codecOptionValue(AkCaps.CapsVideo,
-                                                                  modelData.name)
-
-                        for (let i = 0; i < modelData.choices.length; i++)
-                            if (modelData.choices[i].value == cur)
-                                return i
-
-                        return 0
-                    }
-                    onCurrentIndexChanged: {
-                        if (currentIndex >= 0 && currentIndex < modelData.choices.length)
-                            localStreaming.setCodecOptionValue(AkCaps.CapsVideo,
-                                                               modelData.name,
-                                                               modelData.choices[currentIndex].value)
-                    }
-                }
-            }
-
             // Audio
 
             ColumnLayout {
                 id: audioSection
-                visible: !localStreaming.isVideoOnlyFormat(dialogLayout.currentFormat)
                 spacing: 0
                 Layout.fillWidth: true
 
@@ -512,30 +398,105 @@ Dialog {
                         }
                     }
                 }
+            }
 
-                AK.LabeledComboBox {
-                    id: audioCodecCombo
-                    label: qsTr("Audio codec")
-                    Layout.leftMargin: scrollView.leftMargin
-                    Layout.rightMargin: scrollView.rightMargin
+            // Placeholder: what the clients see and hear while the program
+            // is not sending video or audio.
+
+            Label {
+                text: qsTr("Placeholder")
+                font: AkTheme.fontSettings.h6
+                Layout.leftMargin: scrollView.leftMargin
+                Layout.rightMargin: scrollView.rightMargin
+                Layout.topMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+                Layout.bottomMargin: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
+                Layout.fillWidth: true
+            }
+            Label {
+                text: qsTr("Image shown while there is no video. If it is empty, random noise is shown. The audio is silence.")
+                wrapMode: Text.WordWrap
+                Layout.leftMargin: scrollView.leftMargin
+                Layout.rightMargin: scrollView.rightMargin
+                Layout.fillWidth: true
+            }
+            RowLayout {
+                Layout.leftMargin: scrollView.leftMargin
+                Layout.rightMargin: scrollView.rightMargin
+                Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                Layout.fillWidth: true
+
+                TextField {
+                    id: placeholderField
+                    text: localStreaming.placeholderImage
+                    placeholderText: qsTr("Image file")
+                    selectByMouse: true
                     Layout.fillWidth: true
-                    model: localStreaming.supportedCodecs(dialogLayout.currentFormat, AkCaps.CapsAudio)
-                                         .map(c => localStreaming.codecDescription(c))
+                    Accessible.name: qsTr("Placeholder image")
 
-                    currentIndex: {
-                        let codecs = localStreaming.supportedCodecs(dialogLayout.currentFormat, AkCaps.CapsAudio)
-                        let idx = codecs.indexOf(dialogLayout.currentAudioCodec)
-
-                        return idx < 0? 0: idx
+                    onEditingFinished: {
+                        localStreaming.placeholderImage = text
+                        text = localStreaming.placeholderImage
                     }
-                    onCurrentIndexChanged: {
-                        let codecs = localStreaming.supportedCodecs(dialogLayout.currentFormat, AkCaps.CapsAudio)
 
-                        if (currentIndex >= 0 && currentIndex < codecs.length)
-                            localStreaming.setCodec(AkCaps.CapsAudio, codecs[currentIndex])
+                    Connections {
+                        target: localStreaming
+
+                        function onPlaceholderImageChanged(placeholderImage)
+                        {
+                            placeholderField.text = placeholderImage
+                        }
                     }
                 }
+                Button {
+                    text: qsTr("Browse")
+                    icon.source: "image://icons/search"
+                    flat: true
+                    display: AbstractButton.IconOnly
+                    enabled: localStreaming.location !== ""
+                    implicitWidth: implicitHeight
+                    ToolTip.visible: hovered
+                    ToolTip.text: help
+                    Accessible.name: text
+                    Accessible.description: help
+
+                    readonly property string help:
+                        qsTr("Search an image to be used as placeholder")
+
+                    onClicked: placeholderDialog.open()
+                }
+                Button {
+                    text: qsTr("Clear")
+                    icon.source: "image://icons/no"
+                    flat: true
+                    enabled: localStreaming.placeholderImage !== ""
+                    display: AbstractButton.IconOnly
+                    implicitWidth: implicitHeight
+                    ToolTip.visible: hovered
+                    ToolTip.text: help
+                    Accessible.name: text
+                    Accessible.description: help
+
+                    readonly property string help:
+                        qsTr("Remove the placeholder image")
+
+                    onClicked: localStreaming.placeholderImage = ""
+                }
             }
+        }
+    }
+
+    LABS.FileDialog {
+        id: placeholderDialog
+        title: qsTr("Select the placeholder image")
+        nameFilters: [
+            qsTr("Image files (*.png *.jpg *.jpeg *.bmp *.gif *.webp)"),
+            qsTr("All files (*)")
+        ]
+        folder: root.filePrefix + recording.imagesDirectory
+
+        onAccepted: {
+            localStreaming.placeholderImage =
+                String(file).replace(root.filePrefix, "")
         }
     }
 }

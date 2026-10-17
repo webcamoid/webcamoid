@@ -23,8 +23,11 @@
 #include <QNetworkInterface>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
+#include <QRandomGenerator>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QTimer>
+#include <QUrl>
 #include <ak.h>
 #include <akaudiocaps.h>
 #include <akcaps.h>
@@ -46,6 +49,11 @@
 #define DEFAULT_AUDIO_BITRATE 128000
 #define DEFAULT_VIDEO_BITRATE 1500000
 #define DEFAULT_VIDEO_GOP 2000
+#define DEFAULT_HTTP_PORT 8080
+#define DEFAULT_RTSP_PORT 8554
+#define DEFAULT_RESOURCE "stream"
+#define DEFAULT_USER "webcamoid"
+#define PASSWORD_LENGTH 8
 
 struct LocalStreamingFormatInfo
 {
@@ -82,9 +90,8 @@ class LocalStreamingPrivate
     public:
         LocalStreaming *self;
         QQmlApplicationEngine *m_engine {nullptr};
-        quint32 m_localPort {8080};
-        QString m_localResource {"stream"};
-        QString m_localFormat {"mjpeg"};
+        quint32 m_localPort {DEFAULT_HTTP_PORT};
+        QString m_localResource {DEFAULT_RESOURCE};
         QString m_location;
         bool m_enabled {false};
 
@@ -118,13 +125,24 @@ class LocalStreamingPrivate
         AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
         QTimer m_ipCheckTimer;
 
+        // Other settings of the local server.
+        quint16 m_rtspPort {DEFAULT_RTSP_PORT};
+        bool m_authEnabled {false};
+        QString m_user;
+        QString m_password;
+        QString m_placeholderImage;
+
         explicit LocalStreamingPrivate(LocalStreaming *self);
         void loadConfigs();
         void loadCodecOptions(AkCaps::CapsType type);
         void initSupportedCodecs();
         void initSupportedFormats();
         QString getLocalIPAddress() const;
+        QString buildLocation() const;
         void updateLocation();
+        static QString randomPassword();
+        void ensureCredentials();
+        void saveValue(const QString &key, const QVariant &value);
         QString extensionForFormat(const QString &formatId) const;
         static AkVideoStreamerPtr streamerPluginForUrl(const QString &url);
         QString formatFromLocation(const QString &location) const;
@@ -134,6 +152,9 @@ class LocalStreamingPrivate
         void printStreamingParameters();
         bool init();
         void uninit();
+        bool startServer();
+        void stopServer();
+        void applyConfig();
         void saveLocation(const QString &location);
         void saveAudioCaps(const AkAudioCaps &audioCaps);
         void saveVideoCaps(const AkVideoCaps &videoCaps);
@@ -160,11 +181,17 @@ LocalStreaming::LocalStreaming(QQmlApplicationEngine *engine, QObject *parent):
         this->d->updateLocation();
     });
     this->d->m_ipCheckTimer.start();
+
+    // The server runs while the location is set, whatever the state of the
+    // pipeline is.
+    if (this->d->m_enabled)
+        this->d->startServer();
 }
 
 LocalStreaming::~LocalStreaming()
 {
     this->setState(AkElement::ElementStateNull);
+    this->d->stopServer();
     delete this->d;
 }
 
@@ -175,14 +202,44 @@ QString LocalStreaming::location() const
 
 QString LocalStreaming::defaultURL() const
 {
-    auto host = this->d->getLocalIPAddress();
-    QString ext = "mjpeg";
-    auto formatParts = this->d->m_defaultFormat.split(':');
+    return QString("http://%1:%2/")
+           .arg(this->d->getLocalIPAddress())
+           .arg(this->d->m_localPort);
+}
 
-    if (formatParts.size() >= 2)
-        ext = formatParts[1];
+int LocalStreaming::httpPort() const
+{
+    return int(this->d->m_localPort);
+}
 
-    return QString("http://%1:8080/stream.%2").arg(host, ext);
+int LocalStreaming::rtspPort() const
+{
+    return this->d->m_rtspPort;
+}
+
+QString LocalStreaming::resource() const
+{
+    return this->d->m_localResource;
+}
+
+bool LocalStreaming::authEnabled() const
+{
+    return this->d->m_authEnabled;
+}
+
+QString LocalStreaming::user() const
+{
+    return this->d->m_user;
+}
+
+QString LocalStreaming::password() const
+{
+    return this->d->m_password;
+}
+
+QString LocalStreaming::placeholderImage() const
+{
+    return this->d->m_placeholderImage;
 }
 
 AkAudioCaps LocalStreaming::audioCaps() const
@@ -371,9 +428,13 @@ AkPropertyOptions LocalStreaming::codecOptions(AkCaps::CapsType type) const
 {
     switch (type) {
     case AkCaps::CapsAudio:
-        return this->d->m_audioEncoder? this->d->m_audioEncoder->options(): AkPropertyOptions();
+        return this->d->m_audioEncoder?
+                    this->d->m_audioEncoder->options():
+                    AkPropertyOptions();
     case AkCaps::CapsVideo:
-        return this->d->m_videoEncoder? this->d->m_videoEncoder->options(): AkPropertyOptions();
+        return this->d->m_videoEncoder?
+                    this->d->m_videoEncoder->options():
+                    AkPropertyOptions();
     default:
         break;
     }
@@ -386,9 +447,13 @@ QVariant LocalStreaming::codecOptionValue(AkCaps::CapsType type,
 {
     switch (type) {
     case AkCaps::CapsAudio:
-        return this->d->m_audioEncoder? this->d->m_audioEncoder->optionValue(option): QVariant {};
+        return this->d->m_audioEncoder?
+                    this->d->m_audioEncoder->optionValue(option):
+                    QVariant {};
     case AkCaps::CapsVideo:
-        return this->d->m_videoEncoder? this->d->m_videoEncoder->optionValue(option): QVariant {};
+        return this->d->m_videoEncoder?
+                    this->d->m_videoEncoder->optionValue(option):
+                    QVariant {};
     default:
         break;
     }
@@ -428,36 +493,160 @@ int LocalStreaming::defaultBitrate(AkCaps::CapsType type) const
     return 0;
 }
 
+// The location is the address of the web page of the server:
+// http://<local IP address>:<HTTP port>/. The IP address is always the one of
+// this computer, so only the port of the given location is used.
 void LocalStreaming::setLocation(const QString &location)
 {
-    if (this->d->m_location == location)
-        return;
+    auto enabled = !location.isEmpty();
 
-    this->d->m_enabled = !location.isEmpty();
+    if (enabled) {
+        auto port = QUrl(location).port();
 
-    // Reload codecs based on the new location format
-    auto format = this->d->formatFromLocation(location);
-
-    if (!format.isEmpty()) {
-        auto defaultAudio = this->d->defaultCodec(format, AkCaps::CapsAudio);
-        auto defaultVideo = this->d->defaultCodec(format, AkCaps::CapsVideo);
-
-        if (!defaultAudio.isEmpty()) {
-            this->setCodec(AkCaps::CapsAudio, defaultAudio);
-        } else if (this->d->m_audioEncoder) {
-            this->d->m_audioEncoder  = {};
-            this->d->m_audioPluginID.clear();
-            emit this->codecChanged(AkCaps::CapsAudio, QString());
-            this->d->saveCodec(AkCaps::CapsAudio, QString());
+        if (port > 0
+            && port <= 65535
+            && quint32(port) != this->d->m_localPort) {
+            this->d->m_localPort = quint32(port);
+            emit this->httpPortChanged(port);
+            this->d->saveValue("localPort", port);
         }
-
-        if (!defaultVideo.isEmpty())
-            this->setCodec(AkCaps::CapsVideo, defaultVideo);
     }
 
-    this->d->m_location = location;
-    emit this->locationChanged(location);
-    this->d->saveLocation(location);
+    auto newLocation = enabled? this->d->buildLocation(): QString();
+
+    if (this->d->m_enabled == enabled && this->d->m_location == newLocation)
+        return;
+
+    this->d->m_enabled = enabled;
+    this->d->m_location = newLocation;
+    emit this->locationChanged(newLocation);
+    this->d->saveLocation(newLocation);
+
+    if (!this->d->m_enabled)
+        this->d->stopServer();
+    else if (!this->d->m_streamer)
+        this->d->startServer();
+    else
+        this->d->applyConfig();
+}
+
+void LocalStreaming::setHttpPort(int httpPort)
+{
+    httpPort = qBound(1, httpPort, 65535);
+
+    if (int(this->d->m_localPort) == httpPort)
+        return;
+
+    this->d->m_localPort = quint32(httpPort);
+    emit this->httpPortChanged(httpPort);
+    this->d->saveValue("localPort", httpPort);
+
+    // The address of the server includes the port.
+    this->d->updateLocation();
+}
+
+void LocalStreaming::setRtspPort(int rtspPort)
+{
+    rtspPort = qBound(1, rtspPort, 65535);
+
+    if (this->d->m_rtspPort == rtspPort)
+        return;
+
+    this->d->m_rtspPort = quint16(rtspPort);
+    emit this->rtspPortChanged(rtspPort);
+    this->d->saveValue("rtspPort", rtspPort);
+    this->d->applyConfig();
+}
+
+// It is the base name of the paths of the streams, so it can only have the
+// characters that the server accepts.
+void LocalStreaming::setResource(const QString &resource)
+{
+    static const QRegularExpression resourceValidator("^[A-Za-z0-9_.-]+$");
+    auto value = resource.trimmed();
+
+    if (value.isEmpty())
+        value = DEFAULT_RESOURCE;
+
+    if (!resourceValidator.match(value).hasMatch()) {
+        qWarning() << "Invalid resource name:" << resource;
+
+        return;
+    }
+
+    if (this->d->m_localResource == value)
+        return;
+
+    this->d->m_localResource = value;
+    emit this->resourceChanged(value);
+    this->d->saveValue("localResource", value);
+    this->d->applyConfig();
+}
+
+// With the authentication enabled, empty fields are filled: a default user
+// and a random password.
+void LocalStreaming::setAuthEnabled(bool authEnabled)
+{
+    if (this->d->m_authEnabled == authEnabled)
+        return;
+
+    this->d->m_authEnabled = authEnabled;
+
+    if (authEnabled)
+        this->d->ensureCredentials();
+
+    emit this->authEnabledChanged(authEnabled);
+    this->d->saveValue("authEnabled", authEnabled);
+    this->d->applyConfig();
+}
+
+void LocalStreaming::setUser(const QString &user)
+{
+    auto value = user.trimmed();
+
+    if (this->d->m_authEnabled && value.isEmpty())
+        value = DEFAULT_USER;
+
+    if (this->d->m_user == value)
+        return;
+
+    this->d->m_user = value;
+    emit this->userChanged(value);
+    this->d->saveValue("user", value);
+    this->d->applyConfig();
+}
+
+void LocalStreaming::setPassword(const QString &password)
+{
+    auto value = password;
+
+    if (this->d->m_authEnabled && value.isEmpty())
+        value = LocalStreamingPrivate::randomPassword();
+
+    if (this->d->m_password == value)
+        return;
+
+    this->d->m_password = value;
+    emit this->passwordChanged(value);
+    this->d->saveValue("password", value);
+    this->d->applyConfig();
+}
+
+// The path of an image file.
+void LocalStreaming::setPlaceholderImage(const QString &placeholderImage)
+{
+    auto value = placeholderImage.trimmed();
+
+    if (value.startsWith("file:"))
+        value = QUrl(value).toLocalFile();
+
+    if (this->d->m_placeholderImage == value)
+        return;
+
+    this->d->m_placeholderImage = value;
+    emit this->placeholderImageChanged(value);
+    this->d->saveValue("placeholderImage", value);
+    this->d->applyConfig();
 }
 
 void LocalStreaming::setAudioCaps(const AkAudioCaps &audioCaps)
@@ -468,6 +657,7 @@ void LocalStreaming::setAudioCaps(const AkAudioCaps &audioCaps)
     this->d->m_audioCaps = audioCaps;
     emit this->audioCapsChanged(audioCaps);
     this->d->saveAudioCaps(audioCaps);
+    this->d->applyConfig();
 }
 
 void LocalStreaming::setVideoCaps(const AkVideoCaps &videoCaps)
@@ -478,6 +668,7 @@ void LocalStreaming::setVideoCaps(const AkVideoCaps &videoCaps)
     this->d->m_videoCaps = videoCaps;
     emit this->videoCapsChanged(videoCaps);
     this->d->saveVideoCaps(videoCaps);
+    this->d->applyConfig();
 }
 
 void LocalStreaming::setVideoGOP(int gop)
@@ -488,6 +679,7 @@ void LocalStreaming::setVideoGOP(int gop)
     this->d->m_videoGOP = gop;
     emit this->videoGOPChanged(gop);
     this->d->saveVideoGOP(gop);
+    this->d->applyConfig();
 }
 
 bool LocalStreaming::setState(AkElement::ElementState state)
@@ -665,6 +857,7 @@ void LocalStreaming::setBitrate(AkCaps::CapsType type, int bitrate)
         this->d->m_audioBitrate = bitrate;
         emit this->bitrateChanged(type, bitrate);
         this->d->saveBitrate(type, bitrate);
+        this->d->applyConfig();
 
         break;
 
@@ -675,6 +868,7 @@ void LocalStreaming::setBitrate(AkCaps::CapsType type, int bitrate)
         this->d->m_videoBitrate = bitrate;
         emit this->bitrateChanged(type, bitrate);
         this->d->saveBitrate(type, bitrate);
+        this->d->applyConfig();
 
         break;
 
@@ -686,6 +880,41 @@ void LocalStreaming::setBitrate(AkCaps::CapsType type, int bitrate)
 void LocalStreaming::resetLocation()
 {
     this->setLocation({});
+}
+
+void LocalStreaming::resetHttpPort()
+{
+    this->setHttpPort(DEFAULT_HTTP_PORT);
+}
+
+void LocalStreaming::resetRtspPort()
+{
+    this->setRtspPort(DEFAULT_RTSP_PORT);
+}
+
+void LocalStreaming::resetResource()
+{
+    this->setResource(DEFAULT_RESOURCE);
+}
+
+void LocalStreaming::resetAuthEnabled()
+{
+    this->setAuthEnabled(false);
+}
+
+void LocalStreaming::resetUser()
+{
+    this->setUser({});
+}
+
+void LocalStreaming::resetPassword()
+{
+    this->setPassword({});
+}
+
+void LocalStreaming::resetPlaceholderImage()
+{
+    this->setPlaceholderImage({});
 }
 
 void LocalStreaming::resetAudioCaps()
@@ -735,29 +964,22 @@ void LocalStreaming::resetBitrate(AkCaps::CapsType type)
                          DEFAULT_AUDIO_BITRATE);
 }
 
+// The raw audio and video go straight to the server, it encodes them as the
+// clients ask for.
 AkPacket LocalStreaming::iStream(const AkPacket &packet)
 {
     if (!this->d->m_hasActiveClients.load(std::memory_order_relaxed))
         return {};
 
-    if (this->d->m_isStreaming) {
-        switch (packet.type()) {
-        case AkPacket::PacketAudio:
-            if (this->d->m_audioEncoder)
-                this->d->m_audioEncoder->iStream(packet);
+    if (packet.type() != AkPacket::PacketAudio
+        && packet.type() != AkPacket::PacketVideo)
+        return {};
 
-            break;
+    // The server can be replaced from another thread.
+    QMutexLocker locker(&this->d->m_mutex);
 
-        case AkPacket::PacketVideo:
-            if (this->d->m_videoEncoder)
-                this->d->m_videoEncoder->iStream(packet);
-
-            break;
-
-        default:
-            break;
-        }
-    }
+    if (this->d->m_streamer)
+        this->d->m_streamer->iStream(packet);
 
     return {};
 }
@@ -1008,6 +1230,49 @@ QString LocalStreamingPrivate::getLocalIPAddress() const
     return QHostAddress(QHostAddress::LocalHost).toString();
 }
 
+QString LocalStreamingPrivate::buildLocation() const
+{
+    return QString("http://%1:%2/")
+           .arg(this->getLocalIPAddress())
+           .arg(this->m_localPort);
+}
+
+QString LocalStreamingPrivate::randomPassword()
+{
+    static const char passwordChars[] =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    QString password;
+
+    for (int i = 0; i < PASSWORD_LENGTH; i++)
+        password += QChar(passwordChars[QRandomGenerator::system()->bounded(int(sizeof(passwordChars)) - 1)]);
+
+    return password;
+}
+
+// Fills the empty credentials. Used when the authentication is enabled.
+void LocalStreamingPrivate::ensureCredentials()
+{
+    if (this->m_user.isEmpty()) {
+        this->m_user = DEFAULT_USER;
+        emit self->userChanged(this->m_user);
+        this->saveValue("user", this->m_user);
+    }
+
+    if (this->m_password.isEmpty()) {
+        this->m_password = LocalStreamingPrivate::randomPassword();
+        emit self->passwordChanged(this->m_password);
+        this->saveValue("password", this->m_password);
+    }
+}
+
+void LocalStreamingPrivate::saveValue(const QString &key, const QVariant &value)
+{
+    QSettings config;
+    config.beginGroup("LocalStreamingConfigs");
+    config.setValue(key, value);
+    config.endGroup();
+}
+
 void LocalStreamingPrivate::updateLocation()
 {
     if (!this->m_enabled) {
@@ -1020,17 +1285,17 @@ void LocalStreamingPrivate::updateLocation()
         return;
     }
 
-    auto newLocation = QString("http://%1:%2/%3.%4")
-                           .arg(this->getLocalIPAddress())
-                           .arg(this->m_localPort)
-                           .arg(this->m_localResource)
-                           .arg(this->m_localFormat);
+    auto newLocation = this->buildLocation();
 
     if (newLocation == this->m_location)
         return;
 
     this->m_location = newLocation;
     emit self->locationChanged(this->m_location);
+
+    // The server announces the address, it restarts to use the new one.
+    if (this->m_streamer)
+        this->applyConfig();
 }
 
 QString LocalStreamingPrivate::extensionForFormat(const QString &formatId) const
@@ -1172,10 +1437,17 @@ void LocalStreamingPrivate::loadConfigs()
 
     // Location
     this->m_enabled = config.value("enabled", false).toBool();
-    this->m_localPort = config.value("localPort", 8080).toUInt();
-    this->m_localResource = config.value("localResource", "stream").toString();
-    auto ext = this->extensionForFormat(this->m_defaultFormat);
-    this->m_localFormat = config.value("localFormat", ext).toString();
+    this->m_localPort = config.value("localPort", DEFAULT_HTTP_PORT).toUInt();
+    this->m_localResource = config.value("localResource", DEFAULT_RESOURCE).toString();
+    this->m_rtspPort = quint16(config.value("rtspPort", DEFAULT_RTSP_PORT).toUInt());
+    this->m_user = config.value("user").toString();
+    this->m_password = config.value("password").toString();
+    this->m_authEnabled = config.value("authEnabled", !this->m_user.isEmpty()).toBool();
+    this->m_placeholderImage = config.value("placeholderImage").toString();
+
+    if (this->m_authEnabled)
+        this->ensureCredentials();
+
     this->updateLocation();
 
     // Video / audio caps
@@ -1261,7 +1533,8 @@ void LocalStreamingPrivate::loadConfigs()
     if (!savedAudio.isEmpty())
         tryLoadEncoder(savedAudio, AkCaps::CapsAudio);
 
-    tryLoadEncoder(savedVideo, AkCaps::CapsVideo);
+    if (!savedVideo.isEmpty())
+        tryLoadEncoder(savedVideo, AkCaps::CapsVideo);
 }
 
 QString LocalStreamingPrivate::normalizePluginID(const QString &pluginID)
@@ -1280,6 +1553,9 @@ void LocalStreamingPrivate::printStreamingParameters()
 {
     qInfo() << "Local streaming parameters:";
     qInfo() << "    Location:" << this->m_location;
+    qInfo() << "    RTSP port:" << this->m_rtspPort;
+    qInfo() << "    Resource:" << this->m_localResource;
+    qInfo() << "    Authentication:" << this->m_authEnabled;
 
     if (this->m_audioEncoder) {
         qInfo() << "    Audio:";
@@ -1302,17 +1578,27 @@ void LocalStreamingPrivate::printStreamingParameters()
 
 bool LocalStreamingPrivate::init()
 {
+    // The server is on while the location is set, no matter the state of the
+    // pipeline: here it only has to be running.
+    return this->startServer();
+}
+
+void LocalStreamingPrivate::uninit()
+{
+    // Nothing to do: the server keeps running while the location is set. It
+    // sends a placeholder while the pipeline is not delivering packets.
+}
+
+bool LocalStreamingPrivate::startServer()
+{
+    if (this->m_streamer)
+        return true;
+
     qInfo() << "Starting local streaming";
     this->printStreamingParameters();
 
     if (!this->m_enabled || this->m_location.isEmpty()) {
         qCritical() << "Location (URL) not set";
-
-        return false;
-    }
-
-    if (!this->m_videoEncoder) {
-        qCritical() << "Video codec not set";
 
         return false;
     }
@@ -1326,168 +1612,98 @@ bool LocalStreamingPrivate::init()
         return false;
     }
 
-    // Set single destination using location
-    QStringList destinations {this->m_location};
-    streamer->setDestinations(destinations);
-
-    this->m_streamer = streamer;
-
-    QObject::connect(this->m_streamer.data(),
+    QObject::connect(streamer.data(),
                      &AkVideoStreamer::hasActiveClientsChanged,
                      [this] (bool hasActiveClients) {
                          this->m_hasActiveClients.store(hasActiveClients,
                                                         std::memory_order_relaxed);
                          emit self->hasActiveClientsChanged(hasActiveClients);
                      });
-
-    // Configure video encoder
-    this->m_videoEncoder->setInputCaps(this->m_videoCaps);
-    this->m_videoEncoder->setBitrate(this->m_videoBitrate);
-    this->m_videoEncoder->setGop(this->m_videoGOP);
-    this->m_videoEncoder->setFillGaps(true);
-    this->m_videoEncoder->setBitrateMode(AkVideoEncoder::BitrateMode_CBR);
-
-    // Configure streamer with video caps
-    this->m_streamer->setStreamCaps(this->m_videoEncoder->outputCaps());
-    this->m_streamer->setStreamBitrate(AkCompressedCaps::CapsType_Video,
-                                       this->m_videoEncoder->bitrate());
-    this->m_videoEncoder->link(this->m_streamer, Qt::DirectConnection);
-
-    // Connect headers changed signal
-    this->m_videoHeadersChangedConnection =
-            QObject::connect(this->m_videoEncoder.data(),
-                             &AkVideoEncoder::headersChanged,
-                             [this] (const QByteArray &headers) {
-                                 this->m_streamer->setStreamHeaders(
-                                     AkCompressedCaps::CapsType_Video, headers);
-                             });
-
-    // Connect error signal
-    QObject::connect(this->m_streamer.data(),
+    QObject::connect(streamer.data(),
                      &AkVideoStreamer::streamingError,
                      self,
                      &LocalStreaming::streamingError);
 
-    // Configure audio if available
-    if (this->m_audioEncoder) {
-        this->m_audioEncoder->setInputCaps(this->m_audioCaps);
-        this->m_audioEncoder->setBitrate(this->m_audioBitrate);
-        this->m_audioEncoder->setFillGaps(true);
-        this->m_streamer->setStreamCaps(this->m_audioEncoder->outputCaps());
-        this->m_streamer->setStreamBitrate(AkCompressedCaps::CapsType_Audio,
-                                           this->m_audioEncoder->bitrate());
-        this->m_audioEncoder->link(this->m_streamer, Qt::DirectConnection);
-        this->m_audioHeadersChangedConnection =
-                QObject::connect(this->m_audioEncoder.data(),
-                                 &AkAudioEncoder::headersChanged,
-                                 [this] (const QByteArray &headers) {
-                                     this->m_streamer->setStreamHeaders(
-                                         AkCompressedCaps::CapsType_Audio, headers);
-                                 });
-
-        this->m_audioEncoder->setState(AkElement::ElementStatePaused);
-        this->m_streamer->setStreamHeaders(AkCompressedCaps::CapsType_Audio,
-                                           this->m_audioEncoder->headers());
+    {
+        QMutexLocker locker(&this->m_mutex);
+        this->m_streamer = streamer;
     }
 
-    // Start streaming pipeline
-    this->m_videoEncoder->setState(AkElement::ElementStatePaused);
-    this->m_streamer->setStreamHeaders(AkCompressedCaps::CapsType_Video,
-                                       this->m_videoEncoder->headers());
-    this->m_streamer->setState(AkElement::ElementStatePlaying);
-
-    if (this->m_audioEncoder)
-        this->m_audioEncoder->setState(AkElement::ElementStatePlaying);
-
-    this->m_videoEncoder->setState(AkElement::ElementStatePlaying);
-
-    qInfo() << "Local streaming started to:" << this->m_location;
-    this->m_isStreaming = true;
+    this->applyConfig();
+    streamer->setState(AkElement::ElementStatePlaying);
+    qInfo() << "Local streaming started:" << this->m_location;
 
     return true;
 }
 
-void LocalStreamingPrivate::uninit()
+void LocalStreamingPrivate::stopServer()
 {
-    if (!this->m_isStreaming)
+    AkVideoStreamerPtr streamer;
+
+    {
+        QMutexLocker locker(&this->m_mutex);
+        streamer = this->m_streamer;
+        this->m_streamer = {};
+    }
+
+    if (!streamer)
         return;
 
     qInfo() << "Stopping local streaming";
-    this->m_isStreaming = false;
 
-    if (this->m_streamer) {
-        QObject::disconnect(this->m_streamer.data(),
-                            &AkVideoStreamer::hasActiveClientsChanged,
-                            nullptr, nullptr);
-    }
-
-    this->m_hasActiveClients.store(false,
-                                   std::memory_order_relaxed);
-    emit self->hasActiveClientsChanged(false);
-
-    if (this->m_videoEncoder) {
-        this->m_videoEncoder->setState(AkElement::ElementStateNull);
-        QObject::disconnect(this->m_videoHeadersChangedConnection);
-    }
-
-    if (this->m_audioEncoder) {
-        this->m_audioEncoder->setState(AkElement::ElementStateNull);
-        QObject::disconnect(this->m_audioHeadersChangedConnection);
-    }
-
-    if (this->m_streamer)
-        this->m_streamer->setState(AkElement::ElementStateNull);
-
-    QObject::disconnect(this->m_streamer.data(),
+    QObject::disconnect(streamer.data(),
+                        &AkVideoStreamer::hasActiveClientsChanged,
+                        nullptr, nullptr);
+    QObject::disconnect(streamer.data(),
                         &AkVideoStreamer::streamingError,
                         self,
                         &LocalStreaming::streamingError);
 
+    if (this->m_hasActiveClients.exchange(false, std::memory_order_relaxed))
+        emit self->hasActiveClientsChanged(false);
+
+    streamer->setState(AkElement::ElementStateNull);
+
+    // Releasing the last reference destroys the server.
+    streamer.clear();
     qInfo() << "Local streaming stopped";
+}
+
+// Pass the configuration to the server. Whatever changed, the server restarts
+// itself once, to use it.
+void LocalStreamingPrivate::applyConfig()
+{
+    AkVideoStreamerPtr streamer;
+
+    {
+        QMutexLocker locker(&this->m_mutex);
+        streamer = this->m_streamer;
+    }
+
+    if (!streamer || this->m_location.isEmpty())
+        return;
+
+    streamer->setProperty("videoCaps", QVariant::fromValue(this->m_videoCaps));
+    streamer->setProperty("audioCaps", QVariant::fromValue(this->m_audioCaps));
+    streamer->setProperty("gop", this->m_videoGOP);
+    streamer->setProperty("rtspPort", this->m_rtspPort);
+    streamer->setProperty("resource", this->m_localResource);
+    // The server asks for the credentials when it has a user.
+    streamer->setProperty("user", this->m_authEnabled? this->m_user: QString());
+    streamer->setProperty("password", this->m_authEnabled? this->m_password: QString());
+    streamer->setProperty("placeholderImage", this->m_placeholderImage);
+    streamer->setStreamBitrate(AkCompressedCaps::CapsType_Video,
+                               this->m_videoBitrate);
+    streamer->setStreamBitrate(AkCompressedCaps::CapsType_Audio,
+                               this->m_audioBitrate);
+    streamer->setDestinations({this->m_location});
 }
 
 void LocalStreamingPrivate::saveLocation(const QString &location)
 {
-    QSettings config;
-    config.beginGroup("LocalStreamingConfigs");
-
-    config.setValue("enabled", !location.isEmpty());
-
-    if (location.isEmpty()) {
-        config.endGroup();
-
-        return;
-    }
-
-    QUrl url(location);
-    auto port = quint16(url.port(8080));
-    auto path = url.path();
-
-    if (path.startsWith('/'))
-        path = path.mid(1);
-
-    auto resource = path;
-    auto format = this->m_defaultFormat;
-
-    int dotIndex = path.lastIndexOf('.');
-
-    if (dotIndex >= 0) {
-        resource = path.left(dotIndex);
-        format = path.mid(dotIndex + 1);
-    }
-
-    if (resource.isEmpty())
-        resource = "stream";
-
-    this->m_localPort = port;
-    this->m_localResource = resource;
-    this->m_localFormat = format;
-
-    config.setValue("localPort", port);
-    config.setValue("localResource", resource);
-    config.setValue("localFormat", format);
-
-    config.endGroup();
+    // The port, the resource name and the rest of the settings are saved when
+    // they change.
+    this->saveValue("enabled", !location.isEmpty());
 }
 
 void LocalStreamingPrivate::saveAudioCaps(const AkAudioCaps &audioCaps)

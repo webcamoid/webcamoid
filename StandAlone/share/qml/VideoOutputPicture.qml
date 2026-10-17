@@ -21,9 +21,9 @@ import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Layouts
+import Qt.labs.platform as LABS
 import Ak
 import AkControls as AK
-import Qt.labs.platform as LABS
 
 Dialog {
     id: outputPictureDialog
@@ -111,7 +111,10 @@ Dialog {
     LABS.FileDialog {
         id: fileDialog
         title: qsTr("Please choose an image file")
-        nameFilters: ["Image files (*.bmp *.gif *.jpg *.jpeg *.png *.pbm *.pgm *.ppm *.xbm *.xpm)"]
+        nameFilters: [
+            qsTr("Image files (*.png *.jpg *.jpeg *.bmp *.gif *.webp)"),
+            qsTr("All files (*)")
+        ]
         folder: outputPictureDialog.filePrefix + recording.imagesDirectory
 
         onAccepted: {
