@@ -57,6 +57,10 @@ AK_DEFINE_GUID(AK_MEDIASUBTYPE_H264, 0x34363248, 0x0000, 0x0010, 0x80, 0x00, 0x0
 AK_DEFINE_GUID(AK_MEDIASUBTYPE_h264, 0x34363268, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
 AK_DEFINE_GUID(AK_MEDIASUBTYPE_X264, 0x34363258, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
 AK_DEFINE_GUID(AK_MEDIASUBTYPE_x264, 0x34363278, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
+AK_DEFINE_GUID(AK_MEDIASUBTYPE_I420, 0x30323449, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
+AK_DEFINE_GUID(AK_MEDIASUBTYPE_NV21, 0x3132564e, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
+AK_DEFINE_GUID(AK_MEDIASUBTYPE_Y800, 0x30303859, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
+AK_DEFINE_GUID(AK_MEDIASUBTYPE_Y8  , 0x20203859, 0x0000, 0x0010, 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71);
 
 DEFINE_GUID(CLSID_SampleGrabber, 0xc1f400a0, 0x3f08, 0x11d3, 0x9f, 0x0b, 0x00, 0x60, 0x08, 0x03, 0x9e, 0x37);
 DEFINE_GUID(CLSID_NullRenderer, 0xc1f400a4, 0x3f08, 0x11d3, 0x9f, 0x0b, 0x00, 0x60, 0x08, 0x03, 0x9e, 0x37);
@@ -118,21 +122,23 @@ inline RawFmtToAkFmtMap initRawFmtToAkFmt()
         {MEDIASUBTYPE_ARGB32  , AkVideoCaps::Format_argbpack},
         {MEDIASUBTYPE_ARGB4444, AkVideoCaps::Format_argb4444},
         {MEDIASUBTYPE_AYUV    , AkVideoCaps::Format_ayuvpack},
-        {MEDIASUBTYPE_IF09    , AkVideoCaps::Format_yvu410p },
+        {AK_MEDIASUBTYPE_I420 , AkVideoCaps::Format_yuv420p },
         {MEDIASUBTYPE_IYUV    , AkVideoCaps::Format_yuv420p },
         {MEDIASUBTYPE_NV12    , AkVideoCaps::Format_nv12    },
+        {AK_MEDIASUBTYPE_NV21 , AkVideoCaps::Format_nv21    },
         {MEDIASUBTYPE_RGB24   , AkVideoCaps::Format_bgr24   },
         {MEDIASUBTYPE_RGB32   , AkVideoCaps::Format_xrgbpack},
         {MEDIASUBTYPE_RGB555  , AkVideoCaps::Format_rgb555  },
         {MEDIASUBTYPE_RGB565  , AkVideoCaps::Format_rgb565  },
         {MEDIASUBTYPE_UYVY    , AkVideoCaps::Format_uyvy422 },
         {MEDIASUBTYPE_Y211    , AkVideoCaps::Format_yuyv211 },
-        {MEDIASUBTYPE_Y41P    , AkVideoCaps::Format_uyvy411 },
         {MEDIASUBTYPE_YUY2    , AkVideoCaps::Format_yuyv422 },
         {MEDIASUBTYPE_YUYV    , AkVideoCaps::Format_yuyv422 },
         {MEDIASUBTYPE_YV12    , AkVideoCaps::Format_yvu420p },
         {MEDIASUBTYPE_YVU9    , AkVideoCaps::Format_yvu410p },
         {MEDIASUBTYPE_YVYU    , AkVideoCaps::Format_yvyu422 },
+        {AK_MEDIASUBTYPE_Y800 , AkVideoCaps::Format_y8      },
+        {AK_MEDIASUBTYPE_Y8   , AkVideoCaps::Format_y8      },
     };
 
     return rawFmtToAkFmt;

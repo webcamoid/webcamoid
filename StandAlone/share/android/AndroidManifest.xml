@@ -131,12 +131,12 @@
     <!-- The following comment will be replaced upon deployment with default features based on the dependencies of the application.
          Remove the comment if you do not require these default features. -->
     <!-- Features -->
-    <uses-feature android:name="android.hardware.audio.low_latency"/>
+    <uses-feature android:name="android.hardware.audio.low_latency" android:required="false"/>
     <uses-feature android:name="android.hardware.audio.output"/>
-    <uses-feature android:name="android.hardware.audio.pro"/>
+    <uses-feature android:name="android.hardware.audio.pro" android:required="false"/>
     <uses-feature android:name="android.hardware.camera.any"/>
-    <uses-feature android:name="android.hardware.camera.autofocus"/>
-    <uses-feature android:name="android.hardware.camera.flash"/>
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.flash" android:required="false"/>
     <uses-feature android:name="android.hardware.microphone"/>
     <uses-feature android:name="android.hardware.opengles.aep"/>
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
