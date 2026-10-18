@@ -1193,16 +1193,7 @@
 <context>
     <name>LocalStreamingAdvanced</name>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="32"/>
-        <source>Local streaming advanced options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="119"/>
-        <source>Local streaming quality</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="144"/>
         <source>Streaming quality</source>
         <translation type="unfinished">ಸ್ಟ್ರೀಮಿಂಗ್ ಗುಣಮಟ್ಟ</translation>
@@ -1321,6 +1312,11 @@
         <location filename="../qml/LocalStreamingAdvanced.qml" line="342"/>
         <source>Audio quality</source>
         <translation type="unfinished">ಆಡಿಯೋ ಗುಣಮಟ್ಟ</translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="32"/>
+        <source>ONVIF local server advanced options</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="360"/>
@@ -1451,8 +1447,8 @@
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="41"/>
-        <source>Local Streaming Options</source>
-        <translation>ಸ್ಥಳೀಯ ಸ್ಟ್ರೀಮಿಂಗ್ ಆಯ್ಕೆಗಳು</translation>
+        <source>ONVIF local server Options</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="42"/>
@@ -2844,13 +2840,13 @@
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="131"/>
-        <source>Add local streaming</source>
-        <translation>ಸ್ಥಳೀಯ ಸ್ಟ್ರೀಮಿಂಗ್ ಸೇರಿಸಿ</translation>
+        <source>Add ONVIF local server</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="196"/>
-        <source>Local Streaming</source>
-        <translation>ಸ್ಥಳೀಯ ಸ್ಟ್ರೀಮಿಂಗ್</translation>
+        <source>ONVIF local server</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3006,26 +3002,11 @@
     </message>
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="52"/>
-        <source>The virtual camera in Windows may not work properly and may cause inestability in the system.&lt;br/&gt;</source>
-        <translation>ವಿಂಡೋಸ್‌ನಲ್ಲಿ ವರ್ಚುವಲ್ ಕ್ಯಾಮೆರಾ ಸರಿಯಾಗಿ ಕಾರ್ಯನಿರ್ವಹಿಸದೇ ಇರಬಹುದು ಮತ್ತು ವ್ಯವಸ್ಥೆಯಲ್ಲಿ ಅಸ್ಥಿರತೆಯನ್ನು ಉಂಟುಮಾಡಬಹುದು.&lt;br/&gt;</translation>
-    </message>
-    <message>
-        <location filename="../qml/VirtualCameraInstallDialog.qml" line="53"/>
-        <source>If you want to share audio and video of your current seesion, consider using &lt;b&gt;local streaming&lt;/b&gt; which is more stable and powerful.&lt;br/&gt;&lt;br/&gt;</source>
-        <translation>ನಿಮ್ಮ ಪ್ರಸ್ತುತ ಸೆಷನ್ನ ಆಡಿಯೋ ಮತ್ತು ವೀಡಿಯೊವನ್ನು ಹಂಚಿಕೊಳ್ಳಲು ನೀವು ಬಯಸಿದರೆ, ಹೆಚ್ಚು ಸ್ಥಿರ ಮತ್ತು ಶಕ್ತಿಯುತವಾದ &lt;b&gt;ಸ್ಥಳೀಯ ಸ್ಟ್ರೀಮಿಂಗ್&lt;/b&gt; ಅನ್ನು ಬಳಸುವುದನ್ನು ಪರಿಗಣಿಸಿ.&lt;br/&gt;&lt;br/&gt;</translation>
-    </message>
-    <message>
-        <location filename="../qml/VirtualCameraInstallDialog.qml" line="54"/>
-        <source>Are you sure that you want to continue?</source>
-        <translation>ನೀವು ಮುಂದುವರಿಯಲು ಬಯಸುತ್ತೀರಾ ಎಂದು ಖಚಿತವಾಗಿದೆಯೇ?</translation>
-    </message>
-    <message>
-        <location filename="../qml/VirtualCameraInstallDialog.qml" line="56"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
         <translation>ವರ್ಚುವಲ್ ಕ್ಯಾಮೆರಾ ಸ್ಥಾಪಿಸಲಾಗಿಲ್ಲ, ನೀವು ಅದನ್ನು ಸ್ಥಾಪಿಸಲು ಬಯಸುವಿರಾ?</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraInstallDialog.qml" line="57"/>
+        <location filename="../qml/VirtualCameraInstallDialog.qml" line="53"/>
         <source>The virtual camera is not installed. Please, install &lt;b&gt;v4l2loopback&lt;/b&gt;.</source>
         <translation>ವರ್ಚುವಲ್ ಕ್ಯಾಮೆರಾ ಸ್ಥಾಪಿಸಲಾಗಿಲ್ಲ. ದಯವಿಟ್ಟು &lt;b&gt;v4l2loopback&lt;/b&gt; ಸ್ಥಾಪಿಸಿ.</translation>
     </message>
@@ -3084,7 +3065,7 @@
 <context>
     <name>VirtualCameras</name>
     <message>
-        <location filename="../../src/virtualcameras.cpp" line="563"/>
+        <location filename="../../src/virtualcameras.cpp" line="552"/>
         <source>Virtual Camera</source>
         <translation>ವರ್ಚುವಲ್ ಕ್ಯಾಮೆರಾ</translation>
     </message>

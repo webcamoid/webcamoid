@@ -1193,16 +1193,7 @@
 <context>
     <name>LocalStreamingAdvanced</name>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="32"/>
-        <source>Local streaming advanced options</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="119"/>
-        <source>Local streaming quality</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="144"/>
         <source>Streaming quality</source>
         <translation type="unfinished">Stroom-kwaliteit</translation>
@@ -1321,6 +1312,11 @@
         <location filename="../qml/LocalStreamingAdvanced.qml" line="342"/>
         <source>Audio quality</source>
         <translation type="unfinished">Oudio-kwaliteit</translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="32"/>
+        <source>ONVIF local server advanced options</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="360"/>
@@ -1451,8 +1447,8 @@
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="41"/>
-        <source>Local Streaming Options</source>
-        <translation>Plaaslike Stroom-opsies</translation>
+        <source>ONVIF local server Options</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="42"/>
@@ -2844,13 +2840,13 @@
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="131"/>
-        <source>Add local streaming</source>
-        <translation>Voeg plaaslike stroom by</translation>
+        <source>Add ONVIF local server</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="196"/>
-        <source>Local Streaming</source>
-        <translation>Plaaslike Stroom</translation>
+        <source>ONVIF local server</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3006,26 +3002,11 @@
     </message>
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="52"/>
-        <source>The virtual camera in Windows may not work properly and may cause inestability in the system.&lt;br/&gt;</source>
-        <translation>Die virtuele kamera in Windows werk dalk nie behoorlik nie en kan onstabiliteit in die stelsel veroorsaak.&lt;br/&gt;</translation>
-    </message>
-    <message>
-        <location filename="../qml/VirtualCameraInstallDialog.qml" line="53"/>
-        <source>If you want to share audio and video of your current seesion, consider using &lt;b&gt;local streaming&lt;/b&gt; which is more stable and powerful.&lt;br/&gt;&lt;br/&gt;</source>
-        <translation>As jy oudio en video van jou huidige sessie wil deel, oorweeg om &lt;b&gt;plaaslike stroom&lt;/b&gt; te gebruik wat meer stabiel en kragtig is.&lt;br/&gt;&lt;br/&gt;</translation>
-    </message>
-    <message>
-        <location filename="../qml/VirtualCameraInstallDialog.qml" line="54"/>
-        <source>Are you sure that you want to continue?</source>
-        <translation>Is jy seker dat jy wil voortgaan?</translation>
-    </message>
-    <message>
-        <location filename="../qml/VirtualCameraInstallDialog.qml" line="56"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
         <translation>Die virtuele kamera is nie geïnstalleer nie, wil jy dit installeer?</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraInstallDialog.qml" line="57"/>
+        <location filename="../qml/VirtualCameraInstallDialog.qml" line="53"/>
         <source>The virtual camera is not installed. Please, install &lt;b&gt;v4l2loopback&lt;/b&gt;.</source>
         <translation>Die virtuele kamera is nie geïnstalleer nie. Installeer asseblief &lt;b&gt;v4l2loopback&lt;/b&gt;.</translation>
     </message>
@@ -3084,7 +3065,7 @@
 <context>
     <name>VirtualCameras</name>
     <message>
-        <location filename="../../src/virtualcameras.cpp" line="563"/>
+        <location filename="../../src/virtualcameras.cpp" line="552"/>
         <source>Virtual Camera</source>
         <translation>Virtuele Kamera</translation>
     </message>

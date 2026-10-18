@@ -1193,16 +1193,7 @@
 <context>
     <name>LocalStreamingAdvanced</name>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="32"/>
-        <source>Local streaming advanced options</source>
-        <translation>Yerel yayın gelişmiş seçenekleri</translation>
-    </message>
-    <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="119"/>
-        <source>Local streaming quality</source>
-        <translation>Yerel yayın kalitesi</translation>
-    </message>
-    <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="144"/>
         <source>Streaming quality</source>
         <translation>Yayın kalitesi</translation>
@@ -1263,9 +1254,9 @@
         <translation>Anahtar kare aralığı (ms)</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="367"/>
-        <source>Video codec</source>
-        <translation>Video kodeki</translation>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="407"/>
+        <source>Placeholder</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="416"/>
@@ -1323,6 +1314,11 @@
         <translation>Ses kalitesi</translation>
     </message>
     <message>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="32"/>
+        <source>ONVIF local server advanced options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="360"/>
         <source>Sample rate</source>
         <translation>Örnekleme oranı</translation>
@@ -1331,11 +1327,6 @@
         <location filename="../qml/LocalStreamingAdvanced.qml" line="383"/>
         <source>Audio bitrate (kbps)</source>
         <translation>Ses bit hızı (kbps)</translation>
-    </message>
-    <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="518"/>
-        <source>Audio codec</source>
-        <translation>Ses kodeği</translation>
     </message>
 </context>
 <context>
@@ -1456,8 +1447,8 @@
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="41"/>
-        <source>Local Streaming Options</source>
-        <translation>Yerel Yayın Seçenekleri</translation>
+        <source>ONVIF local server Options</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="42"/>
@@ -2848,13 +2839,13 @@
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="131"/>
-        <source>Add local streaming</source>
-        <translation>Yerel yayın ekle</translation>
+        <source>Add ONVIF local server</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="196"/>
-        <source>Local Streaming</source>
-        <translation>Yerel Yayın</translation>
+        <source>ONVIF local server</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3010,26 +3001,11 @@
     </message>
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="52"/>
-        <source>The virtual camera in Windows may not work properly and may cause inestability in the system.&lt;br/&gt;</source>
-        <translation>Windows&apos;taki sanal kamera düzgün çalışmayabilir ve sistemde kararsızlığa neden olabilir.&lt;br/&gt;</translation>
-    </message>
-    <message>
-        <location filename="../qml/VirtualCameraInstallDialog.qml" line="53"/>
-        <source>If you want to share audio and video of your current seesion, consider using &lt;b&gt;local streaming&lt;/b&gt; which is more stable and powerful.&lt;br/&gt;&lt;br/&gt;</source>
-        <translation>Geçerli oturumunuzun ses ve videosunu paylaşmak istiyorsanız, daha kararlı ve güçlü olan &lt;b&gt;yerel yayını&lt;/b&gt; kullanmayı düşünün.&lt;br/&gt;&lt;br/&gt;</translation>
-    </message>
-    <message>
-        <location filename="../qml/VirtualCameraInstallDialog.qml" line="54"/>
-        <source>Are you sure that you want to continue?</source>
-        <translation>Devam etmek istediğinizden emin misiniz?</translation>
-    </message>
-    <message>
-        <location filename="../qml/VirtualCameraInstallDialog.qml" line="56"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
         <translation>Sanal kamera yüklü değil, yüklemek ister misiniz?</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraInstallDialog.qml" line="57"/>
+        <location filename="../qml/VirtualCameraInstallDialog.qml" line="53"/>
         <source>The virtual camera is not installed. Please, install &lt;b&gt;v4l2loopback&lt;/b&gt;.</source>
         <translation>Sanal kamera yüklü değil. Lütfen &lt;b&gt;v4l2loopback&lt;/b&gt; yükleyin.</translation>
     </message>
@@ -3088,7 +3064,7 @@
 <context>
     <name>VirtualCameras</name>
     <message>
-        <location filename="../../src/virtualcameras.cpp" line="563"/>
+        <location filename="../../src/virtualcameras.cpp" line="552"/>
         <source>Virtual Camera</source>
         <translation>Sanal Kamera</translation>
     </message>

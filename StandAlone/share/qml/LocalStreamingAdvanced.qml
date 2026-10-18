@@ -29,7 +29,7 @@ import Webcamoid
 
 Dialog {
     id: root
-    title: qsTr("Local streaming advanced options")
+    title: qsTr("ONVIF local server advanced options")
     standardButtons: Dialog.Close
     width: physicalWidth <= 100 || physicalHeight <= 100?
                wdgMainWidget.width: wdgMainWidget.width * 0.5
@@ -116,7 +116,7 @@ Dialog {
             // Streaming quality - preset slider
 
             Label {
-                text: qsTr("Local streaming quality")
+                text: qsTr("Streaming quality")
                 font: AkTheme.fontSettings.h6
                 Layout.leftMargin: scrollView.leftMargin
                 Layout.rightMargin: scrollView.rightMargin

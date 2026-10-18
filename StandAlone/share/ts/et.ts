@@ -1193,16 +1193,7 @@
 <context>
     <name>LocalStreamingAdvanced</name>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="32"/>
-        <source>Local streaming advanced options</source>
-        <translation>Kohaliku voogedastuse täpsemad valikud</translation>
-    </message>
-    <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="119"/>
-        <source>Local streaming quality</source>
-        <translation>Kohaliku voogedastuse kvaliteet</translation>
-    </message>
-    <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="144"/>
         <source>Streaming quality</source>
         <translation>Voogedastuse kvaliteet</translation>
@@ -1263,9 +1254,9 @@
         <translation>Võtmekaadri samm (ms)</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="367"/>
-        <source>Video codec</source>
-        <translation>Videokoodek</translation>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="407"/>
+        <source>Placeholder</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="416"/>
@@ -1323,6 +1314,11 @@
         <translation>Helikvaliteet</translation>
     </message>
     <message>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="32"/>
+        <source>ONVIF local server advanced options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="360"/>
         <source>Sample rate</source>
         <translation>Diskreetimissagedus</translation>
@@ -1331,11 +1327,6 @@
         <location filename="../qml/LocalStreamingAdvanced.qml" line="383"/>
         <source>Audio bitrate (kbps)</source>
         <translation>Heli bitikiirus (kbps)</translation>
-    </message>
-    <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="518"/>
-        <source>Audio codec</source>
-        <translation>Audiokoodek</translation>
     </message>
 </context>
 <context>
@@ -1456,8 +1447,8 @@
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="41"/>
-        <source>Local Streaming Options</source>
-        <translation>Kohaliku voogedastuse valikud</translation>
+        <source>ONVIF local server Options</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="42"/>
@@ -2849,13 +2840,13 @@
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="131"/>
-        <source>Add local streaming</source>
-        <translation>Lisa kohalik voogedastus</translation>
+        <source>Add ONVIF local server</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="196"/>
-        <source>Local Streaming</source>
-        <translation>Kohalik voogedastus</translation>
+        <source>ONVIF local server</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -3011,26 +3002,11 @@
     </message>
     <message>
         <location filename="../qml/VirtualCameraInstallDialog.qml" line="52"/>
-        <source>The virtual camera in Windows may not work properly and may cause inestability in the system.&lt;br/&gt;</source>
-        <translation>Virtuaalkaamera Windowsis ei pruugi korralikult töötada ja võib põhjustada süsteemi ebastabiilsust.&lt;br/&gt;</translation>
-    </message>
-    <message>
-        <location filename="../qml/VirtualCameraInstallDialog.qml" line="53"/>
-        <source>If you want to share audio and video of your current seesion, consider using &lt;b&gt;local streaming&lt;/b&gt; which is more stable and powerful.&lt;br/&gt;&lt;br/&gt;</source>
-        <translation>Kui soovite jagada oma praeguse seansi heli ja videot, kaaluge &lt;b&gt;kohaliku voogedastuse&lt;/b&gt; kasutamist, mis on stabiilsem ja võimsam.&lt;br/&gt;&lt;br/&gt;</translation>
-    </message>
-    <message>
-        <location filename="../qml/VirtualCameraInstallDialog.qml" line="54"/>
-        <source>Are you sure that you want to continue?</source>
-        <translation>Oled kindel, et soovid jätkata?</translation>
-    </message>
-    <message>
-        <location filename="../qml/VirtualCameraInstallDialog.qml" line="56"/>
         <source>The virtual camera is not installed, do you want to install it?</source>
         <translation>Virtuaalkaamerat pole paigaldatud, kas soovite seda paigaldada?</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraInstallDialog.qml" line="57"/>
+        <location filename="../qml/VirtualCameraInstallDialog.qml" line="53"/>
         <source>The virtual camera is not installed. Please, install &lt;b&gt;v4l2loopback&lt;/b&gt;.</source>
         <translation>Virtuaalkaamerat pole paigaldatud. Palun paigaldage &lt;b&gt;v4l2loopback&lt;/b&gt;.</translation>
     </message>
@@ -3089,7 +3065,7 @@
 <context>
     <name>VirtualCameras</name>
     <message>
-        <location filename="../../src/virtualcameras.cpp" line="563"/>
+        <location filename="../../src/virtualcameras.cpp" line="552"/>
         <source>Virtual Camera</source>
         <translation>Virtuaalkaamera</translation>
     </message>

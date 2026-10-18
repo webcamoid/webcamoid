@@ -33,16 +33,10 @@
 #include <akpluginmanager.h>
 #include <iak/akelement.h>
 
-#ifdef Q_OS_WIN32
-#include <windows.h>
-#endif
-
 #include "virtualcameras.h"
 #include "updates.h"
 
-#ifdef Q_OS_WIN32
-    #define DEFAULT_VCAM_DRIVER "VideoSink/VirtualCamera/Impl/AkVirtualCameraDShow"
-#elif defined(Q_OS_LINUX)
+#ifdef Q_OS_LINUX
     #define DEFAULT_VCAM_DRIVER "VideoSink/VirtualCamera/Impl/AkVCam"
 #else
     #define DEFAULT_VCAM_DRIVER ""
@@ -323,8 +317,8 @@ QString VirtualCameras::outputError() const
 }
 
 bool VirtualCameras::embedOutputControls(const QString &where,
-                                       const QString &device,
-                                       const QString &name) const
+                                         const QString &device,
+                                         const QString &name) const
 {
     auto element = this->d->m_outputPlugins.value(device);
 
@@ -416,8 +410,7 @@ QStringList VirtualCameras::availableRootMethods() const
 
 bool VirtualCameras::isVCamSupported() const
 {
-#if defined(Q_OS_WIN32) \
-    || (defined(Q_OS_BSD4) && !defined(Q_OS_DARWIN))
+#if defined(Q_OS_BSD4) && !defined(Q_OS_DARWIN)
     return true;
 #elif defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
     return !Ak::isFlatpak() || Ak::hasFlatpakVCam();
@@ -485,9 +478,7 @@ bool VirtualCameras::canEditVCamDescription() const
 
 QString VirtualCameras::vcamUpdateUrl() const
 {
-#if defined(Q_OS_WIN32)
-    return {"https://api.github.com/repos/webcamoid/akvirtualcamera/releases/latest"};
-#elif defined(Q_OS_LINUX)
+#ifdef Q_OS_LINUX
     return {"https://api.github.com/repos/webcamoid/akvcam/releases/latest"};
 #else
     return {};
@@ -496,9 +487,7 @@ QString VirtualCameras::vcamUpdateUrl() const
 
 QString VirtualCameras::vcamDownloadUrl() const
 {
-#if defined(Q_OS_WIN32)
-    return {"https://github.com/webcamoid/akvirtualcamera/releases/latest"};
-#elif defined(Q_OS_LINUX)
+#ifdef Q_OS_LINUX
     return {"https://github.com/webcamoid/akvcam/releases/latest"};
 #else
     return {};
@@ -587,45 +576,15 @@ bool VirtualCameras::executeVCamInstaller(const QString &installer)
             QtConcurrent::run(&this->d->m_threadPool, [this, installer] () {
         qDebug() << "Executing installer:" << installer;
         int exitCode = -1;
-        QString errorString = "Can't execute installer";
 
-#ifdef Q_OS_WIN32
-        SHELLEXECUTEINFOA execInfo;
-        memset(&execInfo, 0, sizeof(SHELLEXECUTEINFOA));
-        execInfo.cbSize = sizeof(SHELLEXECUTEINFOA);
-        execInfo.fMask = SEE_MASK_NOCLOSEPROCESS;
-        execInfo.hwnd = nullptr;
-        execInfo.lpVerb = "runas";
-        execInfo.lpFile = installer.toStdString().c_str();
-        execInfo.lpParameters = "";
-        execInfo.lpDirectory = "";
-        execInfo.nShow = SW_SHOWNORMAL;
-        execInfo.hInstApp = nullptr;
-        ShellExecuteExA(&execInfo);
-
-        if (execInfo.hProcess) {
-            WaitForSingleObject(execInfo.hProcess, INFINITE);
-
-            DWORD dExitCode;
-            GetExitCodeProcess(execInfo.hProcess, &dExitCode);
-            CloseHandle(execInfo.hProcess);
-
-            if (dExitCode == 0)
-                errorString = "";
-            else
-                errorString = QString("Installer failed with code %1").arg(exitCode);
-
-            exitCode = int(dExitCode);
-        }
-#else
         QProcess proc;
 
-    #ifdef Q_PROCESSOR_X86
+#ifdef Q_PROCESSOR_X86
         if (Ak::isFlatpak())
             proc.start("flatpak-spawn", QStringList {"--host", installer});
         else
             proc.start(installer, QStringList {});
-    #else
+#else
         auto readLine = [this, &proc] () {
             while (proc.canReadLine())
                 emit this->vcamCliInstallLineReady(proc.readLine());
@@ -658,15 +617,14 @@ bool VirtualCameras::executeVCamInstaller(const QString &installer)
                        QStringList {"/bin/sh",
                                     "-c",
                                     "yes | " + installer});
-    #endif
+#endif
 
         proc.waitForFinished(-1);
         exitCode = proc.exitCode();
-        errorString = proc.errorString();
+        auto errorString = proc.errorString();
 
-    #ifndef Q_PROCESSOR_X86
+#ifndef Q_PROCESSOR_X86
         emit this->vcamCliInstallFinished();
-    #endif
 #endif
 
         if (exitCode != 0)
@@ -1008,10 +966,7 @@ QString VirtualCamerasPrivate::vcamDownloadUrl() const
     if (this->m_latestVersion.isEmpty())
         return {};
 
-#if defined(Q_OS_WIN32)
-    return QString("https://github.com/webcamoid/akvirtualcamera/releases/download/%1/akvirtualcamera-windows-%1.exe")
-           .arg(this->m_latestVersion);
-#elif defined(Q_OS_LINUX)
+#ifdef Q_OS_LINUX
     #ifdef Q_PROCESSOR_X86
         return QString("https://github.com/webcamoid/akvcam/releases/download/%1/akvcam-installer-gui-linux-%1.run")
                .arg(this->m_latestVersion);

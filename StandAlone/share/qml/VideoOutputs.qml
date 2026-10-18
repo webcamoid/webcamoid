@@ -72,7 +72,7 @@ ScrollView {
         }
     }
 
-    // Update list when local streaming location changes
+    // Update list when location changes
     Connections {
         target: localStreaming
 
@@ -128,7 +128,7 @@ ScrollView {
                     onClicked: addStreamingPlatformDialog.open()
                 }
                 MenuItem {
-                    text: qsTr("Add local streaming")
+                    text: qsTr("Add ONVIF local server")
                     icon.source: "image://icons/broadcast"
                     height: localStreaming.isLocalStreamingSupported? undefined: 0
                     visible: localStreaming.isLocalStreamingSupported
@@ -187,13 +187,13 @@ ScrollView {
                     })(i))
                 }
 
-                // Add local streaming if location is set
+                // // Add the server if location is set
                 if (localStreaming.location.length > 0) {
                     let component = Qt.createComponent("LocalStreamingItem.qml")
 
                     if (component.status === Component.Ready) {
                         let obj = component.createObject(devicesList)
-                        obj.text = qsTr("Local Streaming")
+                        obj.text = qsTr("ONVIF local server")
                         obj.location = localStreaming.location
                         devicesList.minHeight += obj.height
 

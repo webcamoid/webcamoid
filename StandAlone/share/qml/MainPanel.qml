@@ -38,7 +38,7 @@ OptionsPanel {
            layout.currentIndex < 6?
                qsTr("Streaming Platform Options"):
            layout.currentIndex < 7?
-               qsTr("Local Streaming Options"):
+               qsTr("ONVIF local server Options"):
                qsTr("%1 options").arg(effectOptions.effectDescription)
     edge: Qt.RightEdge
 
