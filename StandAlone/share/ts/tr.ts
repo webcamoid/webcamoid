@@ -2964,22 +2964,22 @@
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="130"/>
         <source>Aspect ratio mode</source>
-        <translation type="unfinished">En boy oranı modu</translation>
+        <translation>En boy oranı modu</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="132"/>
         <source>Ignore</source>
-        <translation type="unfinished">Yok say</translation>
+        <translation>Yok say</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="133"/>
         <source>Keep</source>
-        <translation type="unfinished">Sakla</translation>
+        <translation>Sakla</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="134"/>
         <source>Keep by expanding</source>
-        <translation type="unfinished">Genişleterek sakla</translation>
+        <translation>Genişleterek sakla</translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="54"/>
