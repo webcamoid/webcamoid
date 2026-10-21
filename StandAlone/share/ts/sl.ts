@@ -113,44 +113,6 @@
     </message>
 </context>
 <context>
-    <name>AddVideoFormat</name>
-    <message>
-        <location filename="../qml/AddVideoFormat.qml" line="52"/>
-        <source>Add Video Format</source>
-        <translation>Dodaj video format</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddVideoFormat.qml" line="53"/>
-        <source>Change Video Format</source>
-        <translation>Spremeni video format</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddVideoFormat.qml" line="105"/>
-        <source>Remove format</source>
-        <translation>Odstrani format</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddVideoFormat.qml" line="116"/>
-        <source>Format</source>
-        <translation>Format</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddVideoFormat.qml" line="128"/>
-        <source>Width</source>
-        <translation>Širina</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddVideoFormat.qml" line="141"/>
-        <source>Height</source>
-        <translation>Višina</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddVideoFormat.qml" line="154"/>
-        <source>Frame rate</source>
-        <translation>Hitrost sličic</translation>
-    </message>
-</context>
-<context>
     <name>AkMediaGalleryModel</name>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="170"/>
@@ -1055,12 +1017,6 @@
         <source>Virtual camera driver</source>
         <translation>Gonilnik navidezne kamere</translation>
     </message>
-    <message>
-        <location filename="../qml/GeneralConfig.qml" line="245"/>
-        <source>Root method</source>
-        <extracomment>The preferred method for executing commands with elevated privileges in the system.</extracomment>
-        <translation>Metoda root</translation>
-    </message>
 </context>
 <context>
     <name>ImageCapture</name>
@@ -1502,7 +1458,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1436"/>
+        <location filename="../../src/mediatools.cpp" line="1424"/>
         <source>%1/log %2.txt</source>
         <translation>%1/log %2.txt</translation>
     </message>
@@ -2682,95 +2638,68 @@
 <context>
     <name>VideoOutputAddEdit</name>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="240"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="92"/>
         <source>Edit Virtual Camera</source>
         <translation>Uredi navidezno kamero</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="241"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="93"/>
         <source>Add Virtual Camera</source>
         <translation>Dodaj navidezno kamero</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="303"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="144"/>
         <source>Virtual camera name</source>
         <translation>Ime navidezne kamere</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="327"/>
-        <source>Direct mode (fast mode)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="328"/>
-        <source>Compatibility (slow mode)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="344"/>
-        <source>Add format</source>
-        <translation>Dodaj format</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="355"/>
-        <source>Clear formats</source>
-        <translation>Počisti formate</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="391"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="167"/>
         <source>Format</source>
         <translation>Format</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="404"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="178"/>
         <source>Width</source>
         <translation>Širina</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="417"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="191"/>
         <source>Height</source>
         <translation>Višina</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="430"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="204"/>
         <source>Frame rate</source>
         <translation>Hitrost sličic</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="452"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="225"/>
         <source>Can&apos;t edit the virtual camera</source>
         <translation>Navidezne kamere ni mogoče urejati</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="453"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="226"/>
         <source>Can&apos;t add the virtual camera</source>
         <translation>Navidezne kamere ni mogoče dodati</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="284"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="463"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="473"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="125"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="235"/>
         <source>Error editing the virtual camera</source>
         <translation>Napaka pri urejanju navidezne kamere</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="464"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="474"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="236"/>
         <source>Error adding the virtual camera</source>
         <translation>Napaka pri dodajanju navidezne kamere</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="465"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="237"/>
         <source>Camera description can&apos;t be empty.</source>
         <translation>Opis kamere ne sme biti prazen.</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="475"/>
-        <source>Camera description and formats can&apos;t be empty.</source>
-        <translation>Opis kamere in formati ne smejo biti prazni.</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="275"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="116"/>
         <source>Error creating the virtual camera</source>
         <translation>Napaka pri ustvarjanju navidezne kamere</translation>
     </message>
@@ -2821,32 +2750,32 @@
 <context>
     <name>VideoOutputs</name>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="90"/>
+        <location filename="../qml/VideoOutputs.qml" line="95"/>
         <source>Add output</source>
         <translation>Dodaj izhod</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="102"/>
+        <location filename="../qml/VideoOutputs.qml" line="107"/>
         <source>Add virtual camera</source>
         <translation>Dodaj navidezno kamero</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="115"/>
+        <location filename="../qml/VideoOutputs.qml" line="122"/>
         <source>Error Creating Virtual Camera</source>
         <translation>Napaka pri ustvarjanju navidezne kamere</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="123"/>
+        <location filename="../qml/VideoOutputs.qml" line="130"/>
         <source>Add streaming platform</source>
         <translation>Dodaj platformo za pretakanje</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="131"/>
+        <location filename="../qml/VideoOutputs.qml" line="138"/>
         <source>Add ONVIF local server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="196"/>
+        <location filename="../qml/VideoOutputs.qml" line="197"/>
         <source>ONVIF local server</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3016,32 +2945,52 @@
 <context>
     <name>VirtualCameraOptions</name>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="79"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="78"/>
         <source>Edit</source>
         <translation>Uredi</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="91"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="90"/>
         <source>Can&apos;t Edit The Virtual Camera</source>
         <translation>Navidezne kamere ni mogoče urejati</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="98"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="97"/>
         <source>Set output picture</source>
         <translation>Nastavi izhodno sliko</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="109"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="108"/>
         <source>Remove</source>
         <translation>Odstrani</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="55"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="130"/>
+        <source>Aspect ratio mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VirtualCameraOptions.qml" line="132"/>
+        <source>Ignore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VirtualCameraOptions.qml" line="133"/>
+        <source>Keep</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VirtualCameraOptions.qml" line="134"/>
+        <source>Keep by expanding</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VirtualCameraOptions.qml" line="54"/>
         <source>Error removing the virtual camera</source>
         <translation>Napaka pri odstranjevanju navidezne kamere</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="122"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="120"/>
         <source>Can&apos;t Remove The Virtual Camera</source>
         <translation>Navidezne kamere ni mogoče odstraniti</translation>
     </message>
@@ -3067,7 +3016,7 @@
 <context>
     <name>VirtualCameras</name>
     <message>
-        <location filename="../../src/virtualcameras.cpp" line="552"/>
+        <location filename="../../src/virtualcameras.cpp" line="452"/>
         <source>Virtual Camera</source>
         <translation>Navidezna kamera</translation>
     </message>

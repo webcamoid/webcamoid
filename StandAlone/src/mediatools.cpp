@@ -999,8 +999,7 @@ bool MediaTools::init(const CliOptions &cliOptions)
                      &VideoLayer::stateChanged,
                      this,
                      [this] (AkElement::ElementState state) {
-                         if (!this->d->m_virtualCameras->selectedOutputs().isEmpty()
-                             && !this->d->m_virtualCameras->outputs().isEmpty())
+                         if (!this->d->m_virtualCameras->output().isEmpty())
                             this->d->m_virtualCameras->setState(state);
 
                          if (!this->d->m_localStreaming->location().isEmpty())
@@ -1093,21 +1092,10 @@ bool MediaTools::init(const CliOptions &cliOptions)
                      this,
                      updateLocalStreamingPacketReader);
     QObject::connect(this->d->m_virtualCameras.data(),
-                     &VirtualCameras::outputsChanged,
+                     &VirtualCameras::outputChanged,
                      this,
-                     [this] (const QStringList &outputs) {
-        if (outputs.isEmpty()
-            || this->d->m_virtualCameras->selectedOutputs().isEmpty())
-            this->d->m_virtualCameras->setState(AkElement::ElementStateNull);
-        else
-            this->d->m_virtualCameras->setState(this->d->m_videoLayer->state());
-    });
-    QObject::connect(this->d->m_virtualCameras.data(),
-                     &VirtualCameras::selectedOutputsChanged,
-                     this,
-                     [this] (const QStringList &selectedOutputs) {
-        if (selectedOutputs.isEmpty()
-            || this->d->m_virtualCameras->outputs().isEmpty())
+                     [this] (const QString &output) {
+        if (output.isEmpty())
             this->d->m_virtualCameras->setState(AkElement::ElementStateNull);
         else
             this->d->m_virtualCameras->setState(this->d->m_videoLayer->state());

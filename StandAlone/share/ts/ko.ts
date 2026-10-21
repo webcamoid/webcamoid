@@ -113,44 +113,6 @@
     </message>
 </context>
 <context>
-    <name>AddVideoFormat</name>
-    <message>
-        <location filename="../qml/AddVideoFormat.qml" line="52"/>
-        <source>Add Video Format</source>
-        <translation>비디오 포맷 추가</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddVideoFormat.qml" line="53"/>
-        <source>Change Video Format</source>
-        <translation>비디오 포맷 변경</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddVideoFormat.qml" line="105"/>
-        <source>Remove format</source>
-        <translation>비디오 포맷 삭제</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddVideoFormat.qml" line="116"/>
-        <source>Format</source>
-        <translation>비디오 포맷</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddVideoFormat.qml" line="128"/>
-        <source>Width</source>
-        <translation>폭</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddVideoFormat.qml" line="141"/>
-        <source>Height</source>
-        <translation>세로</translation>
-    </message>
-    <message>
-        <location filename="../qml/AddVideoFormat.qml" line="154"/>
-        <source>Frame rate</source>
-        <translation>프레임율</translation>
-    </message>
-</context>
-<context>
     <name>AkMediaGalleryModel</name>
     <message>
         <location filename="../../../libAvKys/Lib/src/qml/akmediagallerymodel.cpp" line="170"/>
@@ -424,17 +386,17 @@
     <message>
         <location filename="../qml/CanvasConfig.qml" line="223"/>
         <source>Width</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">너비</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="252"/>
         <source>Height</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">높이</translation>
     </message>
     <message>
         <location filename="../qml/CanvasConfig.qml" line="281"/>
         <source>Frame rate</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">프레임 속도</translation>
     </message>
 </context>
 <context>
@@ -1055,12 +1017,6 @@
         <source>Audio capture/playback</source>
         <translation>오디오 캡처/재생</translation>
     </message>
-    <message>
-        <location filename="../qml/GeneralConfig.qml" line="245"/>
-        <source>Root method</source>
-        <extracomment>The preferred method for executing commands with elevated privileges in the system.</extracomment>
-        <translation>루트 방법</translation>
-    </message>
 </context>
 <context>
     <name>ImageCapture</name>
@@ -1499,7 +1455,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1436"/>
+        <location filename="../../src/mediatools.cpp" line="1424"/>
         <source>%1/log %2.txt</source>
         <translation>%1/로그 %2.txt</translation>
     </message>
@@ -2679,97 +2635,70 @@
 <context>
     <name>VideoOutputAddEdit</name>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="240"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="92"/>
         <source>Edit Virtual Camera</source>
         <translation>가상 카메라 편집</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="241"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="93"/>
         <source>Add Virtual Camera</source>
         <translation>가상 카메라 추가</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="303"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="144"/>
         <source>Virtual camera name</source>
         <translation>가상 카메라 이름</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="327"/>
-        <source>Direct mode (fast mode)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="328"/>
-        <source>Compatibility (slow mode)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="344"/>
-        <source>Add format</source>
-        <translation>형식 추가</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="355"/>
-        <source>Clear formats</source>
-        <translation>형식 지우기</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="391"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="167"/>
         <source>Format</source>
         <translation>형식</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="404"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="178"/>
         <source>Width</source>
         <translation>너비</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="417"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="191"/>
         <source>Height</source>
         <translation>높이</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="430"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="204"/>
         <source>Frame rate</source>
         <translation>프레임 속도</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="452"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="225"/>
         <source>Can&apos;t edit the virtual camera</source>
         <translation>가상 카메라를 편집할 수 없음</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="453"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="226"/>
         <source>Can&apos;t add the virtual camera</source>
         <translation>가상 카메라를 추가할 수 없음</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="284"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="463"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="473"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="125"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="235"/>
         <source>Error editing the virtual camera</source>
         <translation>가상 카메라 편집 오류</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="464"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="474"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="236"/>
         <source>Error adding the virtual camera</source>
         <translation>가상 카메라 추가 오류</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="465"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="237"/>
         <source>Camera description can&apos;t be empty.</source>
         <translation>카메라 설명은 비울 수 없습니다.</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="275"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="116"/>
         <source>Error creating the virtual camera</source>
         <translation>가상 카메라 생성 오류</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="475"/>
-        <source>Camera description and formats can&apos;t be empty.</source>
-        <translation>카메라 설명과 형식을 비울 수 없습니다.</translation>
     </message>
 </context>
 <context>
@@ -2818,32 +2747,32 @@
 <context>
     <name>VideoOutputs</name>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="90"/>
+        <location filename="../qml/VideoOutputs.qml" line="95"/>
         <source>Add output</source>
         <translation>출력 추가</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="102"/>
+        <location filename="../qml/VideoOutputs.qml" line="107"/>
         <source>Add virtual camera</source>
         <translation>가상 카메라 추가</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="115"/>
+        <location filename="../qml/VideoOutputs.qml" line="122"/>
         <source>Error Creating Virtual Camera</source>
         <translation>가상 카메라 생성 오류</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="123"/>
+        <location filename="../qml/VideoOutputs.qml" line="130"/>
         <source>Add streaming platform</source>
         <translation>스트리밍 플랫폼 추가</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="131"/>
+        <location filename="../qml/VideoOutputs.qml" line="138"/>
         <source>Add ONVIF local server</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputs.qml" line="196"/>
+        <location filename="../qml/VideoOutputs.qml" line="197"/>
         <source>ONVIF local server</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3013,32 +2942,52 @@
 <context>
     <name>VirtualCameraOptions</name>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="79"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="78"/>
         <source>Edit</source>
         <translation>편집</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="91"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="90"/>
         <source>Can&apos;t Edit The Virtual Camera</source>
         <translation>가상 카메라를 편집할 수 없음</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="98"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="97"/>
         <source>Set output picture</source>
         <translation>출력 이미지 설정</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="109"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="108"/>
         <source>Remove</source>
         <translation>제거</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="55"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="130"/>
+        <source>Aspect ratio mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VirtualCameraOptions.qml" line="132"/>
+        <source>Ignore</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VirtualCameraOptions.qml" line="133"/>
+        <source>Keep</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VirtualCameraOptions.qml" line="134"/>
+        <source>Keep by expanding</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VirtualCameraOptions.qml" line="54"/>
         <source>Error removing the virtual camera</source>
         <translation>가상 카메라 제거 오류</translation>
     </message>
     <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="122"/>
+        <location filename="../qml/VirtualCameraOptions.qml" line="120"/>
         <source>Can&apos;t Remove The Virtual Camera</source>
         <translation>가상 카메라를 제거할 수 없음</translation>
     </message>
@@ -3064,7 +3013,7 @@
 <context>
     <name>VirtualCameras</name>
     <message>
-        <location filename="../../src/virtualcameras.cpp" line="552"/>
+        <location filename="../../src/virtualcameras.cpp" line="452"/>
         <source>Virtual Camera</source>
         <translation>가상 카메라</translation>
     </message>

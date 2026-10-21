@@ -23,11 +23,20 @@
 #include <QObject>
 #include <QVariant>
 #include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <akvideopacket.h>
 
 class VCam;
+class VCamPrivate;
 using VCamPtr = QSharedPointer<VCam>;
 
+/* A virtual camera plugin manages a single virtual camera.
+ *
+ * The frames given to write() can be in any format and resolution, the base
+ * class converts them to the format defined in outputCaps, so the plugins
+ * only need to negotiate the format with the driver (openDevice()) and copy
+ * the already converted frames to it (writeFrame()).
+ */
 class VCam: public QObject
 {
     Q_OBJECT
@@ -37,94 +46,95 @@ class VCam: public QObject
     Q_PROPERTY(bool isInstalled
                READ isInstalled
                CONSTANT)
-    Q_PROPERTY(QStringList webcams
-               READ webcams
-               NOTIFY webcamsChanged)
     Q_PROPERTY(QString device
                READ device
-               WRITE setDevice
-               RESET resetDevice
                NOTIFY deviceChanged)
-    Q_PROPERTY(AkVideoCaps currentCaps
-               READ currentCaps
-               WRITE setCurrentCaps
-               RESET resetCurrentCaps
-               NOTIFY currentCapsChanged)
+    Q_PROPERTY(QString description
+               READ description
+               WRITE setDescription
+               RESET resetDescription
+               NOTIFY descriptionChanged)
+    Q_PROPERTY(AkVideoCaps outputCaps
+               READ outputCaps
+               WRITE setOutputCaps
+               RESET resetOutputCaps
+               NOTIFY outputCapsChanged)
+    Q_PROPERTY(AkVideoConverter::AspectRatioMode aspectRatioMode
+               READ aspectRatioMode
+               WRITE setAspectRatioMode
+               RESET resetAspectRatioMode
+               NOTIFY aspectRatioModeChanged)
     Q_PROPERTY(QString picture
                READ picture
                WRITE setPicture
                RESET resetPicture
                NOTIFY pictureChanged)
-    Q_PROPERTY(QString rootMethod
-               READ rootMethod
-               WRITE setRootMethod
-               RESET resetRootMethod
-               NOTIFY rootMethodChanged)
-    Q_PROPERTY(QStringList availableRootMethods
-               READ availableRootMethods
-               CONSTANT)
     Q_PROPERTY(bool canEditVCamDescription
                READ canEditVCamDescription
-               CONSTANT)
-    Q_PROPERTY(bool isPassThrough
-               READ isPassThrough
                CONSTANT)
 
     public:
         VCam(QObject *parent=nullptr);
-        virtual ~VCam() = default;
+        virtual ~VCam();
 
         Q_INVOKABLE virtual QString error() const;
         Q_INVOKABLE virtual bool isInstalled() const;
         Q_INVOKABLE virtual QString installedVersion() const;
-        Q_INVOKABLE virtual QStringList webcams() const;
         Q_INVOKABLE virtual QString device() const;
-        Q_INVOKABLE virtual QString description(const QString &webcam) const;
-        Q_INVOKABLE virtual QList<AkVideoCaps::PixelFormat> supportedOutputPixelFormats() const;
-        Q_INVOKABLE virtual AkVideoCaps::PixelFormat defaultOutputPixelFormat() const;
-        Q_INVOKABLE virtual AkVideoCapsList caps(const QString &webcam) const;
-        Q_INVOKABLE virtual AkVideoCaps currentCaps() const;
-        Q_INVOKABLE virtual QVariantList controls() const;
-        Q_INVOKABLE virtual bool setControls(const QVariantMap &controls);
+        Q_INVOKABLE QString description() const;
+        Q_INVOKABLE AkVideoCaps outputCaps() const;
+        Q_INVOKABLE AkVideoConverter::AspectRatioMode aspectRatioMode() const;
         Q_INVOKABLE virtual QList<quint64> clientsPids() const;
         Q_INVOKABLE virtual QString clientExe(quint64 pid) const;
         Q_INVOKABLE virtual QString picture() const;
-        Q_INVOKABLE virtual QString rootMethod() const;
-        Q_INVOKABLE virtual QStringList availableRootMethods() const;
         Q_INVOKABLE virtual bool canEditVCamDescription() const;
-        Q_INVOKABLE virtual bool isPassThrough() const;
-        Q_INVOKABLE virtual QString deviceCreate(const QString &description,
-                                                 const AkVideoCapsList &caps);
-        Q_INVOKABLE virtual bool deviceEdit(const QString &deviceId,
-                                            const QString &description,
-                                            const AkVideoCapsList &caps);
-        Q_INVOKABLE virtual bool changeDescription(const QString &deviceId,
-                                                   const QString &description);
-        Q_INVOKABLE virtual bool deviceDestroy(const QString &deviceId);
-        Q_INVOKABLE virtual bool destroyAllDevices();
+        Q_INVOKABLE virtual QString deviceCreate(const QString &description);
+        Q_INVOKABLE virtual bool changeDescription(const QString &description);
+        Q_INVOKABLE virtual bool deviceDestroy();
 
     signals:
         void errorChanged(const QString &error);
-        void webcamsChanged(const QStringList &webcams);
         void deviceChanged(const QString &device);
-        void currentCapsChanged(const AkVideoCaps &error);
+        void descriptionChanged(const QString &description);
+        void outputCapsChanged(const AkVideoCaps &outputCaps);
+        void aspectRatioModeChanged(AkVideoConverter::AspectRatioMode aspectRatioMode);
         void pictureChanged(const QString &picture);
-        void rootMethodChanged(const QString &rootMethod);
-        void controlsChanged(const QVariantMap &controls);
 
     public slots:
-        virtual bool init();
-        virtual void uninit();
-        virtual bool write(const AkVideoPacket &packet);
+        // Starts the output using the current outputCaps.
+        bool init();
+        void uninit();
+        // Converts the packet to the active output format and sends it.
+        bool write(const AkVideoPacket &packet);
         virtual bool applyPicture();
-        virtual void setDevice(const QString &device);
-        virtual void setCurrentCaps(const AkVideoCaps &currentCaps);
+
+        /* Changing the outputCaps while the camera is running does not have
+         * any effect until the next call to init().
+         */
+        void setDescription(const QString &description);
+        void setOutputCaps(const AkVideoCaps &outputCaps);
+
+        // It is applied immediately, even if the camera is running.
+        void setAspectRatioMode(AkVideoConverter::AspectRatioMode aspectRatioMode);
         virtual void setPicture(const QString &picture);
-        virtual void setRootMethod(const QString &rootMethod);
-        virtual void resetDevice();
-        virtual void resetCurrentCaps();
-        virtual void resetPicture();
-        virtual void resetRootMethod();
+        void resetDescription();
+        void resetOutputCaps();
+        void resetAspectRatioMode();
+        void resetPicture();
+
+    protected:
+        /* Negotiates the format with the driver and starts the streaming.
+         * 'caps' is the requested format, the plugin must update it with the
+         * format that will be really used if the driver changes it.
+         */
+        virtual bool openDevice(AkVideoCaps &caps);
+        virtual void closeDevice();
+
+        // Receives frames already converted to the active format.
+        virtual bool writeFrame(const AkVideoPacket &packet);
+
+    private:
+        VCamPrivate *d;
 };
 
 #endif // VCAM_H

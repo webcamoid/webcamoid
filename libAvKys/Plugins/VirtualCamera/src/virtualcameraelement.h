@@ -20,10 +20,9 @@
 #ifndef VIRTUALCAMERAELEMENT_H
 #define VIRTUALCAMERAELEMENT_H
 
-#include <akcaps.h>
-#include <QVariantMap>
 #include <iak/akelement.h>
 #include <akvideocaps.h>
+#include <akvideoconverter.h>
 
 class VirtualCameraElementPrivate;
 
@@ -33,26 +32,24 @@ class VirtualCameraElement: public AkElement
     Q_PROPERTY(QString error
                READ error
                NOTIFY errorChanged)
-    Q_PROPERTY(QStringList medias
-               READ medias
-               NOTIFY mediasChanged)
-    Q_PROPERTY(QString media
-               READ media
-               WRITE setMedia
-               RESET resetMedia
-               NOTIFY mediaChanged)
-    Q_PROPERTY(QList<int> streams
-               READ streams
-               NOTIFY streamsChanged)
-    Q_PROPERTY(int maxCameras
-               READ maxCameras
-               NOTIFY maxCamerasChanged)
-    Q_PROPERTY(AkVideoCaps::PixelFormatList supportedOutputPixelFormats
-               READ supportedOutputPixelFormats
-               NOTIFY supportedOutputPixelFormatsChanged)
-    Q_PROPERTY(AkVideoCaps::PixelFormat defaultOutputPixelFormat
-               READ defaultOutputPixelFormat
-               NOTIFY defaultOutputPixelFormatChanged)
+    Q_PROPERTY(QString device
+               READ device
+               NOTIFY deviceChanged)
+    Q_PROPERTY(QString description
+               READ description
+               WRITE setDescription
+               RESET resetDescription
+               NOTIFY descriptionChanged)
+    Q_PROPERTY(AkVideoCaps outputCaps
+               READ outputCaps
+               WRITE setOutputCaps
+               RESET resetOutputCaps
+               NOTIFY outputCapsChanged)
+    Q_PROPERTY(AkVideoConverter::AspectRatioMode aspectRatioMode
+               READ aspectRatioMode
+               WRITE setAspectRatioMode
+               RESET resetAspectRatioMode
+               NOTIFY aspectRatioModeChanged)
     Q_PROPERTY(QList<quint64> clientsPids
                READ clientsPids
                CONSTANT)
@@ -67,19 +64,8 @@ class VirtualCameraElement: public AkElement
                WRITE setPicture
                RESET resetPicture
                NOTIFY pictureChanged)
-    Q_PROPERTY(QString rootMethod
-               READ rootMethod
-               WRITE setRootMethod
-               RESET resetRootMethod
-               NOTIFY rootMethodChanged)
-    Q_PROPERTY(QStringList availableRootMethods
-               READ availableRootMethods
-               CONSTANT)
     Q_PROPERTY(bool canEditVCamDescription
                READ canEditVCamDescription
-               CONSTANT)
-    Q_PROPERTY(bool isPassThrough
-               READ isPassThrough
                CONSTANT)
 
     public:
@@ -87,77 +73,47 @@ class VirtualCameraElement: public AkElement
         ~VirtualCameraElement();
 
         Q_INVOKABLE QString error() const;
-        Q_INVOKABLE QStringList medias() const;
-        Q_INVOKABLE QString media() const;
-        Q_INVOKABLE QList<int> streams() const;
-        Q_INVOKABLE int maxCameras() const;
-        Q_INVOKABLE AkVideoCaps::PixelFormatList supportedOutputPixelFormats() const;
-        Q_INVOKABLE AkVideoCaps::PixelFormat defaultOutputPixelFormat() const;
-        Q_INVOKABLE int defaultStream(AkCaps::CapsType type) const;
-        Q_INVOKABLE QString description(const QString &media) const;
-        Q_INVOKABLE AkCaps caps(int stream) const;
-        Q_INVOKABLE AkVideoCapsList outputCaps(const QString &webcam) const;
-        Q_INVOKABLE QVariantMap addStream(int streamIndex,
-                                          const AkCaps &streamCaps,
-                                          const QVariantMap &streamParams={});
-        Q_INVOKABLE QVariantMap updateStream(int streamIndex,
-                                             const QVariantMap &streamParams={});
-        Q_INVOKABLE void createWebcam(const QString &description,
-                                      const AkVideoCapsList &formats);
-        Q_INVOKABLE void editWebcam(const QString &webcam,
-                                    const QString &description,
-                                    const AkVideoCapsList &formats);
-        Q_INVOKABLE void changeDescription(const QString &webcam,
-                                           const QString &description={});
-        Q_INVOKABLE void removeWebcam(const QString &webcam);
-        Q_INVOKABLE void removeAllWebcams();
-        Q_INVOKABLE QVariantList controls() const;
-        Q_INVOKABLE bool setControls(const QVariantMap &controls);
-        Q_INVOKABLE bool resetControls();
+        Q_INVOKABLE QString device() const;
+        Q_INVOKABLE QString description() const;
+        Q_INVOKABLE AkVideoCaps outputCaps() const;
+        Q_INVOKABLE AkVideoConverter::AspectRatioMode aspectRatioMode() const;
+        Q_INVOKABLE void createWebcam(const QString &description);
+        Q_INVOKABLE void changeDescription(const QString &description);
+        Q_INVOKABLE void removeWebcam();
         Q_INVOKABLE QList<quint64> clientsPids() const;
         Q_INVOKABLE QString clientExe(quint64 pid) const;
         Q_INVOKABLE bool driverInstalled() const;
         Q_INVOKABLE QString driverVersion() const;
         Q_INVOKABLE QString picture() const;
-        Q_INVOKABLE QString rootMethod() const;
-        Q_INVOKABLE QStringList availableRootMethods() const;
         Q_INVOKABLE bool canEditVCamDescription() const;
-        Q_INVOKABLE bool isPassThrough() const;
 
     private:
         VirtualCameraElementPrivate *d;
 
     protected:
-        QString controlInterfaceProvide(const QString &controlId) const override;
-        void controlInterfaceConfigure(QQmlContext *context,
-                                       const QString &controlId) const override;
         AkPacket iVideoStream(const AkVideoPacket &packet) override;
 
     signals:
         void errorChanged(const QString &error);
-        void mediasChanged(const QStringList &medias);
-        void mediaChanged(const QString &media);
-        void streamsChanged(const QList<int> &streams);
-        void maxCamerasChanged(int maxCameras);
-        void supportedOutputPixelFormatsChanged(const AkVideoCaps::PixelFormatList &supportedOutputPixelFormats);
-        void defaultOutputPixelFormatChanged(const AkVideoCaps::PixelFormat &defaultOutputPixelFormat);
+        void deviceChanged(const QString &device);
+        void descriptionChanged(const QString &description);
+        void outputCapsChanged(const AkVideoCaps &outputCaps);
+        void aspectRatioModeChanged(AkVideoConverter::AspectRatioMode aspectRatioMode);
         void pictureChanged(const QString &picture);
-        void rootMethodChanged(const QString &rootMethod);
         void webcamCreated(bool ok, const QString &msg);
-        void webcamEdited(bool ok, const QString &msg);
-        void descriptionChanged(bool ok, const QString &msg);
+        void descriptionEdited(bool ok, const QString &msg);
         void webcamRemoved(bool ok, const QString &msg);
-        void allWebcamsRemoved(bool ok, const QString &msg);
 
     public slots:
         bool applyPicture();
-        void setMedia(const QString &media);
+        void setDescription(const QString &description);
+        void setOutputCaps(const AkVideoCaps &outputCaps);
+        void setAspectRatioMode(AkVideoConverter::AspectRatioMode aspectRatioMode);
         void setPicture(const QString &picture);
-        void setRootMethod(const QString &rootMethod);
-        void resetMedia();
+        void resetDescription();
+        void resetOutputCaps();
+        void resetAspectRatioMode();
         void resetPicture();
-        void resetRootMethod();
-        void clearStreams();
         bool setState(AkElement::ElementState state) override;
 };
 

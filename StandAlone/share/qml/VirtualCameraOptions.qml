@@ -21,6 +21,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Ak
+import AkControls as AK
 import Webcamoid
 
 ScrollView {
@@ -39,10 +40,8 @@ ScrollView {
     {
         view.videoOutput = videoOutput
         deviceInfo.text =
-                "<b>" + virtualCameras.description(videoOutput) + "</b><br/>"
+                "<b>" + virtualCameras.outputDescription + "</b><br/>"
                 + "<i>" + videoOutput + "</i>"
-        virtualCameras.removeInterface("itmVirtualCameraOptions")
-        virtualCameras.embedOutputControls("itmVirtualCameraOptions", videoOutput)
     }
 
     Connections {
@@ -116,8 +115,7 @@ ScrollView {
 
             onClicked: {
                 if (virtualCameras.clientsPids.length < 1) {
-                    virtualCameras.removeInterface("itmVirtualCameraOptions")
-                    virtualCameras.removeOutput(view.videoOutput)
+                    virtualCameras.removeOutput()
                 } else {
                     let title = qsTr("Can't Remove The Virtual Camera")
                     let message = Commons.vcamDriverBusyMessage()
@@ -125,14 +123,29 @@ ScrollView {
                 }
             }
         }
-        ColumnLayout {
-            id: itmVirtualCameraOptions
-            objectName: "itmVirtualCameraOptions"
-            width: view.width
+
+        // Aspect ratio mode
+        AK.LabeledComboBox {
+            id: aspectRatioModeComboBox
+            label: qsTr("Aspect ratio mode")
+            model: [
+                qsTr("Ignore"),
+                qsTr("Keep"),
+                qsTr("Keep by expanding"),
+            ]
+            currentIndex: Math.min(Math.max(virtualCameras.aspectRatioMode, 0),
+                                   model.length - 1)
             Layout.leftMargin:
                 AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
             Layout.rightMargin:
                 AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+            Layout.fillWidth: true
+            Accessible.name: label
+
+            onCurrentIndexChanged: {
+                if (currentIndex !== virtualCameras.aspectRatioMode)
+                    virtualCameras.aspectRatioMode = currentIndex
+            }
         }
     }
 }

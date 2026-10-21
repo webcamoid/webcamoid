@@ -265,20 +265,7 @@ OptionsPanel {
 
         onOpenErrorDialog: (title, message) =>
             panel.openErrorDialog(title, message)
-        onOpenOutputFormatDialog: (index, caps) =>
-            addVideoFormat.openOptions(index, caps)
         onEdited: virtualCameraOptions.closeOption()
-    }
-    AddVideoFormat {
-        id:  addVideoFormat
-        anchors.centerIn: Overlay.overlay
-
-        onAddFormat: caps =>
-            videoOutputAddEdit.addFormat(caps)
-        onChangeFormat: (index, caps) =>
-            videoOutputAddEdit.changeFormat(index, caps)
-        onRemoveFormat: index =>
-            videoOutputAddEdit.removeFormat(index)
     }
     VideoOutputPicture {
         id: videoOutputPicture

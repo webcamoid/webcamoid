@@ -58,7 +58,12 @@ ScrollView {
     Connections {
         target: virtualCameras
 
-        function onOutputsChanged()
+        function onOutputChanged()
+        {
+            devicesList.update()
+        }
+
+        function onOutputDescriptionChanged()
         {
             devicesList.update()
         }
@@ -101,8 +106,10 @@ ScrollView {
                 MenuItem {
                     text: qsTr("Add virtual camera")
                     icon.source: "image://icons/webcam"
-                    height: virtualCameras.isVCamSupported? undefined: 0
+                    height: virtualCameras.isVCamSupported
+                            && virtualCameras.output.length < 1? undefined: 0
                     visible: virtualCameras.isVCamSupported
+                             && virtualCameras.output.length < 1
 
                     onClicked: {
                         if ((virtualCameras.vcamInstallStatus == virtualCameras.VCamNotInstalled)
@@ -130,8 +137,10 @@ ScrollView {
                 MenuItem {
                     text: qsTr("Add ONVIF local server")
                     icon.source: "image://icons/broadcast"
-                    height: localStreaming.isLocalStreamingSupported? undefined: 0
+                    height: localStreaming.isLocalStreamingSupported
+                            && localStreaming.location.length < 1? undefined: 0
                     visible: localStreaming.isLocalStreamingSupported
+                             && localStreaming.location.length < 1
 
                     onClicked: {
                         localStreaming.location = localStreaming.defaultURL
@@ -151,22 +160,14 @@ ScrollView {
 
             function update() {
                 devicesList.minHeight = 0
-                let devices = virtualCameras.outputs
+                let devices = virtualCameras.output.length < 1?
+                                []:
+                                [virtualCameras.output]
 
                 for (let i = count - 1; i >= 0; i--)
                     removeItem(itemAt(i))
 
-                let output = virtualCameras.outputs.length < 1?
-                                "":
-                                virtualCameras.outputs[0]
-                let index = devices.indexOf(output)
-
-                if (index < 0) {
-                    if (devices.length == 1)
-                        index = 0
-                    else if (devices.length >= 2)
-                        index = 1
-                }
+                let index = devices.length < 1? -1: 0
 
                 updating = true
 
@@ -178,12 +179,12 @@ ScrollView {
                         continue
 
                     let obj = component.createObject(devicesList)
-                    obj.text = virtualCameras.description(devices[i])
+                    obj.text = virtualCameras.outputDescription
                     obj.device = devices[i]
                     devicesList.minHeight += obj.height
 
                     obj.onClicked.connect((index => function () {
-                        view.openVirtualCameraOptions(virtualCameras.outputs[index])
+                        view.openVirtualCameraOptions(virtualCameras.output)
                     })(i))
                 }
 

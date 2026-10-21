@@ -27,6 +27,7 @@
 #include <ak.h>
 #include <akaudiocaps.h>
 #include <akcaps.h>
+#include <akfrac.h>
 #include <akpacket.h>
 #include <akvideocaps.h>
 #include <akplugininfo.h>
@@ -49,26 +50,19 @@ class VirtualCamerasPrivate
     public:
         VirtualCameras *self;
         QQmlApplicationEngine *m_engine {nullptr};
-        QStringList m_selectedOutputs;
         AkElementPtr m_cameraOutput {akPluginManager->create<AkElement>("VideoSink/VirtualCamera")};
-        QMap<QString, AkElementPtr> m_outputPlugins;
         QString m_vcamDriver;
         QThreadPool m_threadPool;
         AkElement::ElementState m_state {AkElement::ElementStateNull};
         QString m_latestVersion;
         bool m_currentVCamInstalled {false};
-        bool m_isPassThroughVCam {false};
+        bool m_busy {false};
 
         explicit VirtualCamerasPrivate(VirtualCameras *self);
         void connectSignals();
-        bool embedControls(const QString &where,
-                           const AkElementPtr &element,
-                           const QString &pluginId,
-                           const QString &name) const;
-        static QString sanitizeKey(const QString &key);
         void loadProperties();
-        void updateOutputPlugins();
-        void saveOutputs();
+        void stopOutput();
+        void restoreOutput();
         inline QString vcamDownloadUrl() const;
 };
 
@@ -101,19 +95,6 @@ VirtualCameras::VirtualCameras(QQmlApplicationEngine *engine, QObject *parent):
                 if (this->d->m_currentVCamInstalled != installed) {
                     this->d->m_currentVCamInstalled = installed;
                     emit this->currentVCamInstalledChanged(installed);
-                }
-
-                bool isPassThrough =
-                        this->d->m_cameraOutput->property("isPassThrough").toBool();
-
-                if (isPassThrough != this->d->m_isPassThroughVCam) {
-                    this->d->m_isPassThroughVCam = isPassThrough;
-                    emit this->isPassThroughVCamChanged(isPassThrough);
-                }
-            } else {
-                if (this->d->m_isPassThroughVCam) {
-                    this->d->m_isPassThroughVCam = false;
-                    emit this->isPassThroughVCamChanged(false);
                 }
             }
         }
@@ -149,72 +130,65 @@ VirtualCameras::VirtualCameras(QQmlApplicationEngine *engine, QObject *parent):
 
             akPluginManager->link("VideoSink/VirtualCamera/Impl/*", pluginId);
         }
-
-        this->d->m_isPassThroughVCam =
-                this->d->m_cameraOutput->property("isPassThrough").toBool();
     }
 }
 
 VirtualCameras::~VirtualCameras()
 {
     this->setState(AkElement::ElementStateNull);
-    this->d->saveOutputs();
     delete this->d;
 }
 
-QStringList VirtualCameras::outputs() const
+QString VirtualCameras::output() const
 {
-    QStringList outputs;
+    if (!this->d->m_cameraOutput)
+        return {};
 
-    if (this->d->m_cameraOutput)
-        outputs = this->d->m_cameraOutput->property("medias").toStringList();
-
-    return outputs;
+    return this->d->m_cameraOutput->property("device").toString();
 }
 
-QStringList VirtualCameras::selectedOutputs() const
+QString VirtualCameras::outputDescription() const
 {
-    return this->d->m_selectedOutputs;
+    if (!this->d->m_cameraOutput)
+        return {};
+
+    return this->d->m_cameraOutput->property("description").toString();
+}
+
+AkVideoCaps VirtualCameras::outputCaps() const
+{
+    if (!this->d->m_cameraOutput)
+        return {};
+
+    return this->d->m_cameraOutput->property("outputCaps").value<AkVideoCaps>();
+}
+
+AkVideoConverter::AspectRatioMode VirtualCameras::aspectRatioMode() const
+{
+    if (!this->d->m_cameraOutput)
+        return AkVideoConverter::AspectRatioMode_Expanding;
+
+    return this->d->m_cameraOutput->property("aspectRatioMode")
+                                  .value<AkVideoConverter::AspectRatioMode>();
 }
 
 AkVideoCaps::PixelFormatList VirtualCameras::supportedOutputPixelFormats() const
 {
-    if (!this->d->m_cameraOutput)
-        return {};
-
-    AkVideoCaps::PixelFormatList pixelFormats;
-    QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
-                              "supportedOutputPixelFormats",
-                              Q_RETURN_ARG(AkVideoCaps::PixelFormatList, pixelFormats));
-
-    return pixelFormats;
+    // The format is chosen here, the plugins accept any of them.
+    return {
+        AkVideoCaps::Format_yuyv422,
+        AkVideoCaps::Format_uyvy422,
+        AkVideoCaps::Format_yuv420p,
+        AkVideoCaps::Format_nv12,
+        AkVideoCaps::Format_xrgb,
+        AkVideoCaps::Format_rgb24,
+        AkVideoCaps::Format_bgr24
+    };
 }
 
 AkVideoCaps::PixelFormat VirtualCameras::defaultOutputPixelFormat() const
 {
-    if (!this->d->m_cameraOutput)
-        return AkVideoCaps::Format_none;
-
-    AkVideoCaps::PixelFormat pixelFormat;
-    QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
-                              "defaultOutputPixelFormat",
-                              Q_RETURN_ARG(AkVideoCaps::PixelFormat, pixelFormat));
-
-    return pixelFormat;
-}
-
-AkVideoCapsList VirtualCameras::supportedOutputVideoCaps(const QString &device) const
-{
-    if (!this->d->m_cameraOutput)
-        return {};
-
-    AkVideoCapsList caps;
-    QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
-                              "outputCaps",
-                              Q_RETURN_ARG(AkVideoCapsList, caps),
-                              Q_ARG(QString, device));
-
-    return caps;
+    return AkVideoCaps::Format_yuyv422;
 }
 
 AkElement::ElementState VirtualCameras::state() const
@@ -222,85 +196,61 @@ AkElement::ElementState VirtualCameras::state() const
     return this->d->m_state;
 }
 
-QString VirtualCameras::description(const QString &device) const
-{
-    QString description;
-
-    if (this->d->m_cameraOutput)
-        QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
-                                  "description",
-                                  Q_RETURN_ARG(QString, description),
-                                  Q_ARG(QString, device));
-
-    return description;
-}
-
-bool VirtualCameras::createOutput(const QString &description,
-                                  const AkVideoCapsList &formats)
+bool VirtualCameras::createOutput(const QString &description)
 {
     if (!this->d->m_cameraOutput)
         return false;
 
     emit this->creatingOutput(description);
+
+    // The driver can't be reconfigured while it is being used.
+    this->d->m_busy = true;
+    this->d->stopOutput();
     QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
                               "createWebcam",
-                              Q_ARG(QString, description),
-                              Q_ARG(AkVideoCapsList, formats));
+                              Q_ARG(QString, description));
 
     return true;
 }
 
-bool VirtualCameras::createOutput(const QString &description,
-                                  const QVariantList &formats)
-{
-    AkVideoCapsList fmts;
-
-    for (auto &format: formats)
-        fmts << format.value<AkVideoCaps>();
-
-    return this->createOutput(description, fmts);
-}
-
-bool VirtualCameras::editOutput(const QString &output,
-                                const QString &description,
-                                const AkVideoCapsList &formats)
+bool VirtualCameras::editOutput(const QString &description)
 {
     if (!this->d->m_cameraOutput)
         return false;
 
     emit this->editingOutput(description);
+    this->d->m_busy = true;
+    this->d->stopOutput();
     QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
-                              "editWebcam",
-                              Q_ARG(QString, output),
-                              Q_ARG(QString, description),
-                              Q_ARG(AkVideoCapsList, formats));
+                              "changeDescription",
+                              Q_ARG(QString, description));
 
     return true;
 }
 
-bool VirtualCameras::removeOutput(const QString &output)
+bool VirtualCameras::removeOutput()
 {
     if (!this->d->m_cameraOutput)
         return false;
 
-    emit this->removingOutput(this->description(output));
+    emit this->removingOutput(this->outputDescription());
+    this->d->m_busy = true;
+    this->d->stopOutput();
     QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
-                              "removeWebcam",
-                              Q_ARG(QString, output));
+                              "removeWebcam");
 
     return true;
 }
 
-bool VirtualCameras::removeAllOutputs()
+void VirtualCameras::setOutputFormat(quint32 format,
+                                     int width,
+                                     int height,
+                                     int fps)
 {
-    if (!this->d->m_cameraOutput)
-        return false;
-
-    emit this->removingAllOutputs();
-    QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
-                              "removeAllWebcams");
-
-    return true;
+    this->setOutputCaps(AkVideoCaps(AkVideoCaps::PixelFormat(format),
+                                    width,
+                                    height,
+                                    AkFrac(fps, 1)));
 }
 
 QString VirtualCameras::outputError() const
@@ -314,42 +264,6 @@ QString VirtualCameras::outputError() const
                               Q_RETURN_ARG(QString, error));
 
     return error;
-}
-
-bool VirtualCameras::embedOutputControls(const QString &where,
-                                         const QString &device,
-                                         const QString &name) const
-{
-    auto element = this->d->m_outputPlugins.value(device);
-
-    if (!element)
-        return false;
-
-    return this->d->embedControls(where,
-                                  element,
-                                  "VideoSink/VirtualCamera",
-                                  name);
-}
-
-void VirtualCameras::removeInterface(const QString &where) const
-{
-    if (!this->d->m_engine)
-        return;
-
-    for (auto &obj: this->d->m_engine->rootObjects()) {
-        auto item = obj->findChild<QQuickItem *>(where);
-
-        if (!item)
-            continue;
-
-        auto childItems = item->childItems();
-
-        for (auto &child: childItems) {
-            child->setParentItem(nullptr);
-            child->setParent(nullptr);
-            delete child;
-        }
-    }
 }
 
 QList<quint64> VirtualCameras::clientsPids() const
@@ -390,22 +304,6 @@ QString VirtualCameras::picture() const
         return {};
 
     return this->d->m_cameraOutput->property("picture").toString();
-}
-
-QString VirtualCameras::rootMethod() const
-{
-    if (!this->d->m_cameraOutput)
-        return {};
-
-    return this->d->m_cameraOutput->property("rootMethod").toString();
-}
-
-QStringList VirtualCameras::availableRootMethods() const
-{
-    if (!this->d->m_cameraOutput)
-        return {};
-
-    return this->d->m_cameraOutput->property("availableRootMethods").toStringList();
 }
 
 bool VirtualCameras::isVCamSupported() const
@@ -499,16 +397,11 @@ QString VirtualCameras::defaultVCamDriver() const
     return {DEFAULT_VCAM_DRIVER};
 }
 
-bool VirtualCameras::isPassThroughVCam() const
-{
-    return this->d->m_isPassThroughVCam;
-}
-
 AkPacket VirtualCameras::iStream(const AkPacket &packet)
 {
-    if (this->d->m_state == AkElement::ElementStatePlaying)
-        for (auto &output: this->d->m_outputPlugins)
-            output->iStream(packet);
+    if (this->d->m_state == AkElement::ElementStatePlaying
+        && this->d->m_cameraOutput)
+        this->d->m_cameraOutput->iStream(packet);
 
     return {};
 }
@@ -518,10 +411,17 @@ bool VirtualCameras::applyPicture()
     if (!this->d->m_cameraOutput)
         return {};
 
+    // The driver can't be reconfigured while it is being used.
+    this->d->m_busy = true;
+    this->d->stopOutput();
+
     bool ok = false;
     QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
                               "applyPicture",
                               Q_RETURN_ARG(bool, ok));
+
+    this->d->m_busy = false;
+    this->d->restoreOutput();
 
     return ok;
 }
@@ -669,15 +569,18 @@ void VirtualCameras::checkVCamDownloadReady(const QString &url,
     }
 }
 
-void VirtualCameras::setSelectedOutputs(const QStringList &selectedOutputs)
+void VirtualCameras::setOutputCaps(const AkVideoCaps &outputCaps)
 {
-    if (this->d->m_selectedOutputs == selectedOutputs)
-        return;
+    if (this->d->m_cameraOutput)
+        this->d->m_cameraOutput->setProperty("outputCaps",
+                                             QVariant::fromValue(outputCaps));
+}
 
-    this->d->m_selectedOutputs = selectedOutputs;
-    emit this->selectedOutputsChanged(selectedOutputs);
-    this->d->updateOutputPlugins();
-    this->d->saveOutputs();
+void VirtualCameras::setAspectRatioMode(AkVideoConverter::AspectRatioMode aspectRatioMode)
+{
+    if (this->d->m_cameraOutput)
+        this->d->m_cameraOutput->setProperty("aspectRatioMode",
+                                             QVariant::fromValue(aspectRatioMode));
 }
 
 void VirtualCameras::setState(AkElement::ElementState state)
@@ -688,8 +591,8 @@ void VirtualCameras::setState(AkElement::ElementState state)
     this->d->m_state = state;
     emit this->stateChanged(state);
 
-    for (auto &output: this->d->m_outputPlugins)
-        output->setState(state);
+    if (!this->d->m_busy && this->d->m_cameraOutput)
+        this->d->m_cameraOutput->setState(state);
 }
 
 void VirtualCameras::setPicture(const QString &picture)
@@ -698,15 +601,18 @@ void VirtualCameras::setPicture(const QString &picture)
         this->d->m_cameraOutput->setProperty("picture", picture);
 }
 
-void VirtualCameras::setRootMethod(const QString &rootMethod)
+void VirtualCameras::resetOutputCaps()
 {
     if (this->d->m_cameraOutput)
-        this->d->m_cameraOutput->setProperty("rootMethod", rootMethod);
+        QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
+                                  "resetOutputCaps");
 }
 
-void VirtualCameras::resetSelectedOutputs()
+void VirtualCameras::resetAspectRatioMode()
 {
-    this->setSelectedOutputs({});
+    if (this->d->m_cameraOutput)
+        QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
+                                  "resetAspectRatioMode");
 }
 
 void VirtualCameras::resetState()
@@ -719,13 +625,6 @@ void VirtualCameras::resetPicture()
     if (this->d->m_cameraOutput)
         QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
                                   "resetPicture");
-}
-
-void VirtualCameras::resetRootMethod()
-{
-    if (this->d->m_cameraOutput)
-        QMetaObject::invokeMethod(this->d->m_cameraOutput.data(),
-                                  "resetRootMethod");
 }
 
 void VirtualCameras::setQmlEngine(QQmlApplicationEngine *engine)
@@ -742,12 +641,71 @@ void VirtualCameras::setQmlEngine(QQmlApplicationEngine *engine)
     }
 }
 
-void VirtualCameras::saveVirtualCameraRootMethod(const QString &rootMethod)
+void VirtualCameras::onOutputChanged(const QString &output)
+{
+    emit this->outputChanged(output);
+
+    if (this->d->m_busy)
+        return;
+
+    if (output.isEmpty())
+        this->d->stopOutput();
+    else
+        this->d->restoreOutput();
+}
+
+void VirtualCameras::onOutputDescriptionChanged(const QString &description)
 {
     QSettings config;
     config.beginGroup("VirtualCamera");
-    config.setValue("rootMethod", rootMethod);
+    config.setValue("description", description);
     config.endGroup();
+
+    emit this->outputDescriptionChanged(description);
+}
+
+void VirtualCameras::onOutputCapsChanged(const AkVideoCaps &outputCaps)
+{
+    QSettings config;
+    config.beginGroup("VirtualCamera");
+    config.setValue("outputCaps/format", uint(outputCaps.format()));
+    config.setValue("outputCaps/width", outputCaps.width());
+    config.setValue("outputCaps/height", outputCaps.height());
+    config.setValue("outputCaps/fps", outputCaps.fps().toString());
+    config.endGroup();
+
+    emit this->outputCapsChanged(outputCaps);
+}
+
+void VirtualCameras::onAspectRatioModeChanged(AkVideoConverter::AspectRatioMode aspectRatioMode)
+{
+    QSettings config;
+    config.beginGroup("VirtualCamera");
+    config.setValue("aspectRatioMode", int(aspectRatioMode));
+    config.endGroup();
+
+    emit this->aspectRatioModeChanged(aspectRatioMode);
+}
+
+void VirtualCameras::onOutputCreated(bool ok, const QString &msg)
+{
+    this->d->m_busy = false;
+    this->d->restoreOutput();
+    emit this->outputCreated(ok, msg);
+}
+
+void VirtualCameras::onOutputEdited(bool ok, const QString &msg)
+{
+    this->d->m_busy = false;
+    this->d->restoreOutput();
+    emit this->outputEdited(ok, msg);
+}
+
+void VirtualCameras::onOutputRemoved(bool ok, const QString &msg)
+{
+    this->d->m_busy = false;
+    this->d->restoreOutput();
+    emit this->outputRemoved(ok, msg);
 }
 
 VirtualCamerasPrivate::VirtualCamerasPrivate(VirtualCameras *self):
@@ -757,208 +715,98 @@ VirtualCamerasPrivate::VirtualCamerasPrivate(VirtualCameras *self):
 
 void VirtualCamerasPrivate::connectSignals()
 {
-    if (this->m_cameraOutput) {
-        QObject::connect(this->m_cameraOutput.data(),
-                         SIGNAL(mediasChanged(QStringList)),
-                         self,
-                         SIGNAL(outputsChanged(QStringList)));
-        QObject::connect(this->m_cameraOutput.data(),
-                         SIGNAL(webcamCreated(bool, QString)),
-                         self,
-                         SIGNAL(outputCreated(bool, QString)));
-        QObject::connect(this->m_cameraOutput.data(),
-                         SIGNAL(webcamEdited(bool, QString)),
-                         self,
-                         SIGNAL(outputEdited(bool, QString)));
-        QObject::connect(this->m_cameraOutput.data(),
-                         SIGNAL(webcamRemoved(bool, QString)),
-                         self,
-                         SIGNAL(outputRemoved(bool, QString)));
-        QObject::connect(this->m_cameraOutput.data(),
-                         SIGNAL(allWebcamsRemoved(bool, QString)),
-                         self,
-                         SIGNAL(allOutputsRemoved(bool, QString)));
-        QObject::connect(this->m_cameraOutput.data(),
-                         SIGNAL(pictureChanged(QString)),
-                         self,
-                         SIGNAL(pictureChanged(QString)));
-        QObject::connect(this->m_cameraOutput.data(),
-                         SIGNAL(errorChanged(QString)),
-                         self,
-                         SIGNAL(outputErrorChanged(QString)));
-        QObject::connect(this->m_cameraOutput.data(),
-                         SIGNAL(rootMethodChanged(QString)),
-                         self,
-                         SIGNAL(rootMethodChanged(QString)),
-                         Qt::DirectConnection);
-        QObject::connect(this->m_cameraOutput.data(),
-                         SIGNAL(rootMethodChanged(QString)),
-                         self,
-                         SLOT(saveVirtualCameraRootMethod(QString)));
-    }
-}
+    if (!this->m_cameraOutput)
+        return;
 
-bool VirtualCamerasPrivate::embedControls(const QString &where,
-                                        const AkElementPtr &element,
-                                        const QString &pluginId,
-                                        const QString &name) const
-{
-    if (!element)
-        return false;
-
-    auto controlInterface = element->controlInterface(this->m_engine, pluginId);
-
-    if (!controlInterface)
-        return false;
-
-    if (!name.isEmpty())
-        controlInterface->setObjectName(name);
-
-    for (auto &obj: this->m_engine->rootObjects()) {
-        // First, find where to embed the UI.
-        auto item = obj->findChild<QQuickItem *>(where);
-
-        if (!item)
-            continue;
-
-        // Create an item with the plugin context.
-        auto interfaceItem = qobject_cast<QQuickItem *>(controlInterface);
-
-        // Finally, embed the plugin item UI in the desired place.
-        interfaceItem->setParentItem(item);
-
-        return true;
-    }
-
-    return false;
-}
-
-QString VirtualCamerasPrivate::sanitizeKey(const QString &key)
-{
-    QString sanitized(key);
-
-    return sanitized.replace(" ", "_")
-                    .replace(".", "_")
-                    .replace(",", "_");
+    auto output = this->m_cameraOutput.data();
+    QObject::connect(output,
+                     SIGNAL(deviceChanged(QString)),
+                     self,
+                     SLOT(onOutputChanged(QString)));
+    QObject::connect(output,
+                     SIGNAL(descriptionChanged(QString)),
+                     self,
+                     SLOT(onOutputDescriptionChanged(QString)));
+    QObject::connect(output,
+                     SIGNAL(outputCapsChanged(AkVideoCaps)),
+                     self,
+                     SLOT(onOutputCapsChanged(AkVideoCaps)));
+    QObject::connect(output,
+                     SIGNAL(aspectRatioModeChanged(AkVideoConverter::AspectRatioMode)),
+                     self,
+                     SLOT(onAspectRatioModeChanged(AkVideoConverter::AspectRatioMode)));
+    QObject::connect(output,
+                     SIGNAL(webcamCreated(bool,QString)),
+                     self,
+                     SLOT(onOutputCreated(bool,QString)));
+    QObject::connect(output,
+                     SIGNAL(descriptionEdited(bool,QString)),
+                     self,
+                     SLOT(onOutputEdited(bool,QString)));
+    QObject::connect(output,
+                     SIGNAL(webcamRemoved(bool,QString)),
+                     self,
+                     SLOT(onOutputRemoved(bool,QString)));
+    QObject::connect(output,
+                     SIGNAL(pictureChanged(QString)),
+                     self,
+                     SIGNAL(pictureChanged(QString)));
+    QObject::connect(output,
+                     SIGNAL(errorChanged(QString)),
+                     self,
+                     SIGNAL(outputErrorChanged(QString)));
 }
 
 void VirtualCamerasPrivate::loadProperties()
 {
-    QSettings config;
-
-    config.beginGroup("VirtualCamera");
-
-    if (this->m_cameraOutput) {
-        auto rootMethod =
-                config.value("rootMethod",
-                             this->m_cameraOutput->property("rootMethod")).toString();
-        auto availableMethods =
-                this->m_cameraOutput->property("availableRootMethods").toStringList();
-
-        if (availableMethods.contains(rootMethod))
-            this->m_cameraOutput->setProperty("rootMethod", rootMethod);
-
-        auto medias = this->m_cameraOutput->property("medias").toStringList();
-        int size = config.beginReadArray("outputs");
-
-        for (int i = 0; i < size; i++) {
-            config.setArrayIndex(i);
-            auto output = config.value("output").toString();
-
-            if (medias.contains(output))
-                this->m_selectedOutputs << output;
-        }
-
-        config.endArray();
-    }
-
-    config.endGroup();
-
-    this->updateOutputPlugins();
-}
-
-void VirtualCamerasPrivate::updateOutputPlugins()
-{
-    this->m_outputPlugins.clear();
-    QStringList outputs;
-
-    if (this->m_cameraOutput)
-        outputs = this->m_cameraOutput->property("medias").toStringList();
-
-    QSettings config;
-
-    for (auto &output: outputs) {
-        auto out = akPluginManager->create<AkElement>("VideoSink/VirtualCamera");
-        out->setProperty("media", output);
-
-        config.beginGroup("VirtualCamera_" + sanitizeKey(output));
-        auto controlKeys = config.allKeys();
-        QVariantMap controls;
-
-        for (const auto &key: controlKeys)
-            controls[key] = config.value(key);
-
-        config.endGroup();
-
-        if (!controls.isEmpty())
-            QMetaObject::invokeMethod(out.data(),
-                                      "setControls",
-                                      Q_ARG(QVariantMap, controls));
-
-        this->m_outputPlugins[output] = out;
-    }
-}
-
-void VirtualCamerasPrivate::saveOutputs()
-{
-    QStringList outputs;
-    AkElement::ElementState curState = AkElement::ElementStateNull;
-
-    if (this->m_state != AkElement::ElementStateNull) {
-        curState = this->m_state;
-        self->setState(AkElement::ElementStateNull);
-    }
-
-    if (this->m_cameraOutput)
-        outputs = this->m_cameraOutput->property("medias").toStringList();
-
-    if (outputs.isEmpty())
+    if (!this->m_cameraOutput)
         return;
 
     QSettings config;
     config.beginGroup("VirtualCamera");
-    config.beginWriteArray("outputs");
 
-    int i = 0;
-
-    for (const auto &output: outputs) {
-        config.setArrayIndex(i);
-        config.setValue("output", output);
-        i++;
+    if (config.contains("outputCaps/format")) {
+        AkVideoCaps caps(AkVideoCaps::PixelFormat(config.value("outputCaps/format").toUInt()),
+                         config.value("outputCaps/width", 640).toInt(),
+                         config.value("outputCaps/height", 480).toInt(),
+                         AkFrac(config.value("outputCaps/fps", "30/1").toString()));
+        this->m_cameraOutput->setProperty("outputCaps",
+                                          QVariant::fromValue(caps));
     }
 
-    config.endArray();
+    if (config.contains("aspectRatioMode")) {
+        auto mode = config.value("aspectRatioMode").toInt();
+
+        if (mode >= AkVideoConverter::AspectRatioMode_Ignore
+            && mode <= AkVideoConverter::AspectRatioMode_Expanding)
+            this->m_cameraOutput->setProperty("aspectRatioMode",
+                                              QVariant::fromValue(AkVideoConverter::AspectRatioMode(mode)));
+    }
+
+    // The description is the key used by the plugin to find the camera.
+    auto description = config.value("description").toString();
+
+    if (!description.isEmpty())
+        this->m_cameraOutput->setProperty("description", description);
+
     config.endGroup();
+}
 
-    for (auto it = this->m_outputPlugins.begin();
-         it != this->m_outputPlugins.end();
-         ++it) {
-        config.beginGroup("VirtualCamera_" + sanitizeKey(it.key()));
-        QVariantList controls;
-        QMetaObject::invokeMethod(it.value().data(),
-                                  "controls",
-                                  Q_RETURN_ARG(QVariantList, controls));
+void VirtualCamerasPrivate::stopOutput()
+{
+    if (this->m_cameraOutput)
+        this->m_cameraOutput->setState(AkElement::ElementStateNull);
+}
 
-        for (const auto &control: controls) {
-            auto controlValues = control.toList();
-            config.setValue(sanitizeKey(controlValues[0].toString()), controlValues[7]);
-        }
+void VirtualCamerasPrivate::restoreOutput()
+{
+    if (this->m_busy
+        || !this->m_cameraOutput
+        || this->m_state == AkElement::ElementStateNull
+        || this->m_cameraOutput->property("device").toString().isEmpty())
+        return;
 
-        config.endGroup();
-    }
-
-    if (curState != AkElement::ElementStateNull)
-        self->setState(curState);
+    this->m_cameraOutput->setState(this->m_state);
 }
 
 QString VirtualCamerasPrivate::vcamDownloadUrl() const

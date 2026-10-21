@@ -17,11 +17,39 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QMutex>
+#include <QMutexLocker>
+#include <akfrac.h>
+#include <akvideoconverter.h>
+
 #include "vcam.h"
+
+class VCamPrivate
+{
+    public:
+        static AkVideoCaps defaultCaps()
+        {
+            return {AkVideoCaps::Format_yuyv422, 640, 480, AkFrac(30, 1)};
+        }
+
+        QString m_description;
+        AkVideoCaps m_outputCaps {VCamPrivate::defaultCaps()};
+        AkVideoCaps m_activeCaps;
+        AkVideoConverter::AspectRatioMode m_aspectRatioMode {AkVideoConverter::AspectRatioMode_Expanding};
+        AkVideoConverter m_videoConverter;
+        QMutex m_mutex;
+        bool m_running {false};
+};
 
 VCam::VCam(QObject *parent):
     QObject(parent)
 {
+    this->d = new VCamPrivate;
+}
+
+VCam::~VCam()
+{
+    delete this->d;
 }
 
 QString VCam::error() const
@@ -39,55 +67,30 @@ QString VCam::installedVersion() const
     return {};
 }
 
-QStringList VCam::webcams() const
-{
-    return {};
-}
-
 QString VCam::device() const
 {
     return {};
 }
 
-QString VCam::description(const QString &webcam) const
+QString VCam::description() const
 {
-    Q_UNUSED(webcam)
+    QMutexLocker locker(&this->d->m_mutex);
 
-    return {};
+    return this->d->m_description;
 }
 
-QList<AkVideoCaps::PixelFormat> VCam::supportedOutputPixelFormats() const
+AkVideoCaps VCam::outputCaps() const
 {
-    return {};
+    QMutexLocker locker(&this->d->m_mutex);
+
+    return this->d->m_outputCaps;
 }
 
-AkVideoCaps::PixelFormat VCam::defaultOutputPixelFormat() const
+AkVideoConverter::AspectRatioMode VCam::aspectRatioMode() const
 {
-    return AkVideoCaps::Format_none;
-}
+    QMutexLocker locker(&this->d->m_mutex);
 
-AkVideoCapsList VCam::caps(const QString &webcam) const
-{
-    Q_UNUSED(webcam)
-
-    return {};
-}
-
-AkVideoCaps VCam::currentCaps() const
-{
-    return {};
-}
-
-QVariantList VCam::controls() const
-{
-    return {};
-}
-
-bool VCam::setControls(const QVariantMap &controls)
-{
-    Q_UNUSED(controls)
-
-    return false;
+    return this->d->m_aspectRatioMode;
 }
 
 QList<quint64> VCam::clientsPids() const
@@ -107,81 +110,99 @@ QString VCam::picture() const
     return {};
 }
 
-QString VCam::rootMethod() const
-{
-    return {};
-}
-
-QStringList VCam::availableRootMethods() const
-{
-    return {};
-}
-
 bool VCam::canEditVCamDescription() const
 {
     return true;
 }
 
-bool VCam::isPassThrough() const
-{
-    return false;
-}
-
-QString VCam::deviceCreate(const QString &description,
-                           const AkVideoCapsList &caps)
+QString VCam::deviceCreate(const QString &description)
 {
     Q_UNUSED(description)
-    Q_UNUSED(caps)
 
     return {};
 }
 
-bool VCam::deviceEdit(const QString &deviceId,
-                const QString &description,
-                const AkVideoCapsList &caps)
+bool VCam::changeDescription(const QString &description)
 {
-    Q_UNUSED(deviceId)
-    Q_UNUSED(description)
-    Q_UNUSED(caps)
-
-    return false;
-}
-
-bool VCam::changeDescription(const QString &deviceId,
-                       const QString &description)
-{
-    Q_UNUSED(deviceId)
     Q_UNUSED(description)
 
     return false;
 }
 
-bool VCam::deviceDestroy(const QString &deviceId)
-{
-    Q_UNUSED(deviceId)
-
-    return false;
-}
-
-bool VCam::destroyAllDevices()
+bool VCam::deviceDestroy()
 {
     return false;
 }
 
 bool VCam::init()
 {
-    return false;
+    if (this->d->m_running)
+        return true;
+
+    this->d->m_mutex.lock();
+    auto caps = this->d->m_outputCaps;
+    this->d->m_mutex.unlock();
+
+    if (!caps)
+        return false;
+
+    // The plugin can fix the format to what the driver really supports.
+    if (!this->openDevice(caps))
+        return false;
+
+    this->d->m_mutex.lock();
+    this->d->m_activeCaps = caps;
+    this->d->m_videoConverter.setOutputCaps(caps);
+    this->d->m_running = true;
+    this->d->m_mutex.unlock();
+
+    return true;
 }
 
 void VCam::uninit()
 {
+    if (!this->d->m_running)
+        return;
+
+    this->d->m_mutex.lock();
+    this->d->m_running = false;
+    this->d->m_mutex.unlock();
+    this->closeDevice();
 }
 
 bool VCam::write(const AkVideoPacket &packet)
 {
-    Q_UNUSED(packet)
+    if (!this->d->m_running)
+        return false;
 
-    return false;
+    this->d->m_mutex.lock();
+    auto aspectRatioMode = this->d->m_aspectRatioMode;
+    this->d->m_mutex.unlock();
+
+    /* The converter's 'Keep' mode shrinks the output frame to the aspect ratio
+     * of the input, but the driver needs frames with the size of the format
+     * that was negotiated. 'Fit' keeps the aspect ratio too, but centers the
+     * image in a frame of the requested size and fills the rest with black.
+     */
+    if (aspectRatioMode == AkVideoConverter::AspectRatioMode_Keep)
+        aspectRatioMode = AkVideoConverter::AspectRatioMode_Fit;
+
+    this->d->m_videoConverter.setAspectRatioMode(aspectRatioMode);
+    this->d->m_videoConverter.begin();
+    auto videoPacket = this->d->m_videoConverter.convert(packet);
+    this->d->m_videoConverter.end();
+
+    if (!videoPacket)
+        return false;
+
+    // Never write a frame with a different size than the one negotiated.
+    auto caps = videoPacket.caps();
+
+    if (caps.width() != this->d->m_activeCaps.width()
+        || caps.height() != this->d->m_activeCaps.height())
+        return false;
+
+    return this->writeFrame(videoPacket);
 }
 
 bool VCam::applyPicture()
@@ -189,14 +210,50 @@ bool VCam::applyPicture()
     return false;
 }
 
-void VCam::setDevice(const QString &device)
+void VCam::setDescription(const QString &description)
 {
-    Q_UNUSED(device)
+    this->d->m_mutex.lock();
+
+    if (this->d->m_description == description) {
+        this->d->m_mutex.unlock();
+
+        return;
+    }
+
+    this->d->m_description = description;
+    this->d->m_mutex.unlock();
+    emit this->descriptionChanged(description);
 }
 
-void VCam::setCurrentCaps(const AkVideoCaps &currentCaps)
+void VCam::setOutputCaps(const AkVideoCaps &outputCaps)
 {
-    Q_UNUSED(currentCaps)
+    this->d->m_mutex.lock();
+
+    if (this->d->m_outputCaps == outputCaps) {
+        this->d->m_mutex.unlock();
+
+        return;
+    }
+
+    // Only stored, the active format is not changed until the next init().
+    this->d->m_outputCaps = outputCaps;
+    this->d->m_mutex.unlock();
+    emit this->outputCapsChanged(outputCaps);
+}
+
+void VCam::setAspectRatioMode(AkVideoConverter::AspectRatioMode aspectRatioMode)
+{
+    this->d->m_mutex.lock();
+
+    if (this->d->m_aspectRatioMode == aspectRatioMode) {
+        this->d->m_mutex.unlock();
+
+        return;
+    }
+
+    this->d->m_aspectRatioMode = aspectRatioMode;
+    this->d->m_mutex.unlock();
+    emit this->aspectRatioModeChanged(aspectRatioMode);
 }
 
 void VCam::setPicture(const QString &picture)
@@ -204,19 +261,19 @@ void VCam::setPicture(const QString &picture)
     Q_UNUSED(picture)
 }
 
-void VCam::setRootMethod(const QString &rootMethod)
+void VCam::resetDescription()
 {
-    Q_UNUSED(rootMethod)
+    this->setDescription({});
 }
 
-void VCam::resetDevice()
+void VCam::resetOutputCaps()
 {
-    this->setDevice({});
+    this->setOutputCaps(VCamPrivate::defaultCaps());
 }
 
-void VCam::resetCurrentCaps()
+void VCam::resetAspectRatioMode()
 {
-    this->setCurrentCaps({});
+    this->setAspectRatioMode(AkVideoConverter::AspectRatioMode_Expanding);
 }
 
 void VCam::resetPicture()
@@ -224,9 +281,22 @@ void VCam::resetPicture()
     this->setPicture({});
 }
 
-void VCam::resetRootMethod()
+bool VCam::openDevice(AkVideoCaps &caps)
 {
-    this->setRootMethod({});
+    Q_UNUSED(caps)
+
+    return false;
+}
+
+void VCam::closeDevice()
+{
+}
+
+bool VCam::writeFrame(const AkVideoPacket &packet)
+{
+    Q_UNUSED(packet)
+
+    return false;
 }
 
 #include "moc_vcam.cpp"

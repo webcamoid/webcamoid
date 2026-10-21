@@ -20,7 +20,6 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import Qt.labs.settings 1.0
 import Ak
 import AkControls as AK
 import Webcamoid
@@ -41,197 +40,50 @@ Dialog {
 
     signal edited()
     signal openErrorDialog(string title, string message)
-    signal openOutputFormatDialog(int index, variant caps)
 
-    Settings {
-        id: settings
-        category: "VirtualCamera"
-
-        property bool directMode: true
-    }
-
-    function addFormat(caps)
+    function fillFormats()
     {
-        let component = Qt.createComponent("VideoFormatItem.qml")
-
-        if (component.status !== Component.Ready)
-            return
-
-        let obj = component.createObject(vcamFormats)
-        let format = AkVideoCaps.pixelFormatToString(caps.format)
-        let fps = AkFrac.create(caps.fps)
-        obj.text =
-            format
-            + " " + caps.width + "x" + caps.height
-            + " " + fps.value + " FPS"
-        obj.format = caps.format
-        obj.formatWidth = caps.width
-        obj.formatHeight = caps.height
-        obj.fps = fps.value
-        vcamFormats.minHeight += obj.height
-
-        obj.onClicked.connect((index => function () {
-            let element = vcamFormats.itemAt(index)
-            let caps =
-                AkVideoCaps.create(element.format,
-                                   element.formatWidth,
-                                   element.formatHeight,
-                                   AkFrac.create(element.fps,
-                                                 1).toVariant())
-            addEdit.openOutputFormatDialog(index, caps)
-        })(vcamFormats.count - 1))
-    }
-
-    function changeFormat(index, caps)
-    {
-        let item = vcamFormats.itemAt(index)
-
-        if (!item)
-            return
-
-        let format = AkVideoCaps.pixelFormatToString(caps.format)
-        let fps = AkFrac.create(caps.fps)
-        item.text =
-            format
-            + " " + caps.width + "x" + caps.height
-            + " " + fps.value + " FPS"
-        item.format = caps.format
-        item.formatWidth = caps.width
-        item.formatHeight = caps.height
-        item.fps = fps.value
-    }
-
-    function removeFormat(index)
-    {
-        vcamFormats.removeItem(vcamFormats.itemAt(index))
-    }
-
-    function isSupported(format)
-    {
-        let formats = virtualCameras.supportedOutputPixelFormats
-
-        for (let i in formats)
-            if (formats[i] == format)
-                return true
-
-        return false
-    }
-
-    function populateFormats()
-    {
-        let formats = []
-
-        if (deviceId.text) {
-            let outputCaps = virtualCameras.supportedOutputVideoCaps(deviceId.text)
-
-           for (let caps in outputCaps)
-               formats.push(AkVideoCaps.create(outputCaps[caps]))
-        } else {
-            let defaultPixelFormats = [
-                AkVideoCaps.Format_yuyv422,
-                AkVideoCaps.Format_uyvy422,
-                AkVideoCaps.Format_xrgb,
-                AkVideoCaps.Format_rgb24
-            ]
-            let pixelFormats = []
-
-            for (let i in defaultPixelFormats)
-                if (isSupported(defaultPixelFormats[i]))
-                    pixelFormats.push(defaultPixelFormats[i])
-
-            let resolutions = [
-                Qt.size( 640,  480),
-                Qt.size( 800,  600),
-                Qt.size(1280,  720),
-                Qt.size(1920, 1080),
-            ]
-
-            for (let format in pixelFormats)
-                for (let resolution in resolutions)
-                    formats.push(AkVideoCaps.create(pixelFormats[format],
-                                                    resolutions[resolution].width,
-                                                    resolutions[resolution].height,
-                                                    AkFrac.create(30, 1).toVariant()))
-        }
-
-        vcamFormats.clear()
-
-        for (let i in formats) {
-            let component = Qt.createComponent("VideoFormatItem.qml")
-
-            if (component.status !== Component.Ready)
-                continue
-
-            let obj = component.createObject(vcamFormats)
-            let caps = formats[i]
-            let format = AkVideoCaps.pixelFormatToString(caps.format)
-            let fps = AkFrac.create(caps.fps)
-            obj.text = format
-                       + " " + caps.width + "x" + caps.height
-                       + " " + fps.value + " FPS"
-            obj.format = caps.format
-            obj.formatWidth = caps.width
-            obj.formatHeight = caps.height
-            obj.fps = fps.value
-            vcamFormats.minHeight += obj.height
-
-            obj.onClicked.connect((index => function () {
-                let element = vcamFormats.itemAt(index)
-                let caps =
-                    AkVideoCaps.create(element.format,
-                                       element.formatWidth,
-                                       element.formatHeight,
-                                       AkFrac.create(element.fps,
-                                                     1).toVariant())
-                addEdit.openOutputFormatDialog(index, caps)
-            })(i))
-        }
-    }
-
-    function fillPTFormat(device)
-    {
-        cbxPixelFormatsPT.model.clear()
+        cbxPixelFormats.model.clear()
         let pixFormats = virtualCameras.supportedOutputPixelFormats
-        let index = -1
 
-        for (let i in pixFormats) {
-            if (pixFormats[i] == virtualCameras.defaultOutputPixelFormat)
-                index = i
-
-            cbxPixelFormatsPT.model.append({
+        for (let i in pixFormats)
+            cbxPixelFormats.model.append({
                 format: Number(pixFormats[i]),
                 description: AkVideoCaps.pixelFormatToString(pixFormats[i])
             })
+    }
+
+    function selectCurrentCaps()
+    {
+        let pixFormats = virtualCameras.supportedOutputPixelFormats
+        let caps = AkVideoCaps.create(virtualCameras.outputCaps)
+        let format = caps.format
+        let width = caps.width
+        let height = caps.height
+        let fps = AkFrac.create(caps.fps).value
+
+        if (width < 1 || height < 1) {
+            format = virtualCameras.defaultOutputPixelFormat
+            width = 640
+            height = 480
+            fps = 30
         }
 
-        if (device) {
-            let outputCaps = virtualCameras.supportedOutputVideoCaps(device)
+        let index = -1
 
-            if (outputCaps.length < 1) {
-                cbxPixelFormatsPT.currentIndex = index
-                spbFrameWidthPT.value = 640
-                spbFrameHeightPT.value = 480
-                spbFrameRatePT.value = 30
-            } else {
-                let caps = AkVideoCaps.create(outputCaps[0])
-                index = -1
+        for (let i in pixFormats)
+            if (pixFormats[i] == format)
+                index = i
 
-                for (let i in pixFormats)
-                    if (pixFormats[i] == caps.format)
-                        index = i
+        if (index < 0)
+            for (let i in pixFormats)
+                if (pixFormats[i] == virtualCameras.defaultOutputPixelFormat)
+                    index = i
 
-                let fps = AkFrac.create(caps.fps)
-                cbxPixelFormatsPT.currentIndex = index
-                spbFrameWidthPT.value = caps.width
-                spbFrameHeightPT.value = caps.height
-                spbFrameRatePT.value = fps.value
-            }
-        } else {
-            cbxPixelFormatsPT.currentIndex = index
-            spbFrameWidthPT.value = 640
-            spbFrameHeightPT.value = 480
-            spbFrameRatePT.value = 30
-        }
+        cbxPixelFormats.currentIndex = index
+        spbFrameWidth.value = width
+        spbFrameHeight.value = height
+        spbFrameRate.value = fps > 0? fps: 30
     }
 
     function openOptions(device)
@@ -241,22 +93,13 @@ Dialog {
                     qsTr("Add Virtual Camera")
 
         if (device)
-            deviceDescription.text = virtualCameras.description(device)
+            deviceDescription.text = virtualCameras.outputDescription
         else
-            deviceDescription.text =
-                    "Virtual Camera " + mediaTools.currentTime("yyyyMMddhhmmss")
+            deviceDescription.text = "Virtual Camera"
 
         deviceId.text = device
-
-        if (virtualCameras.isPassThroughVCam) {
-            fillPTFormat(device)
-        } else {
-            if (directModeSwitch.checked)
-                fillPTFormat(device)
-            else
-                populateFormats()
-        }
-
+        fillFormats()
+        selectCurrentCaps()
         open()
     }
 
@@ -269,9 +112,7 @@ Dialog {
         target: virtualCameras
 
         function onOutputCreated(ok, msg) {
-            if (ok) {
-                virtualCameras.selectedOutputs = [...virtualCameras.selectedOutputs, msg]
-            } else {
+            if (!ok) {
                 let title = qsTr("Error creating the virtual camera")
                 addEdit.openErrorDialog(title, msg)
             }
@@ -321,122 +162,55 @@ Dialog {
                 Layout.fillWidth: true
             }
 
-            Switch {
-                id: directModeSwitch
-                text: checked?
-                        qsTr("Direct mode (fast mode)"):
-                        qsTr("Compatibility (slow mode)")
-                checked: settings.directMode
-                visible: !virtualCameras.isPassThroughVCam
-                Layout.fillWidth: true
-
-                onCheckedChanged: {
-                    settings.directMode = checked
-
-                    if (checked)
-                        fillPTFormat(deviceId.text)
-                    else
-                        populateFormats()
-                }
-            }
-
-            Button {
-                text: qsTr("Add format")
-                icon.source: "image://icons/add"
-                flat: true
-                visible: !virtualCameras.isPassThroughVCam && !directModeSwitch.checked
-
-                onClicked: {
-                    let caps = AkVideoCaps.create()
-                    addEdit.openOutputFormatDialog(-1, caps)
-                }
-            }
-            Button {
-                text: qsTr("Clear formats")
-                icon.source: "image://icons/no"
-                flat: true
-                visible: !virtualCameras.isPassThroughVCam && !directModeSwitch.checked
-
-                onClicked: vcamFormats.clear()
-            }
-            OptionList {
-                id: vcamFormats
-                enableHighlight: false
-                Layout.fillWidth: true
-                Layout.minimumHeight: minHeight
-                visible: !virtualCameras.isPassThroughVCam && !directModeSwitch.checked
-
-                property int minHeight: 0
-
-                function clear() {
-                    minHeight = 0
-
-                    for (let i = count - 1; i >= 0; i--)
-                        removeItem(itemAt(i))
-                }
-
-                onActiveFocusChanged:
-                    if (activeFocus && count > 0)
-                        itemAt(currentIndex).forceActiveFocus()
-                Keys.onUpPressed:
-                    if (count > 0)
-                        itemAt(currentIndex).forceActiveFocus()
-                Keys.onDownPressed:
-                    if (count > 0)
-                        itemAt(currentIndex).forceActiveFocus()
-            }
-
             AK.LabeledComboBox {
-                id: cbxPixelFormatsPT
+                id: cbxPixelFormats
                 label: qsTr("Format")
                 Accessible.description: label
                 textRole: "description"
                 model: ListModel {}
                 Layout.fillWidth: true
-                visible: virtualCameras.isPassThroughVCam || directModeSwitch.checked
             }
             GridLayout {
                 columns: 2
-                visible: virtualCameras.isPassThroughVCam || directModeSwitch.checked
 
                 Label {
-                    id: txtWidthPT
+                    id: txtWidth
                     text: qsTr("Width")
                 }
                 SpinBox {
-                    id: spbFrameWidthPT
+                    id: spbFrameWidth
                     value: 640
                     from: 1
                     to: 4096
                     stepSize: 1
                     editable: true
-                    Accessible.name: txtWidthPT.text
+                    Accessible.name: txtWidth.text
                 }
                 Label {
-                    id: txtHeightPT
+                    id: txtHeight
                     text: qsTr("Height")
                 }
                 SpinBox {
-                    id: spbFrameHeightPT
+                    id: spbFrameHeight
                     value: 480
                     from: 1
                     to: 4096
                     stepSize: 1
                     editable: true
-                    Accessible.name: txtHeightPT.text
+                    Accessible.name: txtHeight.text
                 }
                 Label {
-                    id: txtFrameRatePT
+                    id: txtFrameRate
                     text: qsTr("Frame rate")
                 }
                 SpinBox {
-                    id: spbFrameRatePT
+                    id: spbFrameRate
                     value: 30
                     from: 1
                     to: 250
                     stepSize: 1
                     editable: true
-                    Accessible.name: txtFrameRatePT.text
+                    Accessible.name: txtFrameRate.text
                 }
             }
         }
@@ -445,7 +219,6 @@ Dialog {
     onAccepted: {
         let devId = deviceId.text
         let description = deviceDescription.text
-        let isDirectMode = virtualCameras.isPassThroughVCam || directModeSwitch.checked
 
         if (virtualCameras.clientsPids.length > 0) {
             let title = devId?
@@ -457,53 +230,31 @@ Dialog {
             return
         }
 
-        if (isDirectMode) {
-            if (!description) {
-                let title = devId?
-                        qsTr("Error editing the virtual camera"):
-                        qsTr("Error adding the virtual camera")
-                let message = qsTr("Camera description can't be empty.")
-                addEdit.openErrorDialog(title, message)
+        if (!description) {
+            let title = devId?
+                    qsTr("Error editing the virtual camera"):
+                    qsTr("Error adding the virtual camera")
+            let message = qsTr("Camera description can't be empty.")
+            addEdit.openErrorDialog(title, message)
 
-                return
-            }
-        } else {
-            if (vcamFormats.count < 1 || !description) {
-                let title = devId?
-                        qsTr("Error editing the virtual camera"):
-                        qsTr("Error adding the virtual camera")
-                let message = qsTr("Camera description and formats can't be empty.")
-                addEdit.openErrorDialog(title, message)
-
-                return
-            }
+            return
         }
 
-        let formats = []
+        let element = cbxPixelFormats.model.get(cbxPixelFormats.currentIndex)
 
-        if (isDirectMode) {
-            let element = cbxPixelFormatsPT.model.get(cbxPixelFormatsPT.currentIndex)
-            let fps = AkFrac.create(spbFrameRatePT.value, 1).toVariant()
-            let caps = AkVideoCaps.create(element.format,
-                                          spbFrameWidthPT.value,
-                                          spbFrameHeightPT.value,
-                                          fps)
-            formats.push(caps.toVariant())
-        } else {
-            for (let i = 0; i < vcamFormats.count; i++) {
-                let element = vcamFormats.itemAt(i)
-                let caps = AkVideoCaps.create(element.format,
-                                              element.formatWidth,
-                                              element.formatHeight,
-                                              AkFrac.create(element.fps,
-                                                            1).toVariant())
-                formats.push(caps.toVariant())
-            }
-        }
+        // The format is applied the next time the virtual camera starts, it is
+        // restarted automatically if it is running.
+        virtualCameras.setOutputFormat(element.format,
+                                       spbFrameWidth.value,
+                                       spbFrameHeight.value,
+                                       spbFrameRate.value)
 
-        if (devId)
-            virtualCameras.editOutput(devId, description, formats)
+        if (!devId)
+            virtualCameras.createOutput(description)
+        else if (virtualCameras.canEditVCamDescription
+                 && description !== virtualCameras.outputDescription)
+            virtualCameras.editOutput(description)
         else
-            virtualCameras.createOutput(description, formats)
+            addEdit.edited()
     }
 }

@@ -238,22 +238,6 @@ AK.MenuOption {
                     AkPluginManager.link("VideoSink/VirtualCamera/Impl/*",
                                          model.get(currentIndex).plugin)
             }
-            AK.LabeledComboBox {
-                /*: The preferred method for executing commands with elevated
-                    privileges in the system.
-                 */
-                label: qsTr("Root method")
-                model: virtualCameras.availableRootMethods
-                currentIndex: model.indexOf(virtualCameras.rootMethod)
-                visible: virtualCameras.isVCamSupported
-                enabled: visible
-                Layout.fillWidth: true
-                Layout.leftMargin: root.leftMargin
-                Layout.rightMargin: root.rightMargin
-                Accessible.description: label
-
-                onCurrentIndexChanged: virtualCameras.rootMethod = model[currentIndex]
-            }
         }
     }
 }

@@ -21,6 +21,7 @@
 #define VIRTUALCAMERAS_H
 
 #include <akvideocaps.h>
+#include <akvideoconverter.h>
 #include <iak/akelement.h>
 
 #include "downloadmanager.h"
@@ -37,14 +38,22 @@ class VirtualCameras: public QObject
     Q_PROPERTY(QString outputError
                READ outputError
                NOTIFY outputErrorChanged)
-    Q_PROPERTY(QStringList outputs
-               READ outputs
-               NOTIFY selectedOutputsChanged)
-    Q_PROPERTY(QStringList selectedOutputs
-               READ selectedOutputs
-               WRITE setSelectedOutputs
-               RESET resetSelectedOutputs
-               NOTIFY selectedOutputsChanged)
+    Q_PROPERTY(QString output
+               READ output
+               NOTIFY outputChanged)
+    Q_PROPERTY(QString outputDescription
+               READ outputDescription
+               NOTIFY outputDescriptionChanged)
+    Q_PROPERTY(AkVideoCaps outputCaps
+               READ outputCaps
+               WRITE setOutputCaps
+               RESET resetOutputCaps
+               NOTIFY outputCapsChanged)
+    Q_PROPERTY(AkVideoConverter::AspectRatioMode aspectRatioMode
+               READ aspectRatioMode
+               WRITE setAspectRatioMode
+               RESET resetAspectRatioMode
+               NOTIFY aspectRatioModeChanged)
     Q_PROPERTY(AkVideoCaps::PixelFormatList supportedOutputPixelFormats
                READ supportedOutputPixelFormats
                CONSTANT)
@@ -67,14 +76,6 @@ class VirtualCameras: public QObject
                WRITE setPicture
                RESET resetPicture
                NOTIFY pictureChanged)
-    Q_PROPERTY(QString rootMethod
-               READ rootMethod
-               WRITE setRootMethod
-               RESET resetRootMethod
-               NOTIFY rootMethodChanged)
-    Q_PROPERTY(QStringList availableRootMethods
-               READ availableRootMethods
-               CONSTANT)
     Q_PROPERTY(bool isVCamSupported
                READ isVCamSupported
                CONSTANT)
@@ -102,9 +103,6 @@ class VirtualCameras: public QObject
     Q_PROPERTY(QString defaultVCamDriver
                READ defaultVCamDriver
                CONSTANT)
-    Q_PROPERTY(bool isPassThroughVCam
-               READ isPassThroughVCam
-               NOTIFY isPassThroughVCamChanged)
 
     public:
         enum VCamStatus
@@ -119,33 +117,25 @@ class VirtualCameras: public QObject
                    QObject *parent=nullptr);
         ~VirtualCameras();
 
-        Q_INVOKABLE QStringList outputs() const;
-        Q_INVOKABLE QStringList selectedOutputs() const;
+        Q_INVOKABLE QString output() const;
+        Q_INVOKABLE QString outputDescription() const;
+        Q_INVOKABLE AkVideoCaps outputCaps() const;
+        Q_INVOKABLE AkVideoConverter::AspectRatioMode aspectRatioMode() const;
         Q_INVOKABLE AkVideoCaps::PixelFormatList supportedOutputPixelFormats() const;
         Q_INVOKABLE AkVideoCaps::PixelFormat defaultOutputPixelFormat() const;
-        Q_INVOKABLE AkVideoCapsList supportedOutputVideoCaps(const QString &device) const;
         Q_INVOKABLE AkElement::ElementState state() const;
-        Q_INVOKABLE QString description(const QString &device) const;
-        Q_INVOKABLE bool createOutput(const QString &description,
-                                      const AkVideoCapsList &formats);
-        Q_INVOKABLE bool createOutput(const QString &description,
-                                      const QVariantList &formats);
-        Q_INVOKABLE bool editOutput(const QString &output,
-                                    const QString &description,
-                                    const AkVideoCapsList &formats);
-        Q_INVOKABLE bool removeOutput(const QString &output);
-        Q_INVOKABLE bool removeAllOutputs();
+        Q_INVOKABLE bool createOutput(const QString &description);
+        Q_INVOKABLE bool editOutput(const QString &description);
+        Q_INVOKABLE bool removeOutput();
+        Q_INVOKABLE void setOutputFormat(quint32 format,
+                                         int width,
+                                         int height,
+                                         int fps);
         Q_INVOKABLE QString outputError() const;
-        Q_INVOKABLE bool embedOutputControls(const QString &where,
-                                             const QString &device,
-                                             const QString &name={}) const;
-        Q_INVOKABLE void removeInterface(const QString &where) const;
         Q_INVOKABLE QList<quint64> clientsPids() const;
         Q_INVOKABLE QString clientExe(quint64 pid) const;
         Q_INVOKABLE bool driverInstalled() const;
         Q_INVOKABLE QString picture() const;
-        Q_INVOKABLE QString rootMethod() const;
-        Q_INVOKABLE QStringList availableRootMethods() const;
         Q_INVOKABLE bool isVCamSupported() const;
         Q_INVOKABLE VCamStatus vcamInstallStatus() const;
         Q_INVOKABLE QString vcamDriver() const;
@@ -155,21 +145,20 @@ class VirtualCameras: public QObject
         Q_INVOKABLE QString vcamUpdateUrl() const;
         Q_INVOKABLE QString vcamDownloadUrl() const;
         Q_INVOKABLE QString defaultVCamDriver() const;
-        Q_INVOKABLE bool isPassThroughVCam() const;
 
     private:
         VirtualCamerasPrivate *d;
 
     signals:
-        void outputsChanged(const QStringList &outputs);
-        void selectedOutputsChanged(const QStringList &selectedOutputs);
+        void outputChanged(const QString &output);
+        void outputDescriptionChanged(const QString &outputDescription);
+        void outputCapsChanged(const AkVideoCaps &outputCaps);
+        void aspectRatioModeChanged(AkVideoConverter::AspectRatioMode aspectRatioMode);
         void stateChanged(AkElement::ElementState state);
         void oStream(const AkPacket &packet);
         void outputErrorChanged(const QString &outputError);
         void pictureChanged(const QString &picture);
-        void rootMethodChanged(const QString &rootMethod);
         void vcamDriverChanged(const QString &vcamDriver);
-        void isPassThroughVCamChanged(bool isPassThrough);
         void currentVCamVersionChanged(const QString &currentVCamVersion);
         void currentVCamInstalledChanged(bool installed);
         void startVCamDownload(const QString &title,
@@ -184,11 +173,9 @@ class VirtualCameras: public QObject
         void outputCreated(bool ok, const QString &msg);
         void outputEdited(bool ok, const QString &msg);
         void outputRemoved(bool ok, const QString &msg);
-        void allOutputsRemoved(bool ok, const QString &msg);
         void creatingOutput(const QString &outputDescription);
         void editingOutput(const QString &outputDescription);
         void removingOutput(const QString &outputDescription);
-        void removingAllOutputs();
 
     public slots:
         AkPacket iStream(const AkPacket &packet);
@@ -200,18 +187,24 @@ class VirtualCameras: public QObject
                                     const QString &filePath,
                                     DownloadManager::DownloadStatus status,
                                     const QString &error);
-        void setSelectedOutputs(const QStringList &selectedOutputs);
+        void setOutputCaps(const AkVideoCaps &outputCaps);
+        void setAspectRatioMode(AkVideoConverter::AspectRatioMode aspectRatioMode);
         void setState(AkElement::ElementState state);
         void setPicture(const QString &picture);
-        void setRootMethod(const QString &rootMethod);
-        void resetSelectedOutputs();
+        void resetOutputCaps();
+        void resetAspectRatioMode();
         void resetState();
         void resetPicture();
-        void resetRootMethod();
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
 
     private slots:
-        void saveVirtualCameraRootMethod(const QString &rootMethod);
+        void onOutputChanged(const QString &output);
+        void onOutputDescriptionChanged(const QString &description);
+        void onOutputCapsChanged(const AkVideoCaps &outputCaps);
+        void onAspectRatioModeChanged(AkVideoConverter::AspectRatioMode aspectRatioMode);
+        void onOutputCreated(bool ok, const QString &msg);
+        void onOutputEdited(bool ok, const QString &msg);
+        void onOutputRemoved(bool ok, const QString &msg);
 
         friend class VirtualCamerasPrivate;
 };
