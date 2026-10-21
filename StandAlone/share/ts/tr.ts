@@ -1212,57 +1212,57 @@
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="407"/>
         <source>Placeholder</source>
-        <translation type="unfinished"></translation>
+        <translation>Yer tutucu</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="416"/>
         <source>Image shown while there is no video. If it is empty, random noise is shown. The audio is silence.</source>
-        <translation type="unfinished"></translation>
+        <translation>Video yokken bu resim gösterilir. Boşsa, rastgele gürültü gösterilir. Ses yoktur.</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="431"/>
         <source>Image file</source>
-        <translation type="unfinished"></translation>
+        <translation>Resim dosyası</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="434"/>
         <source>Placeholder image</source>
-        <translation type="unfinished"></translation>
+        <translation>Yer tutucu resim</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="451"/>
         <source>Browse</source>
-        <translation type="unfinished"></translation>
+        <translation>Göz at</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="463"/>
         <source>Search an image to be used as placeholder</source>
-        <translation type="unfinished"></translation>
+        <translation>Yer tutucu olarak kullanılacak bir resim arayın</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="468"/>
         <source>Clear</source>
-        <translation type="unfinished">Temizle</translation>
+        <translation>Temizle</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="480"/>
         <source>Remove the placeholder image</source>
-        <translation type="unfinished"></translation>
+        <translation>Yer tutucu resmi kaldırın</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="490"/>
         <source>Select the placeholder image</source>
-        <translation type="unfinished"></translation>
+        <translation>Yer tutucu resim seçin</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="492"/>
         <source>Image files (*.png *.jpg *.jpeg *.bmp *.gif *.webp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Resim dosyaları (*.png *.jpg *.jpeg *.bmp *.gif *.webp)</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="493"/>
         <source>All files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tüm dosyalar (*)</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="342"/>
@@ -1272,7 +1272,7 @@
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="32"/>
         <source>ONVIF local server advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation>ONVIF yerel sunucu gelişmiş seçenekleri</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="360"/>
@@ -1290,65 +1290,65 @@
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="57"/>
         <source>Remove</source>
-        <translation type="unfinished">Kaldır</translation>
+        <translation>Kaldır</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="79"/>
         <source>HTTP port</source>
-        <translation type="unfinished"></translation>
+        <translation>HTTP bağlantı noktası</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="106"/>
         <source>RTSP port</source>
-        <translation type="unfinished"></translation>
+        <translation>RTSP bağlantı noktası</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="134"/>
         <location filename="../qml/LocalStreamingOptions.qml" line="151"/>
         <source>Resource name</source>
-        <translation type="unfinished"></translation>
+        <translation>Kaynak adı</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="174"/>
         <source>Enable authentication</source>
-        <translation type="unfinished"></translation>
+        <translation>Kimlik doğrulamayı etkinleştir</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="191"/>
         <location filename="../qml/LocalStreamingOptions.qml" line="204"/>
         <source>User</source>
-        <translation type="unfinished"></translation>
+        <translation>Kullanıcı</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="222"/>
         <location filename="../qml/LocalStreamingOptions.qml" line="235"/>
         <source>Password</source>
-        <translation type="unfinished"></translation>
+        <translation>Parola</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="256"/>
         <source>Streaming URL</source>
-        <translation type="unfinished">Yayın URL&apos;si</translation>
+        <translation>Yayın URL&apos;si</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="275"/>
         <source>Open URL in the webbrowser</source>
-        <translation type="unfinished"></translation>
+        <translation>URL&apos;yi web tarayıcısında aç</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="282"/>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopyala</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="294"/>
         <source>Copy the URL to the clipboard</source>
-        <translation type="unfinished"></translation>
+        <translation>URL&apos;yi panoya kopyala</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingOptions.qml" line="302"/>
         <source>Advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation>Gelişmiş seçenekler</translation>
     </message>
 </context>
 <context>
@@ -1404,7 +1404,7 @@
     <message>
         <location filename="../qml/MainPanel.qml" line="41"/>
         <source>ONVIF local server Options</source>
-        <translation type="unfinished"></translation>
+        <translation>ONVIF yerel sunucu seçenekleri</translation>
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="42"/>
@@ -2736,12 +2736,12 @@
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="115"/>
         <source>Image files (*.png *.jpg *.jpeg *.bmp *.gif *.webp)</source>
-        <translation type="unfinished"></translation>
+        <translation>Resim dosyaları (*.png *.jpg *.jpeg *.bmp *.gif *.webp)</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputPicture.qml" line="116"/>
         <source>All files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tüm dosyalar (*)</translation>
     </message>
 </context>
 <context>
@@ -2769,12 +2769,12 @@
     <message>
         <location filename="../qml/VideoOutputs.qml" line="138"/>
         <source>Add ONVIF local server</source>
-        <translation type="unfinished"></translation>
+        <translation>ONVIF yerel sunucusu ekle</translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="197"/>
         <source>ONVIF local server</source>
-        <translation type="unfinished"></translation>
+        <translation>ONVIF yerel sunucusu</translation>
     </message>
 </context>
 <context>
