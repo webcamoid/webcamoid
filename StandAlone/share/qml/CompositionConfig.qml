@@ -25,8 +25,8 @@ import AkControls as AK
 
 AK.MenuOption {
     id: root
-    title: qsTr("Canvas")
-    subtitle: qsTr("Configure the composition canvas resolution, frame rate, and color.")
+    title: qsTr("Composition")
+    subtitle: qsTr("Configure the canvas, the output resolution, and the frame rate.")
     icon: "image://icons/screen"
 
     property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
@@ -48,8 +48,15 @@ AK.MenuOption {
         { width: 3840, height: 2160, fps: 60},
     ]
 
+    // Standard output resolutions, expressed as the short side of the frame
+    // (720 means 1280x720 in landscape, and 720x1280 in portrait). The
+    // output always keeps the orientation and aspect ratio of the canvas, so
+    // only its scale can be changed.
+    readonly property var standardOutputResolutions:
+        [240, 360, 480, 720, 1080, 1440, 2160]
+
     // Current canvas caps from the compositor.
-    readonly property var currentCaps: AkVideoCaps.create(videoEffects.outputCaps)
+    readonly property var currentCaps: AkVideoCaps.create(videoEffects.canvasCaps)
     readonly property int currentFps: Math.round(AkFrac.create(currentCaps.fps).value)
     readonly property bool isPortrait: cbxOrientation.currentIndex != 0
 
@@ -76,6 +83,41 @@ AK.MenuOption {
     // Guard to prevent re-entrant loops when applying presets.
     property bool updatingFromPreset: false
 
+    // The output can't be bigger than the canvas, so only the standard
+    // resolutions smaller than the canvas are offered, plus the last stop
+    // (0) that means "same as the canvas".
+    readonly property int canvasShortSide:
+        Math.min(currentCaps.width, currentCaps.height)
+    readonly property var outputStops: {
+        let stops = []
+
+        for (let i = 0; i < standardOutputResolutions.length; i++)
+            if (standardOutputResolutions[i] < canvasShortSide)
+                stops.push(standardOutputResolutions[i])
+
+        stops.push(0)
+
+        return stops
+    }
+    readonly property bool outputIsNative:
+        outputStopIndex === outputStops.length - 1
+    readonly property int outputStopIndex: {
+        let res = videoEffects.outputResolution
+
+        if (res <= 0 || res >= canvasShortSide)
+            return outputStops.length - 1
+
+        // Use the biggest stop that doesn't exceed the saved value.
+        let index = 0
+
+        for (let i = 0; i < outputStops.length - 1; i++)
+            if (outputStops[i] <= res)
+                index = i
+
+        return index
+    }
+    readonly property var outputVideoCaps: AkVideoCaps.create(videoEffects.outputCaps)
+
     ScrollView {
         id: scrollView
         anchors.fill: parent
@@ -92,12 +134,12 @@ AK.MenuOption {
                 label: qsTr("Orientation")
                 model: [qsTr("Landscape"), qsTr("Portrait")]
                 currentIndex: {
-                    let caps = AkVideoCaps.create(videoEffects.outputCaps)
+                    let caps = AkVideoCaps.create(videoEffects.canvasCaps)
 
                     return caps.width >= caps.height? 0: 1
                 }
                 onCurrentIndexChanged: {
-                    let caps = AkVideoCaps.create(videoEffects.outputCaps)
+                    let caps = AkVideoCaps.create(videoEffects.canvasCaps)
                     let targetIsLandscape = (currentIndex === 0)
                     let currentIsLandscape = (caps.width >= caps.height)
 
@@ -105,7 +147,7 @@ AK.MenuOption {
                         let temp = caps.width
                         caps.width = caps.height
                         caps.height = temp
-                        videoEffects.outputCaps = caps.toVariant()
+                        videoEffects.canvasCaps = caps.toVariant()
                     }
                 }
                 Accessible.description: label
@@ -145,11 +187,11 @@ AK.MenuOption {
                     let p = root.canvasPresets[value]
                     root.updatingFromPreset = true
 
-                    let newCaps = AkVideoCaps.create(videoEffects.outputCaps)
+                    let newCaps = AkVideoCaps.create(videoEffects.canvasCaps)
                     newCaps.width = root.isPortrait? p.height: p.width
                     newCaps.height = root.isPortrait? p.width: p.height
                     newCaps.fps = AkFrac.create(p.fps, 1).toVariant()
-                    videoEffects.outputCaps = newCaps.toVariant()
+                    videoEffects.canvasCaps = newCaps.toVariant()
 
                     root.updatingFromPreset = false
                 }
@@ -184,6 +226,70 @@ AK.MenuOption {
                           .arg(root.effectiveHeight)
                           .arg(root.currentFps)
                 }
+            }
+
+            // Output resolution. It follows the canvas orientation and aspect
+            // ratio, and it can't exceed the canvas resolution. It is shared
+            // by all the outputs (recording, virtual camera, streaming and
+            // local streaming).
+
+            Label {
+                text: qsTr("Output resolution")
+                font: AkTheme.fontSettings.h6
+                Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
+                Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+                Layout.bottomMargin: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
+                Layout.fillWidth: true
+            }
+
+            Slider {
+                id: outputSlider
+                from: 0
+                to: root.outputStops.length - 1
+                stepSize: 1
+                value: root.outputStopIndex
+                snapMode: Slider.SnapAlways
+                Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
+                Layout.fillWidth: true
+                Accessible.name: qsTr("Output resolution")
+
+                onMoved: videoEffects.outputResolution = root.outputStops[value]
+            }
+
+            Label {
+                id: outputSummary
+                Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
+                Layout.bottomMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+                Layout.fillWidth: true
+                wrapMode: Text.WordWrap
+
+                text: {
+                    let info = qsTr("%1×%2 @ %3 FPS")
+                                .arg(root.outputVideoCaps.width)
+                                .arg(root.outputVideoCaps.height)
+                                .arg(root.currentFps)
+
+                    if (root.outputIsNative)
+                        info += " (" + qsTr("same as the canvas") + ")"
+
+                    return info
+                }
+            }
+
+            AK.ColorButton {
+                text: qsTr("Canvas color")
+                currentColor: AkUtils.fromRgba(videoEffects.canvasColor)
+                title: qsTr("Choose the canvas color")
+                showAlphaChannel: true
+                horizontalAlignment: root.rtl? Text.AlignRight: Text.AlignLeft
+                Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
+                Layout.fillWidth: true
+
+                onCurrentColorChanged: videoEffects.canvasColor = AkUtils.toRgba(currentColor)
             }
 
             // Advanced settings (collapsible)
@@ -236,14 +342,14 @@ AK.MenuOption {
                             if (root.updatingFromPreset)
                                 return
 
-                            let newCaps = AkVideoCaps.create(videoEffects.outputCaps)
+                            let newCaps = AkVideoCaps.create(videoEffects.canvasCaps)
 
                             if (root.isPortrait)
                                 newCaps.height = value
                             else
                                 newCaps.width = value
 
-                            videoEffects.outputCaps = newCaps.toVariant()
+                            videoEffects.canvasCaps = newCaps.toVariant()
                         }
                     }
 
@@ -265,14 +371,14 @@ AK.MenuOption {
                             if (root.updatingFromPreset)
                                 return
 
-                            let newCaps = AkVideoCaps.create(videoEffects.outputCaps)
+                            let newCaps = AkVideoCaps.create(videoEffects.canvasCaps)
 
                             if (root.isPortrait)
                                 newCaps.width = value
                             else
                                 newCaps.height = value
 
-                            videoEffects.outputCaps = newCaps.toVariant()
+                            videoEffects.canvasCaps = newCaps.toVariant()
                         }
                     }
 
@@ -294,9 +400,9 @@ AK.MenuOption {
                             if (root.updatingFromPreset)
                                 return
 
-                            let newCaps = AkVideoCaps.create(videoEffects.outputCaps)
+                            let newCaps = AkVideoCaps.create(videoEffects.canvasCaps)
                             newCaps.fps = AkFrac.create(value, 1).toVariant()
-                            videoEffects.outputCaps = newCaps.toVariant()
+                            videoEffects.canvasCaps = newCaps.toVariant()
                         }
                     }
                 }
@@ -348,16 +454,6 @@ AK.MenuOption {
                 }
             }
 
-            AK.ColorButton {
-                text: qsTr("Canvas color")
-                currentColor: AkUtils.fromRgba(videoEffects.canvasColor)
-                title: qsTr("Choose the canvas color")
-                showAlphaChannel: true
-                horizontalAlignment: root.rtl? Text.AlignRight: Text.AlignLeft
-                Layout.fillWidth: true
-
-                onCurrentColorChanged: videoEffects.canvasColor = AkUtils.toRgba(currentColor)
-            }
         }
     }
 }

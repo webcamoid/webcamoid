@@ -53,40 +53,16 @@
 #include <iak/akvideomuxer.h>
 
 #include "recording.h"
+#include "encoding.h"
 
-#define DEFAULT_AUDIO_BITRATE 128000
-#define DEFAULT_VIDEO_BITRATE 1500000
-#define DEFAULT_VIDEO_GOP 1000
 #define DEFAULT_RECORD_AUDIO true
 
 struct FormatInfo
 {
-    QString pluginID;
-    AkVideoMuxer::FormatID formatID;
     QString name;
     QString description;
     QString extension;
-    QStringList audioPluginsID;
-    QStringList videoPluginsID;
-    QString defaultAudioPluginID;
-    QString defaultVideoPluginID;
-};
-
-struct CodecInfo
-{
-    QString pluginID;
-    AkCaps::CapsType type;
-    AkCodecID codecID;
-    QString name;
-    QString description;
-    int priority;
-};
-
-struct PluginPriority
-{
-    QString pluginID;
-    int priority;
-    bool hasHwCodec {false};
+    QStringList pluginIDs; // Muxer plugins providing the format, best first.
 };
 
 using ObjectPtr = QSharedPointer<QObject>;
@@ -98,18 +74,16 @@ class RecordingPrivate
         QQmlApplicationEngine *m_engine {nullptr};
         AkAudioCaps m_audioCaps;
         AkVideoCaps m_videoCaps;
-        int m_audioBitrate {DEFAULT_AUDIO_BITRATE};
-        int m_videoBitrate {DEFAULT_VIDEO_BITRATE};
-        int m_videoGOP {DEFAULT_VIDEO_GOP};
+        EncodingPtr m_encoding;
         QVector<FormatInfo> m_supportedFormats;
-        QVector<CodecInfo> m_supportedCodecs;
-        QString m_defaultFormat;
+        QMap<QString, AkVideoMuxerPtr> m_muxerPlugins;
+        QString m_format;
+        QString m_audioCodec;
+        QString m_videoCodec;
         AkVideoMuxerPtr m_muxer;
         QString m_muxerPluginID;
         AkAudioEncoderPtr m_audioEncoder;
-        QString m_audioPluginID;
         AkVideoEncoderPtr m_videoEncoder;
-        QString m_videoPluginID;
         QMetaObject::Connection m_audioHeadersChangedConnection;
         QMetaObject::Connection m_videoHeadersChangedConnection;
         QString m_imageFormat {"png"};
@@ -138,16 +112,23 @@ class RecordingPrivate
         AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 
         explicit RecordingPrivate(Recording *self);
-        inline void initSupportedCodecs();
-        inline void initSupportedFormats();
+        void initSupportedFormats();
+        const FormatInfo *findFormat(const QString &format) const;
+        QStringList supportedCodecsFor(const QString &format,
+                                       AkCaps::CapsType type) const;
         QString defaultCodec(const QString &format, AkCaps::CapsType type) const;
+        QString defaultFormat() const;
+        bool muxerSupportsCodecs(const QString &pluginID,
+                                 const QString &format) const;
+        void updateMuxer();
+        void loadFormatCodecs();
+        void refreshCodecs();
         void printRecordingParameters();
         bool init();
         void uninit();
         static QString normatizePluginID(const QString &pluginID);
         void loadConfigs();
         void loadFormatOptions();
-        void loadCodecOptions(AkCaps::CapsType type);
         void updatePreviews();
         void readThumbnail(const QString &videoFile);
         void thumbnailReady();
@@ -162,11 +143,6 @@ class RecordingPrivate
         void saveCodec(AkCaps::CapsType type, const QString &codec);
         void saveVideoFormatOptionValue(const QString &option,
                                         const QVariant &value);
-        void saveCodecOptionValue(AkCaps::CapsType type,
-                                  const QString &option,
-                                  const QVariant &value);
-        void saveBitrate(AkCaps::CapsType type, int bitrate);
-        void saveVideoGOP(int gop);
         void saveRecordAudio(bool recordAudio);
         void saveUseVideoFlash(bool useVideoFlash);
 
@@ -178,10 +154,13 @@ class RecordingPrivate
         void savePhotoTimeout(int photoTimeout);
 };
 
-Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
+Recording::Recording(const EncodingPtr &encoding,
+                     QQmlApplicationEngine *engine,
+                     QObject *parent):
     QObject(parent)
 {
     this->d = new RecordingPrivate(this);
+    this->d->m_encoding = encoding;
     this->setQmlEngine(engine);
 
     if (this->d->m_thumbnailer) {
@@ -196,8 +175,16 @@ Recording::Recording(QQmlApplicationEngine *engine, QObject *parent):
                          SLOT(mediaLoaded(QString)));
     }
 
+    this->d->initSupportedFormats();
     this->d->loadConfigs();
     this->d->updatePreviews();
+
+    QObject::connect(this->d->m_encoding.data(),
+                     &Encoding::encoderChanged,
+                     this,
+                     [this] () {
+        this->d->refreshCodecs();
+    });
 }
 
 Recording::~Recording()
@@ -228,10 +215,7 @@ QString Recording::videoDirectory() const
 
 QString Recording::videoFormat() const
 {
-    if (!this->d->m_muxer)
-        return {};
-
-    return this->d->m_muxerPluginID + ':' + this->d->m_muxer->muxer();
+    return this->d->m_format;
 }
 
 QStringList Recording::videoFormats() const
@@ -239,52 +223,33 @@ QStringList Recording::videoFormats() const
     QStringList formats;
 
     for (auto &format: this->d->m_supportedFormats)
-        formats << format.pluginID + ':' + format.name;
+        if (!this->d->supportedCodecsFor(format.name, AkCaps::CapsAudio).isEmpty()
+            && !this->d->supportedCodecsFor(format.name, AkCaps::CapsVideo).isEmpty())
+            formats << format.name;
 
     return formats;
 }
 
 QString Recording::defaultVideoFormat() const
 {
-    return this->d->m_defaultFormat;
+    return this->d->defaultFormat();
 }
 
 QString Recording::formatDescription(const QString &format) const
 {
-    auto formatParts = format.split(':');
+    auto fmt = this->d->findFormat(format);
 
-    if (formatParts.size() < 2)
-        return {};
-
-    auto pluginID = formatParts[0];
-    auto muxerID = formatParts[1];
-
-    auto it = std::find_if(this->d->m_supportedFormats.begin(),
-                           this->d->m_supportedFormats.end(),
-                           [&pluginID, &muxerID] (const FormatInfo &formatInfo) -> bool {
-        return formatInfo.pluginID == pluginID && formatInfo.name == muxerID;
-    });
-
-    if (it == this->d->m_supportedFormats.end())
-        return {};
-
-    return it->description;
+    return fmt? fmt->description: QString();
 }
 
 QString Recording::codec(AkCaps::CapsType type) const
 {
     switch (type) {
     case AkCaps::CapsAudio:
-        if (!this->d->m_audioEncoder)
-            return {};
-
-        return this->d->m_audioPluginID + ':' + this->d->m_audioEncoder->codec();
+        return this->d->m_audioCodec;
 
     case AkCaps::CapsVideo:
-        if (!this->d->m_videoEncoder)
-            return {};
-
-        return this->d->m_videoPluginID + ':' + this->d->m_videoEncoder->codec();
+        return this->d->m_videoCodec;
 
     default:
         break;
@@ -296,90 +261,26 @@ QString Recording::codec(AkCaps::CapsType type) const
 QString Recording::defaultCodec(const QString &format,
                                 AkCaps::CapsType type) const
 {
-    auto formatParts = format.split(':');
-
-    if (formatParts.size() < 2)
-        return {};
-
-    auto pluginID = formatParts[0];
-    auto muxerID = formatParts[1];
-
-    auto it = std::find_if(this->d->m_supportedFormats.begin(),
-                           this->d->m_supportedFormats.end(),
-                           [&pluginID, &muxerID] (const FormatInfo &formatInfo) -> bool {
-        return formatInfo.pluginID == pluginID && formatInfo.name == muxerID;
-    });
-
-    if (it == this->d->m_supportedFormats.end())
-        return {};
-
-    switch (type) {
-    case AkCaps::CapsAudio:
-        return it->defaultAudioPluginID;
-
-    case AkCaps::CapsVideo:
-        return it->defaultVideoPluginID;
-
-    default:
-        break;
-    }
-
-    return {};
+    return this->d->defaultCodec(format, type);
 }
 
 QStringList Recording::supportedCodecs(const QString &format,
                                        AkCaps::CapsType type) const
 {
-    auto formatParts = format.split(':');
-
-    if (formatParts.size() < 2)
-        return {};
-
-    auto pluginID = formatParts[0];
-    auto muxerID = formatParts[1];
-
-    auto it = std::find_if(this->d->m_supportedFormats.begin(),
-                           this->d->m_supportedFormats.end(),
-                           [&pluginID, &muxerID] (const FormatInfo &formatInfo) -> bool {
-        return formatInfo.pluginID == pluginID && formatInfo.name == muxerID;
-    });
-
-    if (it == this->d->m_supportedFormats.end())
-        return {};
-
     QStringList codecs;
 
     if (type == AkCaps::CapsAudio || type == AkCaps::CapsAny)
-        for (auto &codec: it->audioPluginsID)
-            codecs << codec;
+        codecs << this->d->supportedCodecsFor(format, AkCaps::CapsAudio);
 
     if (type == AkCaps::CapsVideo || type == AkCaps::CapsAny)
-        for (auto &codec: it->videoPluginsID)
-            codecs << codec;
+        codecs << this->d->supportedCodecsFor(format, AkCaps::CapsVideo);
 
     return codecs;
 }
 
 QString Recording::codecDescription(const QString &codec) const
 {
-    auto codecParts = codec.split(':');
-
-    if (codecParts.size() < 2)
-        return {};
-
-    auto pluginID = codecParts[0];
-    auto codecID = codecParts[1];
-
-    auto it = std::find_if(this->d->m_supportedCodecs.begin(),
-                           this->d->m_supportedCodecs.end(),
-                           [&pluginID, &codecID] (const CodecInfo &codecInfo) -> bool {
-        return codecInfo.pluginID == pluginID && codecInfo.name == codecID;
-    });
-
-    if (it == this->d->m_supportedCodecs.end())
-        return {};
-
-    return it->description;
+    return this->d->m_encoding->codecDescription(codec);
 }
 
 AkPropertyOptions Recording::videoFormatOptions() const
@@ -396,93 +297,6 @@ QVariant Recording::videoFormatOptionValue(const QString &option) const
         return {};
 
     return this->d->m_muxer->optionValue(option);
-}
-
-AkPropertyOptions Recording::codecOptions(AkCaps::CapsType type) const
-{
-    switch (type) {
-    case AkCaps::CapsAudio:
-        if (!this->d->m_audioEncoder)
-            return {};
-
-        return this->d->m_audioEncoder->options();
-
-    case AkCaps::CapsVideo:
-        if (!this->d->m_videoEncoder)
-            return {};
-
-        return this->d->m_videoEncoder->options();
-
-    default:
-        break;
-    }
-
-    return {};
-}
-
-QVariant Recording::codecOptionValue(AkCaps::CapsType type,
-                                     const QString &option) const
-{
-    switch (type) {
-    case AkCaps::CapsAudio:
-        if (!this->d->m_audioEncoder)
-            return {};
-
-        return this->d->m_audioEncoder->optionValue(option);
-
-    case AkCaps::CapsVideo:
-        if (!this->d->m_videoEncoder)
-            return {};
-
-        return this->d->m_videoEncoder->optionValue(option);
-
-    default:
-        break;
-    }
-
-    return {};
-}
-
-int Recording::bitrate(AkCaps::CapsType type) const
-{
-    switch (type) {
-    case AkCaps::CapsAudio:
-        return this->d->m_audioBitrate;
-
-    case AkCaps::CapsVideo:
-        return this->d->m_videoBitrate;
-
-    default:
-        break;
-    }
-
-    return {};
-}
-
-int Recording::defaultBitrate(AkCaps::CapsType type) const
-{
-    switch (type) {
-    case AkCaps::CapsAudio:
-        return DEFAULT_AUDIO_BITRATE;
-
-    case AkCaps::CapsVideo:
-        return DEFAULT_VIDEO_BITRATE;
-
-    default:
-        break;
-    }
-
-    return 0;
-}
-
-int Recording::videoGOP() const
-{
-    return this->d->m_videoGOP;
-}
-
-int Recording::defaultVideoGOP() const
-{
-    return DEFAULT_VIDEO_GOP;
 }
 
 bool Recording::recordAudio() const
@@ -659,92 +473,48 @@ void Recording::setVideoDirectory(const QString &videoDirectory)
 
 void Recording::setVideoFormat(const QString &videoFormat)
 {
-    auto curFormat =
-            this->d->m_muxer?
-                this->d->m_muxerPluginID + ':' + this->d->m_muxer->muxer():
-                QString();
-
-    if (videoFormat == curFormat)
+    if (this->d->m_isRecording
+        || videoFormat == this->d->m_format
+        || !this->d->findFormat(videoFormat))
         return;
 
-    auto formatParts = videoFormat.split(':');
-    auto formatPluginID = formatParts.value(0);
-    auto formatName = formatParts.value(1);
-
-    auto muxer = akPluginManager->create<AkVideoMuxer>(formatPluginID);
-
-    if (muxer)
-        muxer->setMuxer(formatName);
-    else
-        qCritical() << "Failed to create the muxer:" << formatPluginID;
-
-    this->d->m_muxer = muxer;
-    this->d->m_muxerPluginID = formatPluginID;
+    this->d->m_format = videoFormat;
+    this->d->loadFormatCodecs();
+    this->d->updateMuxer();
     emit this->videoFormatChanged(videoFormat);
     this->d->saveVideoFormat(videoFormat);
-    this->d->loadFormatOptions();
 }
 
 void Recording::setCodec(AkCaps::CapsType type, const QString &codec)
 {
-    auto parts     = codec.split(':');
-    auto pluginID  = parts.value(0);
-    auto codecName = parts.value(1);
+    if (this->d->m_isRecording
+        || !this->d->supportedCodecsFor(this->d->m_format, type).contains(codec))
+        return;
 
     switch (type) {
-    case AkCaps::CapsAudio: {
-        auto curCodec =
-                this->d->m_audioEncoder?
-                    this->d->m_audioPluginID + ':' + this->d->m_audioEncoder->codec():
-                    QString();
-
-        if (codec == curCodec)
+    case AkCaps::CapsAudio:
+        if (this->d->m_audioCodec == codec)
             return;
 
-        auto enc = akPluginManager->create<AkAudioEncoder>(pluginID);
-
-        if (enc)
-            enc->setCodec(codecName);
-        else
-            qWarning() << "Failed to create audio encoder:" << pluginID;
-
-        this->d->m_audioEncoder = enc;
-        this->d->m_audioPluginID = pluginID;
-        emit this->codecChanged(type, codec);
-        this->d->saveCodec(type, codec);
-        this->d->loadCodecOptions(AkCaps::CapsAudio);
+        this->d->m_audioCodec = codec;
 
         break;
-    }
 
-    case AkCaps::CapsVideo: {
-        auto curCodec =
-                this->d->m_videoEncoder?
-                    this->d->m_videoPluginID + ':' + this->d->m_videoEncoder->codec():
-                    QString();
-
-        if (codec == curCodec)
+    case AkCaps::CapsVideo:
+        if (this->d->m_videoCodec == codec)
             return;
 
-        auto enc = akPluginManager->create<AkVideoEncoder>(pluginID);
-
-        if (enc)
-            enc->setCodec(codecName);
-        else
-            qWarning() << "Failed to create audio encoder:" << pluginID;
-
-        this->d->m_videoEncoder = enc;
-        this->d->m_videoPluginID = pluginID;
-        emit this->codecChanged(type, codec);
-        this->d->saveCodec(type, codec);
-        this->d->loadCodecOptions(AkCaps::CapsVideo);
+        this->d->m_videoCodec = codec;
 
         break;
-    }
 
     default:
-        break;
+        return;
     }
+
+    this->d->updateMuxer();
+    emit this->codecChanged(type, codec);
+    this->d->saveCodec(type, codec);
 }
 
 void Recording::setVideoFormatOptionValue(const QString &option,
@@ -759,80 +529,6 @@ void Recording::setVideoFormatOptionValue(const QString &option,
     this->d->m_muxer->setOptionValue(option, value);
     emit this->videoFormatOptionValueChanged(option, value);
     this->d->saveVideoFormatOptionValue(option, value);
-}
-
-void Recording::setCodecOptionValue(AkCaps::CapsType type,
-                                    const QString &option,
-                                    const QVariant &value)
-{
-    switch (type) {
-    case AkCaps::CapsAudio:
-        if (!this->d->m_audioEncoder)
-            return;
-
-        if (this->d->m_audioEncoder->optionValue(option) == value)
-            return;
-
-        this->d->m_audioEncoder->setOptionValue(option, value);
-        emit this->codecOptionValueChanged(type, option, value);
-        this->d->saveCodecOptionValue(type, option, value);
-
-        break;
-
-    case AkCaps::CapsVideo:
-        if (!this->d->m_videoEncoder)
-            return;
-
-        if (this->d->m_videoEncoder->optionValue(option) == value)
-            return;
-
-        this->d->m_videoEncoder->setOptionValue(option, value);
-        emit this->codecOptionValueChanged(type, option, value);
-        this->d->saveCodecOptionValue(type, option, value);
-
-        break;
-
-    default:
-        break;
-    }
-}
-
-void Recording::setBitrate(AkCaps::CapsType type, int bitrate)
-{
-    switch (type) {
-    case AkCaps::CapsAudio:
-        if (this->d->m_audioBitrate == bitrate)
-            return;
-
-        this->d->m_audioBitrate = bitrate;
-        emit this->bitrateChanged(type, bitrate);
-        this->d->saveBitrate(type, bitrate);
-
-        break;
-
-    case AkCaps::CapsVideo:
-        if (this->d->m_videoBitrate == bitrate)
-            return;
-
-        this->d->m_videoBitrate = bitrate;
-        emit this->bitrateChanged(type, bitrate);
-        this->d->saveBitrate(type, bitrate);
-
-        break;
-
-    default:
-        break;
-    }
-}
-
-void Recording::setVideoGOP(int gop)
-{
-    if (this->d->m_videoGOP == gop)
-        return;
-
-    this->d->m_videoGOP = gop;
-    emit this->videoGOPChanged(gop);
-    this->d->saveVideoGOP(gop);
 }
 
 void Recording::setRecordAudio(bool recordAudio)
@@ -932,7 +628,7 @@ void Recording::resetVideoDirectory()
 
 void Recording::resetVideoFormat()
 {
-    this->setVideoFormat(this->d->m_defaultFormat);
+    this->setVideoFormat(this->d->defaultFormat());
 }
 
 void Recording::resetCodec(AkCaps::CapsType type)
@@ -945,37 +641,10 @@ void Recording::resetVideoFormatOptionValue(const QString &option)
     this->setVideoFormatOptionValue(option, this->videoFormatOptionValue(option));
 }
 
-void Recording::resetCodecOptionValue(AkCaps::CapsType type,
-                                      const QString &option)
-{
-    this->setCodecOptionValue(type, option, this->codecOptionValue(type,
-                                                                   option));
-}
-
 void Recording::resetVideoFormatOptions()
 {
     for (auto &option: this->videoFormatOptions())
         this->resetVideoFormatOptionValue(option.name());
-}
-
-void Recording::resetCodecOptions(AkCaps::CapsType type)
-{
-    for (auto &option: this->codecOptions(type))
-        this->resetCodecOptionValue(type, option.name());
-}
-
-void Recording::resetBitrate(AkCaps::CapsType type)
-{
-    int bitrate = type == AkCaps::CapsVideo?
-                      DEFAULT_VIDEO_BITRATE:
-                      DEFAULT_AUDIO_BITRATE;
-
-    this->setBitrate(type, bitrate);
-}
-
-void Recording::resetVideoGOP()
-{
-    this->setVideoGOP(DEFAULT_VIDEO_GOP);
 }
 
 void Recording::resetRecordAudio()
@@ -1204,182 +873,51 @@ RecordingPrivate::RecordingPrivate(Recording *self):
         if (formatsDescription.contains(fmt))
             this->m_imageFormats[fmt] = formatsDescription[fmt];
     }
-
-    this->initSupportedCodecs();
-    this->initSupportedFormats();
-}
-
-void RecordingPrivate::initSupportedCodecs()
-{
-    this->m_supportedCodecs.clear();
-
-    auto audioEncoders =
-            akPluginManager->listPlugins("^AudioEncoder([/]([0-9a-zA-Z_])+)+$",
-                                         {},
-                                         AkPluginManager::FilterEnabled
-                                         | AkPluginManager::FilterRegexp);
-
-    for (auto &encoder: audioEncoders) {
-        auto codecPlugin = akPluginManager->create<AkAudioEncoder>(encoder);
-
-        if (!codecPlugin)
-            continue;
-
-        auto codecInfo = akPluginManager->pluginInfo(encoder);
-
-        for (auto &codec: codecPlugin->codecs())
-            this->m_supportedCodecs << CodecInfo {encoder,
-                                                  AkCaps::CapsAudio,
-                                                  codecPlugin->codecID(codec),
-                                                  codec,
-                                                  codecPlugin->codecDescription(codec),
-                                                  codecInfo.priority()};
-    }
-
-    auto videoEncoders =
-            akPluginManager->listPlugins("^VideoEncoder([/]([0-9a-zA-Z_])+)+$",
-                                         {},
-                                         AkPluginManager::FilterEnabled
-                                         | AkPluginManager::FilterRegexp);
-
-    for (auto &encoder: videoEncoders) {
-        auto codecPlugin = akPluginManager->create<AkVideoEncoder>(encoder);
-
-        if (!codecPlugin)
-            continue;
-
-        auto codecInfo = akPluginManager->pluginInfo(encoder);
-
-        for (auto &codec: codecPlugin->codecs())
-            this->m_supportedCodecs << CodecInfo {encoder,
-                                                  AkCaps::CapsVideo,
-                                                  codecPlugin->codecID(codec),
-                                                  codec,
-                                                  codecPlugin->codecDescription(codec),
-                                                  codecInfo.priority()};
-    }
-
-    std::sort(this->m_supportedCodecs.begin(),
-              this->m_supportedCodecs.end(),
-              [] (const CodecInfo &ci1, const CodecInfo &ci2) {
-        return ci1.description < ci2.description;
-    });
 }
 
 void RecordingPrivate::initSupportedFormats()
 {
     this->m_supportedFormats.clear();
+    this->m_muxerPlugins.clear();
 
     auto muxerPlugins =
             akPluginManager->listPlugins("^VideoMuxer([/]([0-9a-zA-Z_])+)+$",
                                          {},
                                          AkPluginManager::FilterEnabled
                                          | AkPluginManager::FilterRegexp);
-    QVector<PluginPriority> formatsPriority;
 
-    for (auto &muxerPluginId: muxerPlugins) {
-        auto muxerInfo = akPluginManager->pluginInfo(muxerPluginId);
-        auto muxerPlugin = akPluginManager->create<AkVideoMuxer>(muxerPluginId);
+    // The formats are named after the container, regardless of the plugin
+    // that implements it. When many plugins provide the same format, the one
+    // with the highest priority goes first.
+    std::stable_sort(muxerPlugins.begin(),
+                     muxerPlugins.end(),
+                     [] (const QString &a, const QString &b) {
+        return akPluginManager->pluginInfo(a).priority()
+               > akPluginManager->pluginInfo(b).priority();
+    });
 
-        if (!muxerPlugin)
+    for (auto &pluginID: muxerPlugins) {
+        auto plugin = akPluginManager->create<AkVideoMuxer>(pluginID);
+
+        if (!plugin)
             continue;
 
-        for (auto &muxer: muxerPlugin->muxers()) {
-            QVector<PluginPriority> codecsPriority;
-            QVector<QString> audioPluginsID;
-            auto supportedAudioCodecs =
-                    muxerPlugin->supportedCodecs(muxer,
-                                                 AkCompressedCaps::CapsType_Audio);
-            auto defaultAudioCodec =
-                    muxerPlugin->defaultCodec(muxer,
-                                              AkCompressedCaps::CapsType_Audio);
+        this->m_muxerPlugins[pluginID] = plugin;
 
-            for (auto &codec: this->m_supportedCodecs)
-                if (supportedAudioCodecs.contains(codec.codecID)
-                    && codec.type == AkCaps::CapsAudio) {
-                    auto id = codec.pluginID + ':' + codec.name;
-                    audioPluginsID << id;
-
-                    if (codec.codecID == defaultAudioCodec)
-                        codecsPriority << PluginPriority {id, codec.priority};
-                }
-
-            if (audioPluginsID.isEmpty())
-                continue;
-
-            std::sort(codecsPriority.begin(),
-                      codecsPriority.end(),
-                      [] (const PluginPriority &plugin1,
-                          const PluginPriority &pluhgin2) -> bool {
-                return plugin1.priority > pluhgin2.priority;
+        for (auto &muxer: plugin->muxers()) {
+            auto it = std::find_if(this->m_supportedFormats.begin(),
+                                   this->m_supportedFormats.end(),
+                                   [&muxer] (const FormatInfo &formatInfo) -> bool {
+                return formatInfo.name == muxer;
             });
-            QString defaultAudioPluginID;
 
-            if (!codecsPriority.isEmpty())
-                defaultAudioPluginID = codecsPriority[0].pluginID;
-
-            codecsPriority.clear();
-            QVector<QString> videoPluginsID;
-            auto supportedVideoCodecs =
-                    muxerPlugin->supportedCodecs(muxer,
-                                                 AkCompressedCaps::CapsType_Video);
-            auto defaultVideoCodec =
-                    muxerPlugin->defaultCodec(muxer,
-                                              AkCompressedCaps::CapsType_Video);
-
-            for (auto &codec: this->m_supportedCodecs)
-                if (supportedVideoCodecs.contains(codec.codecID)
-                    && codec.type == AkCaps::CapsVideo) {
-                    auto id = codec.pluginID + ':' + codec.name;
-                    videoPluginsID << id;
-
-                    if (codec.codecID == defaultVideoCodec)
-                        codecsPriority << PluginPriority {id, codec.priority};
-                }
-
-            if (videoPluginsID.isEmpty())
-                continue;
-
-            std::sort(codecsPriority.begin(),
-                      codecsPriority.end(),
-                      [] (const PluginPriority &plugin1,
-                          const PluginPriority &plugin2) -> bool {
-                return plugin1.priority > plugin2.priority;
-            });
-            auto defaultVideoPluginID = codecsPriority.first().pluginID;
-
-            this->m_supportedFormats << FormatInfo {
-                muxerPluginId,
-                muxerPlugin->formatID(muxer),
-                muxer,
-                muxerPlugin->description(muxer),
-                muxerPlugin->extension(muxer),
-                audioPluginsID,
-                videoPluginsID,
-                defaultAudioPluginID,
-                defaultVideoPluginID
-            };
-
-            bool formatHasHwCodec = false;
-
-            for (auto &videoPluginID: videoPluginsID) {
-                auto parts = videoPluginID.split(':');
-
-                if (parts.size() < 2)
-                    continue;
-
-                auto encoderPlugin = akPluginManager->create<AkVideoEncoder>(parts[0]);
-
-                if (encoderPlugin && encoderPlugin->hasHardwareSupport(parts[1])) {
-                    formatHasHwCodec = true;
-
-                    break;
-                }
-            }
-
-            formatsPriority << PluginPriority {muxerPluginId + ':' + muxer,
-                                               muxerInfo.priority(),
-                                               formatHasHwCodec};
+            if (it == this->m_supportedFormats.end())
+                this->m_supportedFormats << FormatInfo {muxer,
+                                                        plugin->description(muxer),
+                                                        plugin->extension(muxer),
+                                                        {pluginID}};
+            else
+                it->pluginIDs << pluginID;
         }
     }
 
@@ -1388,57 +926,205 @@ void RecordingPrivate::initSupportedFormats()
               [] (const FormatInfo &fi1, const FormatInfo &fi2) {
         return fi1.description < fi2.description;
     });
+}
 
-    if (formatsPriority.isEmpty()) {
-        this->m_defaultFormat = {};
+const FormatInfo *RecordingPrivate::findFormat(const QString &format) const
+{
+    for (auto &fmt: this->m_supportedFormats)
+        if (fmt.name == format)
+            return &fmt;
+
+    return nullptr;
+}
+
+QStringList RecordingPrivate::supportedCodecsFor(const QString &format,
+                                                 AkCaps::CapsType type) const
+{
+    auto fmt = this->findFormat(format);
+
+    if (!fmt)
+        return {};
+
+    auto compressedType = type == AkCaps::CapsAudio?
+                              AkCompressedCaps::CapsType_Audio:
+                              AkCompressedCaps::CapsType_Video;
+    QStringList codecs;
+
+    // A codec is available when the muxer supports the codec ID used by the
+    // encoder currently associated to it.
+    for (auto &codec: this->m_encoding->codecs(type)) {
+        auto id = this->m_encoding->encoderCodecID(type, codec);
+
+        for (auto &pluginID: fmt->pluginIDs) {
+            auto plugin = this->m_muxerPlugins.value(pluginID);
+
+            if (plugin
+                && plugin->supportedCodecs(fmt->name, compressedType).contains(id)) {
+                codecs << codec;
+
+                break;
+            }
+        }
+    }
+
+    return codecs;
+}
+
+QString RecordingPrivate::defaultCodec(const QString &format,
+                                       AkCaps::CapsType type) const
+{
+    return this->supportedCodecsFor(format, type).value(0);
+}
+
+QString RecordingPrivate::defaultFormat() const
+{
+    QString defaultFormat;
+    int defaultPriority = 0;
+
+    for (auto &format: this->self->videoFormats()) {
+        auto fmt = this->findFormat(format);
+
+        if (!fmt)
+            continue;
+
+        auto priority =
+                akPluginManager->pluginInfo(fmt->pluginIDs.first()).priority();
+
+        if (defaultFormat.isEmpty() || priority > defaultPriority) {
+            defaultFormat = format;
+            defaultPriority = priority;
+        }
+    }
+
+    return defaultFormat;
+}
+
+bool RecordingPrivate::muxerSupportsCodecs(const QString &pluginID,
+                                           const QString &format) const
+{
+    auto plugin = this->m_muxerPlugins.value(pluginID);
+
+    if (!plugin)
+        return false;
+
+    auto supports = [this, &plugin, &format] (AkCaps::CapsType type,
+                                              const QString &codec) -> bool {
+        if (codec.isEmpty())
+            return true;
+
+        auto compressedType = type == AkCaps::CapsAudio?
+                                  AkCompressedCaps::CapsType_Audio:
+                                  AkCompressedCaps::CapsType_Video;
+
+        return plugin->supportedCodecs(format, compressedType)
+                .contains(this->m_encoding->encoderCodecID(type, codec));
+    };
+
+    return supports(AkCaps::CapsAudio, this->m_audioCodec)
+           && supports(AkCaps::CapsVideo, this->m_videoCodec);
+}
+
+void RecordingPrivate::updateMuxer()
+{
+    auto fmt = this->findFormat(this->m_format);
+
+    if (!fmt) {
+        this->m_muxer = {};
+        this->m_muxerPluginID.clear();
 
         return;
     }
 
-    std::sort(formatsPriority.begin(),
-              formatsPriority.end(),
-              [] (const PluginPriority &plugin1,
-                  const PluginPriority &plugin2) -> bool {
-#if 0
-        if (plugin1.hasHwCodec != plugin2.hasHwCodec)
-            return plugin1.hasHwCodec > plugin2.hasHwCodec;
-#endif
-        return plugin1.priority > plugin2.priority;
-    });
-    this->m_defaultFormat = formatsPriority.first().pluginID;
-}
+    // Use the best plugin that supports the selected codecs.
+    QString pluginID;
 
-QString RecordingPrivate::defaultCodec(const QString &format, AkCaps::CapsType type) const
-{
-    auto formatParts = format.split(':');
+    for (auto &id: fmt->pluginIDs)
+        if (this->muxerSupportsCodecs(id, fmt->name)) {
+            pluginID = id;
 
-    if (formatParts.size() < 2)
-        return {};
+            break;
+        }
 
-    auto pluginID = formatParts[0];
-    auto muxerID = formatParts[1];
+    if (pluginID.isEmpty())
+        pluginID = fmt->pluginIDs.first();
 
-    auto it = std::find_if(this->m_supportedFormats.begin(),
-                           this->m_supportedFormats.end(),
-                           [&pluginID, &muxerID] (const FormatInfo &formatInfo) -> bool {
-        return formatInfo.pluginID == pluginID && formatInfo.name == muxerID;
-    });
+    if (this->m_muxer
+        && this->m_muxerPluginID == pluginID
+        && this->m_muxer->muxer() == fmt->name)
+        return;
 
-    if (it == this->m_supportedFormats.end())
-        return {};
+    auto muxer = akPluginManager->create<AkVideoMuxer>(pluginID);
 
-    switch (type) {
-    case AkCaps::CapsAudio:
-        return it->defaultAudioPluginID;
+    if (!muxer) {
+        qCritical() << "Failed to create the muxer:" << pluginID;
+        this->m_muxer = {};
+        this->m_muxerPluginID.clear();
 
-    case AkCaps::CapsVideo:
-        return it->defaultVideoPluginID;
-
-    default:
-        break;
+        return;
     }
 
-    return {};
+    muxer->setMuxer(fmt->name);
+    this->m_muxer = muxer;
+    this->m_muxerPluginID = pluginID;
+    this->loadFormatOptions();
+}
+
+void RecordingPrivate::loadFormatCodecs()
+{
+    auto fmt = this->findFormat(this->m_format);
+
+    if (!fmt)
+        return;
+
+    QSettings config;
+
+    for (auto type: {AkCaps::CapsAudio, AkCaps::CapsVideo}) {
+        auto key = type == AkCaps::CapsAudio? "audio": "video";
+
+        config.beginGroup("RecordConfigs_FormatCodecs_"
+                          + normatizePluginID(this->m_format));
+        auto stored = config.value(key).toString();
+        config.endGroup();
+
+        // Previous versions stored them per muxer plugin.
+        if (stored.isEmpty()) {
+            config.beginGroup("RecordConfigs_FormatCodecs_"
+                              + normatizePluginID(fmt->pluginIDs.first()
+                                                  + ':'
+                                                  + fmt->name));
+            stored = config.value(key).toString();
+            config.endGroup();
+        }
+
+        // Previous versions stored the encoder implementation, not the codec.
+        if (stored.contains(':'))
+            stored = this->m_encoding->encoderCodec(stored);
+
+        auto supported = this->supportedCodecsFor(this->m_format, type);
+        auto codec = supported.contains(stored)? stored: supported.value(0);
+        auto &current = type == AkCaps::CapsAudio?
+                            this->m_audioCodec:
+                            this->m_videoCodec;
+
+        if (current != codec) {
+            current = codec;
+            emit self->codecChanged(type, codec);
+        }
+    }
+}
+
+void RecordingPrivate::refreshCodecs()
+{
+    if (!this->m_isRecording) {
+        if (!self->videoFormats().contains(this->m_format))
+            self->setVideoFormat(this->defaultFormat());
+        else
+            this->loadFormatCodecs();
+
+        this->updateMuxer();
+    }
+
+    emit self->supportedCodecsChanged();
 }
 
 void RecordingPrivate::printRecordingParameters()
@@ -1453,7 +1139,8 @@ void RecordingPrivate::printRecordingParameters()
         qInfo() << "        layout:" << this->m_audioCaps.layout();
         qInfo() << "        sample rate:" << this->m_audioCaps.rate();
         qInfo() << "        codec:" << self->codec(AkCaps::CapsAudio);
-        qInfo() << "        bitrate:" << this->m_audioBitrate;
+        qInfo() << "        encoder:" << this->m_encoding->encoder(AkCaps::CapsAudio, this->m_audioCodec);
+        qInfo() << "        bitrate:" << this->m_encoding->audioBitrate();
     }
 
     qInfo() << "    Video:";
@@ -1462,7 +1149,8 @@ void RecordingPrivate::printRecordingParameters()
     qInfo() << "        height:" << this->m_videoCaps.height();
     qInfo() << "        frame rate:" << this->m_videoCaps.fps().toString();
     qInfo() << "        codec:" << self->codec(AkCaps::CapsVideo);
-    qInfo() << "        bitrate:" << this->m_videoBitrate;
+    qInfo() << "        encoder:" << this->m_encoding->encoder(AkCaps::CapsVideo, this->m_videoCodec);
+    qInfo() << "        bitrate:" << this->m_encoding->videoBitrate();
 }
 
 bool RecordingPrivate::init()
@@ -1476,17 +1164,29 @@ bool RecordingPrivate::init()
         return false;
     }
 
+    // The settings of the encoders are shared with the other outputs and can
+    // change at any time, so create the encoders for each recording.
+    this->updateMuxer();
+
     if (!this->m_muxer) {
         qCritical() << "Muxer not set";
 
         return false;
     }
 
+    this->m_videoEncoder = this->m_encoding->createVideoEncoder(this->m_videoCodec);
+
     if (!this->m_videoEncoder) {
         qCritical() << "Video codec not set";
 
         return false;
     }
+
+    this->m_audioEncoder =
+            this->m_audioCodec.isEmpty()?
+                AkAudioEncoderPtr():
+                this->m_encoding->createAudioEncoder(this->m_audioCodec);
+    this->m_audioCaps.setRate(this->m_encoding->audioSampleRate());
 
     auto currentTime =
             QDateTime::currentDateTime().toString("yyyy-MM-dd hh-mm-ss");
@@ -1498,8 +1198,8 @@ bool RecordingPrivate::init()
     this->m_muxer->setLocation(location);
 
     this->m_videoEncoder->setInputCaps(this->m_videoCaps);
-    this->m_videoEncoder->setBitrate(this->m_videoBitrate);
-    this->m_videoEncoder->setGop(this->m_videoGOP);
+    this->m_videoEncoder->setBitrate(this->m_encoding->videoBitrate());
+    this->m_videoEncoder->setGop(this->m_encoding->videoGOP());
     this->m_videoEncoder->setFillGaps(!this->m_muxer->gapsAllowed(AkCompressedCaps::CapsType_Video));
     this->m_muxer->setStreamCaps(this->m_videoEncoder->outputCaps());
     this->m_muxer->setStreamBitrate(AkCompressedCaps::CapsType_Video,
@@ -1515,7 +1215,7 @@ bool RecordingPrivate::init()
 
     if (this->m_audioEncoder) {
         this->m_audioEncoder->setInputCaps(this->m_audioCaps);
-        this->m_audioEncoder->setBitrate(this->m_audioBitrate);
+        this->m_audioEncoder->setBitrate(this->m_encoding->audioBitrate());
         this->m_audioEncoder->setFillGaps(!this->m_muxer->gapsAllowed(AkCompressedCaps::CapsType_Audio));
         this->m_muxer->setStreamCaps(this->m_audioEncoder->outputCaps());
         this->m_muxer->setStreamBitrate(AkCompressedCaps::CapsType_Audio,
@@ -1664,7 +1364,6 @@ void RecordingPrivate::loadConfigs()
     auto outputWidth = qMax(config.value("outputWidth", 1280).toInt(), 160);
     auto outputHeight = qMax(config.value("outputHeight", 720).toInt(), 90);
     auto outputFPS = qMax(config.value("outputFPS", 30).toInt(), 1);
-    auto audioSampleRate = qMax(config.value("audioSampleRate", 48000).toInt(), 8000);
 
     this->m_videoCaps = {AkVideoCaps::Format_yuv420p,
                          outputWidth,
@@ -1673,77 +1372,22 @@ void RecordingPrivate::loadConfigs()
     this->m_audioCaps = {AkAudioCaps::SampleFormat_s16,
                          AkAudioCaps::Layout_stereo,
                          false,
-                         audioSampleRate};
+                         this->m_encoding->audioSampleRate()};
 
-    this->m_audioBitrate = qMax(config.value("audioBitrate", DEFAULT_AUDIO_BITRATE).toInt(), 1000);
-    this->m_videoBitrate = qMax(config.value("videoBitrate", DEFAULT_VIDEO_BITRATE).toInt(), 100000);
-    this->m_videoGOP = qMax(config.value("videoGOP", DEFAULT_VIDEO_GOP).toInt(), 1);
+    // Configure the format. Previous versions stored the muxer plugin too.
 
-    // Configure the format
-
-    auto videoFormat =
-            config.value("format", this->m_defaultFormat).toString();
-    auto formatParts = videoFormat.split(':');
-    auto formatPluginID = formatParts.value(0);
-    auto formatName = formatParts.value(1);
-
-    if (!formatPluginID.isEmpty() && !formatName.isEmpty()) {
-        auto muxer = akPluginManager->create<AkVideoMuxer>(formatPluginID);
-
-        if (muxer && muxer->muxers().contains(formatName)) {
-            muxer->setMuxer(formatName);
-            this->m_muxer = muxer;
-            this->m_muxerPluginID = formatPluginID;
-            this->loadFormatOptions();
-        }
-    }
-
+    auto videoFormat = config.value("format").toString();
+    videoFormat = videoFormat.mid(videoFormat.lastIndexOf(':') + 1);
     config.endGroup();
 
-    // Configure the codecs
+    if (!self->videoFormats().contains(videoFormat))
+        videoFormat = this->defaultFormat();
 
-    auto videoFormatID = normatizePluginID(videoFormat);
-    config.beginGroup("RecordConfigs_FormatCodecs_" + videoFormatID);
-
-    auto audioCodec =
-            config.value("audio",
-                         this->defaultCodec(videoFormat,
-                                            AkCaps::CapsAudio)).toString();
-    auto audioCodecParts = audioCodec.split(':');
-    auto audioCodecPluginID = audioCodecParts.value(0);
-    auto audioCodecName = audioCodecParts.value(1);
-
-    if (!audioCodecPluginID.isEmpty() && !audioCodecName.isEmpty()) {
-        auto encoder = akPluginManager->create<AkAudioEncoder>(audioCodecPluginID);
-
-        if (encoder && encoder->codecs().contains(audioCodecName)) {
-            encoder->setCodec(audioCodecName);
-            this->m_audioEncoder = encoder;
-            this->m_audioPluginID = audioCodecPluginID;
-            this->loadCodecOptions(AkCaps::CapsAudio);
-        }
+    if (!videoFormat.isEmpty()) {
+        this->m_format = videoFormat;
+        this->loadFormatCodecs();
+        this->updateMuxer();
     }
-
-    auto videoCodec =
-            config.value("video",
-                         this->defaultCodec(videoFormat,
-                                            AkCaps::CapsVideo)).toString();
-    auto videoCodecParts = videoCodec.split(':');
-    auto videoCodecPluginID = videoCodecParts.value(0);
-    auto videoCodecName = videoCodecParts.value(1);
-
-    if (!videoCodecPluginID.isEmpty() && !videoCodecName.isEmpty()) {
-        auto encoder = akPluginManager->create<AkVideoEncoder>(videoCodecPluginID);
-
-        if (encoder && encoder->codecs().contains(videoCodecName)) {
-            encoder->setCodec(videoCodecName);
-            this->m_videoEncoder = encoder;
-            this->m_videoPluginID = videoCodecPluginID;
-            this->loadCodecOptions(AkCaps::CapsVideo);
-        }
-    }
-
-    config.endGroup();
 }
 
 void RecordingPrivate::loadFormatOptions()
@@ -1766,60 +1410,6 @@ void RecordingPrivate::loadFormatOptions()
                                           config.value(option.name()));
 
     config.endGroup();
-}
-
-void RecordingPrivate::loadCodecOptions(AkCaps::CapsType type)
-{
-    switch (type) {
-    case AkCaps::CapsAudio: {
-        if (!this->m_audioEncoder)
-            return;
-
-        emit self->codecOptionsChanged(type, this->m_audioEncoder->options());
-
-        QSettings config;
-        auto pluginID =
-                this->normatizePluginID(this->m_audioPluginID
-                                        + ':'
-                                        + this->m_audioEncoder->codec());
-        config.beginGroup("RecordConfigs_AudioCodecOptions_" + pluginID);
-
-        for (auto &option: this->m_audioEncoder->options())
-            if (config.contains(option.name()))
-                this->m_audioEncoder->setOptionValue(option.name(),
-                                                     config.value(option.name()));
-
-        config.endGroup();
-
-        return;
-    }
-
-    case AkCaps::CapsVideo: {
-        if (!this->m_videoEncoder)
-            return;
-
-        emit self->codecOptionsChanged(type, this->m_videoEncoder->options());
-
-        QSettings config;
-        auto pluginID =
-                this->normatizePluginID(this->m_videoPluginID
-                                        + ':'
-                                        + this->m_videoEncoder->codec());
-        config.beginGroup("RecordConfigs_VideoCodecOptions_" + pluginID);
-
-        for (auto &option: this->m_videoEncoder->options())
-            if (config.contains(option.name()))
-                this->m_videoEncoder->setOptionValue(option.name(),
-                                                     config.value(option.name()));
-
-        config.endGroup();
-
-        return;
-    }
-
-    default:
-        break;
-    }
 }
 
 void RecordingPrivate::updatePreviews()
@@ -1949,8 +1539,8 @@ void RecordingPrivate::saveVideoFormat(const QString &videoFormat)
 void RecordingPrivate::saveCodec(AkCaps::CapsType type, const QString &codec)
 {
     QSettings config;
-    auto videoFormatID = normatizePluginID(self->videoFormat());
-    config.beginGroup("RecordConfigs_FormatCodecs_" + videoFormatID);
+    config.beginGroup("RecordConfigs_FormatCodecs_"
+                      + normatizePluginID(this->m_format));
 
     switch (type) {
     case AkCaps::CapsAudio:
@@ -1978,66 +1568,6 @@ void RecordingPrivate::saveVideoFormatOptionValue(const QString &option,
     auto pluginID = normatizePluginID(self->videoFormat());
     config.beginGroup("RecordConfigs_FormatOptions_" + pluginID);
     config.setValue(option, value);
-    config.endGroup();
-}
-
-void RecordingPrivate::saveCodecOptionValue(AkCaps::CapsType type,
-                                            const QString &option,
-                                            const QVariant &value)
-{
-    QSettings config;
-    auto pluginID = this->normatizePluginID(self->codec(type));
-
-    switch (type) {
-    case AkCaps::CapsAudio: {
-        config.beginGroup("RecordConfigs_AudioCodecOptions_" + pluginID);
-        config.setValue(option, value);
-        config.endGroup();
-
-        return;
-    }
-
-    case AkCaps::CapsVideo: {
-        QSettings config;
-        auto pluginID = this->normatizePluginID(self->codec(type));
-        config.beginGroup("RecordConfigs_VideoCodecOptions_" + pluginID);
-        config.setValue(option, value);
-        config.endGroup();
-
-        return;
-    }
-
-    default:
-        break;
-    }
-}
-
-void RecordingPrivate::saveBitrate(AkCaps::CapsType type, int bitrate)
-{
-    QSettings config;
-    config.beginGroup("RecordConfigs");
-
-    switch (type) {
-    case AkCaps::CapsAudio:
-        config.setValue("audioBitrate", bitrate);
-        break;
-
-    case AkCaps::CapsVideo:
-        config.setValue("videoBitrate", bitrate);
-        break;
-
-    default:
-        break;
-    }
-
-    config.endGroup();
-}
-
-void RecordingPrivate::saveVideoGOP(int gop)
-{
-    QSettings config;
-    config.beginGroup("RecordConfigs");
-    config.setValue("videoGOP", gop);
     config.endGroup();
 }
 

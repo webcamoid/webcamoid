@@ -44,7 +44,7 @@ Dialog {
     property var sourcesModel: ListModel {}
 
     readonly property rect canvasRect: {
-        let caps = AkVideoCaps.create(videoEffects.outputCaps)
+        let caps = AkVideoCaps.create(videoEffects.canvasCaps)
         let vW = caps ? caps.width : 16
         let vH = caps ? caps.height : 9
 

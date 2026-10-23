@@ -123,29 +123,5 @@ ScrollView {
                 }
             }
         }
-
-        // Aspect ratio mode
-        AK.LabeledComboBox {
-            id: aspectRatioModeComboBox
-            label: qsTr("Aspect ratio mode")
-            model: [
-                qsTr("Ignore"),
-                qsTr("Keep"),
-                qsTr("Keep by expanding"),
-            ]
-            currentIndex: Math.min(Math.max(virtualCameras.aspectRatioMode, 0),
-                                   model.length - 1)
-            Layout.leftMargin:
-                AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-            Layout.rightMargin:
-                AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-            Layout.fillWidth: true
-            Accessible.name: label
-
-            onCurrentIndexChanged: {
-                if (currentIndex !== virtualCameras.aspectRatioMode)
-                    virtualCameras.aspectRatioMode = currentIndex
-            }
-        }
     }
 }

@@ -47,13 +47,15 @@ class VideoEffectsPrivate
         VideoEffects *self;
         QQmlApplicationEngine *m_engine {nullptr};
         AkGLCompositor m_glCompositor;
+        int m_outputResolution {0};
         QMutex m_mutex;
         QMap<qint64, QString> m_sourceDevices;
         AkElement::ElementState m_state {AkElement::ElementStateNull};
 
         explicit VideoEffectsPrivate(VideoEffects *self);
         QString encodeDevice(const QString &device) const;
-        void updateOutputCaps();
+        void updateCanvasCaps();
+        void updateOutputResolution();
         void updateCanvasColor();
         void updateAsyncRead();
         void updateOutputBufferSize();
@@ -62,7 +64,9 @@ class VideoEffectsPrivate
         void updateEffectsProperties();
         void updateSourceEffects(qint64 id, const QString &device);
         void updateSourceEffectsProperties(qint64 id, const QString &device);
-        void saveOutputCaps(const AkVideoCaps &caps);
+        void saveCanvasCaps(const AkVideoCaps &caps);
+        void saveOutputResolution(int outputResolution);
+        AkVideoCaps scaledCaps() const;
         void saveCanvasColor(QRgb canvasColor);
         void saveAsyncRead(bool asyncRead);
         void saveOutputBufferSize(size_t outputBufferSize);
@@ -83,7 +87,8 @@ VideoEffects::VideoEffects(QQmlApplicationEngine *engine, QObject *parent):
     this->d = new VideoEffectsPrivate(this);
     this->setQmlEngine(engine);
     this->updateAvailableEffects();
-    this->d->updateOutputCaps();
+    this->d->updateCanvasCaps();
+    this->d->updateOutputResolution();
     this->d->updateCanvasColor();
     this->d->updateAsyncRead();
     this->d->updateOutputBufferSize();
@@ -105,9 +110,19 @@ VideoEffects::~VideoEffects()
     delete this->d;
 }
 
-AkVideoCaps VideoEffects::outputCaps() const
+AkVideoCaps VideoEffects::canvasCaps() const
 {
     return this->d->m_glCompositor.outputCaps();
+}
+
+int VideoEffects::outputResolution() const
+{
+    return this->d->m_outputResolution;
+}
+
+AkVideoCaps VideoEffects::outputCaps() const
+{
+    return this->d->scaledCaps();
 }
 
 QRgb VideoEffects::canvasColor() const
@@ -634,18 +649,43 @@ void VideoEffects::applySourcePreview(qint64 id)
         this->d->saveSourceEffects(id, device);
 }
 
-void VideoEffects::setOutputCaps(const AkVideoCaps &outputCaps)
+void VideoEffects::setCanvasCaps(const AkVideoCaps &canvasCaps)
 {
-    if (this->d->m_glCompositor.outputCaps() == outputCaps)
+    if (this->d->m_glCompositor.outputCaps() == canvasCaps)
         return;
+
+    auto oldOutputCaps = this->d->scaledCaps();
 
     {
         QMutexLocker locker(&this->d->m_mutex);
-        this->d->m_glCompositor.setOutputCaps(outputCaps);
-        this->d->saveOutputCaps(outputCaps);
+        this->d->m_glCompositor.setOutputCaps(canvasCaps);
+        this->d->saveCanvasCaps(canvasCaps);
     }
 
-    emit this->outputCapsChanged(outputCaps);
+    emit this->canvasCapsChanged(canvasCaps);
+
+    auto outputCaps = this->d->scaledCaps();
+
+    if (outputCaps != oldOutputCaps)
+        emit this->outputCapsChanged(outputCaps);
+}
+
+void VideoEffects::setOutputResolution(int outputResolution)
+{
+    outputResolution = qMax(outputResolution, 0);
+
+    if (this->d->m_outputResolution == outputResolution)
+        return;
+
+    auto oldOutputCaps = this->d->scaledCaps();
+    this->d->m_outputResolution = outputResolution;
+    this->d->saveOutputResolution(outputResolution);
+    emit this->outputResolutionChanged(outputResolution);
+
+    auto outputCaps = this->d->scaledCaps();
+
+    if (outputCaps != oldOutputCaps)
+        emit this->outputCapsChanged(outputCaps);
 }
 
 void VideoEffects::setCanvasColor(QRgb canvasColor)
@@ -763,9 +803,14 @@ void VideoEffects::setEffectEnabled(int index, bool enabled)
     this->d->saveEffects();
 }
 
-void VideoEffects::resetOutputCaps()
+void VideoEffects::resetCanvasCaps()
 {
-    this->setOutputCaps(AkVideoCaps());
+    this->setCanvasCaps(AkVideoCaps());
+}
+
+void VideoEffects::resetOutputResolution()
+{
+    this->setOutputResolution(0);
 }
 
 void VideoEffects::resetCanvasColor()
@@ -1062,7 +1107,7 @@ QString VideoEffectsPrivate::encodeDevice(const QString &device) const
                              .replace(".", "_"));
 }
 
-void VideoEffectsPrivate::updateOutputCaps()
+void VideoEffectsPrivate::updateCanvasCaps()
 {
     QSettings config;
     config.beginGroup("VideoEffects");
@@ -1081,6 +1126,14 @@ void VideoEffectsPrivate::updateOutputCaps()
     AkVideoCaps caps(AkVideoCaps::Format_rgba, width, height, {fps, 1});
     this->m_glCompositor.setOutputCaps(caps);
 
+    config.endGroup();
+}
+
+void VideoEffectsPrivate::updateOutputResolution()
+{
+    QSettings config;
+    config.beginGroup("VideoEffects");
+    this->m_outputResolution = qMax(config.value("outputResolution", 0).toInt(), 0);
     config.endGroup();
 }
 
@@ -1208,7 +1261,48 @@ void VideoEffectsPrivate::updateSourceEffectsProperties(qint64 id, const QString
     }
 }
 
-void VideoEffectsPrivate::saveOutputCaps(const AkVideoCaps &caps)
+void VideoEffectsPrivate::saveOutputResolution(int outputResolution)
+{
+    QSettings config;
+    config.beginGroup("VideoEffects");
+    config.setValue("outputResolution", outputResolution);
+    config.endGroup();
+}
+
+AkVideoCaps VideoEffectsPrivate::scaledCaps() const
+{
+    auto canvas = this->m_glCompositor.outputCaps();
+    int cw = canvas.width();
+    int ch = canvas.height();
+    int shortSide = qMin(cw, ch);
+
+    // 0 means the same resolution as the canvas. The output can't be bigger
+    // than the canvas.
+    if (this->m_outputResolution <= 0
+        || shortSide < 1
+        || this->m_outputResolution >= shortSide)
+        return canvas;
+
+    // Keep the orientation and the aspect ratio of the canvas.
+    int w;
+    int h;
+
+    if (cw >= ch) {
+        h = this->m_outputResolution;
+        w = qRound(qreal(cw) * h / ch);
+    } else {
+        w = this->m_outputResolution;
+        h = qRound(qreal(ch) * w / cw);
+    }
+
+    // The encoders need even dimensions for subsampled pixel formats.
+    w = qMin((w + 1) & ~1, cw);
+    h = qMin((h + 1) & ~1, ch);
+
+    return {canvas.format(), w, h, canvas.fps()};
+}
+
+void VideoEffectsPrivate::saveCanvasCaps(const AkVideoCaps &caps)
 {
     QSettings config;
     config.beginGroup("VideoEffects");

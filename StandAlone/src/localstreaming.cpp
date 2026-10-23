@@ -45,10 +45,8 @@
 #include <iak/akvideostreamer.h>
 
 #include "localstreaming.h"
+#include "encoding.h"
 
-#define DEFAULT_AUDIO_BITRATE 128000
-#define DEFAULT_VIDEO_BITRATE 1500000
-#define DEFAULT_VIDEO_GOP 2000
 #define DEFAULT_HTTP_PORT 8080
 #define DEFAULT_RTSP_PORT 8554
 #define DEFAULT_RESOURCE "stream"
@@ -60,20 +58,10 @@ struct LocalStreamingFormatInfo
     QString pluginID;
     QString name;
     QString description;
-    QStringList audioPluginsID;
-    QStringList videoPluginsID;
-    QString defaultAudioPluginID;
-    QString defaultVideoPluginID;
-};
-
-struct LocalStreamingCodecInfo
-{
-    QString pluginID;
-    AkCaps::CapsType type;
-    AkCodecID codecID;
-    QString name;
-    QString description;
-    int priority;
+    QStringList audioCodecs; // Generic codecs.
+    QStringList videoCodecs;
+    QString defaultAudioCodec;
+    QString defaultVideoCodec;
 };
 
 struct LocalStreamingPluginPriority
@@ -102,21 +90,14 @@ class LocalStreamingPrivate
         bool m_isStreaming {false};
         bool m_pause {false};
 
-        // Bitrates
-        int m_audioBitrate {DEFAULT_AUDIO_BITRATE};
-        int m_videoBitrate {DEFAULT_VIDEO_BITRATE};
-        int m_videoGOP {DEFAULT_VIDEO_GOP};
+        // Shared encoding settings
+        EncodingPtr m_encoding;
 
         QVector<LocalStreamingFormatInfo> m_supportedFormats;
-        QVector<LocalStreamingCodecInfo> m_supportedCodecs;
         QString m_defaultFormat;
 
         // Active encoder/streamer instances
         AkVideoStreamerPtr m_streamer;
-        AkAudioEncoderPtr  m_audioEncoder;
-        QString            m_audioPluginID;
-        AkVideoEncoderPtr  m_videoEncoder;
-        QString            m_videoPluginID;
 
         QMetaObject::Connection m_audioHeadersChangedConnection;
         QMetaObject::Connection m_videoHeadersChangedConnection;
@@ -134,8 +115,6 @@ class LocalStreamingPrivate
 
         explicit LocalStreamingPrivate(LocalStreaming *self);
         void loadConfigs();
-        void loadCodecOptions(AkCaps::CapsType type);
-        void initSupportedCodecs();
         void initSupportedFormats();
         QString getLocalIPAddress() const;
         QString buildLocation() const;
@@ -158,20 +137,30 @@ class LocalStreamingPrivate
         void saveLocation(const QString &location);
         void saveAudioCaps(const AkAudioCaps &audioCaps);
         void saveVideoCaps(const AkVideoCaps &videoCaps);
-        void saveCodec(AkCaps::CapsType type, const QString &codec);
-        void saveCodecOptionValue(AkCaps::CapsType type,
-                                  const QString &option,
-                                  const QVariant &value);
-        void saveBitrate(AkCaps::CapsType type, int bitrate);
-        void saveVideoGOP(int gop);
 };
 
-LocalStreaming::LocalStreaming(QQmlApplicationEngine *engine, QObject *parent):
+LocalStreaming::LocalStreaming(const EncodingPtr &encoding,
+                               QQmlApplicationEngine *engine,
+                               QObject *parent):
     QObject(parent)
 {
     this->d = new LocalStreamingPrivate(this);
+    this->d->m_encoding = encoding;
     this->setQmlEngine(engine);
+    this->d->initSupportedFormats();
     this->d->loadConfigs();
+
+    // The server restarts itself, and its clients are disconnected, to use
+    // the new encoding settings: wait until the user finishes editing them
+    // instead of restarting it with every change.
+    QObject::connect(this->d->m_encoding.data(),
+                     &Encoding::changesCommitted,
+                     this,
+                     [this] () {
+        // The codecs available for each format depend on the encoders.
+        this->d->initSupportedFormats();
+        this->d->applyConfig();
+    });
 
     this->d->m_ipCheckTimer.setInterval(5000);
     QObject::connect(&this->d->m_ipCheckTimer,
@@ -250,16 +239,6 @@ AkAudioCaps LocalStreaming::audioCaps() const
 AkVideoCaps LocalStreaming::videoCaps() const
 {
     return this->d->m_videoCaps;
-}
-
-int LocalStreaming::videoGOP() const
-{
-    return this->d->m_videoGOP;
-}
-
-int LocalStreaming::defaultVideoGOP() const
-{
-    return DEFAULT_VIDEO_GOP;
 }
 
 AkElement::ElementState LocalStreaming::state() const
@@ -349,23 +328,9 @@ bool LocalStreaming::isVideoOnlyFormat(const QString &format) const
 
 QString LocalStreaming::codec(AkCaps::CapsType type) const
 {
-    switch (type) {
-    case AkCaps::CapsAudio:
-        if (this->d->m_audioEncoder)
-            return this->d->m_audioPluginID + ':' + this->d->m_audioEncoder->codec();
-
-        break;
-
-    case AkCaps::CapsVideo:
-        if (this->d->m_videoEncoder)
-            return this->d->m_videoPluginID + ':' + this->d->m_videoEncoder->codec();
-
-        break;
-    default:
-        break;
-    }
-
-    return {};
+    // The codecs depend on the format of the location.
+    return this->d->defaultCodec(this->d->formatFromLocation(this->d->m_location),
+                                 type);
 }
 
 QString LocalStreaming::defaultCodec(const QString &format,
@@ -397,100 +362,17 @@ QStringList LocalStreaming::supportedCodecs(const QString &format,
     QStringList codecs;
 
     if (type == AkCaps::CapsAudio || type == AkCaps::CapsAny)
-        for (auto &codec: it->audioPluginsID)
-            codecs << codec;
+        codecs << it->audioCodecs;
 
     if (type == AkCaps::CapsVideo || type == AkCaps::CapsAny)
-        for (auto &codec: it->videoPluginsID)
-            codecs << codec;
+        codecs << it->videoCodecs;
 
     return codecs;
 }
 
 QString LocalStreaming::codecDescription(const QString &codec) const
 {
-    auto parts = codec.split(':');
-
-    if (parts.size() < 2)
-        return {};
-
-    auto pluginID  = parts[0];
-    auto codecName = parts[1];
-
-    for (auto &c: this->d->m_supportedCodecs)
-        if (c.pluginID == pluginID && c.name == codecName)
-            return c.description;
-
-    return {};
-}
-
-AkPropertyOptions LocalStreaming::codecOptions(AkCaps::CapsType type) const
-{
-    switch (type) {
-    case AkCaps::CapsAudio:
-        return this->d->m_audioEncoder?
-                    this->d->m_audioEncoder->options():
-                    AkPropertyOptions();
-    case AkCaps::CapsVideo:
-        return this->d->m_videoEncoder?
-                    this->d->m_videoEncoder->options():
-                    AkPropertyOptions();
-    default:
-        break;
-    }
-
-    return {};
-}
-
-QVariant LocalStreaming::codecOptionValue(AkCaps::CapsType type,
-                                          const QString &option) const
-{
-    switch (type) {
-    case AkCaps::CapsAudio:
-        return this->d->m_audioEncoder?
-                    this->d->m_audioEncoder->optionValue(option):
-                    QVariant {};
-    case AkCaps::CapsVideo:
-        return this->d->m_videoEncoder?
-                    this->d->m_videoEncoder->optionValue(option):
-                    QVariant {};
-    default:
-        break;
-    }
-
-    return {};
-}
-
-int LocalStreaming::bitrate(AkCaps::CapsType type) const
-{
-    switch (type) {
-    case AkCaps::CapsAudio:
-        return this->d->m_audioBitrate;
-
-    case AkCaps::CapsVideo:
-        return this->d->m_videoBitrate;
-
-    default:
-        break;
-    }
-
-    return 0;
-}
-
-int LocalStreaming::defaultBitrate(AkCaps::CapsType type) const
-{
-    switch (type) {
-    case AkCaps::CapsAudio:
-        return DEFAULT_AUDIO_BITRATE;
-
-    case AkCaps::CapsVideo:
-        return DEFAULT_VIDEO_BITRATE;
-
-    default:
-        break;
-    }
-
-    return 0;
+    return this->d->m_encoding->codecDescription(codec);
 }
 
 // The location is the address of the web page of the server:
@@ -671,17 +553,6 @@ void LocalStreaming::setVideoCaps(const AkVideoCaps &videoCaps)
     this->d->applyConfig();
 }
 
-void LocalStreaming::setVideoGOP(int gop)
-{
-    if (this->d->m_videoGOP == gop)
-        return;
-
-    this->d->m_videoGOP = gop;
-    emit this->videoGOPChanged(gop);
-    this->d->saveVideoGOP(gop);
-    this->d->applyConfig();
-}
-
 bool LocalStreaming::setState(AkElement::ElementState state)
 {
     switch (this->d->m_state) {
@@ -751,132 +622,6 @@ bool LocalStreaming::setState(AkElement::ElementState state)
     return false;
 }
 
-void LocalStreaming::setCodec(AkCaps::CapsType type, const QString &codec)
-{
-    auto parts     = codec.split(':');
-    auto pluginID  = parts.value(0);
-    auto codecName = parts.value(1);
-
-    switch (type) {
-    case AkCaps::CapsAudio: {
-        auto cur = this->d->m_audioEncoder?
-                       this->d->m_audioPluginID + ':' + this->d->m_audioEncoder->codec():
-                       QString();
-
-        if (codec == cur)
-            return;
-
-        auto enc = akPluginManager->create<AkAudioEncoder>(pluginID);
-
-        if (enc)
-            enc->setCodec(codecName);
-        else
-            qWarning() << "Failed to create audio encoder:" << pluginID;
-
-        this->d->m_audioEncoder  = enc;
-        this->d->m_audioPluginID = pluginID;
-        emit this->codecChanged(type, codec);
-        this->d->saveCodec(type, codec);
-        this->d->loadCodecOptions(AkCaps::CapsAudio);
-
-        break;
-    }
-
-    case AkCaps::CapsVideo: {
-        auto cur = this->d->m_videoEncoder?
-                       this->d->m_videoPluginID + ':' + this->d->m_videoEncoder->codec():
-                       QString();
-
-        if (codec == cur)
-            return;
-
-        auto enc = akPluginManager->create<AkVideoEncoder>(pluginID);
-
-        if (enc)
-            enc->setCodec(codecName);
-        else
-            qWarning() << "Failed to create video encoder:" << pluginID;
-
-        this->d->m_videoEncoder  = enc;
-        this->d->m_videoPluginID = pluginID;
-        emit this->codecChanged(type, codec);
-        this->d->saveCodec(type, codec);
-        this->d->loadCodecOptions(AkCaps::CapsVideo);
-
-        break;
-    }
-
-    default:
-        break;
-    }
-}
-
-void LocalStreaming::setCodecOptionValue(AkCaps::CapsType type,
-                                    const QString &option,
-                                    const QVariant &value)
-{
-    switch (type) {
-    case AkCaps::CapsAudio:
-        if (!this->d->m_audioEncoder)
-            return;
-
-        if (this->d->m_audioEncoder->optionValue(option) == value)
-            return;
-
-        this->d->m_audioEncoder->setOptionValue(option, value);
-        emit this->codecOptionValueChanged(type, option, value);
-        this->d->saveCodecOptionValue(type, option, value);
-
-        break;
-
-    case AkCaps::CapsVideo:
-        if (!this->d->m_videoEncoder)
-            return;
-
-        if (this->d->m_videoEncoder->optionValue(option) == value)
-            return;
-
-        this->d->m_videoEncoder->setOptionValue(option, value);
-        emit this->codecOptionValueChanged(type, option, value);
-        this->d->saveCodecOptionValue(type, option, value);
-
-        break;
-
-    default:
-        break;
-    }
-}
-
-void LocalStreaming::setBitrate(AkCaps::CapsType type, int bitrate)
-{
-    switch (type) {
-    case AkCaps::CapsAudio:
-        if (this->d->m_audioBitrate == bitrate)
-            return;
-
-        this->d->m_audioBitrate = bitrate;
-        emit this->bitrateChanged(type, bitrate);
-        this->d->saveBitrate(type, bitrate);
-        this->d->applyConfig();
-
-        break;
-
-    case AkCaps::CapsVideo:
-        if (this->d->m_videoBitrate == bitrate)
-            return;
-
-        this->d->m_videoBitrate = bitrate;
-        emit this->bitrateChanged(type, bitrate);
-        this->d->saveBitrate(type, bitrate);
-        this->d->applyConfig();
-
-        break;
-
-    default:
-        break;
-    }
-}
-
 void LocalStreaming::resetLocation()
 {
     this->setLocation({});
@@ -927,41 +672,9 @@ void LocalStreaming::resetVideoCaps()
     this->setVideoCaps({});
 }
 
-void LocalStreaming::resetVideoGOP()
-{
-    this->setVideoGOP(DEFAULT_VIDEO_GOP);
-}
-
 void LocalStreaming::resetState()
 {
     this->setState(AkElement::ElementStateNull);
-}
-
-void LocalStreaming::resetCodec(AkCaps::CapsType type)
-{
-    auto format = this->d->formatFromLocation(this->d->m_location);
-    this->setCodec(type, this->d->defaultCodec(format, type));
-}
-
-void LocalStreaming::resetCodecOptionValue(AkCaps::CapsType type,
-                                      const QString &option)
-{
-    this->setCodecOptionValue(type, option,
-                              this->codecOptionValue(type, option));
-}
-
-void LocalStreaming::resetCodecOptions(AkCaps::CapsType type)
-{
-    for (auto &option: this->codecOptions(type))
-        this->resetCodecOptionValue(type, option.name());
-}
-
-void LocalStreaming::resetBitrate(AkCaps::CapsType type)
-{
-    this->setBitrate(type,
-                     type == AkCaps::CapsVideo?
-                         DEFAULT_VIDEO_BITRATE:
-                         DEFAULT_AUDIO_BITRATE);
 }
 
 // The raw audio and video go straight to the server, it encodes them as the
@@ -998,71 +711,6 @@ void LocalStreaming::setQmlEngine(QQmlApplicationEngine *engine)
 LocalStreamingPrivate::LocalStreamingPrivate(LocalStreaming *self):
     self(self)
 {
-    this->initSupportedCodecs();
-    this->initSupportedFormats();
-}
-
-void LocalStreamingPrivate::initSupportedCodecs()
-{
-    this->m_supportedCodecs.clear();
-
-    auto audioEncoders =
-            akPluginManager->listPlugins("^AudioEncoder([/]([0-9a-zA-Z_])+)+$",
-                                         {},
-                                         AkPluginManager::FilterEnabled
-                                         | AkPluginManager::FilterRegexp);
-
-    for (auto &encoder: audioEncoders) {
-        auto plugin = akPluginManager->create<AkAudioEncoder>(encoder);
-
-        if (!plugin)
-            continue;
-
-        auto info = akPluginManager->pluginInfo(encoder);
-
-        for (auto &codec: plugin->codecs())
-            this->m_supportedCodecs << LocalStreamingCodecInfo {encoder,
-                                                  AkCaps::CapsAudio,
-                                                  plugin->codecID(codec),
-                                                  codec,
-                                                  plugin->codecDescription(codec),
-                                                  info.priority()};
-    }
-
-    auto videoEncoders =
-            akPluginManager->listPlugins("^VideoEncoder([/]([0-9a-zA-Z_])+)+$",
-                                         {},
-                                         AkPluginManager::FilterEnabled
-                                         | AkPluginManager::FilterRegexp);
-
-    QString excludedCodecs = {
-        "h264_mediacodec"
-    };
-
-    for (auto &encoder: videoEncoders) {
-        auto plugin = akPluginManager->create<AkVideoEncoder>(encoder);
-
-        if (!plugin)
-            continue;
-
-        auto info = akPluginManager->pluginInfo(encoder);
-
-        for (auto &codec: plugin->codecs())
-            if (!excludedCodecs.contains(codec)) {
-                this->m_supportedCodecs << LocalStreamingCodecInfo {encoder,
-                                           AkCaps::CapsVideo,
-                                           plugin->codecID(codec),
-                                           codec,
-                                           plugin->codecDescription(codec),
-                                           info.priority()};
-            }
-    }
-
-    std::sort(this->m_supportedCodecs.begin(),
-              this->m_supportedCodecs.end(),
-              [] (const LocalStreamingCodecInfo &a, const LocalStreamingCodecInfo &b) {
-                  return a.description < b.description;
-              });
 }
 
 void LocalStreamingPrivate::initSupportedFormats()
@@ -1076,6 +724,33 @@ void LocalStreamingPrivate::initSupportedFormats()
                                          | AkPluginManager::FilterRegexp);
     QVector<LocalStreamingPluginPriority> formatsPriority;
 
+    // The codec of each format is a generic one, a codec is available when
+    // the muxer supports the codec ID used by the encoder currently associated
+    // to it.
+    auto codecsFor = [this] (AkCaps::CapsType type,
+                             const QList<AkCodecID> &supported,
+                             AkCodecID defaultID,
+                             QString &defaultCodec) -> QStringList {
+        QStringList codecs;
+
+        for (auto &codec: this->m_encoding->codecs(type)) {
+            auto id = this->m_encoding->encoderCodecID(type, codec);
+
+            if (!supported.contains(id))
+                continue;
+
+            codecs << codec;
+
+            if (id == defaultID)
+                defaultCodec = codec;
+        }
+
+        if (defaultCodec.isEmpty())
+            defaultCodec = codecs.value(0);
+
+        return codecs;
+    };
+
     for (auto &muxerPluginId: muxerPlugins) {
         auto muxerInfo = akPluginManager->pluginInfo(muxerPluginId);
         auto muxerPlugin = akPluginManager->create<AkVideoStreamer>(muxerPluginId);
@@ -1085,96 +760,49 @@ void LocalStreamingPrivate::initSupportedFormats()
 
         for (auto &protocol: muxerPlugin->protocols()) {
             for (auto &muxer: muxerPlugin->supportedFormats(protocol)) {
-                QVector<LocalStreamingPluginPriority> codecsPriority;
-                QVector<QString> audioPluginsID;
-                auto supportedAudioCodecs =
-                        muxerPlugin->supportedCodecs(muxer,
-                                                     AkCompressedCaps::CapsType_Audio);
-                auto defaultAudioCodec =
-                        muxerPlugin->defaultCodec(muxer,
-                                                  AkCompressedCaps::CapsType_Audio);
+                QString defaultAudioCodec;
+                auto audioCodecs =
+                        codecsFor(AkCaps::CapsAudio,
+                                  muxerPlugin->supportedCodecs(muxer,
+                                                               AkCompressedCaps::CapsType_Audio),
+                                  muxerPlugin->defaultCodec(muxer,
+                                                            AkCompressedCaps::CapsType_Audio),
+                                  defaultAudioCodec);
 
-                for (auto &codec: this->m_supportedCodecs)
-                    if (supportedAudioCodecs.contains(codec.codecID)
-                        && codec.type == AkCaps::CapsAudio) {
-                        auto id = codec.pluginID + ':' + codec.name;
-                        audioPluginsID << id;
-
-                        if (codec.codecID == defaultAudioCodec)
-                            codecsPriority << LocalStreamingPluginPriority {id, codec.priority};
-                    }
-
-                if (audioPluginsID.isEmpty()
+                if (audioCodecs.isEmpty()
                     && !muxerPlugin->isVideoOnlyFormat(muxer))
                     continue;
 
-                std::sort(codecsPriority.begin(),
-                          codecsPriority.end(),
-                          [] (const LocalStreamingPluginPriority &plugin1,
-                              const LocalStreamingPluginPriority &pluhgin2) -> bool {
-                    return plugin1.priority > pluhgin2.priority;
-                });
-                QString defaultAudioPluginID;
+                QString defaultVideoCodec;
+                auto videoCodecs =
+                        codecsFor(AkCaps::CapsVideo,
+                                  muxerPlugin->supportedCodecs(muxer,
+                                                               AkCompressedCaps::CapsType_Video),
+                                  muxerPlugin->defaultCodec(muxer,
+                                                            AkCompressedCaps::CapsType_Video),
+                                  defaultVideoCodec);
 
-                if (!codecsPriority.isEmpty())
-                    defaultAudioPluginID = codecsPriority[0].pluginID;
-
-                codecsPriority.clear();
-                QVector<QString> videoPluginsID;
-                auto supportedVideoCodecs =
-                        muxerPlugin->supportedCodecs(muxer,
-                                                     AkCompressedCaps::CapsType_Video);
-                auto defaultVideoCodec =
-                        muxerPlugin->defaultCodec(muxer,
-                                                  AkCompressedCaps::CapsType_Video);
-
-                for (auto &codec: this->m_supportedCodecs)
-                    if (supportedVideoCodecs.contains(codec.codecID)
-                        && codec.type == AkCaps::CapsVideo) {
-                        auto id = codec.pluginID + ':' + codec.name;
-                        videoPluginsID << id;
-
-                        if (codec.codecID == defaultVideoCodec)
-                            codecsPriority << LocalStreamingPluginPriority {id, codec.priority};
-                    }
-
-                if (videoPluginsID.isEmpty())
+                if (videoCodecs.isEmpty())
                     continue;
-
-                std::sort(codecsPriority.begin(),
-                          codecsPriority.end(),
-                          [] (const LocalStreamingPluginPriority &plugin1,
-                              const LocalStreamingPluginPriority &plugin2) -> bool {
-                    return plugin1.priority > plugin2.priority;
-                });
-                auto defaultVideoPluginID = codecsPriority.first().pluginID;
 
                 this->m_supportedFormats << LocalStreamingFormatInfo {
                     muxerPluginId,
                     muxer,
                     muxerPlugin->description(muxer),
-                    audioPluginsID,
-                    videoPluginsID,
-                    defaultAudioPluginID,
-                    defaultVideoPluginID
+                    audioCodecs,
+                    videoCodecs,
+                    defaultAudioCodec,
+                    defaultVideoCodec
                 };
 
                 bool formatHasHwCodec = false;
 
-                for (auto &videoPluginID: videoPluginsID) {
-                    auto parts = videoPluginID.split(':');
-
-                    if (parts.size() < 2)
-                        continue;
-
-                    auto encoderPlugin = akPluginManager->create<AkVideoEncoder>(parts[0]);
-
-                    if (encoderPlugin && encoderPlugin->hasHardwareSupport(parts[1])) {
+                for (auto &codec: videoCodecs)
+                    if (this->m_encoding->encoderIsHardware(this->m_encoding->encoder(AkCaps::CapsVideo, codec))) {
                         formatHasHwCodec = true;
 
                         break;
                     }
-                }
 
                 formatsPriority << LocalStreamingPluginPriority {muxerPluginId + ':' + muxer,
                                                    muxerInfo.priority(),
@@ -1370,64 +998,16 @@ QString LocalStreamingPrivate::defaultCodec(const QString &format,
 
     switch (type) {
     case AkCaps::CapsAudio:
-        return it->defaultAudioPluginID;
+        return it->defaultAudioCodec;
 
     case AkCaps::CapsVideo:
-        return it->defaultVideoPluginID;
+        return it->defaultVideoCodec;
 
     default:
         break;
     }
 
     return {};
-}
-
-void LocalStreamingPrivate::loadCodecOptions(AkCaps::CapsType type)
-{
-    switch (type) {
-    case AkCaps::CapsAudio: {
-        if (!this->m_audioEncoder)
-            return;
-
-        emit self->codecOptionsChanged(type, this->m_audioEncoder->options());
-
-        QSettings config;
-        auto id = this->normalizePluginID(this->m_audioPluginID
-                                          + ':' + this->m_audioEncoder->codec());
-        config.beginGroup("LocalStreamingConfigs_AudioCodecOptions_" + id);
-
-        for (auto &opt: this->m_audioEncoder->options())
-            if (config.contains(opt.name()))
-                this->m_audioEncoder->setOptionValue(opt.name(),
-                                                     config.value(opt.name()));
-
-        config.endGroup();
-
-        break;
-    }
-    case AkCaps::CapsVideo: {
-        if (!this->m_videoEncoder)
-            return;
-
-        emit self->codecOptionsChanged(type, this->m_videoEncoder->options());
-
-        QSettings config;
-        auto id = this->normalizePluginID(this->m_videoPluginID
-                                          + ':' + this->m_videoEncoder->codec());
-        config.beginGroup("LocalStreamingConfigs_VideoCodecOptions_" + id);
-
-        for (auto &opt: this->m_videoEncoder->options())
-            if (config.contains(opt.name()))
-                this->m_videoEncoder->setOptionValue(opt.name(),
-                                                     config.value(opt.name()));
-
-        config.endGroup();
-
-        break;
-    }
-    default:
-        break;
-    }
 }
 
 void LocalStreamingPrivate::loadConfigs()
@@ -1454,87 +1034,15 @@ void LocalStreamingPrivate::loadConfigs()
     auto outputWidth      = qMax(config.value("outputWidth",     1280 ).toInt(), 160);
     auto outputHeight     = qMax(config.value("outputHeight",    720  ).toInt(), 90);
     auto outputFPS        = qMax(config.value("outputFPS",       30   ).toInt(), 1);
-    auto audioSampleRate  = qMax(config.value("audioSampleRate", 48000).toInt(), 8000);
 
     this->m_videoCaps = {AkVideoCaps::Format_yuv420p,
                          outputWidth, outputHeight, {outputFPS, 1}};
     this->m_audioCaps = {AkAudioCaps::SampleFormat_s16,
                          AkAudioCaps::Layout_stereo,
                          false,
-                         audioSampleRate};
-
-    this->m_audioBitrate = qMax(config.value("audioBitrate", DEFAULT_AUDIO_BITRATE).toInt(), 1000);
-    this->m_videoBitrate = qMax(config.value("videoBitrate", DEFAULT_VIDEO_BITRATE).toInt(), 100000);
-    this->m_videoGOP     = qMax(config.value("videoGOP",     DEFAULT_VIDEO_GOP    ).toInt(), 1);
-
-    // Active codecs - restore last used, or fall back to defaults inferred from location
-    auto savedAudio = config.value("audioCodec").toString();
-    auto savedVideo = config.value("videoCodec").toString();
+                         this->m_encoding->audioSampleRate()};
 
     config.endGroup();
-
-    // If no saved codecs, use defaults from location format
-    auto format = this->formatFromLocation(this->m_location);
-
-    if (!format.isEmpty()) {
-        auto validAudioCodecs = self->supportedCodecs(format, AkCaps::CapsAudio);
-
-        if (!savedAudio.isEmpty() && !validAudioCodecs.contains(savedAudio))
-            savedAudio.clear();
-
-        auto validVideoCodecs = self->supportedCodecs(format, AkCaps::CapsVideo);
-
-        if (!savedVideo.isEmpty() && !validVideoCodecs.contains(savedVideo))
-            savedVideo.clear();
-
-        if (savedAudio.isEmpty())
-            savedAudio = this->defaultCodec(format, AkCaps::CapsAudio);
-
-        if (savedVideo.isEmpty())
-            savedVideo = this->defaultCodec(format, AkCaps::CapsVideo);
-    }
-
-    auto tryLoadEncoder = [this](const QString &id, AkCaps::CapsType type) {
-        auto parts = id.split(':');
-
-        if (parts.size() < 2) {
-            qWarning() << "Invalid codec id:" << id;
-            return;
-        }
-
-        auto pluginID   = parts[0];
-        auto codecName  = parts[1];
-
-        if (type == AkCaps::CapsAudio) {
-            auto enc = akPluginManager->create<AkAudioEncoder>(pluginID);
-
-            if (enc && enc->codecs().contains(codecName)) {
-                enc->setCodec(codecName);
-                this->m_audioEncoder  = enc;
-                this->m_audioPluginID = pluginID;
-                this->loadCodecOptions(AkCaps::CapsAudio);
-            } else {
-                qWarning() << "Could not load audio encoder:" << id;
-            }
-        } else {
-            auto enc = akPluginManager->create<AkVideoEncoder>(pluginID);
-
-            if (enc && enc->codecs().contains(codecName)) {
-                enc->setCodec(codecName);
-                this->m_videoEncoder  = enc;
-                this->m_videoPluginID = pluginID;
-                this->loadCodecOptions(AkCaps::CapsVideo);
-            } else {
-                qWarning() << "Could not load video encoder:" << id;
-            }
-        }
-    };
-
-    if (!savedAudio.isEmpty())
-        tryLoadEncoder(savedAudio, AkCaps::CapsAudio);
-
-    if (!savedVideo.isEmpty())
-        tryLoadEncoder(savedVideo, AkCaps::CapsVideo);
 }
 
 QString LocalStreamingPrivate::normalizePluginID(const QString &pluginID)
@@ -1557,14 +1065,14 @@ void LocalStreamingPrivate::printStreamingParameters()
     qInfo() << "    Resource:" << this->m_localResource;
     qInfo() << "    Authentication:" << this->m_authEnabled;
 
-    if (this->m_audioEncoder) {
+    {
         qInfo() << "    Audio:";
         qInfo() << "        sample format:" << this->m_audioCaps.format();
         qInfo() << "        channels:" << this->m_audioCaps.channels();
         qInfo() << "        layout:" << this->m_audioCaps.layout();
         qInfo() << "        sample rate:" << this->m_audioCaps.rate();
         qInfo() << "        codec:" << self->codec(AkCaps::CapsAudio);
-        qInfo() << "        bitrate:" << this->m_audioBitrate;
+        qInfo() << "        bitrate:" << this->m_encoding->audioBitrate();
     }
 
     qInfo() << "    Video:";
@@ -1573,7 +1081,7 @@ void LocalStreamingPrivate::printStreamingParameters()
     qInfo() << "        height:" << this->m_videoCaps.height();
     qInfo() << "        frame rate:" << this->m_videoCaps.fps().toString();
     qInfo() << "        codec:" << self->codec(AkCaps::CapsVideo);
-    qInfo() << "        bitrate:" << this->m_videoBitrate;
+    qInfo() << "        bitrate:" << this->m_encoding->videoBitrate();
 }
 
 bool LocalStreamingPrivate::init()
@@ -1684,8 +1192,12 @@ void LocalStreamingPrivate::applyConfig()
         return;
 
     streamer->setProperty("videoCaps", QVariant::fromValue(this->m_videoCaps));
-    streamer->setProperty("audioCaps", QVariant::fromValue(this->m_audioCaps));
-    streamer->setProperty("gop", this->m_videoGOP);
+    auto audioCaps = this->m_audioCaps;
+    audioCaps.setRate(this->m_encoding->audioSampleRate());
+    streamer->setProperty("audioCaps", QVariant::fromValue(audioCaps));
+    streamer->setProperty("gop", this->m_encoding->videoGOP());
+    streamer->setProperty("encoderPreferences",
+                          this->m_encoding->encoderPreferences());
     streamer->setProperty("rtspPort", this->m_rtspPort);
     streamer->setProperty("resource", this->m_localResource);
     // The server asks for the credentials when it has a user.
@@ -1693,9 +1205,9 @@ void LocalStreamingPrivate::applyConfig()
     streamer->setProperty("password", this->m_authEnabled? this->m_password: QString());
     streamer->setProperty("placeholderImage", this->m_placeholderImage);
     streamer->setStreamBitrate(AkCompressedCaps::CapsType_Video,
-                               this->m_videoBitrate);
+                               this->m_encoding->videoBitrate());
     streamer->setStreamBitrate(AkCompressedCaps::CapsType_Audio,
-                               this->m_audioBitrate);
+                               this->m_encoding->audioBitrate());
     streamer->setDestinations({this->m_location});
 }
 
@@ -1721,60 +1233,6 @@ void LocalStreamingPrivate::saveVideoCaps(const AkVideoCaps &videoCaps)
     config.setValue("outputWidth",  videoCaps.width());
     config.setValue("outputHeight", videoCaps.height());
     config.setValue("outputFPS",    qRound(videoCaps.fps().value()));
-    config.endGroup();
-}
-
-void LocalStreamingPrivate::saveCodec(AkCaps::CapsType type, const QString &codec)
-{
-    QSettings config;
-
-    config.beginGroup("LocalStreamingConfigs");
-
-    if (type == AkCaps::CapsAudio)
-        config.setValue("audioCodec", codec);
-    else if (type == AkCaps::CapsVideo)
-        config.setValue("videoCodec", codec);
-
-    config.endGroup();
-}
-
-void LocalStreamingPrivate::saveCodecOptionValue(AkCaps::CapsType type,
-                                             const QString &option,
-                                             const QVariant &value)
-{
-    QSettings config;
-    auto id = this->normalizePluginID(self->codec(type));
-
-    if (type == AkCaps::CapsAudio) {
-        config.beginGroup("LocalStreamingConfigs_AudioCodecOptions_" + id);
-        config.setValue(option, value);
-        config.endGroup();
-    } else if (type == AkCaps::CapsVideo) {
-        config.beginGroup("LocalStreamingConfigs_VideoCodecOptions_" + id);
-        config.setValue(option, value);
-        config.endGroup();
-    }
-}
-
-void LocalStreamingPrivate::saveBitrate(AkCaps::CapsType type, int bitrate)
-{
-    QSettings config;
-
-    config.beginGroup("LocalStreamingConfigs");
-
-    if (type == AkCaps::CapsAudio)
-        config.setValue("audioBitrate", bitrate);
-    else if (type == AkCaps::CapsVideo)
-        config.setValue("videoBitrate", bitrate);
-
-    config.endGroup();
-}
-
-void LocalStreamingPrivate::saveVideoGOP(int gop)
-{
-    QSettings config;
-    config.beginGroup("LocalStreamingConfigs");
-    config.setValue("videoGOP", gop);
     config.endGroup();
 }
 

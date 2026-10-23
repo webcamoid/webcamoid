@@ -29,7 +29,7 @@ ApplicationWindow {
     id: wdgMainWidget
     title: {
         let appTitle = mediaTools.applicationName + " " + version()
-        let caps = AkVideoCaps.create(videoEffects.outputCaps)
+        let caps = AkVideoCaps.create(videoEffects.canvasCaps)
         appTitle += " - " + caps.width + "x" + caps.height
         let fps = Math.round(AkFrac.create(caps.fps).value)
 

@@ -25,15 +25,16 @@ import AkControls as AK
 
 Dialog {
     id: videoCodecOptions
-    title: qsTr("Video Codec Options")
+    title: qsTr("Video Encoder Options")
     standardButtons: Dialog.Ok | Dialog.Cancel | Dialog.Reset
     width: AkUnit.create(420 * AkTheme.controlScale, "dp").pixels
     height: AkUnit.create(320 * AkTheme.controlScale, "dp").pixels
     modal: true
 
-    property string currentCodec: ""
+    // The encoder implementation being configured (pluginID:codec).
+    property string currentEncoder: ""
     property variant controlValues: ({})
-    property int startChildren: 6
+    property int startChildren: 1
     property real maxSpinLabelWidth: 0
 
     readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
@@ -46,7 +47,7 @@ Dialog {
         for (let i = mainLayout.children.length - 1; i >= startChildren; i--)
             mainLayout.children[i].destroy()
 
-        let codecOptions = recording.codecOptions(AkCaps.CapsVideo);
+        let codecOptions = encoding.encoderOptions(videoCodecOptions.currentEncoder);
 
         // Calculate the maximum width for the SpinBox labels
 
@@ -78,7 +79,7 @@ Dialog {
         for (let i in codecOptions) {
             let option = AkPropertyOption.create(codecOptions[i])
             let value =
-                recording.codecOptionValue(AkCaps.CapsVideo, option.name)
+                encoding.encoderOptionValue(videoCodecOptions.currentEncoder, option.name)
 
             switch (option.type) {
             case AkPropertyOption.OptionType_String:
@@ -193,37 +194,9 @@ Dialog {
 
     onVisibleChanged: {
         if (visible) {
-            bitrate.text = recording.bitrate(AkCaps.CapsVideo)
-            videoGOP.text = recording.videoGOP
-            audioCodecOptions.currentCodec = recording.codec(AkCaps.CapsVideo)
-            cbxVideoCodec.model.clear()
-            let codecs =
-                recording.supportedCodecs(recording.videoFormat,
-                                          AkCaps.CapsVideo);
-
-            for (let i in codecs) {
-                let cdc = codecs[i]
-
-                cbxVideoCodec.model.append({
-                    codec: cdc,
-                    description: recording.codecDescription(cdc)
-                })
-            }
-
-            let index = codecs.indexOf(audioCodecOptions.currentCodec)
-
-            if (index < 0) {
-                index =
-                    codecs.indexOf(recording.defaultCodec(recording.videoFormat,
-                                                          AkCaps.CapsVideo))
-
-                if (index < 0 && codecs.length > 0)
-                    index = 0
-            }
-
-            cbxVideoCodec.currentIndex = index
+            controlValues = ({})
             videoCodecOptions.updateOptions()
-            cbxVideoCodec.forceActiveFocus()
+            advancedSwitch.forceActiveFocus()
         }
     }
 
@@ -238,61 +211,11 @@ Dialog {
             width: scrollView.width
             layoutDirection: videoCodecOptions.rtl? Qt.RightToLeft: Qt.LeftToRight
 
-            AK.LabeledComboBox {
-                id: cbxVideoCodec
-                label: qsTr("Video codec")
-                Accessible.description: label
-                textRole: "description"
-                Layout.fillWidth: true
-                model: ListModel {
-                }
-
-                onCurrentIndexChanged: {
-                    if (currentIndex >= 0) {
-                        recording.setCodec(AkCaps.CapsVideo,
-                                           model.get(currentIndex).codec)
-                        videoCodecOptions.updateOptions()
-                    }
-                }
-            }
-            Label {
-                id: txtBitrate
-                text: qsTr("Bitrate")
-                font.bold: true
-                Layout.topMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
-                Layout.fillWidth: true
-            }
-            TextField {
-                id: bitrate
-                placeholderText: qsTr("Bitrate (bits/secs)")
-                Accessible.name: txtBitrate.text
-                selectByMouse: true
-                validator: RegularExpressionValidator {
-                    regularExpression: /\d+/
-                }
-                Layout.fillWidth: true
-            }
-            Label {
-                id: txtGOP
-                text: qsTr("Keyframes stride (ms)")
-                font.bold: true
-                Layout.topMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
-                Layout.fillWidth: true
-            }
-            TextField {
-                id: videoGOP
-                placeholderText: qsTr("1000")
-                Accessible.name: txtGOP.text
-                selectByMouse: true
-                validator: RegularExpressionValidator {
-                    regularExpression: /\d+/
-                }
-                Layout.fillWidth: true
-            }
             Switch {
                 id: advancedSwitch
                 text: qsTr("Show advanced options")
-                checked: false
+                visible: false
+                checked: true
                 Layout.fillWidth: true
                 Layout.topMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
                 Layout.bottomMargin: AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
@@ -306,28 +229,12 @@ Dialog {
     }
 
     onAccepted: {
-        recording.setBitrate(AkCaps.CapsVideo,
-                             Number.fromLocaleString(locale, bitrate.text))
-        recording.videoGOP = Number.fromLocaleString(locale, videoGOP.text)
-
         for (let key in controlValues)
-            recording.setCodecOptionValue(AkCaps.CapsVideo,
-                                          key,
-                                          controlValues[key]);
-    }
-    onRejected: {
-        recording.setCodec(AkCaps.CapsVideo, videoCodecOptions.currentCodec)
+            encoding.setEncoderOptionValue(videoCodecOptions.currentEncoder,
+                                           key,
+                                           controlValues[key]);
     }
     onReset: {
-        let codecs =
-            recording.supportedCodecs(recording.videoFormat, AkCaps.CapsVideo)
-        cbxVideoCodec.currentIndex =
-            codecs.indexOf(recording.defaultCodec(recording.videoFormat,
-                                                  AkCaps.CapsVideo))
-        bitrate.text = recording.defaultBitrate(AkCaps.CapsAudio)
-        videoGOP.text = recording.defaultVideoGOP
-        advancedSwitch.checked = false
-
         for (let i in mainLayout.children)
             if (mainLayout.children[i].reset)
                 mainLayout.children[i].reset()
@@ -354,7 +261,7 @@ Dialog {
             signal controlChanged(string key, variant value)
 
             function restore() {
-                csTextField.text = recording.codecOptionValue(AkCaps.CapsAudio, key)
+                csTextField.text = encoding.encoderOptionValue(videoCodecOptions.currentEncoder, key)
             }
 
             function reset() {
@@ -392,7 +299,7 @@ Dialog {
             signal controlChanged(string key, variant value)
 
             function restore() {
-                cfTextField.text = recording.codecOptionValue(AkCaps.CapsAudio, key)
+                cfTextField.text = encoding.encoderOptionValue(videoCodecOptions.currentEncoder, key)
             }
 
             function reset() {
@@ -423,7 +330,7 @@ Dialog {
         id: controlRangeDiscrete
 
         RowLayout {
-            layoutDirection: videoFormatOptions.rtl? Qt.RightToLeft: Qt.LeftToRight
+            layoutDirection: videoCodecOptions.rtl? Qt.RightToLeft: Qt.LeftToRight
 
             property string key: ""
             property string description: ""
@@ -436,7 +343,7 @@ Dialog {
             signal controlChanged(string key, variant value)
 
             function restore() {
-                value = spbRange.multiplier * recording.codecOptionValue(AkCaps.CapsAudio, key)
+                value = spbRange.multiplier * encoding.encoderOptionValue(videoCodecOptions.currentEncoder, key)
             }
 
             function reset() {
@@ -489,7 +396,7 @@ Dialog {
             signal controlChanged(string key, variant value)
 
             function restore() {
-                crTextField.text = recording.codecOptionValue(AkCaps.CapsAudio, key)
+                crTextField.text = encoding.encoderOptionValue(videoCodecOptions.currentEncoder, key)
             }
 
             function reset() {
@@ -530,7 +437,7 @@ Dialog {
             signal controlChanged(string key, variant value)
 
             function restore() {
-                checked = recording.codecOptionValue(AkCaps.CapsVideo, key)
+                checked = encoding.encoderOptionValue(videoCodecOptions.currentEncoder, key)
             }
 
             function reset() {
@@ -557,7 +464,7 @@ Dialog {
             signal controlChanged(string key, variant value)
 
             function restore() {
-                let value = recording.codecOptionValue(AkCaps.CapsVideo, key)
+                let value = encoding.encoderOptionValue(videoCodecOptions.currentEncoder, key)
 
                 for (let i = 0; i < model.count; i++)
                     if (model.get(i).value == value) {
@@ -599,8 +506,7 @@ Dialog {
 
             function currentMenuIndex(option)
             {
-                let value = recording.codecOptionValue(AkCaps.CapsVideo,
-                                                       option.name)
+                let value = encoding.encoderOptionValue(videoCodecOptions.currentEncoder, option.name)
                 let menu = option.menu
 
                 for (let i in menu) {
@@ -648,7 +554,7 @@ Dialog {
             }
 
             function restore() {
-                let value = recording.codecOptionValue(AkCaps.CapsVideo, key)
+                let value = encoding.encoderOptionValue(videoCodecOptions.currentEncoder, key)
 
                 for (let i in flagsLayout.children) {
                     flagsLayout.children[i].checked =
@@ -669,8 +575,7 @@ Dialog {
                 for (let i = flagsLayout.children.length - 1; i >= 0; i--)
                     flagsLayout.children[i].destroy()
 
-                let value = recording.codecOptionValue(AkCaps.CapsVideo,
-                                                       option.name)
+                let value = encoding.encoderOptionValue(videoCodecOptions.currentEncoder, option.name)
                 let menu = option.menu
 
                 // Create new ones.
@@ -710,7 +615,7 @@ Dialog {
             signal controlChanged(string key, variant value)
 
             function restore() {
-                let value = recording.codecOptionValue(AkCaps.CapsVideo, key)
+                let value = encoding.encoderOptionValue(videoCodecOptions.currentEncoder, key)
 
                 cisTextField.text = value.width + "x" + value.height
             }

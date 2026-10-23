@@ -149,26 +149,11 @@
     <name>AudioCodecOptions</name>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="28"/>
-        <source>Audio Codec Options</source>
-        <translation>Mga Opsyon sa Audio Codec</translation>
+        <source>Audio Encoder Options</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="231"/>
-        <source>Audio codec</source>
-        <translation>Audio codec</translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="248"/>
-        <source>Bitrate</source>
-        <translation>Bitrate</translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="255"/>
-        <source>Bitrate (bits/secs)</source>
-        <translation>Bitrate (bits/segundo)</translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioCodecOptions.qml" line="265"/>
+        <location filename="../qml/AudioCodecOptions.qml" line="205"/>
         <source>Show advanced options</source>
         <translation type="unfinished"></translation>
     </message>
@@ -303,100 +288,6 @@
         <location filename="../qml/AudioOutputs.qml" line="39"/>
         <source>Configure output</source>
         <translation>I-configure ang output</translation>
-    </message>
-</context>
-<context>
-    <name>CanvasConfig</name>
-    <message>
-        <location filename="../qml/CanvasConfig.qml" line="28"/>
-        <source>Canvas</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/CanvasConfig.qml" line="92"/>
-        <source>Orientation</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/CanvasConfig.qml" line="93"/>
-        <source>Portrait</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/CanvasConfig.qml" line="93"/>
-        <source>Landscape</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/CanvasConfig.qml" line="120"/>
-        <location filename="../qml/CanvasConfig.qml" line="139"/>
-        <source>Canvas resolution</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/CanvasConfig.qml" line="178"/>
-        <source>Custom</source>
-        <translation type="unfinished">Custom</translation>
-    </message>
-    <message>
-        <location filename="../qml/CanvasConfig.qml" line="182"/>
-        <source>%1×%2 @ %3 FPS</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/CanvasConfig.qml" line="305"/>
-        <source>Canvas output buffers</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/CanvasConfig.qml" line="316"/>
-        <source>Enable asynchronous read</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/CanvasConfig.qml" line="332"/>
-        <source>Output buffers</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/CanvasConfig.qml" line="352"/>
-        <source>Canvas color</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/CanvasConfig.qml" line="354"/>
-        <source>Choose the canvas color</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/CanvasConfig.qml" line="193"/>
-        <source>Advanced settings</source>
-        <translation type="unfinished">Mga advanced na setting</translation>
-    </message>
-    <message>
-        <location filename="../qml/CanvasConfig.qml" line="29"/>
-        <source>Configure the composition canvas resolution, frame rate, and color.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/CanvasConfig.qml" line="205"/>
-        <source>Canvas size</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/CanvasConfig.qml" line="223"/>
-        <source>Width</source>
-        <translation type="unfinished">Lapad</translation>
-    </message>
-    <message>
-        <location filename="../qml/CanvasConfig.qml" line="252"/>
-        <source>Height</source>
-        <translation type="unfinished">Taas</translation>
-    </message>
-    <message>
-        <location filename="../qml/CanvasConfig.qml" line="281"/>
-        <source>Frame rate</source>
-        <translation type="unfinished">Bilis ng frame</translation>
     </message>
 </context>
 <context>
@@ -817,6 +708,112 @@
     </message>
 </context>
 <context>
+    <name>CompositionConfig</name>
+    <message>
+        <location filename="../qml/CompositionConfig.qml" line="28"/>
+        <source>Composition</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CompositionConfig.qml" line="29"/>
+        <source>Configure the canvas, the output resolution, and the frame rate.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CompositionConfig.qml" line="134"/>
+        <source>Orientation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CompositionConfig.qml" line="135"/>
+        <source>Landscape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CompositionConfig.qml" line="135"/>
+        <source>Portrait</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CompositionConfig.qml" line="162"/>
+        <location filename="../qml/CompositionConfig.qml" line="181"/>
+        <source>Canvas resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CompositionConfig.qml" line="220"/>
+        <source>Custom</source>
+        <translation type="unfinished">Custom</translation>
+    </message>
+    <message>
+        <location filename="../qml/CompositionConfig.qml" line="224"/>
+        <location filename="../qml/CompositionConfig.qml" line="270"/>
+        <source>%1×%2 @ %3 FPS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CompositionConfig.qml" line="237"/>
+        <location filename="../qml/CompositionConfig.qml" line="256"/>
+        <source>Output resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CompositionConfig.qml" line="276"/>
+        <source>same as the canvas</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CompositionConfig.qml" line="283"/>
+        <source>Canvas color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CompositionConfig.qml" line="285"/>
+        <source>Choose the canvas color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CompositionConfig.qml" line="299"/>
+        <source>Advanced settings</source>
+        <translation type="unfinished">Mga advanced na setting</translation>
+    </message>
+    <message>
+        <location filename="../qml/CompositionConfig.qml" line="311"/>
+        <source>Canvas size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CompositionConfig.qml" line="329"/>
+        <source>Width</source>
+        <translation type="unfinished">Lapad</translation>
+    </message>
+    <message>
+        <location filename="../qml/CompositionConfig.qml" line="358"/>
+        <source>Height</source>
+        <translation type="unfinished">Taas</translation>
+    </message>
+    <message>
+        <location filename="../qml/CompositionConfig.qml" line="387"/>
+        <source>Frame rate</source>
+        <translation type="unfinished">Bilis ng frame</translation>
+    </message>
+    <message>
+        <location filename="../qml/CompositionConfig.qml" line="411"/>
+        <source>Canvas output buffers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CompositionConfig.qml" line="422"/>
+        <source>Enable asynchronous read</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CompositionConfig.qml" line="438"/>
+        <source>Output buffers</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Contributors</name>
     <message>
         <location filename="../qml/Contributors.qml" line="31"/>
@@ -935,6 +932,96 @@
         <location filename="../qml/DownloadSucceededDialog.qml" line="52"/>
         <source>Install the virtual camera?</source>
         <translation>I-install ang virtual camera?</translation>
+    </message>
+</context>
+<context>
+    <name>EncodingConfig</name>
+    <message>
+        <location filename="../qml/EncodingConfig.qml" line="29"/>
+        <source>Encoding</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/EncodingConfig.qml" line="30"/>
+        <source>Configure the video and audio encoding shared by recording and streaming.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/EncodingConfig.qml" line="49"/>
+        <source>%1 (hardware)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/EncodingConfig.qml" line="106"/>
+        <source>Video</source>
+        <translation type="unfinished">Bidyo</translation>
+    </message>
+    <message>
+        <location filename="../qml/EncodingConfig.qml" line="124"/>
+        <source>Video bitrate (kbps)</source>
+        <translation type="unfinished">Video bitrate (kbps)</translation>
+    </message>
+    <message>
+        <location filename="../qml/EncodingConfig.qml" line="141"/>
+        <source>Keyframes interval (ms)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/EncodingConfig.qml" line="159"/>
+        <source>Advanced video options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/EncodingConfig.qml" line="171"/>
+        <source>Video codec associations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/EncodingConfig.qml" line="221"/>
+        <location filename="../qml/EncodingConfig.qml" line="393"/>
+        <source>Configure the encoder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/EncodingConfig.qml" line="227"/>
+        <location filename="../qml/EncodingConfig.qml" line="399"/>
+        <source>Configure the %1 encoder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/EncodingConfig.qml" line="242"/>
+        <source>MJPEG quality: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/EncodingConfig.qml" line="264"/>
+        <source>MJPEG quality</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/EncodingConfig.qml" line="278"/>
+        <source>Audio</source>
+        <translation type="unfinished">Audio</translation>
+    </message>
+    <message>
+        <location filename="../qml/EncodingConfig.qml" line="296"/>
+        <source>Audio bitrate (kbps)</source>
+        <translation type="unfinished">Audio bitrate (kbps)</translation>
+    </message>
+    <message>
+        <location filename="../qml/EncodingConfig.qml" line="313"/>
+        <source>Audio sampling rate (Hz)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/EncodingConfig.qml" line="331"/>
+        <source>Advanced audio options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/EncodingConfig.qml" line="343"/>
+        <source>Audio codec associations</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1149,140 +1236,64 @@
 <context>
     <name>LocalStreamingAdvanced</name>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="119"/>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="144"/>
-        <source>Streaming quality</source>
-        <translation type="unfinished">Kalidad ng streaming</translation>
-    </message>
-    <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="197"/>
-        <source>Custom</source>
-        <translation type="unfinished">Custom</translation>
-    </message>
-    <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="200"/>
-        <source>Video quality: %1×%2 %3 FPS</source>
-        <translation type="unfinished">Kalidad ng bidyo: %1×%2 %3 FPS</translation>
-    </message>
-    <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="201"/>
-        <source>Video bitrate: %1 Mbps</source>
-        <translation type="unfinished">Video bitrate: %1 Mbps</translation>
-    </message>
-    <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="202"/>
-        <source>Audio sample rate: %1 kHz</source>
-        <translation type="unfinished">Audio sample rate: %1 kHz</translation>
-    </message>
-    <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="203"/>
-        <source>Audio bitrate: %1 kbps</source>
-        <translation type="unfinished">Audio bitrate: %1 kbps</translation>
-    </message>
-    <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="212"/>
-        <source>Video quality</source>
-        <translation type="unfinished">Kalidad ng bidyo</translation>
-    </message>
-    <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="230"/>
-        <source>Output width</source>
-        <translation type="unfinished">Lapad ng output</translation>
-    </message>
-    <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="253"/>
-        <source>Output height</source>
-        <translation type="unfinished">Taas ng output</translation>
-    </message>
-    <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="276"/>
-        <source>Output frame rate</source>
-        <translation type="unfinished">Frame rate ng output</translation>
-    </message>
-    <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="299"/>
-        <source>Video bitrate (kbps)</source>
-        <translation type="unfinished">Video bitrate (kbps)</translation>
-    </message>
-    <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="319"/>
-        <source>Keyframes stride (ms)</source>
-        <translation type="unfinished">Keyframes stride (ms)</translation>
-    </message>
-    <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="407"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="67"/>
         <source>Placeholder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="416"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="76"/>
         <source>Image shown while there is no video. If it is empty, random noise is shown. The audio is silence.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="431"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="91"/>
         <source>Image file</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="434"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="94"/>
         <source>Placeholder image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="451"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="111"/>
         <source>Browse</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="463"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="123"/>
         <source>Search an image to be used as placeholder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="468"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="128"/>
         <source>Clear</source>
         <translation type="unfinished">I-clear</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="480"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="140"/>
         <source>Remove the placeholder image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="490"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="150"/>
         <source>Select the placeholder image</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="492"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="152"/>
         <source>Image files (*.png *.jpg *.jpeg *.bmp *.gif *.webp)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="493"/>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="153"/>
         <source>All files (*)</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="342"/>
-        <source>Audio quality</source>
-        <translation type="unfinished">Kalidad ng audio</translation>
     </message>
     <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="32"/>
         <source>ONVIF local server advanced options</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="360"/>
-        <source>Sample rate</source>
-        <translation type="unfinished">Sample rate</translation>
-    </message>
-    <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="383"/>
-        <source>Audio bitrate (kbps)</source>
-        <translation type="unfinished">Audio bitrate (kbps)</translation>
     </message>
 </context>
 <context>
@@ -1456,7 +1467,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1424"/>
+        <location filename="../../src/mediatools.cpp" line="1464"/>
         <source>%1/log %2.txt</source>
         <translation>%1/log %2.txt</translation>
     </message>
@@ -1622,7 +1633,7 @@
         <translation>Magbukas ng bagong instance ng %1.</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1494"/>
+        <location filename="../../src/recording.cpp" line="1194"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/Bidyo %2.%3</translation>
     </message>
@@ -1849,163 +1860,82 @@
         <translation>I-configure ang video streaming sa maraming platform.</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="133"/>
-        <location filename="../qml/Streaming.qml" line="158"/>
-        <source>Streaming quality</source>
-        <translation>Kalidad ng streaming</translation>
-    </message>
-    <message>
-        <location filename="../qml/Streaming.qml" line="211"/>
-        <source>Custom</source>
-        <translation>Custom</translation>
-    </message>
-    <message>
-        <location filename="../qml/Streaming.qml" line="214"/>
-        <source>Video quality: %1×%2 %3 FPS</source>
-        <translation>Kalidad ng bidyo: %1×%2 %3 FPS</translation>
-    </message>
-    <message>
-        <location filename="../qml/Streaming.qml" line="215"/>
-        <source>Video bitrate: %1 Mbps</source>
-        <translation>Video bitrate: %1 Mbps</translation>
-    </message>
-    <message>
-        <location filename="../qml/Streaming.qml" line="216"/>
-        <source>Audio sample rate: %1 kHz</source>
-        <translation>Audio sample rate: %1 kHz</translation>
-    </message>
-    <message>
-        <location filename="../qml/Streaming.qml" line="217"/>
-        <source>Audio bitrate: %1 kbps</source>
-        <translation>Audio bitrate: %1 kbps</translation>
-    </message>
-    <message>
-        <location filename="../qml/Streaming.qml" line="225"/>
-        <source>Advanced settings</source>
-        <translation>Mga advanced na setting</translation>
-    </message>
-    <message>
-        <location filename="../qml/Streaming.qml" line="241"/>
-        <source>Video quality</source>
-        <translation>Kalidad ng bidyo</translation>
-    </message>
-    <message>
-        <location filename="../qml/Streaming.qml" line="259"/>
-        <source>Output width</source>
-        <translation>Lapad ng output</translation>
-    </message>
-    <message>
-        <location filename="../qml/Streaming.qml" line="282"/>
-        <source>Output height</source>
-        <translation>Taas ng output</translation>
-    </message>
-    <message>
-        <location filename="../qml/Streaming.qml" line="305"/>
-        <source>Output frame rate</source>
-        <translation>Frame rate ng output</translation>
-    </message>
-    <message>
-        <location filename="../qml/Streaming.qml" line="328"/>
-        <source>Video bitrate (kbps)</source>
-        <translation>Video bitrate (kbps)</translation>
-    </message>
-    <message>
-        <location filename="../qml/Streaming.qml" line="348"/>
-        <source>Keyframes stride (ms)</source>
-        <translation>Keyframes stride (ms)</translation>
-    </message>
-    <message>
-        <location filename="../qml/Streaming.qml" line="365"/>
+        <location filename="../qml/Streaming.qml" line="93"/>
         <source>Video codec</source>
         <translation>Video codec</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="448"/>
-        <source>Audio quality</source>
-        <translation>Kalidad ng audio</translation>
-    </message>
-    <message>
-        <location filename="../qml/Streaming.qml" line="466"/>
-        <source>Sample rate</source>
-        <translation>Sample rate</translation>
-    </message>
-    <message>
-        <location filename="../qml/Streaming.qml" line="489"/>
-        <source>Audio bitrate (kbps)</source>
-        <translation>Audio bitrate (kbps)</translation>
-    </message>
-    <message>
-        <location filename="../qml/Streaming.qml" line="510"/>
+        <location filename="../qml/Streaming.qml" line="106"/>
         <source>Audio codec</source>
         <translation>Audio codec</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="533"/>
+        <location filename="../qml/Streaming.qml" line="119"/>
         <source>Streaming platform settings</source>
         <translation>Mga setting ng streaming platform</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="544"/>
+        <location filename="../qml/Streaming.qml" line="130"/>
         <source>Platform</source>
         <translation>Platform</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="552"/>
+        <location filename="../qml/Streaming.qml" line="138"/>
         <source>Add platform</source>
         <translation>Magdagdag ng platform</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="559"/>
+        <location filename="../qml/Streaming.qml" line="145"/>
         <source>Remove platform</source>
         <translation>Tanggalin ang platform</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="573"/>
+        <location filename="../qml/Streaming.qml" line="159"/>
         <source>Website</source>
         <translation>Website</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="593"/>
+        <location filename="../qml/Streaming.qml" line="179"/>
         <source>Visit website</source>
         <translation>Bisitahin ang website</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="608"/>
+        <location filename="../qml/Streaming.qml" line="194"/>
         <source>Streaming URL</source>
         <translation>URL ng Streaming</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="639"/>
+        <location filename="../qml/Streaming.qml" line="225"/>
         <source>Hide streaming URL</source>
         <translation>Itago ang URL ng streaming</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="640"/>
+        <location filename="../qml/Streaming.qml" line="226"/>
         <source>Show streaming URL</source>
         <translation>Ipakita ang URL ng streaming</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="659"/>
+        <location filename="../qml/Streaming.qml" line="245"/>
         <source>Streaming key</source>
         <translation>Streaming key</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="692"/>
+        <location filename="../qml/Streaming.qml" line="278"/>
         <source>Hide streaming key</source>
         <translation>Itago ang streaming key</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="693"/>
+        <location filename="../qml/Streaming.qml" line="279"/>
         <source>Show streaming key</source>
         <translation>Ipakita ang streaming key</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="712"/>
+        <location filename="../qml/Streaming.qml" line="298"/>
         <source>Streaming configuration help</source>
         <translation>Tulong sa configuration ng streaming</translation>
     </message>
     <message>
-        <location filename="../qml/Streaming.qml" line="724"/>
+        <location filename="../qml/Streaming.qml" line="310"/>
         <source>Get streaming key</source>
         <translation>Kunin ang streaming key</translation>
     </message>
@@ -2275,36 +2205,11 @@
     <name>VideoCodecOptions</name>
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="28"/>
-        <source>Video Codec Options</source>
-        <translation>Mga Opsyon sa Video Codec</translation>
+        <source>Video Encoder Options</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="243"/>
-        <source>Video codec</source>
-        <translation>Video codec</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="260"/>
-        <source>Bitrate</source>
-        <translation>Bitrate</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="267"/>
-        <source>Bitrate (bits/secs)</source>
-        <translation>Bitrate (bits/segundo)</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="277"/>
-        <source>Keyframes stride (ms)</source>
-        <translation>Keyframes stride (ms)</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="284"/>
-        <source>1000</source>
-        <translation>1000</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoCodecOptions.qml" line="294"/>
+        <location filename="../qml/VideoCodecOptions.qml" line="216"/>
         <source>Show advanced options</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2362,24 +2267,6 @@
         <location filename="../qml/VideoEffectsList.qml" line="162"/>
         <source>Remove all effects</source>
         <translation>Alisin ang lahat ng epekto</translation>
-    </message>
-</context>
-<context>
-    <name>VideoFormatOptions</name>
-    <message>
-        <location filename="../qml/VideoFormatOptions.qml" line="28"/>
-        <source>Video Format Options</source>
-        <translation>Mga Opsyon sa Video Format</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoFormatOptions.qml" line="216"/>
-        <source>File format</source>
-        <translation>Format ng file</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoFormatOptions.qml" line="232"/>
-        <source>Show advanced options</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2636,68 +2523,53 @@
 <context>
     <name>VideoOutputAddEdit</name>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="92"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="82"/>
         <source>Edit Virtual Camera</source>
         <translation>I-edit ang Virtual Camera</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="93"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="83"/>
         <source>Add Virtual Camera</source>
         <translation>Magdagdag ng Virtual Camera</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="144"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="134"/>
         <source>Virtual camera name</source>
         <translation>Pangalan ng virtual camera</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="167"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="157"/>
         <source>Format</source>
         <translation>Format</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="178"/>
-        <source>Width</source>
-        <translation>Lapad</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="191"/>
-        <source>Height</source>
-        <translation>Taas</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="204"/>
-        <source>Frame rate</source>
-        <translation>Bilis ng frame</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="225"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="172"/>
         <source>Can&apos;t edit the virtual camera</source>
         <translation>Hindi ma-edit ang virtual camera</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="226"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="173"/>
         <source>Can&apos;t add the virtual camera</source>
         <translation>Hindi maidagdag ang virtual camera</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="125"/>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="235"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="115"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="182"/>
         <source>Error editing the virtual camera</source>
         <translation>Error sa pag-edit ng virtual camera</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="236"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="183"/>
         <source>Error adding the virtual camera</source>
         <translation>Error sa pagdaragdag ng virtual camera</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="237"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="184"/>
         <source>Camera description can&apos;t be empty.</source>
         <translation>Ang paglalarawan ng camera ay hindi dapat walang laman.</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOutputAddEdit.qml" line="116"/>
+        <location filename="../qml/VideoOutputAddEdit.qml" line="106"/>
         <source>Error creating the virtual camera</source>
         <translation>Error sa paggawa ng virtual camera</translation>
     </message>
@@ -2787,137 +2659,51 @@
     </message>
     <message>
         <location filename="../qml/VideoRecording.qml" line="32"/>
-        <source>Configure video recording format and codecs.</source>
-        <translation>I-configure ang format at mga codec ng pagre-record ng bidyo.</translation>
+        <source>Configure the video recording format and codecs.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="114"/>
+        <location filename="../qml/VideoRecording.qml" line="100"/>
         <source>Videos directory</source>
         <translation>Direktoryo ng mga bidyo</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="126"/>
+        <location filename="../qml/VideoRecording.qml" line="112"/>
         <source>Select the save directory</source>
         <translation>Pumili ng direktoryo para i-save</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="140"/>
+        <location filename="../qml/VideoRecording.qml" line="126"/>
         <source>Record audio</source>
         <translation>I-record ang audio</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="151"/>
+        <location filename="../qml/VideoRecording.qml" line="137"/>
         <source>Use flash</source>
         <translation>Gumamit ng flash</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="154"/>
+        <location filename="../qml/VideoRecording.qml" line="140"/>
         <source>Use flash when recording a video</source>
         <translation>Gumamit ng flash kapag nagre-record ng bidyo</translation>
     </message>
     <message>
+        <location filename="../qml/VideoRecording.qml" line="153"/>
+        <source>File format</source>
+        <translation type="unfinished">Format ng file</translation>
+    </message>
+    <message>
         <location filename="../qml/VideoRecording.qml" line="165"/>
-        <location filename="../qml/VideoRecording.qml" line="190"/>
-        <source>Recording quality</source>
-        <translation>Kalidad ng pagre-record</translation>
+        <source>Video codec</source>
+        <translation type="unfinished">Video codec</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="240"/>
-        <source>Custom</source>
-        <translation>Custom</translation>
+        <location filename="../qml/VideoRecording.qml" line="178"/>
+        <source>Audio codec</source>
+        <translation type="unfinished">Audio codec</translation>
     </message>
     <message>
-        <location filename="../qml/VideoRecording.qml" line="244"/>
-        <source>Video quality: %1×%2 %3 FPS</source>
-        <translation>Kalidad ng bidyo: %1×%2 %3 FPS</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoRecording.qml" line="245"/>
-        <source>Video bitrate: %1 Mbps</source>
-        <translation>Video bitrate: %1 Mbps</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoRecording.qml" line="246"/>
-        <source>Audio sample rate: %1 kHz</source>
-        <translation>Audio sample rate: %1 kHz</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoRecording.qml" line="247"/>
-        <source>Audio bitrate: %1 kbps</source>
-        <translation>Audio bitrate: %1 kbps</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoRecording.qml" line="255"/>
-        <source>Advanced settings</source>
-        <translation>Mga advanced na setting</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoRecording.qml" line="269"/>
-        <source>Video quality</source>
-        <translation>Kalidad ng bidyo</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoRecording.qml" line="287"/>
-        <source>Output width</source>
-        <translation>Lapad ng output</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoRecording.qml" line="310"/>
-        <source>Output height</source>
-        <translation>Taas ng output</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoRecording.qml" line="333"/>
-        <source>Output Frame rate</source>
-        <translation>Bilis ng frame ng output</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoRecording.qml" line="358"/>
-        <source>Audio quality</source>
-        <translation>Kalidad ng audio</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoRecording.qml" line="376"/>
-        <source>Sample rate</source>
-        <translation>Sample rate</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoRecording.qml" line="401"/>
-        <source>File format and codecs</source>
-        <translation>Format ng file at mga codec</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoRecording.qml" line="412"/>
-        <source>Configure the file format</source>
-        <translation>I-configure ang format ng file</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoRecording.qml" line="414"/>
-        <source>Configure the file format for recording</source>
-        <translation>I-configure ang format ng file para sa pagre-record</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoRecording.qml" line="422"/>
-        <source>Configure the video codec</source>
-        <translation>I-configure ang video codec</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoRecording.qml" line="424"/>
-        <source>Configure the video codec for recording</source>
-        <translation>I-configure ang video codec para sa pagre-record</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoRecording.qml" line="432"/>
-        <source>Configure the audio codec</source>
-        <translation>I-configure ang audio codec</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoRecording.qml" line="435"/>
-        <source>Configure the audio codec for recording</source>
-        <translation>I-configure ang audio codec para sa pagre-record</translation>
-    </message>
-    <message>
-        <location filename="../qml/VideoRecording.qml" line="469"/>
+        <location filename="../qml/VideoRecording.qml" line="193"/>
         <source>Select the folder to save your videos</source>
         <translation>Pumili ng folder para i-save ang iyong mga bidyo</translation>
     </message>
@@ -2961,26 +2747,6 @@
         <location filename="../qml/VirtualCameraOptions.qml" line="108"/>
         <source>Remove</source>
         <translation>Alisin</translation>
-    </message>
-    <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="130"/>
-        <source>Aspect ratio mode</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="132"/>
-        <source>Ignore</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="133"/>
-        <source>Keep</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/VirtualCameraOptions.qml" line="134"/>
-        <source>Keep by expanding</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/VirtualCameraOptions.qml" line="54"/>

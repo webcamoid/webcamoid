@@ -47,8 +47,9 @@ Dialog {
         id: options
         anchors.fill: parent
 
-        CanvasConfig { }
+        CompositionConfig { }
         ImageCapture { }
+        EncodingConfig { }
         VideoRecording { }
         Streaming { optionVisible: streaming.isStreamingSupported }
         ColorSchemes { }

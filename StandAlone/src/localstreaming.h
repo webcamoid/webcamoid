@@ -24,6 +24,8 @@
 #include <akpropertyoption.h>
 #include <iak/akelement.h>
 
+#include "encoding.h"
+
 class LocalStreamingPrivate;
 class LocalStreaming;
 class AkAudioCaps;
@@ -88,14 +90,6 @@ class LocalStreaming: public QObject
                WRITE setVideoCaps
                RESET resetVideoCaps
                NOTIFY videoCapsChanged)
-    Q_PROPERTY(int videoGOP
-               READ videoGOP
-               WRITE setVideoGOP
-               RESET resetVideoGOP
-               NOTIFY videoGOPChanged)
-    Q_PROPERTY(int defaultVideoGOP
-               READ defaultVideoGOP
-               CONSTANT)
     Q_PROPERTY(AkElement::ElementState state
                READ state
                WRITE setState
@@ -115,7 +109,8 @@ class LocalStreaming: public QObject
                NOTIFY hasActiveClientsChanged)
 
     public:
-        LocalStreaming(QQmlApplicationEngine *engine=nullptr,
+        LocalStreaming(const EncodingPtr &encoding,
+                       QQmlApplicationEngine *engine=nullptr,
                        QObject *parent=nullptr);
         ~LocalStreaming();
 
@@ -130,8 +125,6 @@ class LocalStreaming: public QObject
         Q_INVOKABLE QString placeholderImage() const;
         Q_INVOKABLE AkAudioCaps audioCaps() const;
         Q_INVOKABLE AkVideoCaps videoCaps() const;
-        Q_INVOKABLE int videoGOP() const;
-        Q_INVOKABLE int defaultVideoGOP() const;
         Q_INVOKABLE AkElement::ElementState state() const;
         Q_INVOKABLE bool isLocalStreamingSupported() const;
         Q_INVOKABLE QString locationFormat(const QString &location) const;
@@ -146,11 +139,6 @@ class LocalStreaming: public QObject
         Q_INVOKABLE QStringList supportedCodecs(const QString &format,
                                                 AkCaps::CapsType type) const;
         Q_INVOKABLE QString codecDescription(const QString &codec) const;
-        Q_INVOKABLE AkPropertyOptions codecOptions(AkCaps::CapsType type) const;
-        Q_INVOKABLE QVariant codecOptionValue(AkCaps::CapsType type,
-                                              const QString &option) const;
-        Q_INVOKABLE int bitrate(AkCaps::CapsType type) const;
-        Q_INVOKABLE int defaultBitrate(AkCaps::CapsType type) const;
 
     private:
         LocalStreamingPrivate *d;
@@ -167,15 +155,7 @@ class LocalStreaming: public QObject
         void hasActiveClientsChanged(bool hasActiveClients);
         void audioCapsChanged(const AkAudioCaps &audioCaps);
         void videoCapsChanged(const AkVideoCaps &videoCaps);
-        void videoGOPChanged(int videoGOP);
         void stateChanged(AkElement::ElementState state);
-        void codecChanged(AkCaps::CapsType type, const QString &codec);
-        void codecOptionsChanged(AkCaps::CapsType type,
-                                 const AkPropertyOptions &options);
-        void codecOptionValueChanged(AkCaps::CapsType type,
-                                     const QString &option,
-                                     const QVariant &value);
-        void bitrateChanged(AkCaps::CapsType type, int bitrate);
         void streamingError(const QString &error);
         void streamingWarning(const QString &warning);
 
@@ -190,13 +170,7 @@ class LocalStreaming: public QObject
         void setPlaceholderImage(const QString &placeholderImage);
         void setAudioCaps(const AkAudioCaps &audioCaps);
         void setVideoCaps(const AkVideoCaps &videoCaps);
-        void setVideoGOP(int gop);
         bool setState(AkElement::ElementState state);
-        void setCodec(AkCaps::CapsType type, const QString &codec);
-        void setCodecOptionValue(AkCaps::CapsType type,
-                                 const QString &option,
-                                 const QVariant &value);
-        void setBitrate(AkCaps::CapsType type, int bitrate);
         void resetLocation();
         void resetHttpPort();
         void resetRtspPort();
@@ -207,13 +181,7 @@ class LocalStreaming: public QObject
         void resetPlaceholderImage();
         void resetAudioCaps();
         void resetVideoCaps();
-        void resetVideoGOP();
         void resetState();
-        void resetCodec(AkCaps::CapsType type);
-        void resetCodecOptionValue(AkCaps::CapsType type,
-                                   const QString &option);
-        void resetCodecOptions(AkCaps::CapsType type);
-        void resetBitrate(AkCaps::CapsType type);
         AkPacket iStream(const AkPacket &packet);
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
 };

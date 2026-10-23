@@ -38,6 +38,7 @@
 #include <ak.h>
 #include <akaudiocaps.h>
 #include <akcaps.h>
+#include <akfrac.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>
 #include <akvideocaps.h>
@@ -59,6 +60,7 @@
 #include "audiooutputs.h"
 #include "clioptions.h"
 #include "downloadmanager.h"
+#include "encoding.h"
 #include "iconsprovider.h"
 #include "localstreaming.h"
 #include "pluginconfigs.h"
@@ -130,6 +132,7 @@ class MediaToolsPrivate
         AudioInputsPtr m_audioInputs;
         AudioOutputsPtr m_audioOutputs;
         PluginConfigsPtr m_pluginConfigs;
+        EncodingPtr m_encoding;
         RecordingPtr m_recording;
         StreamingPtr m_streaming;
         LocalStreamingPtr m_localStreaming;
@@ -828,9 +831,10 @@ bool MediaTools::init(const CliOptions &cliOptions)
     this->d->m_audioOutputs = AudioOutputsPtr(new AudioOutputs(this->d->m_engine));
     this->d->m_videoEffects =
             VideoEffectsPtr(new VideoEffects(this->d->m_engine));
-    this->d->m_recording = RecordingPtr(new Recording(this->d->m_engine));
-    this->d->m_streaming = StreamingPtr(new Streaming(this->d->m_engine));
-    this->d->m_localStreaming = LocalStreamingPtr(new LocalStreaming(this->d->m_engine));
+    this->d->m_encoding = EncodingPtr(new Encoding(this->d->m_engine));
+    this->d->m_recording = RecordingPtr(new Recording(this->d->m_encoding, this->d->m_engine));
+    this->d->m_streaming = StreamingPtr(new Streaming(this->d->m_encoding, this->d->m_engine));
+    this->d->m_localStreaming = LocalStreamingPtr(new LocalStreaming(this->d->m_encoding, this->d->m_engine));
     this->d->m_virtualCameras = VirtualCamerasPtr(new VirtualCameras(this->d->m_engine));
     this->d->m_updates = UpdatesPtr(new Updates(this->d->m_engine));
     this->d->m_downloadManager =
@@ -958,6 +962,42 @@ bool MediaTools::init(const CliOptions &cliOptions)
     AkElement::link(this->d->m_videoEffects.data(),
                     this->d->m_localStreaming.data(),
                     Qt::DirectConnection);
+
+    // All the outputs share the same resolution and frame rate, which are
+    // derived from the composition settings. Each output scales the frames
+    // by itself, so we only need to give them their caps, preserving the
+    // pixel format configured for each one.
+    auto updateOutputsCaps = [this] () {
+        auto caps = this->d->m_videoEffects->outputCaps();
+
+        if (caps.width() < 1 || caps.height() < 1)
+            return;
+
+        auto applyCaps = [&caps] (const AkVideoCaps &current) -> AkVideoCaps {
+            auto format = current.format() != AkVideoCaps::Format_none?
+                              current.format():
+                              AkVideoCaps::Format_yuv420p;
+
+            return {format, caps.width(), caps.height(), caps.fps()};
+        };
+
+        this->d->m_recording->setVideoCaps(applyCaps(this->d->m_recording->videoCaps()));
+        this->d->m_streaming->setVideoCaps(applyCaps(this->d->m_streaming->videoCaps()));
+        this->d->m_localStreaming->setVideoCaps(applyCaps(this->d->m_localStreaming->videoCaps()));
+
+        // The virtual camera format is chosen by the user when the device is
+        // created, don't touch it until then.
+        auto vcamCaps = this->d->m_virtualCameras->outputCaps();
+
+        if (vcamCaps.format() != AkVideoCaps::Format_none)
+            this->d->m_virtualCameras->setOutputCaps(applyCaps(vcamCaps));
+    };
+
+    QObject::connect(this->d->m_videoEffects.data(),
+                     &VideoEffects::outputCapsChanged,
+                     this,
+                     updateOutputsCaps);
+    updateOutputsCaps();
     QObject::connect(this->d->m_videoEffects.data(),
                      &VideoEffects::frameCaptured,
                      this->d->m_recording.data(),

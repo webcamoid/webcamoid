@@ -73,6 +73,8 @@ set(PROJECT_SOURCES
     clioptions.h
     downloadmanager.cpp
     downloadmanager.h
+    encoding.cpp
+    encoding.h
     iconsprovider.cpp
     iconsprovider.h
     localstreaming.cpp

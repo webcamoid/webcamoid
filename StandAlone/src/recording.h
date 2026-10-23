@@ -24,6 +24,8 @@
 #include <akpropertyoption.h>
 #include <iak/akelement.h>
 
+#include "encoding.h"
+
 class RecordingPrivate;
 class Recording;
 class AkAudioCaps;
@@ -66,22 +68,14 @@ class Recording: public QObject
                NOTIFY videoFormatChanged)
     Q_PROPERTY(QStringList videoFormats
                READ videoFormats
-               CONSTANT)
+               NOTIFY supportedCodecsChanged)
     Q_PROPERTY(QString defaultVideoFormat
                READ defaultVideoFormat
-               CONSTANT)
+               NOTIFY supportedCodecsChanged)
     Q_PROPERTY(AkPropertyOptions videoFormatOptions
                READ videoFormatOptions
                RESET resetVideoFormatOptions
                NOTIFY videoFormatOptionsChanged)
-    Q_PROPERTY(int videoGOP
-               READ videoGOP
-               WRITE setVideoGOP
-               RESET resetVideoGOP
-               NOTIFY videoGOPChanged)
-    Q_PROPERTY(int defaultVideoGOP
-               READ defaultVideoGOP
-               CONSTANT)
     Q_PROPERTY(bool recordAudio
                READ recordAudio
                WRITE setRecordAudio
@@ -139,7 +133,8 @@ class Recording: public QObject
                NOTIFY photoTimeoutChanged)
 
     public:
-        Recording(QQmlApplicationEngine *engine=nullptr,
+        Recording(const EncodingPtr &encoding,
+                  QQmlApplicationEngine *engine=nullptr,
                   QObject *parent=nullptr);
         ~Recording();
 
@@ -162,13 +157,6 @@ class Recording: public QObject
         Q_INVOKABLE QString codecDescription(const QString &codec) const;
         Q_INVOKABLE AkPropertyOptions videoFormatOptions() const;
         Q_INVOKABLE QVariant videoFormatOptionValue(const QString &option) const;
-        Q_INVOKABLE AkPropertyOptions codecOptions(AkCaps::CapsType type) const;
-        Q_INVOKABLE QVariant codecOptionValue(AkCaps::CapsType type,
-                                              const QString &option) const;
-        Q_INVOKABLE int bitrate(AkCaps::CapsType type) const;
-        Q_INVOKABLE int defaultBitrate(AkCaps::CapsType type) const;
-        Q_INVOKABLE int videoGOP() const;
-        Q_INVOKABLE int defaultVideoGOP() const;
         Q_INVOKABLE bool recordAudio() const;
         Q_INVOKABLE QString lastVideoPreview() const;
         Q_INVOKABLE QString lastVideo() const;
@@ -203,13 +191,7 @@ class Recording: public QObject
         void videoFormatOptionsChanged(const AkPropertyOptions &options);
         void videoFormatOptionValueChanged(const QString &option,
                                            const QVariant &value);
-        void codecOptionsChanged(AkCaps::CapsType type,
-                                 const AkPropertyOptions &options);
-        void codecOptionValueChanged(AkCaps::CapsType type,
-                                     const QString &option,
-                                     const QVariant &value);
-        void bitrateChanged(AkCaps::CapsType type, int bitrate);
-        void videoGOPChanged(int gop);
+        void supportedCodecsChanged();
         void recordAudioChanged(bool recordAudio);
         void lastVideoPreviewChanged(const QString &lastVideoPreview);
         void lastVideoChanged(const QString &lastVideo);
@@ -239,11 +221,6 @@ class Recording: public QObject
         void setCodec(AkCaps::CapsType type, const QString &codec);
         void setVideoFormatOptionValue(const QString &option,
                                        const QVariant &value);
-        void setCodecOptionValue(AkCaps::CapsType type,
-                                 const QString &option,
-                                 const QVariant &value);
-        void setBitrate(AkCaps::CapsType type, int bitrate);
-        void setVideoGOP(int gop);
         void setRecordAudio(bool recordAudio);
         void setUseVideoFlash(bool useVideoFlash);
 
@@ -264,12 +241,7 @@ class Recording: public QObject
         void resetVideoFormat();
         void resetCodec(AkCaps::CapsType type);
         void resetVideoFormatOptionValue(const QString &option);
-        void resetCodecOptionValue(AkCaps::CapsType type,
-                                   const QString &option);
         void resetVideoFormatOptions();
-        void resetCodecOptions(AkCaps::CapsType type);
-        void resetBitrate(AkCaps::CapsType type);
-        void resetVideoGOP();
         void resetRecordAudio();
         void resetUseVideoFlash();
 

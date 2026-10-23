@@ -1120,7 +1120,9 @@ void VideoEncoderFFmpegElementPrivate::adjustDefaults()
             for (auto &option: codec.options)
                 if (option.name() == "scenario")
                     setDefaultValue(option, menuOption(option.menu(), "live_streaming"));
-        } else if (codec.name == "libx264" || codec.name == "libx264rgb") {
+        } else if (codec.name == "libx264"
+                   || codec.name == "libx264rgb"
+                   || codec.name == "libx265") {
             for (auto &option: codec.options)
                 if (option.name() == "preset") {
                     setDefaultValue(option, "ultrafast");

@@ -39,10 +39,24 @@ using VideoEffectsPtr = QSharedPointer<VideoEffects>;
 class VideoEffects: public QObject
 {
     Q_OBJECT
+    // Composition canvas: the surface where all the sources are composed.
+    Q_PROPERTY(AkVideoCaps canvasCaps
+               READ canvasCaps
+               WRITE setCanvasCaps
+               RESET resetCanvasCaps
+               NOTIFY canvasCapsChanged)
+    // Short side (in pixels) of the video sent to all the outputs, 0 means
+    // the same resolution as the canvas.
+    Q_PROPERTY(int outputResolution
+               READ outputResolution
+               WRITE setOutputResolution
+               RESET resetOutputResolution
+               NOTIFY outputResolutionChanged)
+    // Read only. Derived from canvasCaps and outputResolution: it always has
+    // the same orientation, aspect ratio and frame rate as the canvas, and it
+    // is never bigger than it.
     Q_PROPERTY(AkVideoCaps outputCaps
                READ outputCaps
-               WRITE setOutputCaps
-               RESET resetOutputCaps
                NOTIFY outputCapsChanged)
     Q_PROPERTY(QRgb canvasColor
                READ canvasColor
@@ -89,6 +103,8 @@ class VideoEffects: public QObject
         ~VideoEffects();
 
         // Global output pipeline
+        Q_INVOKABLE AkVideoCaps canvasCaps() const;
+        Q_INVOKABLE int outputResolution() const;
         Q_INVOKABLE AkVideoCaps outputCaps() const;
         Q_INVOKABLE QRgb canvasColor() const;
         Q_INVOKABLE bool asyncRead() const;
@@ -149,6 +165,8 @@ class VideoEffects: public QObject
         void ready();
 
         // Global output pipeline
+        void canvasCapsChanged(const AkVideoCaps &canvasCaps);
+        void outputResolutionChanged(int outputResolution);
         void outputCapsChanged(const AkVideoCaps &outputCaps);
         void canvasColorChanged(QRgb canvasColor);
         void asyncReadChanged(bool asyncRead);
@@ -179,7 +197,8 @@ class VideoEffects: public QObject
 
     public slots:
         // Global output pipeline
-        void setOutputCaps(const AkVideoCaps &outputCaps);
+        void setCanvasCaps(const AkVideoCaps &canvasCaps);
+        void setOutputResolution(int outputResolution);
         void setCanvasColor(QRgb canvasColor);
         void setAsyncRead(bool asyncRead);
         void setOutputBufferSize(size_t outputBufferSize);
@@ -188,7 +207,8 @@ class VideoEffects: public QObject
         void setState(AkElement::ElementState state);
         void setChainEffects(bool chainEffects);
         void setEffectEnabled(int index, bool enabled);
-        void resetOutputCaps();
+        void resetCanvasCaps();
+        void resetOutputResolution();
         void resetCanvasColor();
         void resetAsyncRead();
         void resetOutputBufferSize();

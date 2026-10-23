@@ -58,16 +58,9 @@ Dialog {
         let pixFormats = virtualCameras.supportedOutputPixelFormats
         let caps = AkVideoCaps.create(virtualCameras.outputCaps)
         let format = caps.format
-        let width = caps.width
-        let height = caps.height
-        let fps = AkFrac.create(caps.fps).value
 
-        if (width < 1 || height < 1) {
+        if (caps.width < 1 || caps.height < 1)
             format = virtualCameras.defaultOutputPixelFormat
-            width = 640
-            height = 480
-            fps = 30
-        }
 
         let index = -1
 
@@ -81,9 +74,6 @@ Dialog {
                     index = i
 
         cbxPixelFormats.currentIndex = index
-        spbFrameWidth.value = width
-        spbFrameHeight.value = height
-        spbFrameRate.value = fps > 0? fps: 30
     }
 
     function openOptions(device)
@@ -170,49 +160,6 @@ Dialog {
                 model: ListModel {}
                 Layout.fillWidth: true
             }
-            GridLayout {
-                columns: 2
-
-                Label {
-                    id: txtWidth
-                    text: qsTr("Width")
-                }
-                SpinBox {
-                    id: spbFrameWidth
-                    value: 640
-                    from: 1
-                    to: 4096
-                    stepSize: 1
-                    editable: true
-                    Accessible.name: txtWidth.text
-                }
-                Label {
-                    id: txtHeight
-                    text: qsTr("Height")
-                }
-                SpinBox {
-                    id: spbFrameHeight
-                    value: 480
-                    from: 1
-                    to: 4096
-                    stepSize: 1
-                    editable: true
-                    Accessible.name: txtHeight.text
-                }
-                Label {
-                    id: txtFrameRate
-                    text: qsTr("Frame rate")
-                }
-                SpinBox {
-                    id: spbFrameRate
-                    value: 30
-                    from: 1
-                    to: 250
-                    stepSize: 1
-                    editable: true
-                    Accessible.name: txtFrameRate.text
-                }
-            }
         }
     }
 
@@ -242,12 +189,15 @@ Dialog {
 
         let element = cbxPixelFormats.model.get(cbxPixelFormats.currentIndex)
 
-        // The format is applied the next time the virtual camera starts, it is
+        // The resolution and the frame rate are shared by all the outputs and
+        // are configured in the composition settings, here only the format is
+        // chosen. It is applied the next time the virtual camera starts, it is
         // restarted automatically if it is running.
+        let outputCaps = AkVideoCaps.create(videoEffects.outputCaps)
         virtualCameras.setOutputFormat(element.format,
-                                       spbFrameWidth.value,
-                                       spbFrameHeight.value,
-                                       spbFrameRate.value)
+                                       outputCaps.width,
+                                       outputCaps.height,
+                                       Math.round(AkFrac.create(outputCaps.fps).value))
 
         if (!devId)
             virtualCameras.createOutput(description)

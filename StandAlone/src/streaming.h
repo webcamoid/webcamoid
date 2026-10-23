@@ -24,6 +24,8 @@
 #include <akpropertyoption.h>
 #include <iak/akelement.h>
 
+#include "encoding.h"
+
 class StreamingPrivate;
 class Streaming;
 class AkAudioCaps;
@@ -46,14 +48,6 @@ class Streaming: public QObject
                WRITE setVideoCaps
                RESET resetVideoCaps
                NOTIFY videoCapsChanged)
-    Q_PROPERTY(int videoGOP
-               READ videoGOP
-               WRITE setVideoGOP
-               RESET resetVideoGOP
-               NOTIFY videoGOPChanged)
-    Q_PROPERTY(int defaultVideoGOP
-               READ defaultVideoGOP
-               CONSTANT)
     Q_PROPERTY(AkElement::ElementState state
                READ state
                WRITE setState
@@ -75,14 +69,13 @@ class Streaming: public QObject
                CONSTANT)
 
     public:
-        Streaming(QQmlApplicationEngine *engine=nullptr,
+        Streaming(const EncodingPtr &encoding,
+                  QQmlApplicationEngine *engine=nullptr,
                   QObject *parent=nullptr);
         ~Streaming();
 
         Q_INVOKABLE AkAudioCaps audioCaps() const;
         Q_INVOKABLE AkVideoCaps videoCaps() const;
-        Q_INVOKABLE int videoGOP() const;
-        Q_INVOKABLE int defaultVideoGOP() const;
         Q_INVOKABLE AkElement::ElementState state() const;
         Q_INVOKABLE QStringList platforms() const;
         Q_INVOKABLE QStringList supportedPlatforms() const;
@@ -100,11 +93,6 @@ class Streaming: public QObject
         Q_INVOKABLE QStringList supportedCodecs(const QString &platform,
                                                 AkCaps::CapsType type) const;
         Q_INVOKABLE QString codecDescription(const QString &codec) const;
-        Q_INVOKABLE AkPropertyOptions codecOptions(AkCaps::CapsType type) const;
-        Q_INVOKABLE QVariant codecOptionValue(AkCaps::CapsType type,
-                                              const QString &option) const;
-        Q_INVOKABLE int bitrate(AkCaps::CapsType type) const;
-        Q_INVOKABLE int defaultBitrate(AkCaps::CapsType type) const;
 
     private:
         StreamingPrivate *d;
@@ -112,25 +100,18 @@ class Streaming: public QObject
     signals:
         void audioCapsChanged(const AkAudioCaps &audioCaps);
         void videoCapsChanged(const AkVideoCaps &videoCaps);
-        void videoGOPChanged(int videoGOP);
         void stateChanged(AkElement::ElementState state);
         void platformsChanged(const QStringList &platforms);
         void supportedPlatformsChanged(const QStringList &supportedPlatforms);
         void unconfiguredPlatformsChanged(const QStringList &unconfiguredPlatforms);
         void codecChanged(AkCaps::CapsType type, const QString &codec);
-        void codecOptionsChanged(AkCaps::CapsType type,
-                                 const AkPropertyOptions &options);
-        void codecOptionValueChanged(AkCaps::CapsType type,
-                                     const QString &option,
-                                     const QVariant &value);
-        void bitrateChanged(AkCaps::CapsType type, int bitrate);
+        void supportedCodecsChanged();
         void streamingError(const QString &error);
         void streamingWarning(const QString &warning);
 
     public slots:
         void setAudioCaps(const AkAudioCaps &audioCaps);
         void setVideoCaps(const AkVideoCaps &videoCaps);
-        void setVideoGOP(int gop);
         bool setState(AkElement::ElementState state);
         void setPlatforms(const QStringList &platforms);
         void addSupportedPlatform(const QString &platform);
@@ -148,20 +129,11 @@ class Streaming: public QObject
         void setPlatformNeedsKey(const QString &platform,
                                  bool needsKey);
         void setCodec(AkCaps::CapsType type, const QString &codec);
-        void setCodecOptionValue(AkCaps::CapsType type,
-                                 const QString &option,
-                                 const QVariant &value);
-        void setBitrate(AkCaps::CapsType type, int bitrate);
         void resetAudioCaps();
         void resetVideoCaps();
-        void resetVideoGOP();
         void resetState();
         void resetPlatforms();
         void resetCodec(AkCaps::CapsType type);
-        void resetCodecOptionValue(AkCaps::CapsType type,
-                                   const QString &option);
-        void resetCodecOptions(AkCaps::CapsType type);
-        void resetBitrate(AkCaps::CapsType type);
         AkPacket iStream(const AkPacket &packet);
         void setQmlEngine(QQmlApplicationEngine *engine=nullptr);
 };
