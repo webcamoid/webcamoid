@@ -978,48 +978,48 @@
     </message>
     <message>
         <location filename="../qml/EncodingConfig.qml" line="221"/>
-        <location filename="../qml/EncodingConfig.qml" line="393"/>
+        <location filename="../qml/EncodingConfig.qml" line="394"/>
         <source>Configure the encoder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/EncodingConfig.qml" line="227"/>
-        <location filename="../qml/EncodingConfig.qml" line="399"/>
+        <location filename="../qml/EncodingConfig.qml" line="229"/>
+        <location filename="../qml/EncodingConfig.qml" line="402"/>
         <source>Configure the %1 encoder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/EncodingConfig.qml" line="242"/>
+        <location filename="../qml/EncodingConfig.qml" line="243"/>
         <source>MJPEG quality: %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/EncodingConfig.qml" line="264"/>
+        <location filename="../qml/EncodingConfig.qml" line="265"/>
         <source>MJPEG quality</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/EncodingConfig.qml" line="278"/>
+        <location filename="../qml/EncodingConfig.qml" line="279"/>
         <source>Audio</source>
         <translation type="unfinished">Audio</translation>
     </message>
     <message>
-        <location filename="../qml/EncodingConfig.qml" line="296"/>
+        <location filename="../qml/EncodingConfig.qml" line="297"/>
         <source>Audio bitrate (kbps)</source>
         <translation type="unfinished">Audiobitsnelheid (in kbps)</translation>
     </message>
     <message>
-        <location filename="../qml/EncodingConfig.qml" line="313"/>
+        <location filename="../qml/EncodingConfig.qml" line="314"/>
         <source>Audio sampling rate (Hz)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/EncodingConfig.qml" line="331"/>
+        <location filename="../qml/EncodingConfig.qml" line="332"/>
         <source>Advanced audio options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/EncodingConfig.qml" line="343"/>
+        <location filename="../qml/EncodingConfig.qml" line="344"/>
         <source>Audio codec associations</source>
         <translation type="unfinished"></translation>
     </message>

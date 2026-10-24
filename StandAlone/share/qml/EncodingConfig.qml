@@ -217,16 +217,17 @@ AK.MenuOption {
                                                              videoRow.modelData,
                                                              videoRow.encoders[index])
                         }
-                        ToolButton {
+                        Button {
                             text: qsTr("Configure the encoder")
                             icon.source: "image://icons/edit"
+                            flat: true
                             implicitWidth: implicitHeight
                             display: AbstractButton.IconOnly
                             ToolTip.visible: hovered
                             ToolTip.text: text
+                            Accessible.name: text
                             Accessible.description: qsTr("Configure the %1 encoder")
                                                     .arg(encoding.codecDescription(videoRow.modelData))
-                            Layout.alignment: Qt.AlignBottom
 
                             onClicked: {
                                 videoEncoderOptions.currentEncoder = videoRow.currentEncoder
@@ -387,18 +388,19 @@ AK.MenuOption {
                                                              audioRow.modelData,
                                                              audioRow.encoders[index])
                         }
-                        ToolButton {
+                        Button {
                             // Only when the encoder has options to configure.
                             visible: encoding.encoderOptions(audioRow.currentEncoder).length > 0
                             text: qsTr("Configure the encoder")
                             icon.source: "image://icons/edit"
+                            flat: true
                             implicitWidth: implicitHeight
                             display: AbstractButton.IconOnly
                             ToolTip.visible: hovered
                             ToolTip.text: text
+                            Accessible.name: text
                             Accessible.description: qsTr("Configure the %1 encoder")
                                                     .arg(encoding.codecDescription(audioRow.modelData))
-                            Layout.alignment: Qt.AlignBottom
 
                             onClicked: {
                                 audioEncoderOptions.currentEncoder = audioRow.currentEncoder

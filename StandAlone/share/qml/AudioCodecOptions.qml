@@ -319,7 +319,7 @@ Dialog {
         id: controlRangeDiscrete
 
         RowLayout {
-            layoutDirection: videoCodecOptions.rtl? Qt.RightToLeft: Qt.LeftToRight
+            layoutDirection: audioCodecOptions.rtl? Qt.RightToLeft: Qt.LeftToRight
 
             property string key: ""
             property string description: ""
