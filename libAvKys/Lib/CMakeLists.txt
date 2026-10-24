@@ -197,6 +197,22 @@ target_compile_definitions(avkys PRIVATE AVKYS_LIBRARY)
 list(TRANSFORM QT_COMPONENTS PREPEND Qt${QT_VERSION_MAJOR}:: OUTPUT_VARIABLE QT_LIBS)
 target_link_libraries(avkys PRIVATE ${QT_LIBS})
 
+# Use FFmpeg's libswscale for the video frames conversion if it is available.
+
+find_package(PkgConfig QUIET)
+
+if (PKG_CONFIG_FOUND)
+    pkg_check_modules(FFMPEG_SWSCALE IMPORTED_TARGET libavutil libswscale)
+endif ()
+
+if (FFMPEG_SWSCALE_FOUND)
+    message(STATUS "Using FFmpeg's libswscale for video conversion")
+    target_compile_definitions(avkys PRIVATE USE_FFMPEG_SWSCALE)
+    target_link_libraries(avkys PRIVATE PkgConfig::FFMPEG_SWSCALE)
+else ()
+    message(STATUS "FFmpeg's libswscale not found, using the internal video converter")
+endif ()
+
 if (ANDROID AND QJNIOBJECT_FOUND)
     target_link_libraries(avkys
                           PRIVATE

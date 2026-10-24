@@ -38,6 +38,17 @@
 #include <omp.h>
 #endif
 
+#ifdef USE_FFMPEG_SWSCALE
+#include <QHash>
+
+extern "C"
+{
+    #include <libavutil/pixdesc.h>
+    #include <libavutil/pixfmt.h>
+    #include <libswscale/swscale.h>
+}
+#endif
+
 #define SCALE_EMULT 8
 
 /*
@@ -331,6 +342,16 @@ class FrameConvertParameters
         ResizeMode resizeMode {ResizeMode_Keep};
         bool fastConvertion {false};
 
+#ifdef USE_FFMPEG_SWSCALE
+        bool useSws {false};
+        bool swsFullRange {false};
+        int swsFlags {0};
+        int swsColorSpace {SWS_CS_DEFAULT};
+        AVPixelFormat swsInputFormat {AV_PIX_FMT_NONE};
+        AVPixelFormat swsOutputFormat {AV_PIX_FMT_NONE};
+        SwsContext *swsContext {nullptr};
+#endif
+
         int fromEndian {Q_BYTE_ORDER};
         int toEndian {Q_BYTE_ORDER};
 
@@ -472,6 +493,16 @@ class FrameConvertParameters
                               const QRect &inputRect,
                               AkVideoConverter::AspectRatioMode aspectRatioMode);
         void reset();
+#ifdef USE_FFMPEG_SWSCALE
+        void configureSws(const AkVideoCaps &icaps,
+                          AkColorConvert::YuvColorSpace yuvColorSpace,
+                          AkColorConvert::YuvColorSpaceType yuvColorSpaceType,
+                          AkVideoConverter::ScalingMode scalingMode,
+                          AkVideoConverter::AspectRatioMode aspectRatioMode,
+                          const QRect &inputRect);
+        void freeSws();
+        bool convertSws(const AkVideoPacket &src);
+#endif
 };
 
 class AkVideoConverterPrivate
@@ -8558,6 +8589,14 @@ AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
                             ocaps,
                             this->m_inputRect,
                             this->m_aspectRatioMode);
+#ifdef USE_FFMPEG_SWSCALE
+        fc.configureSws(packet.caps(),
+                        this->m_yuvColorSpace,
+                        this->m_yuvColorSpaceType,
+                        this->m_scalingMode,
+                        this->m_aspectRatioMode,
+                        this->m_inputRect);
+#endif
         fc.inputCaps = packet.caps();
         fc.outputCaps = ocaps;
         fc.yuvColorSpace = this->m_yuvColorSpace;
@@ -8574,6 +8613,11 @@ AkVideoPacket AkVideoConverterPrivate::convert(const AkVideoPacket &packet,
         return packet;
     }
 
+#ifdef USE_FFMPEG_SWSCALE
+    if (fc.useSws && fc.convertSws(packet)) {
+        // Converted by libswscale.
+    } else
+#endif
     if (fc.fastConvertion) {
         if (!fc.srcWidthOffsetX || !fc.dstWidthOffsetX)
             return {};
@@ -8619,6 +8663,14 @@ FrameConvertParameters::FrameConvertParameters(const FrameConvertParameters &oth
     alphaMode(other.alphaMode),
     resizeMode(other.resizeMode),
     fastConvertion(other.fastConvertion),
+#ifdef USE_FFMPEG_SWSCALE
+    useSws(other.useSws),
+    swsFullRange(other.swsFullRange),
+    swsFlags(other.swsFlags),
+    swsColorSpace(other.swsColorSpace),
+    swsInputFormat(other.swsInputFormat),
+    swsOutputFormat(other.swsOutputFormat),
+#endif
     fromEndian(other.fromEndian),
     toEndian(other.toEndian),
     xmin(other.xmin),
@@ -8837,6 +8889,10 @@ FrameConvertParameters::FrameConvertParameters(const FrameConvertParameters &oth
 
 FrameConvertParameters::~FrameConvertParameters()
 {
+#ifdef USE_FFMPEG_SWSCALE
+    this->freeSws();
+#endif
+
     this->clearBuffers();
     this->clearDlBuffers();
 
@@ -8858,6 +8914,15 @@ FrameConvertParameters &FrameConvertParameters::operator =(const FrameConvertPar
         this->alphaMode = other.alphaMode;
         this->resizeMode = other.resizeMode;
         this->fastConvertion = other.fastConvertion;
+#ifdef USE_FFMPEG_SWSCALE
+        this->freeSws();
+        this->useSws = other.useSws;
+        this->swsFullRange = other.swsFullRange;
+        this->swsFlags = other.swsFlags;
+        this->swsColorSpace = other.swsColorSpace;
+        this->swsInputFormat = other.swsInputFormat;
+        this->swsOutputFormat = other.swsOutputFormat;
+#endif
         this->fromEndian = other.fromEndian;
         this->toEndian = other.toEndian;
         this->xmin = other.xmin;
@@ -9771,6 +9836,202 @@ void FrameConvertParameters::configureScaling(const AkVideoCaps &icaps,
             this->outputConvertCaps.dataSize(this->align) > this->parallelizationThreshold;
 }
 
+#ifdef USE_FFMPEG_SWSCALE
+static AVPixelFormat akFormatToAv(const AkVideoCaps &caps)
+{
+    /* Ak's format names follow FFmpeg's for most formats, the ones that differ
+     * are listed here. Names that don't exist in FFmpeg (or that mean a
+     * different layout) end as AV_PIX_FMT_NONE and the internal converter is
+     * used instead.
+     */
+
+    static const QHash<QString, QString> aliases {
+        {"xrgb"  , "0rgb"    },
+        {"xbgr"  , "0bgr"    },
+        {"rgbx"  , "rgb0"    },
+        {"bgrx"  , "bgr0"    },
+        {"y8"    , "gray"    },
+        {"y9be"  , "gray9be" },
+        {"y9le"  , "gray9le" },
+        {"y10be" , "gray10be"},
+        {"y10le" , "gray10le"},
+        {"y12be" , "gray12be"},
+        {"y12le" , "gray12le"},
+        {"y14be" , "gray14be"},
+        {"y14le" , "gray14le"},
+        {"y16be" , "gray16be"},
+        {"y16le" , "gray16le"},
+        {"y32be" , "gray32be"},
+        {"y32le" , "gray32le"},
+        {"ya88"  , "ya8"     },
+    };
+
+    auto format = caps.format();
+
+    if (format == AkVideoCaps::Format_none)
+        return AV_PIX_FMT_NONE;
+
+    auto name = AkVideoCaps::pixelFormatToString(format);
+    name = aliases.value(name, name);
+    auto avFormat = av_get_pix_fmt(name.toLatin1().constData());
+
+    if (avFormat == AV_PIX_FMT_NONE)
+        return AV_PIX_FMT_NONE;
+
+    // Sanity check: the layouts must at least agree in planes and bits.
+
+    auto desc = av_pix_fmt_desc_get(avFormat);
+    auto specs = AkVideoCaps::formatSpecs(format);
+
+    if (!desc
+        || (desc->flags & (AV_PIX_FMT_FLAG_PAL | AV_PIX_FMT_FLAG_BITSTREAM))
+        || size_t(av_pix_fmt_count_planes(avFormat)) != specs.planes()
+        || av_get_bits_per_pixel(desc) != specs.bpp())
+        return AV_PIX_FMT_NONE;
+
+    return avFormat;
+}
+
+void FrameConvertParameters::configureSws(const AkVideoCaps &icaps,
+                                          AkColorConvert::YuvColorSpace yuvColorSpace,
+                                          AkColorConvert::YuvColorSpaceType yuvColorSpaceType,
+                                          AkVideoConverter::ScalingMode scalingMode,
+                                          AkVideoConverter::AspectRatioMode aspectRatioMode,
+                                          const QRect &inputRect)
+{
+    this->freeSws();
+    this->useSws = false;
+
+    /* Only the plain "resize + convert" case is delegated to libswscale. The
+     * crop rect, keep/fit/expanding modes and other YUV color spaces are
+     * handled by the internal converter.
+     */
+
+    if (aspectRatioMode != AkVideoConverter::AspectRatioMode_Ignore
+        || !inputRect.isEmpty())
+        return;
+
+    switch (yuvColorSpace) {
+    case AkColorConvert::YuvColorSpace_ITUR_BT601:
+        this->swsColorSpace = SWS_CS_ITU601;
+
+        break;
+    case AkColorConvert::YuvColorSpace_ITUR_BT709:
+        this->swsColorSpace = SWS_CS_ITU709;
+
+        break;
+    case AkColorConvert::YuvColorSpace_ITUR_BT2020:
+        this->swsColorSpace = SWS_CS_BT2020;
+
+        break;
+    case AkColorConvert::YuvColorSpace_SMPTE_240M:
+        this->swsColorSpace = SWS_CS_SMPTE240M;
+
+        break;
+    default: // YuvColorSpace_AVG has no libswscale equivalent.
+        return;
+    }
+
+    if (this->outputConvertCaps.width() < 1
+        || this->outputConvertCaps.height() < 1)
+        return;
+
+    this->swsInputFormat = akFormatToAv(icaps);
+    this->swsOutputFormat = akFormatToAv(this->outputConvertCaps);
+
+    if (this->swsInputFormat == AV_PIX_FMT_NONE
+        || this->swsOutputFormat == AV_PIX_FMT_NONE
+        || !sws_isSupportedInput(this->swsInputFormat)
+        || !sws_isSupportedOutput(this->swsOutputFormat))
+        return;
+
+    for (auto format: {this->swsInputFormat, this->swsOutputFormat}) {
+        auto desc = av_pix_fmt_desc_get(format);
+
+        if (!desc || (desc->flags & AV_PIX_FMT_FLAG_PAL))
+            return;
+    }
+
+    this->swsFlags = scalingMode == AkVideoConverter::ScalingMode_Linear?
+                         SWS_BILINEAR:
+                         SWS_POINT;
+    this->swsFullRange =
+            yuvColorSpaceType != AkColorConvert::YuvColorSpaceType_StudioSwing;
+    this->useSws = true;
+}
+
+void FrameConvertParameters::freeSws()
+{
+    if (this->swsContext) {
+        sws_freeContext(this->swsContext);
+        this->swsContext = nullptr;
+    }
+}
+
+bool FrameConvertParameters::convertSws(const AkVideoPacket &src)
+{
+    auto &icaps = src.caps();
+
+    if (!this->swsContext) {
+        this->swsContext = sws_getContext(icaps.width(),
+                                          icaps.height(),
+                                          this->swsInputFormat,
+                                          this->outputConvertCaps.width(),
+                                          this->outputConvertCaps.height(),
+                                          this->swsOutputFormat,
+                                          this->swsFlags,
+                                          nullptr,
+                                          nullptr,
+                                          nullptr);
+
+        if (!this->swsContext) {
+            this->useSws = false;
+
+            return false;
+        }
+
+        auto coefficients = sws_getCoefficients(this->swsColorSpace);
+        int range = this->swsFullRange? 1: 0;
+        sws_setColorspaceDetails(this->swsContext,
+                                 coefficients,
+                                 range,
+                                 coefficients,
+                                 range,
+                                 0,
+                                 1 << 16,
+                                 1 << 16);
+    }
+
+    const uint8_t *srcData[4] {};
+    int srcLineSize[4] {};
+    uint8_t *dstData[4] {};
+    int dstLineSize[4] {};
+
+    auto nSrcPlanes = qMin(av_pix_fmt_count_planes(this->swsInputFormat), 4);
+    auto nDstPlanes = qMin(av_pix_fmt_count_planes(this->swsOutputFormat), 4);
+
+    for (int i = 0; i < nSrcPlanes; ++i) {
+        srcData[i] = src.constLine(i, 0);
+        srcLineSize[i] = int(src.lineSize(i));
+    }
+
+    for (int i = 0; i < nDstPlanes; ++i) {
+        dstData[i] = this->outputFrame.line(i, 0);
+        dstLineSize[i] = int(this->outputFrame.lineSize(i));
+    }
+
+    auto result = sws_scale(this->swsContext,
+                            srcData,
+                            srcLineSize,
+                            0,
+                            icaps.height(),
+                            dstData,
+                            dstLineSize);
+
+    return result == this->outputConvertCaps.height();
+}
+#endif
+
 void FrameConvertParameters::reset()
 {
     this->inputCaps = AkVideoCaps();
@@ -9784,6 +10045,16 @@ void FrameConvertParameters::reset()
     this->alphaMode = ConvertAlphaMode_AI_AO;
     this->resizeMode = ResizeMode_Keep;
     this->fastConvertion = false;
+
+#ifdef USE_FFMPEG_SWSCALE
+    this->freeSws();
+    this->useSws = false;
+    this->swsFullRange = false;
+    this->swsFlags = 0;
+    this->swsColorSpace = SWS_CS_DEFAULT;
+    this->swsInputFormat = AV_PIX_FMT_NONE;
+    this->swsOutputFormat = AV_PIX_FMT_NONE;
+#endif
 
     this->fromEndian = Q_BYTE_ORDER;
     this->toEndian = Q_BYTE_ORDER;

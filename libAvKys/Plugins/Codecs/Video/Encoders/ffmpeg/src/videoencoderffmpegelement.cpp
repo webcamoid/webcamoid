@@ -698,9 +698,7 @@ bool VideoEncoderFFmpegElementPrivate::isAvailable(const QString &codec) const
         AVBufferRef *hw_device_ctx = nullptr;
         auto codecLower = codec.toLower();
 
-        if (codecLower.contains("_amf"))
-            av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_AMF, nullptr, nullptr, 0);
-        else if (codecLower.contains("_mediacodec"))
+        if (codecLower.contains("_mediacodec"))
             av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_MEDIACODEC, nullptr, nullptr, 0);
         else if (codecLower.contains("_mf"))
             av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_D3D11VA, nullptr, nullptr, 0);
@@ -714,6 +712,10 @@ bool VideoEncoderFFmpegElementPrivate::isAvailable(const QString &codec) const
             av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_VIDEOTOOLBOX, nullptr, nullptr, 0);
         else if (codecLower.contains("_vulkan"))
             av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_VULKAN, nullptr, nullptr, 0);
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(59, 56, 100)
+        else if (codecLower.contains("_amf"))
+            av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_AMF, nullptr, nullptr, 0);
+#endif
 
         if (hw_device_ctx)
             context->hw_device_ctx = av_buffer_ref(hw_device_ctx);
@@ -1377,9 +1379,7 @@ bool VideoEncoderFFmpegElementPrivate::init()
     AVBufferRef *hw_frames_ctx = nullptr;
     bool isPureHardware = false;
 
-    if (codecLower.contains("_amf"))
-        av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_AMF, nullptr, nullptr, 0);
-    else if (codecLower.contains("_mediacodec"))
+    if (codecLower.contains("_mediacodec"))
         av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_MEDIACODEC, nullptr, nullptr, 0);
     else if (codecLower.contains("_mf"))
         av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_D3D11VA, nullptr, nullptr, 0);
@@ -1396,6 +1396,10 @@ bool VideoEncoderFFmpegElementPrivate::init()
         av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_VULKAN, nullptr, nullptr, 0);
         isPureHardware = true;
     }
+#if LIBAVUTIL_VERSION_INT >= AV_VERSION_INT(59, 56, 100)
+    else if (codecLower.contains("_amf"))
+        av_hwdevice_ctx_create(&hw_device_ctx, AV_HWDEVICE_TYPE_AMF, nullptr, nullptr, 0);
+#endif
 
     if (hw_device_ctx) {
         this->m_context->hw_device_ctx = av_buffer_ref(hw_device_ctx);
