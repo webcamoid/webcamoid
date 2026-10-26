@@ -1186,17 +1186,22 @@
 <context>
     <name>LayoutEditorDialog</name>
     <message>
-        <location filename="../qml/LayoutEditorDialog.qml" line="94"/>
+        <location filename="../qml/LayoutEditorDialog.qml" line="95"/>
         <source>Source %1</source>
         <translation>Quelle %1</translation>
     </message>
     <message>
-        <location filename="../qml/LayoutEditorDialog.qml" line="234"/>
+        <location filename="../qml/LayoutEditorDialog.qml" line="235"/>
         <source>Source</source>
         <translation>Quelle</translation>
     </message>
     <message>
-        <location filename="../qml/LayoutEditorDialog.qml" line="264"/>
+        <location filename="../qml/LayoutEditorDialog.qml" line="265"/>
+        <source>Reset</source>
+        <translation type="unfinished">Zurücksetzen</translation>
+    </message>
+    <message>
+        <location filename="../qml/LayoutEditorDialog.qml" line="280"/>
         <source>Close</source>
         <translation>Schließen</translation>
     </message>
@@ -2803,22 +2808,22 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/WindowsVirtualCamera.qml" line="53"/>
+        <location filename="../qml/WindowsVirtualCamera.qml" line="54"/>
         <source>In Windows, you can use the network camera as any other system camera, for doing so, follow the next steps.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/WindowsVirtualCamera.qml" line="59"/>
+        <location filename="../qml/WindowsVirtualCamera.qml" line="60"/>
         <source>&lt;b&gt;Windows 11&lt;/b&gt;: Go to Settings &gt; Bluetooth &amp; devices &gt; Cameras. It will start searching for the local network cameras, select Search for cameras, then select Webcamoid&apos;s network camera.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/WindowsVirtualCamera.qml" line="65"/>
+        <location filename="../qml/WindowsVirtualCamera.qml" line="66"/>
         <source>&lt;b&gt;Windows 10&lt;/b&gt;: Go to Settings &gt; Devices &gt; Bluetooth &amp; other devices. Select Add Bluetooth or other device. In the Add a device popup, select Everything else. Wait for discovery to complete, then select Webcamoid&apos;s network camera.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/WindowsVirtualCamera.qml" line="72"/>
+        <location filename="../qml/WindowsVirtualCamera.qml" line="73"/>
         <source>For more information you can read &lt;a href=&quot;https://learn.microsoft.com/en-us/windows-hardware/drivers/stream/network-cameras&quot;&gt;Microsoft&apos;s network cameras documentation&lt;/a&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4714,150 +4719,150 @@
         <translation>Normalisieren</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="69"/>
+        <location filename="../qml/main.qml" line="70"/>
         <source>Daily Build</source>
         <translation>Täglicher Build</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="83"/>
+        <location filename="../qml/main.qml" line="84"/>
         <source>%1/Picture %2.%3</source>
         <translation>%1/Bild %2.%3</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="172"/>
+        <location filename="../qml/main.qml" line="173"/>
         <source>Creating &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
         <translation>&lt;b&gt;%1&lt;/b&gt; virtuelle Kamera erstellen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="182"/>
+        <location filename="../qml/main.qml" line="183"/>
         <source>Editing &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
         <translation>&lt;b&gt;%1&lt;/b&gt; virtuelle Kamera bearbeiten</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="192"/>
+        <location filename="../qml/main.qml" line="193"/>
         <source>Removing &lt;b&gt;%1&lt;/b&gt; virtual camera</source>
         <translation>&lt;b&gt;%1&lt;/b&gt; virtuelle Kamera entfernen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="322"/>
+        <location filename="../qml/main.qml" line="375"/>
         <source>Main menu</source>
         <translation>Hauptmenü</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="328"/>
+        <location filename="../qml/main.qml" line="381"/>
         <source>Open main menu</source>
         <translation>Hauptmenü öffnen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="358"/>
+        <location filename="../qml/main.qml" line="411"/>
         <source>Start streaming</source>
         <translation>Streaming starten</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="358"/>
+        <location filename="../qml/main.qml" line="411"/>
         <source>Stop streaming</source>
         <translation>Streaming stoppen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="363"/>
+        <location filename="../qml/main.qml" line="416"/>
         <source>You must add at least one streaming platform to the video outputs</source>
         <translation>Sie müssen mindestens eine Streaming-Plattform zu den Videoausgängen hinzufügen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="365"/>
+        <location filename="../qml/main.qml" line="418"/>
         <source>The following platforms are not configured:&lt;br/&gt;&lt;br/&gt;%1</source>
         <translation>Die folgenden Plattformen sind nicht konfiguriert:&lt;br/&gt;&lt;br/&gt;%1</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="399"/>
+        <location filename="../qml/main.qml" line="452"/>
         <source>Capture options</source>
         <translation>Aufnahmemöglichkeiten</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="405"/>
+        <location filename="../qml/main.qml" line="458"/>
         <source>Open capture options menu</source>
         <translation>Menü für Aufnahmemöglichkeiten öffnen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="436"/>
+        <location filename="../qml/main.qml" line="489"/>
         <source>Open last photo</source>
         <translation>Letztes Foto öffnen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="447"/>
+        <location filename="../qml/main.qml" line="500"/>
         <source>Open last photo taken</source>
         <translation>Letztes aufgenommenes Foto öffnen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="472"/>
-        <location filename="../qml/main.qml" line="475"/>
+        <location filename="../qml/main.qml" line="525"/>
+        <location filename="../qml/main.qml" line="528"/>
         <source>Take a photo</source>
         <translation>Foto aufnehmen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="476"/>
+        <location filename="../qml/main.qml" line="529"/>
         <source>Image capture mode</source>
         <translation>Bildaufnahmemodus</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="479"/>
+        <location filename="../qml/main.qml" line="532"/>
         <source>Make a capture and save it to an image file</source>
         <translation>Aufnahme machen und als Bilddatei speichern</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="480"/>
+        <location filename="../qml/main.qml" line="533"/>
         <source>Put %1 in image capture mode</source>
         <translation>%1 in Bildaufnahmemodus versetzen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="529"/>
-        <location filename="../qml/main.qml" line="535"/>
+        <location filename="../qml/main.qml" line="582"/>
+        <location filename="../qml/main.qml" line="588"/>
         <source>Record video</source>
         <translation>Video aufzeichnen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="530"/>
-        <location filename="../qml/main.qml" line="536"/>
+        <location filename="../qml/main.qml" line="583"/>
+        <location filename="../qml/main.qml" line="589"/>
         <source>Stop video recording</source>
         <translation>Videoaufzeichnung stoppen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="533"/>
+        <location filename="../qml/main.qml" line="586"/>
         <source>Video capture mode</source>
         <translation>Videoaufnahmemodus</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="539"/>
+        <location filename="../qml/main.qml" line="592"/>
         <source>Put %1 in video recording mode</source>
         <translation>%1 in Videoaufzeichnungsmodus versetzen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="541"/>
+        <location filename="../qml/main.qml" line="594"/>
         <source>Start recording to a video file</source>
         <translation>Aufzeichnung in Videodatei starten</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="542"/>
+        <location filename="../qml/main.qml" line="595"/>
         <source>Stop current video recording</source>
         <translation>Aktuelle Videoaufzeichnung stoppen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="586"/>
+        <location filename="../qml/main.qml" line="639"/>
         <source>Open last video</source>
         <translation>Letztes Video öffnen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="598"/>
+        <location filename="../qml/main.qml" line="651"/>
         <source>Open last recorded video</source>
         <translation>Letztes aufgezeichnetes Video öffnen</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="849"/>
+        <location filename="../qml/main.qml" line="902"/>
         <source>Installing virtual camera</source>
         <translation>Virtuelle Kamera wird installiert</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="850"/>
+        <location filename="../qml/main.qml" line="903"/>
         <source>Running commands</source>
         <translation>Befehle werden ausgeführt</translation>
     </message>

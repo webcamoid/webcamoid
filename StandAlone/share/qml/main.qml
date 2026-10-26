@@ -21,6 +21,7 @@ import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Shapes
 import Ak
 import AkControls as AK
 import Webcamoid
@@ -254,6 +255,58 @@ ApplicationWindow {
         anchors.fill: parent
 
         onFpsUpdated: (fps) => wdgMainWidget.renderingFPS = fps
+    }
+    Item {
+        id: canvasFrame
+        anchors.fill: videoDisplay
+
+        readonly property real lineWidth: AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
+        readonly property var canvasCaps: AkVideoCaps.create(videoEffects.canvasCaps)
+        readonly property real fitScale: canvasCaps.width > 0 && canvasCaps.height > 0?
+                                             Math.min(width / canvasCaps.width,
+                                                      height / canvasCaps.height):
+                                             0
+        readonly property real frameW: Math.round(canvasCaps.width * fitScale + lineWidth)
+        readonly property real frameH: Math.round(canvasCaps.height * fitScale + lineWidth)
+        readonly property real frameX: Math.round((width - frameW) / 2)
+        readonly property real frameY: Math.round((height - frameH) / 2)
+
+        readonly property color strokeColor: AkTheme.constShade(AkTheme.palette.active.windowText, 0, 0.5)
+        readonly property color fillColor: AkTheme.constShade(AkTheme.palette.active.window, 0, 0.5)
+
+        Shape {
+            anchors.fill: parent
+            layer.enabled: true
+            layer.samples: 4
+
+            ShapePath {
+                strokeColor: canvasFrame.fillColor
+                strokeWidth: canvasFrame.lineWidth
+                fillColor: "transparent"
+                startX: canvasFrame.frameX
+                startY: canvasFrame.frameY
+
+                PathLine { x: canvasFrame.frameX + canvasFrame.frameW; y: canvasFrame.frameY }
+                PathLine { x: canvasFrame.frameX + canvasFrame.frameW; y: canvasFrame.frameY + canvasFrame.frameH }
+                PathLine { x: canvasFrame.frameX; y: canvasFrame.frameY + canvasFrame.frameH }
+                PathLine { x: canvasFrame.frameX; y: canvasFrame.frameY }
+            }
+
+            ShapePath {
+                strokeColor: canvasFrame.strokeColor
+                strokeWidth: canvasFrame.lineWidth
+                strokeStyle: ShapePath.DashLine
+                dashPattern: [4, 4]
+                fillColor: "transparent"
+                startX: canvasFrame.frameX
+                startY: canvasFrame.frameY
+
+                PathLine { x: canvasFrame.frameX + canvasFrame.frameW; y: canvasFrame.frameY }
+                PathLine { x: canvasFrame.frameX + canvasFrame.frameW; y: canvasFrame.frameY + canvasFrame.frameH }
+                PathLine { x: canvasFrame.frameX; y: canvasFrame.frameY + canvasFrame.frameH }
+                PathLine { x: canvasFrame.frameX; y: canvasFrame.frameY }
+            }
+        }
     }
     Image {
         id: photoPreviewThumbnail

@@ -20,6 +20,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Shapes
 import Ak
 import AkControls as AK
 import Webcamoid
@@ -261,11 +262,28 @@ Dialog {
                 }
 
                 ToolButton {
+                    text: qsTr("Reset")
+                    icon.source: "image://icons/reset"
+                    display: AbstractButton.IconOnly
+                    implicitWidth: implicitHeight
+                    ToolTip.visible: hovered
+                    ToolTip.text: text
+
+                    onClicked: {
+                        videoLayer.setSourceRect(layoutEditor.selectedSourceId,
+                                                 Qt.rect(0, 0, 1, 1))
+                        videoLayer.setSourceRotation(layoutEditor.selectedSourceId, 0)
+                    }
+                }
+
+                ToolButton {
                     text: qsTr("Close")
                     icon.source: "image://icons/no"
                     display: AbstractButton.IconOnly
+                    implicitWidth: implicitHeight
                     ToolTip.visible: hovered
                     ToolTip.text: text
+
                     onClicked: layoutEditor.close()
                 }
             }
@@ -283,6 +301,50 @@ Dialog {
                 visible: videoLayer.state == AkElement.ElementStatePlaying
                 anchors.fill: parent
                 smooth: true
+            }
+
+            Shape {
+                id: canvasFrame
+                anchors.fill: parent
+                layer.enabled: true
+                layer.samples: 4
+
+                readonly property real lineWidth: AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
+                readonly property real frameX: Math.round(layoutEditor.canvasRect.x + lineWidth / 2)
+                readonly property real frameY: Math.round(layoutEditor.canvasRect.y + lineWidth / 2)
+                readonly property real frameW: Math.round(layoutEditor.canvasRect.width - lineWidth)
+                readonly property real frameH: Math.round(layoutEditor.canvasRect.height - lineWidth)
+
+                readonly property color strokeColor: AkTheme.constShade(AkTheme.palette.active.windowText, 0, 0.5)
+                readonly property color fillColor: AkTheme.constShade(AkTheme.palette.active.window, 0, 0.5)
+
+                ShapePath {
+                    strokeColor: canvasFrame.fillColor
+                    strokeWidth: canvasFrame.lineWidth
+                    fillColor: "transparent"
+                    startX: canvasFrame.frameX
+                    startY: canvasFrame.frameY
+
+                    PathLine { x: canvasFrame.frameX + canvasFrame.frameW; y: canvasFrame.frameY }
+                    PathLine { x: canvasFrame.frameX + canvasFrame.frameW; y: canvasFrame.frameY + canvasFrame.frameH }
+                    PathLine { x: canvasFrame.frameX; y: canvasFrame.frameY + canvasFrame.frameH }
+                    PathLine { x: canvasFrame.frameX; y: canvasFrame.frameY }
+                }
+
+                ShapePath {
+                    strokeColor: canvasFrame.strokeColor
+                    strokeWidth: canvasFrame.lineWidth
+                    strokeStyle: ShapePath.DashLine
+                    dashPattern: [4, 4]
+                    fillColor: "transparent"
+                    startX: canvasFrame.frameX
+                    startY: canvasFrame.frameY
+
+                    PathLine { x: canvasFrame.frameX + canvasFrame.frameW; y: canvasFrame.frameY }
+                    PathLine { x: canvasFrame.frameX + canvasFrame.frameW; y: canvasFrame.frameY + canvasFrame.frameH }
+                    PathLine { x: canvasFrame.frameX; y: canvasFrame.frameY + canvasFrame.frameH }
+                    PathLine { x: canvasFrame.frameX; y: canvasFrame.frameY }
+                }
             }
 
             Repeater {
@@ -331,8 +393,12 @@ Dialog {
                         width: delegateRoot.pxW
                         height: delegateRoot.pxH
                         color: "transparent"
-                        border.color: delegateRoot.isSelected ? AkTheme.palette.active.highlight : AkTheme.palette.active.windowText
-                        border.width: delegateRoot.isSelected ? AkUnit.create(2 * AkTheme.controlScale, "dp").pixels : AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
+                        border.color: delegateRoot.isSelected?
+                                        AkTheme.palette.active.highlight:
+                                        AkTheme.palette.active.windowText
+                        border.width: delegateRoot.isSelected?
+                                        AkUnit.create(2 * AkTheme.controlScale, "dp").pixels:
+                                        AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
                         opacity: delegateRoot.isSelected ? 1 : 0.5
                         rotation: delegateRoot.normRotation
                         transformOrigin: Item.Center
@@ -341,7 +407,9 @@ Dialog {
                             id: moveArea
                             anchors.fill: parent
                             anchors.margins: delegateRoot.handleSize / 2
-                            cursorShape: drag.active ? Qt.ClosedHandCursor : Qt.OpenHandCursor
+                            cursorShape: drag.active?
+                                            Qt.ClosedHandCursor:
+                                            Qt.OpenHandCursor
                             drag.target: moveProxy
                             drag.threshold: 0
                             enabled: delegateRoot.isSelected

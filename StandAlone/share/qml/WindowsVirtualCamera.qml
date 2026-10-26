@@ -46,6 +46,7 @@ Dialog {
         property int bottomMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
 
         ColumnLayout {
+            id: dialogLayout
             width: scrollView.width
             clip: true
 
