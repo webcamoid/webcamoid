@@ -29,7 +29,7 @@ import Webcamoid
 
 Dialog {
     id: root
-    title: qsTr("ONVIF local server advanced options")
+    title: qsTr("Network camera advanced options")
     standardButtons: Dialog.Close
     width: physicalWidth <= 100 || physicalHeight <= 100?
                wdgMainWidget.width: wdgMainWidget.width * 0.5

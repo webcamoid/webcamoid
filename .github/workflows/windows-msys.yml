@@ -46,7 +46,6 @@ jobs:
           mingw-w64-${{ matrix.target_arch }}-ccache
           mingw-w64-${{ matrix.target_arch }}-clang
           mingw-w64-${{ matrix.target_arch }}-cmake
-          mingw-w64-${{ matrix.target_arch }}-cppwinrt
           mingw-w64-${{ matrix.target_arch }}-ffmpeg
           mingw-w64-${{ matrix.target_arch }}-ninja
           mingw-w64-${{ matrix.target_arch }}-pkgconf
@@ -69,7 +68,6 @@ jobs:
           mingw-w64-${{ matrix.target_arch }}-ccache
           mingw-w64-${{ matrix.target_arch }}-clang
           mingw-w64-${{ matrix.target_arch }}-cmake
-          mingw-w64-${{ matrix.target_arch }}-cppwinrt
           mingw-w64-${{ matrix.target_arch }}-ffmpeg
           mingw-w64-${{ matrix.target_arch }}-ninja
           mingw-w64-${{ matrix.target_arch }}-pkgconf

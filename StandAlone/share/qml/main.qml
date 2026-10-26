@@ -709,6 +709,7 @@ ApplicationWindow {
             videoEffectsDialog.open()
         }
         onOpenLocalStreamingAdvancedDialog: localStreamingAdvanced.open()
+        onOpenWindowsVirtualCameraDialog: windowsVirtualCamera.open()
         onEnterEditLayoutMode: layoutEditorDialog.open()
     }
     Rectangle {
@@ -917,6 +918,11 @@ ApplicationWindow {
     }
     LocalStreamingAdvanced {
         id: localStreamingAdvanced
+        width: parent.width
+        height: parent.height
+    }
+    WindowsVirtualCamera {
+        id: windowsVirtualCamera
         width: parent.width
         height: parent.height
     }

@@ -135,7 +135,7 @@ ScrollView {
                     onClicked: addStreamingPlatformDialog.open()
                 }
                 MenuItem {
-                    text: qsTr("Add ONVIF local server")
+                    text: qsTr("Add network camera")
                     icon.source: "image://icons/broadcast"
                     height: localStreaming.isLocalStreamingSupported
                             && localStreaming.location.length < 1? undefined: 0
@@ -194,7 +194,7 @@ ScrollView {
 
                     if (component.status === Component.Ready) {
                         let obj = component.createObject(devicesList)
-                        obj.text = qsTr("ONVIF local server")
+                        obj.text = qsTr("Network camera")
                         obj.location = localStreaming.location
                         devicesList.minHeight += obj.height
 

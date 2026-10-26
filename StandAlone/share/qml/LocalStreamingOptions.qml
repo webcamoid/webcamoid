@@ -33,6 +33,7 @@ ScrollView {
 
     signal removed()
     signal openLocalStreamingAdvancedDialog()
+    signal openWindowsVirtualCameraDialog()
 
     // Copies the text to the clipboard.
     function copyToClipboard(text)
@@ -58,11 +59,25 @@ ScrollView {
             icon.source: "image://icons/no"
             flat: true
             Layout.leftMargin: view.leftMargin
+            Layout.rightMargin: view.rightMargin
 
             onClicked: {
                 localStreaming.location = ""
                 view.removed()
             }
+        }
+
+        Button {
+            text: qsTr("Use as virtual camera")
+            highlighted: true
+            icon.source: "image://icons/webcam"
+            visible: Ak.platform() == "windows"
+            Layout.fillWidth: true
+            Layout.leftMargin: view.leftMargin
+            Layout.rightMargin: view.rightMargin
+            Accessible.description: qsTr("Use the network camera as a virtual camera")
+
+            onClicked: view.openWindowsVirtualCameraDialog()
         }
 
         // Ports

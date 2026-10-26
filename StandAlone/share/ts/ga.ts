@@ -1236,6 +1236,11 @@
 <context>
     <name>LocalStreamingAdvanced</name>
     <message>
+        <location filename="../qml/LocalStreamingAdvanced.qml" line="32"/>
+        <source>Network camera advanced options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <location filename="../qml/LocalStreamingAdvanced.qml" line="67"/>
         <source>Placeholder</source>
         <translation type="unfinished"></translation>
@@ -1290,74 +1295,79 @@
         <source>All files (*)</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <location filename="../qml/LocalStreamingAdvanced.qml" line="32"/>
-        <source>ONVIF local server advanced options</source>
-        <translation type="unfinished"></translation>
-    </message>
 </context>
 <context>
     <name>LocalStreamingOptions</name>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="57"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="58"/>
         <source>Remove</source>
         <translation type="unfinished">Bain</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="79"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="71"/>
+        <source>Use as virtual camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingOptions.qml" line="78"/>
+        <source>Use the network camera as a virtual camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/LocalStreamingOptions.qml" line="94"/>
         <source>HTTP port</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="106"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="121"/>
         <source>RTSP port</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="134"/>
-        <location filename="../qml/LocalStreamingOptions.qml" line="151"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="149"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="166"/>
         <source>Resource name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="174"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="189"/>
         <source>Enable authentication</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="191"/>
-        <location filename="../qml/LocalStreamingOptions.qml" line="204"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="206"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="219"/>
         <source>User</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="222"/>
-        <location filename="../qml/LocalStreamingOptions.qml" line="235"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="237"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="250"/>
         <source>Password</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="256"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="271"/>
         <source>Streaming URL</source>
         <translation type="unfinished">URL sruthaithe</translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="275"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="290"/>
         <source>Open URL in the webbrowser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="282"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="297"/>
         <source>Copy</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="294"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="309"/>
         <source>Copy the URL to the clipboard</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/LocalStreamingOptions.qml" line="302"/>
+        <location filename="../qml/LocalStreamingOptions.qml" line="317"/>
         <source>Advanced options</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1414,7 +1424,7 @@
     </message>
     <message>
         <location filename="../qml/MainPanel.qml" line="41"/>
-        <source>ONVIF local server Options</source>
+        <source>Network Camera Options</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2642,12 +2652,12 @@
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="138"/>
-        <source>Add ONVIF local server</source>
+        <source>Add network camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/VideoOutputs.qml" line="197"/>
-        <source>ONVIF local server</source>
+        <source>Network camera</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2784,6 +2794,34 @@
         <location filename="../../src/virtualcameras.cpp" line="452"/>
         <source>Virtual Camera</source>
         <translation>Ceamara Fíorúil</translation>
+    </message>
+</context>
+<context>
+    <name>WindowsVirtualCamera</name>
+    <message>
+        <location filename="../qml/WindowsVirtualCamera.qml" line="32"/>
+        <source>Using as virtual camera</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/WindowsVirtualCamera.qml" line="53"/>
+        <source>In Windows, you can use the network camera as any other system camera, for doing so, follow the next steps.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/WindowsVirtualCamera.qml" line="59"/>
+        <source>&lt;b&gt;Windows 11&lt;/b&gt;: Go to Settings &gt; Bluetooth &amp; devices &gt; Cameras. It will start searching for the local network cameras, select Search for cameras, then select Webcamoid&apos;s network camera.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/WindowsVirtualCamera.qml" line="65"/>
+        <source>&lt;b&gt;Windows 10&lt;/b&gt;: Go to Settings &gt; Devices &gt; Bluetooth &amp; other devices. Select Add Bluetooth or other device. In the Add a device popup, select Everything else. Wait for discovery to complete, then select Webcamoid&apos;s network camera.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/WindowsVirtualCamera.qml" line="72"/>
+        <source>For more information you can read &lt;a href=&quot;https://learn.microsoft.com/en-us/windows-hardware/drivers/stream/network-cameras&quot;&gt;Microsoft&apos;s network cameras documentation&lt;/a&gt;</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4835,12 +4873,12 @@
         <translation>Oscail an físeán deireanach a taifeadadh</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="848"/>
+        <location filename="../qml/main.qml" line="849"/>
         <source>Installing virtual camera</source>
         <translation>Ag suiteáil ceamara fíorúil</translation>
     </message>
     <message>
-        <location filename="../qml/main.qml" line="849"/>
+        <location filename="../qml/main.qml" line="850"/>
         <source>Running commands</source>
         <translation>Ag rith orduithe</translation>
     </message>

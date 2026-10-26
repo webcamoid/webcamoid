@@ -85,6 +85,7 @@
         <file>share/qml/VirtualCameraInstallDialog.qml</file>
         <file>share/qml/VirtualCameraOptions.qml</file>
         <file>share/qml/VirtualCameraUpdateDialog.qml</file>
+        <file>share/qml/WindowsVirtualCamera.qml</file>
         <file>share/qml/qmldir</file>
         <file>share/qml/main.qml</file>
     </qresource>

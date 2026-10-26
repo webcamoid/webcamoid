@@ -38,13 +38,14 @@ OptionsPanel {
            layout.currentIndex < 6?
                qsTr("Streaming Platform Options"):
            layout.currentIndex < 7?
-               qsTr("ONVIF local server Options"):
+               qsTr("Network Camera Options"):
                qsTr("%1 options").arg(effectOptions.effectDescription)
     edge: Qt.RightEdge
 
     signal openErrorDialog(string title, string message)
     signal openVideoEffectsDialog(int sourceId)
     signal openLocalStreamingAdvancedDialog()
+    signal openWindowsVirtualCameraDialog()
     signal enterEditLayoutMode()
 
     function previousPage()
@@ -223,6 +224,8 @@ OptionsPanel {
             onRemoved: closeOption()
             onOpenLocalStreamingAdvancedDialog:
                 panel.openLocalStreamingAdvancedDialog()
+            onOpenWindowsVirtualCameraDialog:
+                panel.openWindowsVirtualCameraDialog()
         }
         VideoEffectOptions {
             id: effectOptions
