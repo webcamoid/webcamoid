@@ -65,10 +65,7 @@ T.MenuItem {
         height: control.checkable?
                     AkUnit.create(24 * AkTheme.controlScale, "dp").pixels: 0
         anchors.verticalCenter: control.verticalCenter
-        anchors.left: control.rtl? undefined: control.left
-        anchors.leftMargin: control.rtl? 0: control.leftMargin
-        anchors.right: control.rtl? control.right: undefined
-        anchors.rightMargin: control.rtl? control.rightMargin: 0
+        x: control.rtl? control.width - width: 0
         visible: control.checkable && control.checked
 
         AkColorizedImage {
@@ -92,10 +89,7 @@ T.MenuItem {
         width: visible? AkUnit.create(24 * AkTheme.controlScale, "dp").pixels: 0
         height: visible? AkUnit.create(24 * AkTheme.controlScale, "dp").pixels: 0
         anchors.verticalCenter: control.verticalCenter
-        anchors.left: control.rtl? control.left: undefined
-        anchors.leftMargin: control.rtl? control.leftMargin: 0
-        anchors.right: control.rtl? undefined: control.right
-        anchors.rightMargin: control.rtl? 0: control.rightMargin
+        x: control.rtl? 0: control.width - width
         visible: control.subMenu
 
         AkColorizedImage {

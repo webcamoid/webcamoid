@@ -114,6 +114,11 @@ class MediaTools: public QObject
                WRITE setShowFps
                RESET resetShowFps
                NOTIFY showFpsChanged)
+    Q_PROPERTY(QString language
+               READ language
+               WRITE setLanguage
+               RESET resetLanguage
+               NOTIFY languageChanged)
 
     public:
         enum AdType {
@@ -169,6 +174,8 @@ class MediaTools: public QObject
         Q_INVOKABLE bool singleInstance() const;
         Q_INVOKABLE bool hideControlsOnPointerOut() const;
         Q_INVOKABLE bool showFps() const;
+        Q_INVOKABLE QString language() const;
+        Q_INVOKABLE QVariantList availableLanguages() const;
 
     private:
         MediaToolsPrivate *d;
@@ -185,6 +192,7 @@ class MediaTools: public QObject
         void singleInstanceChanged(bool singleInstance);
         void hideControlsOnPointerOutChanged(bool hideControlsOnPointerOut);
         void showFpsChanged(bool showFps);
+        void languageChanged(const QString &language);
 
     public slots:
         bool init(const CliOptions &cliOptions);
@@ -194,12 +202,14 @@ class MediaTools: public QObject
         void setSingleInstance(bool singleInstance);
         void setHideControlsOnPointerOut(bool hideControlsOnPointerOut);
         void setShowFps(bool showFps);
+        void setLanguage(const QString &language);
         void resetWindowWidth();
         void resetWindowHeight();
         void resetDocumentsDirectory();
         void resetSingleInstance();
         void resetHideControlsOnPointerOut();
         void resetShowFps();
+        void resetLanguage();
         void loadConfigs();
         void saveConfigs();
         void show();

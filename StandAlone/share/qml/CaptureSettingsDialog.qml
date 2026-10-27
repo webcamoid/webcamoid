@@ -81,6 +81,30 @@ Dialog {
 
                 property real delay: 0
 
+                // The rows were created with a fixed text, so refresh it
+                // when the UI language changes. The selection is kept.
+                function retranslateOptions()
+                {
+                    for (let i = 0; i < lstTimeOptions.count; i++) {
+                        let time = lstTimeOptions.get(i).time
+
+                        lstTimeOptions.setProperty(i,
+                                                   "text",
+                                                   time === 0?
+                                                       qsTr("Now"):
+                                                       qsTr("%1 seconds").arg(time))
+                    }
+                }
+
+                Connections {
+                    target: mediaTools
+
+                    function onLanguageChanged()
+                    {
+                        cbxTimeShot.retranslateOptions()
+                    }
+                }
+
                 Component.onCompleted: {
                     for (var i = 5; i < 35; i += 5)
                         lstTimeOptions.append({text: qsTr("%1 seconds").arg(i),

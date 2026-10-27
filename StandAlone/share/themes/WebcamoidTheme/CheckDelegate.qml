@@ -55,10 +55,9 @@ T.CheckDelegate {
 
     indicator: Item {
         id: checkBoxIndicator
-        anchors.left: control.rtl? control.left: undefined
-        anchors.leftMargin: control.rtl? control.leftPadding: 0
-        anchors.right: control.rtl? undefined: control.right
-        anchors.rightMargin: control.rtl? 0: control.rightPadding
+        x: control.rtl?
+               control.leftPadding:
+               control.width - width - control.rightPadding
         anchors.verticalCenter: control.verticalCenter
         implicitWidth:
             AkUnit.create(24 * AkTheme.controlScale, "dp").pixels

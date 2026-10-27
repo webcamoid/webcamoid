@@ -37,6 +37,7 @@ set(LANGUAGES
     da
     de
     el
+    en
     es
     et
     eu

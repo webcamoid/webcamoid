@@ -85,7 +85,6 @@ if [ -e ".local/${appimage}" ]; then
 fi
 
 dnf -y install \
-    ccache \
     clang \
     cmake \
     gcc-c++ \

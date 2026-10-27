@@ -33,7 +33,9 @@
 #include <QSettings>
 #include <QStandardPaths>
 #include <QThread>
+#include <QTranslator>
 #include <QtConcurrent>
+#include <algorithm>
 #include <iostream>
 #include <ak.h>
 #include <akaudiocaps.h>
@@ -148,6 +150,8 @@ class MediaToolsPrivate
         QTime m_lastTimeAdShow;
         bool m_hideControlsOnPointerOut {false};
         bool m_showFps {false};
+        QTranslator m_translator;
+        QString m_language; // Empty means the system language.
         QMap<qint64, qint64> m_videoSourceAudioIds;
         QMap<qint64, QString> m_videoSourceAudioDevices;
         bool m_localStreamingPacketReaderActive {false};
@@ -175,6 +179,8 @@ class MediaToolsPrivate
         void loadLinks();
         void saveLinks(const AkPluginLinks &links);
         bool setupAds();
+        QString translationsPath() const;
+        void applyLanguage();
 
 #if defined(Q_OS_ANDROID) && defined(USE_JNI)
     #ifdef ENABLE_ANDROID_ADS
@@ -200,6 +206,7 @@ MediaTools::MediaTools(QObject *parent):
     QObject(parent)
 {
     this->d = new MediaToolsPrivate(this);
+    this->d->applyLanguage();
 }
 
 MediaTools::~MediaTools()
@@ -757,6 +764,60 @@ bool MediaTools::showFps() const
     return this->d->m_showFps;
 }
 
+QString MediaTools::language() const
+{
+    return this->d->m_language;
+}
+
+QVariantList MediaTools::availableLanguages() const
+{
+    QStringList codes;
+    auto path = this->d->translationsPath();
+
+    if (!path.isEmpty())
+        for (auto &fileName: QDir(path).entryList({"*.qm"}, QDir::Files))
+            codes << QFileInfo(fileName).completeBaseName();
+
+    // The source strings are in English, so there is no en.qm file.
+    if (!codes.contains("en"))
+        codes << "en";
+
+    QList<QPair<QString, QString>> languages; // code, native name
+
+    for (auto &code: codes) {
+        QLocale locale(code);
+        auto name = locale.language() == QLocale::C?
+                        code:
+                        locale.nativeLanguageName();
+
+        if (code.contains('_') && locale.language() != QLocale::C) {
+            auto territory = locale.nativeTerritoryName();
+
+            if (!territory.isEmpty())
+                name += QString(" (%1)").arg(territory);
+        }
+
+        languages << qMakePair(code, name);
+    }
+
+    std::sort(languages.begin(),
+              languages.end(),
+              [] (const QPair<QString, QString> &a,
+                  const QPair<QString, QString> &b) {
+        return a.second.localeAwareCompare(b.second) < 0;
+    });
+
+    QVariantList result;
+
+    for (auto &language: languages)
+        result << QVariantMap {
+            {"code", language.first },
+            {"name", language.second},
+        };
+
+    return result;
+}
+
 bool MediaTools::init(const CliOptions &cliOptions)
 {
     if (!globalMediaToolsLogger.m_mediaTools) {
@@ -1288,6 +1349,27 @@ void MediaTools::setShowFps(bool showFps)
     emit this->showFpsChanged(this->d->m_showFps);
 }
 
+void MediaTools::setLanguage(const QString &language)
+{
+    if (this->d->m_language == language)
+        return;
+
+    this->d->m_language = language;
+
+    QSettings config;
+    config.beginGroup("GeneralConfigs");
+    config.setValue("language", this->d->m_language);
+    config.endGroup();
+
+    this->d->applyLanguage();
+
+    // Re-evaluate every qsTr() binding in the interface.
+    if (this->d->m_engine)
+        this->d->m_engine->retranslate();
+
+    emit this->languageChanged(this->d->m_language);
+}
+
 void MediaTools::resetWindowWidth()
 {
     this->setWindowWidth(0);
@@ -1322,6 +1404,11 @@ void MediaTools::resetHideControlsOnPointerOut()
 void MediaTools::resetShowFps()
 {
     this->setShowFps(false);
+}
+
+void MediaTools::resetLanguage()
+{
+    this->setLanguage({});
 }
 
 void MediaTools::loadConfigs()
@@ -1494,7 +1581,57 @@ MediaToolsPrivate::MediaToolsPrivate(MediaTools *self):
     config.beginGroup("GeneralConfigs");
     this->m_singleInstance = config.value("singleInstance", true).toBool();
     this->m_firstRun = config.value("firstRun", true).toBool();
+    this->m_language = config.value("language").toString();
     config.endGroup();
+}
+
+QString MediaToolsPrivate::translationsPath() const
+{
+#ifdef Q_OS_ANDROID
+    auto dataRootDir = QDir(DATAROOTDIR).absolutePath();
+    auto translationsDir = QDir(TRANSLATIONSDIR).absolutePath();
+    auto relTranslationsDir = QDir(dataRootDir).relativeFilePath(translationsDir);
+
+    return QString("assets:/%1").arg(relTranslationsDir);
+#else
+    auto binDir = QDir(BINDIR).absolutePath();
+    auto translationsDir = QDir(TRANSLATIONSDIR).absolutePath();
+    auto relTranslationsDir = QDir(binDir).relativeFilePath(translationsDir);
+    QDir appDir = QCoreApplication::applicationDirPath();
+
+    if (!appDir.cd(relTranslationsDir))
+        return {};
+
+    auto path = appDir.absolutePath();
+    path.replace("/", QDir::separator());
+
+    return QFileInfo::exists(path)? path: QString();
+#endif
+}
+
+void MediaToolsPrivate::applyLanguage()
+{
+    QCoreApplication::removeTranslator(&this->m_translator);
+
+    auto locale = this->m_language.isEmpty()?
+                      QLocale::system():
+                      QLocale(this->m_language);
+    auto path = this->translationsPath();
+    bool loaded = false;
+
+    // English is the source language, so it has no translation file.
+    if (this->m_language != "en"
+        && !path.isEmpty()
+        && this->m_translator.load(locale.name(), path)) {
+        QCoreApplication::installTranslator(&this->m_translator);
+        loaded = true;
+    }
+
+    auto direction =
+            (loaded || this->m_language.isEmpty())?
+                locale.textDirection():
+                Qt::LeftToRight;
+    qApp->setLayoutDirection(direction);
 }
 
 MediaToolsPrivate::~MediaToolsPrivate()

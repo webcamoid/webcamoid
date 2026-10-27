@@ -178,6 +178,18 @@ Item {
                                               "optionVisible",
                                               p.optionVisible)
                     })
+
+                    // The texts were copied to the model, so they must be
+                    // kept in sync, for example when the UI language changes.
+                    p.titleChanged.connect(function() {
+                        listModel.setProperty(idx, "title", p.title)
+                    })
+                    p.subtitleChanged.connect(function() {
+                        listModel.setProperty(idx, "subtitle", p.subtitle)
+                    })
+                    p.iconChanged.connect(function() {
+                        listModel.setProperty(idx, "icon", p.icon)
+                    })
                 })(page, listModel.count - 1)
 
                 // Hide the page at the beginning

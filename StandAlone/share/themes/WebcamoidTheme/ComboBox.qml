@@ -90,10 +90,9 @@ T.ComboBox {
     // v
     indicator: Item {
         id: indicator
-        anchors.leftMargin:rtl? control.leftPadding: 0
-        anchors.left: control.rtl? control.left: undefined
-        anchors.rightMargin: control.rtl? 0: control.rightPadding
-        anchors.right: control.rtl? undefined: control.right
+        x: control.rtl?
+               control.leftPadding:
+               control.width - width - control.rightPadding
         anchors.verticalCenter: control.verticalCenter
         width: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
         height: width

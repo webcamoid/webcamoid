@@ -48,10 +48,9 @@ T.Switch {
 
     indicator: Item {
         id: sliderIndicator
-        anchors.left: control.rtl? undefined: control.left
-        anchors.leftMargin: control.rtl? 0: control.leftPadding + switchThumb.width / 4
-        anchors.right: control.rtl? control.right: undefined
-        anchors.rightMargin: control.rtl? control.rightPadding + switchThumb.width / 4: 0
+        x: control.rtl?
+               control.width - width - control.rightPadding - switchThumb.width / 4:
+               control.leftPadding + switchThumb.width / 4
         anchors.verticalCenter: control.verticalCenter
         implicitWidth:
             AkUnit.create(56 * AkTheme.controlScale, "dp").pixels

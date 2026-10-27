@@ -36,6 +36,8 @@ AK.MenuOption {
 
     // Canvas presets (landscape). Portrait simply swaps w/h.
     readonly property var canvasPresets: [
+        { width: 256,  height: 144,  fps: 30},
+        { width: 426,  height: 240,  fps: 30},
         { width: 640,  height: 360,  fps: 30},
         { width: 854,  height: 480,  fps: 30},
         { width: 1280, height: 720,  fps: 30},
@@ -53,7 +55,7 @@ AK.MenuOption {
     // output always keeps the orientation and aspect ratio of the canvas, so
     // only its scale can be changed.
     readonly property var standardOutputResolutions:
-        [240, 360, 480, 720, 1080, 1440, 2160]
+        [144, 240, 360, 480, 720, 1080, 1440, 2160]
 
     // Current canvas caps from the compositor.
     readonly property var currentCaps: AkVideoCaps.create(videoEffects.canvasCaps)
@@ -305,6 +307,7 @@ AK.MenuOption {
 
             ColumnLayout {
                 visible: chkAdvanced.checked
+                layoutDirection: root.rtl? Qt.RightToLeft: Qt.LeftToRight
                 Layout.fillWidth: true
 
                 Label {

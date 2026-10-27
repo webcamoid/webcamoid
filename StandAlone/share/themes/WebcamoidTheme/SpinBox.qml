@@ -74,10 +74,9 @@ T.SpinBox {
         height: parent.height
         visible: enabled
         opacity: control.up.hovered? 1: 0.5
-        anchors.leftMargin: control.mirrored? control.leftPadding: 0
-        anchors.left: control.mirrored? control.left: undefined
-        anchors.rightMargin: control.mirrored? 0: control.rightPadding
-        anchors.right: control.mirrored? undefined: control.right
+        x: control.mirrored?
+               control.leftPadding:
+               control.width - width - control.rightPadding
         anchors.verticalCenter: control.verticalCenter
 
         Text {
@@ -99,10 +98,9 @@ T.SpinBox {
         height: parent.height
         visible: enabled
         opacity: control.down.hovered? 1: 0.5
-        anchors.leftMargin: control.mirrored? 0: control.leftPadding
-        anchors.left: control.mirrored? undefined: control.left
-        anchors.rightMargin: control.mirrored? control.rightPadding: 0
-        anchors.right: control.mirrored? control.right: undefined
+        x: control.mirrored?
+               control.width - width - control.rightPadding:
+               control.leftPadding
         anchors.verticalCenter: control.verticalCenter
 
         Text {

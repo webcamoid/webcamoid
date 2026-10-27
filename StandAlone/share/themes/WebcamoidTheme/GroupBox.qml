@@ -65,10 +65,9 @@ T.GroupBox {
         verticalAlignment: Text.AlignVCenter
         elide: rtl? Text.ElideLeft: Text.ElideRight
         enabled: control.enabled
-        anchors.leftMargin: control.rtl? 0: control.leftPadding
-        anchors.left: control.rtl? undefined: control.left
-        anchors.rightMargin: control.rtl? control.rightPadding: 0
-        anchors.right: control.rtl? control.right: undefined
+        x: control.rtl?
+               control.width - width - control.rightPadding:
+               control.leftPadding
         anchors.topMargin: control.titleTopPadding
         anchors.top: control.top
     }

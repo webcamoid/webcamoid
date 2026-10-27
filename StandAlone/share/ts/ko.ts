@@ -329,11 +329,13 @@
     </message>
     <message>
         <location filename="../qml/CaptureSettingsDialog.qml" line="77"/>
+        <location filename="../qml/CaptureSettingsDialog.qml" line="94"/>
         <source>Now</source>
         <translation>지금</translation>
     </message>
     <message>
-        <location filename="../qml/CaptureSettingsDialog.qml" line="86"/>
+        <location filename="../qml/CaptureSettingsDialog.qml" line="95"/>
+        <location filename="../qml/CaptureSettingsDialog.qml" line="110"/>
         <source>%1 seconds</source>
         <translation>%1초</translation>
     </message>
@@ -720,95 +722,95 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="134"/>
+        <location filename="../qml/CompositionConfig.qml" line="136"/>
         <source>Orientation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="135"/>
+        <location filename="../qml/CompositionConfig.qml" line="137"/>
         <source>Landscape</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="135"/>
+        <location filename="../qml/CompositionConfig.qml" line="137"/>
         <source>Portrait</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="162"/>
-        <location filename="../qml/CompositionConfig.qml" line="181"/>
+        <location filename="../qml/CompositionConfig.qml" line="164"/>
+        <location filename="../qml/CompositionConfig.qml" line="183"/>
         <source>Canvas resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="220"/>
+        <location filename="../qml/CompositionConfig.qml" line="222"/>
         <source>Custom</source>
         <translation type="unfinished">커스텀</translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="224"/>
-        <location filename="../qml/CompositionConfig.qml" line="270"/>
+        <location filename="../qml/CompositionConfig.qml" line="226"/>
+        <location filename="../qml/CompositionConfig.qml" line="272"/>
         <source>%1×%2 @ %3 FPS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="237"/>
-        <location filename="../qml/CompositionConfig.qml" line="256"/>
+        <location filename="../qml/CompositionConfig.qml" line="239"/>
+        <location filename="../qml/CompositionConfig.qml" line="258"/>
         <source>Output resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="276"/>
+        <location filename="../qml/CompositionConfig.qml" line="278"/>
         <source>same as the canvas</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="283"/>
+        <location filename="../qml/CompositionConfig.qml" line="285"/>
         <source>Canvas color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="285"/>
+        <location filename="../qml/CompositionConfig.qml" line="287"/>
         <source>Choose the canvas color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="299"/>
+        <location filename="../qml/CompositionConfig.qml" line="301"/>
         <source>Advanced settings</source>
         <translation type="unfinished">고급 설정</translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="311"/>
+        <location filename="../qml/CompositionConfig.qml" line="314"/>
         <source>Canvas size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="329"/>
+        <location filename="../qml/CompositionConfig.qml" line="332"/>
         <source>Width</source>
         <translation type="unfinished">너비</translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="358"/>
+        <location filename="../qml/CompositionConfig.qml" line="361"/>
         <source>Height</source>
         <translation type="unfinished">높이</translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="387"/>
+        <location filename="../qml/CompositionConfig.qml" line="390"/>
         <source>Frame rate</source>
         <translation type="unfinished">프레임 속도</translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="411"/>
+        <location filename="../qml/CompositionConfig.qml" line="414"/>
         <source>Canvas output buffers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="422"/>
+        <location filename="../qml/CompositionConfig.qml" line="425"/>
         <source>Enable asynchronous read</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="438"/>
+        <location filename="../qml/CompositionConfig.qml" line="441"/>
         <source>Output buffers</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1040,22 +1042,22 @@
 <context>
     <name>GeneralConfig</name>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="132"/>
+        <location filename="../qml/GeneralConfig.qml" line="192"/>
         <source>Video capture</source>
         <translation>비디오 캡처</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="186"/>
+        <location filename="../qml/GeneralConfig.qml" line="246"/>
         <source>Video convert</source>
         <translation>비디오 변환</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="222"/>
+        <location filename="../qml/GeneralConfig.qml" line="282"/>
         <source>Virtual camera driver</source>
         <translation>가상 카메라 드라이버</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="204"/>
+        <location filename="../qml/GeneralConfig.qml" line="264"/>
         <source>Video playback</source>
         <translation>비디오 재생</translation>
     </message>
@@ -1090,17 +1092,27 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="122"/>
+        <location filename="../qml/GeneralConfig.qml" line="123"/>
+        <source>Language</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="140"/>
+        <source>System default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/GeneralConfig.qml" line="182"/>
         <source>Frameworks and libraries</source>
         <translation>프레임워크 및 라이브러리</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="150"/>
+        <location filename="../qml/GeneralConfig.qml" line="210"/>
         <source>Screen capture</source>
         <translation>화면 캡처</translation>
     </message>
     <message>
-        <location filename="../qml/GeneralConfig.qml" line="168"/>
+        <location filename="../qml/GeneralConfig.qml" line="228"/>
         <source>Audio capture/playback</source>
         <translation>오디오 캡처/재생</translation>
     </message>
@@ -1169,16 +1181,18 @@
     </message>
     <message>
         <location filename="../qml/ImageCapture.qml" line="176"/>
+        <location filename="../qml/ImageCapture.qml" line="193"/>
         <source>Now</source>
         <translation>지금</translation>
     </message>
     <message>
-        <location filename="../qml/ImageCapture.qml" line="219"/>
+        <location filename="../qml/ImageCapture.qml" line="194"/>
+        <location filename="../qml/ImageCapture.qml" line="243"/>
         <source>%1 seconds</source>
         <translation>%1초</translation>
     </message>
     <message>
-        <location filename="../qml/ImageCapture.qml" line="247"/>
+        <location filename="../qml/ImageCapture.qml" line="271"/>
         <source>Select the folder to save your photos</source>
         <translation>사진을 저장할 폴더 선택</translation>
     </message>
@@ -1481,7 +1495,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1464"/>
+        <location filename="../../src/mediatools.cpp" line="1551"/>
         <source>%1/log %2.txt</source>
         <translation>%1/로그 %2.txt</translation>
     </message>

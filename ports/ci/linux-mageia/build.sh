@@ -32,10 +32,6 @@ else
     COMPILER_CXX=g++
 fi
 
-if [ -z "${DISABLE_CCACHE}" ]; then
-    EXTRA_PARAMS="-DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_OBJCXX_COMPILER_LAUNCHER=ccache"
-fi
-
 export PATH=$HOME/.local/bin:$PATH
 INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}
 buildDir=build-${COMPILER}

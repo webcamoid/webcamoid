@@ -20,6 +20,8 @@
 
 set -e
 
+export IGNORE_OSVERSION=yes
+
 pkg update -f
 pkg install -y \
     alsa-lib \

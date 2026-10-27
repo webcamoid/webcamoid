@@ -266,8 +266,7 @@ ScrollView {
                         Item {
                             id: dragHandle
                             width: parent.height / 2
-                            anchors.left: view.rtl? undefined: parent.left
-                            anchors.right: view.rtl? parent.right: undefined
+                            x: view.rtl? parent.width - width: 0
                             anchors.top: parent.top
                             anchors.bottom: parent.bottom
 
@@ -309,8 +308,9 @@ ScrollView {
                         Item {
                             id: btnVisibility
                             width: parent.height / 2
-                            anchors.left: view.rtl? undefined: dragHandle.right
-                            anchors.right: view.rtl? dragHandle.left: undefined
+                            x: view.rtl?
+                                   dragHandle.x - width:
+                                   dragHandle.x + dragHandle.width
                             anchors.top: parent.top
                             anchors.bottom: parent.bottom
 
@@ -346,8 +346,9 @@ ScrollView {
                         Item {
                             id: typeIcon
                             width: parent.height / 2
-                            anchors.left: view.rtl? undefined: btnVisibility.right
-                            anchors.right: view.rtl? btnVisibility.left: undefined
+                            x: view.rtl?
+                                   btnVisibility.x - width:
+                                   btnVisibility.x + btnVisibility.width
                             anchors.top: parent.top
                             anchors.bottom: parent.bottom
 
@@ -368,11 +369,10 @@ ScrollView {
 
                         // Source label + type
                         ColumnLayout {
-                            anchors.left: view.rtl? undefined: typeIcon.right
-                            anchors.right: view.rtl? typeIcon.left: undefined
+                            x: view.rtl?
+                                   typeIcon.x - width - AkUnit.create(8 * AkTheme.controlScale, "dp").pixels:
+                                   typeIcon.x + typeIcon.width + AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
                             anchors.verticalCenter: parent.verticalCenter
-                            anchors.leftMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
-                            anchors.rightMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
                             spacing: 0
 
                             Label {

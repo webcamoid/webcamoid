@@ -51,10 +51,9 @@ T.RadioButton {
 
     indicator: Item {
         id: radioButtonIndicator
-        anchors.left: control.rtl? undefined: control.left
-        anchors.leftMargin: control.rtl? 0: indicatorRect.width / 2 + control.leftPadding
-        anchors.right: control.rtl? control.right: undefined
-        anchors.rightMargin: control.rtl? indicatorRect.width / 2 + control.rightPadding: 0
+        x: control.rtl?
+               control.width - width - indicatorRect.width / 2 - control.rightPadding:
+               indicatorRect.width / 2 + control.leftPadding
         anchors.verticalCenter: control.verticalCenter
         implicitWidth:
             AkUnit.create(24 * AkTheme.controlScale, "dp").pixels

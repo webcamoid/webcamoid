@@ -253,8 +253,7 @@ ScrollView {
                         Item {
                             id: dragHandle
                             width: parent.height / 2
-                            anchors.left: effectsView.rtl? undefined: parent.left
-                            anchors.right: effectsView.rtl? parent.right: undefined
+                            x: effectsView.rtl? parent.width - width: 0
                             anchors.top: parent.top
                             anchors.bottom: parent.bottom
 
@@ -304,8 +303,9 @@ ScrollView {
                         Item {
                             id: btnVisibility
                             width: parent.height / 2
-                            anchors.left: effectsView.rtl? undefined: dragHandle.right
-                            anchors.right: effectsView.rtl? dragHandle.left: undefined
+                            x: effectsView.rtl?
+                                   dragHandle.x - width:
+                                   dragHandle.x + dragHandle.width
                             anchors.top: parent.top
                             anchors.bottom: parent.bottom
 
@@ -341,11 +341,10 @@ ScrollView {
 
                         // Effect label
                         ColumnLayout {
-                            anchors.left: effectsView.rtl? undefined: btnVisibility.right
-                            anchors.right: effectsView.rtl? btnVisibility.left: undefined
+                            x: effectsView.rtl?
+                                   btnVisibility.x - width - AkUnit.create(8 * AkTheme.controlScale, "dp").pixels:
+                                   btnVisibility.x + btnVisibility.width + AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
                             anchors.verticalCenter: parent.verticalCenter
-                            anchors.leftMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
-                            anchors.rightMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
                             spacing: 0
 
                             Label {

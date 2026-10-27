@@ -24,7 +24,6 @@
 #include <QMutex>
 #include <QQuickWindow>
 #include <QSysInfo>
-#include <QTranslator>
 #include <aksimd.h>
 
 #ifdef OPENMP_ENABLED
@@ -56,44 +55,6 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
     CliOptions cliOptions;
-
-    // Install translations.
-
-    QTranslator translator;
-
-#ifdef Q_OS_ANDROID
-    auto dataRootDir = QDir(DATAROOTDIR).absolutePath();
-    auto translationsDir = QDir(TRANSLATIONSDIR).absolutePath();
-    auto relTranslationsDir = QDir(dataRootDir).relativeFilePath(translationsDir);
-    auto locale = QLocale::system();
-
-    if (translator.load(QLocale::system().name(),
-                        QString("assets:/%1").arg(relTranslationsDir))) {
-        QCoreApplication::installTranslator(&translator);
-
-        if (locale.textDirection() == Qt::RightToLeft)
-            app.setLayoutDirection(Qt::RightToLeft);
-    }
-#else
-    auto binDir = QDir(BINDIR).absolutePath();
-    auto translationsDir = QDir(TRANSLATIONSDIR).absolutePath();
-    auto relTranslationsDir = QDir(binDir).relativeFilePath(translationsDir);
-    QDir appDir = QCoreApplication::applicationDirPath();
-
-    if (appDir.cd(relTranslationsDir)) {
-        auto path = appDir.absolutePath();
-        path.replace("/", QDir::separator());
-        auto locale = QLocale::system();
-
-        if (QFileInfo::exists(path)
-            && translator.load(locale.name(), path)) {
-            QCoreApplication::installTranslator(&translator);
-
-            if (locale.textDirection() == Qt::RightToLeft)
-                app.setLayoutDirection(Qt::RightToLeft);
-        }
-    }
-#endif
 
     // Set fonts
     QDirIterator fontsDirIterator(":/Webcamoid/share/themes/WebcamoidTheme/fonts",

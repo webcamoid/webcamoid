@@ -118,6 +118,66 @@ AK.MenuOption {
                 onCheckedChanged: mediaTools.showFps = checked
             }
 
+            AK.LabeledComboBox {
+                id: languageCombo
+                label: qsTr("Language")
+                Accessible.description: label
+                Layout.fillWidth: true
+                Layout.leftMargin: root.leftMargin
+                Layout.rightMargin: root.rightMargin
+                textRole: "description"
+                model: ListModel {
+                }
+
+                property bool updating: false
+
+                function fillLanguages()
+                {
+                    updating = true
+                    model.clear()
+                    model.append({
+                        code: "",
+                        description: qsTr("System default")
+                    })
+
+                    let languages = mediaTools.availableLanguages()
+
+                    for (let i in languages)
+                        model.append({
+                            code: languages[i].code,
+                            description: languages[i].name
+                        })
+
+                    let index = 0
+
+                    for (let j = 0; j < model.count; j++)
+                        if (model.get(j).code === mediaTools.language) {
+                            index = j
+
+                            break
+                        }
+
+                    currentIndex = index
+                    updating = false
+                }
+
+                Component.onCompleted: fillLanguages()
+                onCurrentIndexChanged: {
+                    if (!updating && currentIndex >= 0)
+                        mediaTools.language = model.get(currentIndex).code
+                }
+
+                Connections {
+                    target: mediaTools
+
+                    // Rebuild the list so "System default" gets retranslated.
+                    function onLanguageChanged()
+                    {
+                        languageCombo.fillLanguages()
+                    }
+                }
+            }
+
             Label {
                 text: qsTr("Frameworks and libraries")
                 font: AkTheme.fontSettings.h6

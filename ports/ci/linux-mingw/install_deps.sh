@@ -66,7 +66,6 @@ pacman --noconfirm --needed -S \
     cmake \
     file \
     git \
-    lib32-mpg123 \
     make \
     ninja \
     mpg123 \
