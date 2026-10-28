@@ -205,7 +205,7 @@
 <context>
     <name>AudioInputSourceItem</name>
     <message>
-        <location filename="../qml/AudioInputSourceItem.qml" line="72"/>
+        <location filename="../qml/AudioInputSourceItem.qml" line="86"/>
         <source>Remove</source>
         <translation>ลบ</translation>
     </message>
@@ -218,17 +218,7 @@
         <translation>เพิ่มอินพุตเสียง</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInputs.qml" line="74"/>
-        <source>Add device input</source>
-        <translation>เพิ่มอินพุตอุปกรณ์</translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioInputs.qml" line="80"/>
-        <source>Add video source</source>
-        <translation>เพิ่มแหล่งวิดีโอ</translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioInputs.qml" line="93"/>
+        <location filename="../qml/AudioInputs.qml" line="69"/>
         <source>Configure audio input settings</source>
         <translation>กำหนดค่าการตั้งค่าอินพุตเสียง</translation>
     </message>

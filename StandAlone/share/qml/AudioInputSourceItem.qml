@@ -30,6 +30,21 @@ ColumnLayout {
     property real   volume: 1.0
     property real   vuLevel: 0.0
 
+    // Range (in dB below full scale) shown by the VU-meter.
+    readonly property real vuRangeDb: 60.0
+    // Hardware devices are listed in audioInputs.inputs, any other active
+    // source is a video source.
+    readonly property bool isDevice: audioInputs.inputs.indexOf(device) != -1
+    // Linear peak (0..1) converted to a dB scale, so quiet signals are visible.
+    readonly property real vuDisplayLevel: {
+        if (vuLevel <= 0.0)
+            return 0.0
+
+        let db = 20.0 * Math.log(vuLevel) / Math.LN10
+
+        return Math.max(0.0, Math.min(1.0, (db + vuRangeDb) / vuRangeDb))
+    }
+
     readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
     readonly property color activeWindow: AkTheme.palette.active.window
 
@@ -55,12 +70,11 @@ ColumnLayout {
             background: Item {
                 // VU-meter
                 Rectangle {
-                    width: Math.min(root.vuLevel, 1.0) * parent.width
+                    width: root.vuDisplayLevel * parent.width
                     height: parent.height
                     color: AkTheme.shade(root.activeWindow, -0.25)
-                    visible: audioInputs.inputs.indexOf(root.device) != -1
-                             || (root.device === videoLayer.videoInput
-                                 && videoLayer.state === AkElement.ElementStatePlaying)
+                    visible: root.isDevice
+                             || videoLayer.state === AkElement.ElementStatePlaying
                 }
             }
         }

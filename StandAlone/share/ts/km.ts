@@ -205,7 +205,7 @@
 <context>
     <name>AudioInputSourceItem</name>
     <message>
-        <location filename="../qml/AudioInputSourceItem.qml" line="72"/>
+        <location filename="../qml/AudioInputSourceItem.qml" line="86"/>
         <source>Remove</source>
         <translation>ដកចេញ</translation>
     </message>
@@ -218,17 +218,7 @@
         <translation>បន្ថែមបញ្ចូលសំឡេង</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInputs.qml" line="74"/>
-        <source>Add device input</source>
-        <translation>បន្ថែមបញ្ចូលឧបករណ៍</translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioInputs.qml" line="80"/>
-        <source>Add video source</source>
-        <translation>បន្ថែមប្រភពវីដេអូ</translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioInputs.qml" line="93"/>
+        <location filename="../qml/AudioInputs.qml" line="69"/>
         <source>Configure audio input settings</source>
         <translation>កំណត់រចនាសម្ព័ន្ធការកំណត់បញ្ចូលសំឡេង</translation>
     </message>

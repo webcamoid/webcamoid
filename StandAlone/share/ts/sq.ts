@@ -205,7 +205,7 @@
 <context>
     <name>AudioInputSourceItem</name>
     <message>
-        <location filename="../qml/AudioInputSourceItem.qml" line="72"/>
+        <location filename="../qml/AudioInputSourceItem.qml" line="86"/>
         <source>Remove</source>
         <translation>Hiq</translation>
     </message>
@@ -218,17 +218,7 @@
         <translation>Shto hyrje audio</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInputs.qml" line="74"/>
-        <source>Add device input</source>
-        <translation>Shto hyrje pajisje</translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioInputs.qml" line="80"/>
-        <source>Add video source</source>
-        <translation>Shto burim video</translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioInputs.qml" line="93"/>
+        <location filename="../qml/AudioInputs.qml" line="69"/>
         <source>Configure audio input settings</source>
         <translation>Konfiguro cilësimet e hyrjes audio</translation>
     </message>

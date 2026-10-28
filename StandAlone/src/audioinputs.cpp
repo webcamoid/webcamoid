@@ -54,6 +54,13 @@ struct VideoSource
     qint64  streamId {-1};
 };
 
+// Per-device state used to throttle the VU-meter signal.
+struct VuState
+{
+    QElapsedTimer timer;
+    qreal peak {0.0};
+};
+
 class AudioInputsPrivate
 {
     public:
@@ -78,12 +85,16 @@ class AudioInputsPrivate
                                   44100};
                                   int m_latency {25};
 
+        QMap<QString, VuState> m_vu;
+        QMutex m_vuMutex;
+
         QThreadPool m_pushThreadPool;
         QFuture<void> m_pushLoopResult;
         bool m_pushRun {false};
 
         explicit AudioInputsPrivate(AudioInputs *self);
 
+        void notifyLevel(const QString &device, qreal level);
         void rebuildMixer();
         void loadProperties();
         void saveProperties();
@@ -541,8 +552,7 @@ AkPacket AudioInputs::iStream(const AkPacket &packet)
     pkt.setId(slotIndex);
     this->d->m_mixer.write(pkt);
 
-    if (this->d->m_inputState == AkElement::ElementStatePlaying)
-        emit this->vumeter(media, pkt.volume());
+    this->d->notifyLevel(media, pkt.volume());
 
     return {};
 }
@@ -580,6 +590,36 @@ void AudioInputs::privInputsChanged(const QStringList &inputs)
 AudioInputsPrivate::AudioInputsPrivate(AudioInputs *self):
     self(self)
 {
+}
+
+// Emits the VU-meter level at most ~30 times per second per device, keeping
+// the peak seen since the last emission.
+void AudioInputsPrivate::notifyLevel(const QString &device, qreal level)
+{
+    if (this->m_inputState != AkElement::ElementStatePlaying)
+        return;
+
+    qreal peak = 0.0;
+
+    {
+        QMutexLocker locker(&this->m_vuMutex);
+        auto &st = this->m_vu[device];
+
+        if (!st.timer.isValid())
+            st.timer.start();
+
+        if (level > st.peak)
+            st.peak = level;
+
+        if (st.timer.elapsed() < 33)
+            return;
+
+        peak = st.peak;
+        st.peak = 0.0;
+        st.timer.restart();
+    }
+
+    emit this->self->vumeter(device, peak);
 }
 
 void AudioInputsPrivate::startPushLoop()
@@ -678,8 +718,7 @@ void AudioInputsPrivate::rebuildMixer()
                                  p.setId(streamIndex);
                                  this->m_mixer.write(p);
 
-                                 if (this->m_inputState == AkElement::ElementStatePlaying)
-                                     emit this->self->vumeter(device, AkAudioPacket(pkt).volume());
+                                 this->notifyLevel(device, AkAudioPacket(pkt).volume());
                              },
                              Qt::DirectConnection);
         }

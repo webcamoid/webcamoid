@@ -244,11 +244,11 @@ Dialog {
                                        cbxSampleRates.model.get(sampleRatesCI).sampleRate)
         }
 
-        let state = audioInputs.state
-        audioInputs.state = AkElement.ElementStateNull
+        let state = audioInputs.inputState
+        audioInputs.inputState = AkElement.ElementStateNull
         audioInputs.deviceCaps = audioCaps
         audioInputs.latency = sldLatency.value
-        audioInputs.state = state
+        audioInputs.inputState = state
     }
     onReset: {
         cbxSampleFormats.reset()

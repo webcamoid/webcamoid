@@ -205,7 +205,7 @@
 <context>
     <name>AudioInputSourceItem</name>
     <message>
-        <location filename="../qml/AudioInputSourceItem.qml" line="72"/>
+        <location filename="../qml/AudioInputSourceItem.qml" line="86"/>
         <source>Remove</source>
         <translation>ဖယ်ရှား</translation>
     </message>
@@ -218,17 +218,7 @@
         <translation>အသံထည့်သွင်းမှုထည့်ပါ</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInputs.qml" line="74"/>
-        <source>Add device input</source>
-        <translation>စက်ပစ္စည်းထည့်သွင်းမှုထည့်ပါ</translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioInputs.qml" line="80"/>
-        <source>Add video source</source>
-        <translation>ဗီဒီယိုမူရင်းထည့်ပါ</translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioInputs.qml" line="93"/>
+        <location filename="../qml/AudioInputs.qml" line="69"/>
         <source>Configure audio input settings</source>
         <translation>အသံထည့်သွင်းမှု ပြင်ဆင်မှုများကို ပြင်ဆင်ပါ</translation>
     </message>

@@ -63,31 +63,7 @@ ScrollView {
             icon.source: "image://icons/add"
             flat: true
 
-            onClicked: addInput.popup()
-
-            Menu {
-                id: addInput
-                width: AkUnit.create(250 * AkTheme.controlScale, "dp").pixels
-                margins: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
-
-                MenuItem {
-                    text: qsTr("Add device input")
-                    icon.source: "image://icons/mic"
-
-                    onClicked: view.openAudioInputAddDialog()
-                }
-                MenuItem {
-                    text: qsTr("Add video source")
-                    icon.source: "image://icons/video"
-                    height: visible? undefined: 0
-                    visible: videoLayer.deviceType(videoLayer.videoInput) == VideoLayer.InputStream
-
-                    onClicked: {
-                        audioInputs.addInput(videoLayer.videoInput,
-                                             videoLayer.description(videoLayer.videoInput))
-                    }
-                }
-            }
+            onClicked: view.openAudioInputAddDialog()
         }
         Button {
             text: qsTr("Configure audio input settings")

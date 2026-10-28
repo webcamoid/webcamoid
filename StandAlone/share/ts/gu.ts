@@ -205,7 +205,7 @@
 <context>
     <name>AudioInputSourceItem</name>
     <message>
-        <location filename="../qml/AudioInputSourceItem.qml" line="72"/>
+        <location filename="../qml/AudioInputSourceItem.qml" line="86"/>
         <source>Remove</source>
         <translation>દૂર કરો</translation>
     </message>
@@ -218,17 +218,7 @@
         <translation>ઑડિયો ઇનપુટ ઉમેરો</translation>
     </message>
     <message>
-        <location filename="../qml/AudioInputs.qml" line="74"/>
-        <source>Add device input</source>
-        <translation>ડિવાઇસ ઇનપુટ ઉમેરો</translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioInputs.qml" line="80"/>
-        <source>Add video source</source>
-        <translation>વિડિયો સ્રોત ઉમેરો</translation>
-    </message>
-    <message>
-        <location filename="../qml/AudioInputs.qml" line="93"/>
+        <location filename="../qml/AudioInputs.qml" line="69"/>
         <source>Configure audio input settings</source>
         <translation>ઑડિયો ઇનપુટ સેટિંગ્સ રૂપરેખાંકિત કરો</translation>
     </message>
