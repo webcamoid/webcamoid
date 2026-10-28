@@ -68,6 +68,7 @@
 #include "pluginconfigs.h"
 #include "recording.h"
 #include "streaming.h"
+#include "thumbnailsprovider.h"
 #include "updates.h"
 #include "videodisplay.h"
 #include "videoeffects.h"
@@ -883,6 +884,8 @@ bool MediaTools::init(const CliOptions &cliOptions)
 
     this->d->m_engine->addImageProvider(QLatin1String("icons"),
                                         new IconsProvider);
+    this->d->m_engine->addImageProvider(QLatin1String("thumbnails"),
+                                        new ThumbnailsProvider);
     Ak::setQmlEngine(this->d->m_engine);
     this->d->m_pluginConfigs =
             PluginConfigsPtr(new PluginConfigs(cliOptions, this->d->m_engine));

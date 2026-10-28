@@ -1455,39 +1455,39 @@
 <context>
     <name>MediaGalleryDialog</name>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="87"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="100"/>
         <source>%1 selected</source>
         <translation>%1 ရွေးချယ်ထားသည်</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="132"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="145"/>
         <source>Select all</source>
         <translation>အားလုံးရွေးချယ်ပါ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="139"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="152"/>
         <source>Deselect all</source>
         <translation>အားလုံးရွေးချယ်မှုပယ်ဖျက်ပါ</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="301"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="299"/>
         <source>The directory is empty</source>
         <translation>လမ်းညွှန်သည် ဗလာဖြစ်နေသည်</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="309"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="307"/>
         <source>Confirm delete</source>
         <translation>ဖျက်ရန်အတည်ပြုပါ</translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="317"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="315"/>
         <source>Delete %n picture(s) permanently?</source>
         <translation>
             <numerusform>ပုံ %n ပုံကို အပြီးတိုင်ဖျက်မည်လား။</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="324"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="322"/>
         <source>This action can&apos;t be undone.</source>
         <translation>ဤလုပ်ဆောင်ချက်ကို ပြန်လည်မရနိုင်ပါ။</translation>
     </message>
@@ -1495,7 +1495,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1551"/>
+        <location filename="../../src/mediatools.cpp" line="1554"/>
         <source>%1/log %2.txt</source>
         <translation>%1/log %2.txt</translation>
     </message>

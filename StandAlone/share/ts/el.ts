@@ -1455,32 +1455,32 @@
 <context>
     <name>MediaGalleryDialog</name>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="87"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="100"/>
         <source>%1 selected</source>
         <translation>%1 επιλεγμένα</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="132"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="145"/>
         <source>Select all</source>
         <translation>Επιλογή όλων</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="139"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="152"/>
         <source>Deselect all</source>
         <translation>Αποεπιλογή όλων</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="301"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="299"/>
         <source>The directory is empty</source>
         <translation>Ο κατάλογος είναι άδειος</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="309"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="307"/>
         <source>Confirm delete</source>
         <translation>Επιβεβαίωση διαγραφής</translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="317"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="315"/>
         <source>Delete %n picture(s) permanently?</source>
         <translation>
             <numerusform>Να διαγραφεί η %n εικόνα μόνιμα;</numerusform>
@@ -1488,7 +1488,7 @@
         </translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="324"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="322"/>
         <source>This action can&apos;t be undone.</source>
         <translation>Αυτή η ενέργεια δεν μπορεί να αναιρεθεί.</translation>
     </message>
@@ -1496,7 +1496,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1551"/>
+        <location filename="../../src/mediatools.cpp" line="1554"/>
         <source>%1/log %2.txt</source>
         <translation>%1/καταγραφή %2.txt</translation>
     </message>

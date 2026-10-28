@@ -88,6 +88,10 @@ set(PROJECT_SOURCES
     recording.h
     streaming.cpp
     streaming.h
+    thumbnailresponse.cpp
+    thumbnailresponse.h
+    thumbnailsprovider.cpp
+    thumbnailsprovider.h
     updates.cpp
     updates.h
     videodisplay.cpp
@@ -96,6 +100,8 @@ set(PROJECT_SOURCES
     videoeffects.h
     videolayer.cpp
     videolayer.h
+    videothumbnailer.cpp
+    videothumbnailer.h
     virtualcameras.cpp
     virtualcameras.h
     ../DefaultTheme.qrc

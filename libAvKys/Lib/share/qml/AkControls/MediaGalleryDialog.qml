@@ -21,7 +21,6 @@ import QtQuick
 import QtQuick.Window
 import QtQuick.Layouts
 import QtQuick.Controls
-import QtMultimedia
 import Ak
 
 Dialog {
@@ -48,6 +47,20 @@ Dialog {
     {
         open()
         openMedia(url)
+    }
+
+    // The thumbnails provider takes the media URL encoded as an hexadecimal
+    // string of its UTF-8 bytes, so it doesn't depend on how the engine
+    // escapes the characters in the image id.
+    function thumbnailSource(url)
+    {
+        let utf8 = unescape(encodeURIComponent(String(url)))
+        let hex = ""
+
+        for (let i = 0; i < utf8.length; i++)
+            hex += ("0" + utf8.charCodeAt(i).toString(16)).slice(-2)
+
+        return "image://thumbnails/" + hex
     }
 
     function formatBytes(bytes)
@@ -202,35 +215,20 @@ Dialog {
                     }
                 }
 
-                // Video thumbnail
-                MediaPlayer {
-                    id: videoPlayer
-                    source: videoOutput.visible? model.url: ""
-                    videoOutput: videoOutput
-
-                    // Get first video frame
-                    Component.onCompleted: {
-                        if (model.type === AkMediaGalleryModel.Type_Movie) {
-                            play()
-                            pause()
-
-                            // Seek some time forward to get a more
-                            // representative frame (10% of the video)
-                            if (duration > 0)
-                                seek(Math.min(5000, duration * 0.1))
-                        }
-                    }
-                }
-
-                VideoOutput {
-                    id: videoOutput
-                    anchors.fill: parent
+                // Video thumbnail, generated and cached by the 'thumbnails'
+                // image provider, so there are no decoders running in the
+                // gallery.
+                Image {
+                    id: videoPreview
                     visible: model.type === AkMediaGalleryModel.Type_Movie
-                    fillMode: VideoOutput.PreserveAspectCrop
+                    source: visible? root.thumbnailSource(model.url): ""
+                    fillMode: Image.PreserveAspectCrop
+                    asynchronous: true
+                    anchors.fill: parent
 
                     BusyIndicator {
                         anchors.centerIn: parent
-                        running: videoPlayer.playbackState === MediaPlayer.LoadingState
+                        running: videoPreview.status === Image.Loading
                         visible: running
                     }
                 }

@@ -1455,39 +1455,39 @@
 <context>
     <name>MediaGalleryDialog</name>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="87"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="100"/>
         <source>%1 selected</source>
         <translation>%1개 선택됨</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="132"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="145"/>
         <source>Select all</source>
         <translation>모두 선택</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="139"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="152"/>
         <source>Deselect all</source>
         <translation>모두 선택 해제</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="301"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="299"/>
         <source>The directory is empty</source>
         <translation>디렉토리가 비어 있습니다</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="309"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="307"/>
         <source>Confirm delete</source>
         <translation>삭제 확인</translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="317"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="315"/>
         <source>Delete %n picture(s) permanently?</source>
         <translation>
             <numerusform>%n개의 사진을 영구적으로 삭제하시겠습니까?</numerusform>
         </translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="324"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="322"/>
         <source>This action can&apos;t be undone.</source>
         <translation>이 작업은 취소할 수 없습니다.</translation>
     </message>
@@ -1495,7 +1495,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1551"/>
+        <location filename="../../src/mediatools.cpp" line="1554"/>
         <source>%1/log %2.txt</source>
         <translation>%1/로그 %2.txt</translation>
     </message>

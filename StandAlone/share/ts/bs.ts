@@ -1455,32 +1455,32 @@
 <context>
     <name>MediaGalleryDialog</name>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="87"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="100"/>
         <source>%1 selected</source>
         <translation>%1 odabrano</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="132"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="145"/>
         <source>Select all</source>
         <translation>Odaberi sve</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="139"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="152"/>
         <source>Deselect all</source>
         <translation>Poništi odabir</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="301"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="299"/>
         <source>The directory is empty</source>
         <translation>Direktorij je prazan</translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="309"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="307"/>
         <source>Confirm delete</source>
         <translation>Potvrdi brisanje</translation>
     </message>
     <message numerus="yes">
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="317"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="315"/>
         <source>Delete %n picture(s) permanently?</source>
         <translation>
             <numerusform>Obriši trajno %n sliku?</numerusform>
@@ -1489,7 +1489,7 @@
         </translation>
     </message>
     <message>
-        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="324"/>
+        <location filename="../../../libAvKys/Lib/share/qml/AkControls/MediaGalleryDialog.qml" line="322"/>
         <source>This action can&apos;t be undone.</source>
         <translation>Ova radnja se ne može poništiti.</translation>
     </message>
@@ -1497,7 +1497,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1551"/>
+        <location filename="../../src/mediatools.cpp" line="1554"/>
         <source>%1/log %2.txt</source>
         <translation>%1/zapisnik %2.txt</translation>
     </message>
