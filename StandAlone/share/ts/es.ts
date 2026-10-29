@@ -150,12 +150,12 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="28"/>
         <source>Audio Encoder Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opciones de codificación del sonido</translation>
     </message>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="205"/>
         <source>Show advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation>Muestra opciones avanzadas</translation>
     </message>
 </context>
 <context>
@@ -704,95 +704,95 @@
     <message>
         <location filename="../qml/CompositionConfig.qml" line="28"/>
         <source>Composition</source>
-        <translation type="unfinished"></translation>
+        <translation>Composición</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="29"/>
         <source>Configure the canvas, the output resolution, and the frame rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>Configura el lienzo, la resolución de salida y la velocidad de fotogramas.</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="136"/>
         <source>Orientation</source>
-        <translation type="unfinished"></translation>
+        <translation>Orientación</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="137"/>
         <source>Landscape</source>
-        <translation type="unfinished"></translation>
+        <translation>Paisaje</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="137"/>
         <source>Portrait</source>
-        <translation type="unfinished"></translation>
+        <translation>Retrato</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="164"/>
         <location filename="../qml/CompositionConfig.qml" line="183"/>
         <source>Canvas resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Resolución del lienzo</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="222"/>
         <source>Custom</source>
-        <translation type="unfinished">Personalizado</translation>
+        <translation>Personalizado</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="226"/>
         <location filename="../qml/CompositionConfig.qml" line="272"/>
         <source>%1×%2 @ %3 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1×%2 @ %3 MPS</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="239"/>
         <location filename="../qml/CompositionConfig.qml" line="258"/>
         <source>Output resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Resolución de salida</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="278"/>
         <source>same as the canvas</source>
-        <translation type="unfinished"></translation>
+        <translation>lo mismo que el lienzo</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="285"/>
         <source>Canvas color</source>
-        <translation type="unfinished"></translation>
+        <translation>Color del lienzo</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="287"/>
         <source>Choose the canvas color</source>
-        <translation type="unfinished"></translation>
+        <translation>Elija el color del lienzo</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="301"/>
         <source>Advanced settings</source>
-        <translation type="unfinished">Configuración avanzada</translation>
+        <translation>Ajustes avanzados</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="314"/>
         <source>Canvas size</source>
-        <translation type="unfinished"></translation>
+        <translation>Tamaño del lienzo</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="332"/>
         <source>Width</source>
-        <translation type="unfinished">Ancho</translation>
+        <translation>Anchura</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="361"/>
         <source>Height</source>
-        <translation type="unfinished">Alto</translation>
+        <translation>Altura</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="390"/>
         <source>Frame rate</source>
-        <translation type="unfinished">Cuadros por segundo</translation>
+        <translation>Velocidad de fotogramas</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="414"/>
         <source>Canvas output buffers</source>
-        <translation type="unfinished"></translation>
+        <translation>Tampones de salida del lienzo</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="425"/>
