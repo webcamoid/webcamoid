@@ -1652,7 +1652,7 @@
         <translation>Avaa uusi ilmentymä %1:sta.</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1194"/>
+        <location filename="../../src/recording.cpp" line="1200"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/Video %2.%3</translation>
     </message>

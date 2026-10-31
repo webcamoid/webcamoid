@@ -71,8 +71,10 @@ class AudioDevAlsaPrivate
         snd_pcm_t *m_pcmHnd {nullptr};
         QMutex m_mutex;
         int m_samples {0};
+        int m_timeouts {0};
 
         explicit AudioDevAlsaPrivate(AudioDevAlsa *self);
+        void handleTimeout(const char *operation, int pendingBytes);
         QString deviceName(snd_ctl_t *ctlHnd,
                            unsigned int device,
                            snd_pcm_stream_t streamType) const;
@@ -169,7 +171,12 @@ bool AudioDevAlsa::init(const QString &device, const AkAudioCaps &caps)
             locker.relock();
         }
 
-        this->d->m_pcmHnd = nullptr;
+        if (this->d->m_pcmHnd) {
+            snd_pcm_close(this->d->m_pcmHnd);
+            this->d->m_pcmHnd = nullptr;
+        }
+
+        this->d->m_timeouts = 0;
         int error =
                 snd_pcm_open(&this->d->m_pcmHnd,
                              QString(device)
@@ -180,7 +187,7 @@ bool AudioDevAlsa::init(const QString &device, const AkAudioCaps &caps)
                              SND_PCM_NONBLOCK);
 
         if (error < 0) {
-            snd_pcm_close(this->d->m_pcmHnd);
+            // On failure there is no valid handle to close.
             this->d->m_pcmHnd = nullptr;
             locker.unlock();
 
@@ -240,7 +247,7 @@ QByteArray AudioDevAlsa::read()
 
     while (samples > 0) {
         if (elapsed.elapsed() >= timeout) {
-            qWarning() << "AudioDevAlsa: read timeout";
+            this->d->handleTimeout("read", 0);
 
             return {};
         }
@@ -258,17 +265,24 @@ QByteArray AudioDevAlsa::read()
             if (rsamples == -EAGAIN) {
                 int remaining = timeout - int(elapsed.elapsed());
 
-                if (remaining <= 0)
+                if (remaining <= 0) {
+                    this->d->handleTimeout("read", 0);
+
                     return {};
+                }
 
                 snd_pcm_wait(this->d->m_pcmHnd, remaining);
 
                 continue;
             }
 
-            return {};
+            // Overrun, suspend, etc.: try to recover and keep reading.
+            if (snd_pcm_recover(this->d->m_pcmHnd, int(rsamples), 1) < 0)
+                return {};
         }
     }
+
+    this->d->m_timeouts = 0;
 
     return buffer;
 }
@@ -290,8 +304,7 @@ bool AudioDevAlsa::write(const AkAudioPacket &packet)
 
     while (dataSize > 0) {
         if (elapsed.elapsed() >= timeout) {
-            qWarning() << "AudioDevAlsa: write timeout, dropping"
-                       << dataSize << "bytes";
+            this->d->handleTimeout("write", dataSize);
 
             return false;
         }
@@ -310,8 +323,11 @@ bool AudioDevAlsa::write(const AkAudioPacket &packet)
             if (samples == -EAGAIN) {
                 int remaining = timeout - int(elapsed.elapsed());
 
-                if (remaining <= 0)
+                if (remaining <= 0) {
+                    this->d->handleTimeout("write", dataSize);
+
                     return false;
+                }
 
                 snd_pcm_wait(this->d->m_pcmHnd, remaining);
 
@@ -325,7 +341,49 @@ bool AudioDevAlsa::write(const AkAudioPacket &packet)
         }
     }
 
+    this->d->m_timeouts = 0;
+
     return true;
+}
+
+// Called with m_mutex held when a read/write did not complete in time. It
+// reports the PCM state and tries to get a stalled stream moving again.
+void AudioDevAlsaPrivate::handleTimeout(const char *operation, int pendingBytes)
+{
+    auto state = snd_pcm_state(this->m_pcmHnd);
+
+    if (pendingBytes > 0)
+        qWarning() << "AudioDevAlsa:" << operation
+                   << "timeout, dropping" << pendingBytes << "bytes"
+                   << "(state:" << snd_pcm_state_name(state) << ")";
+    else
+        qWarning() << "AudioDevAlsa:" << operation
+                   << "timeout (state:" << snd_pcm_state_name(state) << ")";
+
+    this->m_timeouts++;
+
+    switch (state) {
+    case SND_PCM_STATE_PREPARED:
+        // The stream never started (it is waiting for a start threshold).
+        snd_pcm_start(this->m_pcmHnd);
+
+        break;
+    case SND_PCM_STATE_RUNNING:
+        // Running but not moving: restart it after a few consecutive timeouts.
+        if (this->m_timeouts >= 3) {
+            snd_pcm_drop(this->m_pcmHnd);
+            snd_pcm_prepare(this->m_pcmHnd);
+            this->m_timeouts = 0;
+        }
+
+        break;
+    default:
+        // XRUN, SUSPENDED, DISCONNECTED...
+        snd_pcm_drop(this->m_pcmHnd);
+        snd_pcm_prepare(this->m_pcmHnd);
+
+        break;
+    }
 }
 
 bool AudioDevAlsa::uninit()

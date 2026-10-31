@@ -1652,7 +1652,7 @@
         <translation>%1-এর একটি নতুন ইনস্ট্যান্স খুলুন।</translation>
     </message>
     <message>
-        <location filename="../../src/recording.cpp" line="1194"/>
+        <location filename="../../src/recording.cpp" line="1200"/>
         <source>%1/Video %2.%3</source>
         <translation>%1/ভিডিও %2.%3</translation>
     </message>

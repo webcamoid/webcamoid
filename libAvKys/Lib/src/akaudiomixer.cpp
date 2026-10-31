@@ -30,6 +30,7 @@
 #include "akaudiomixer.h"
 #include "akaudioconverter.h"
 #include "akaudiopacket.h"
+#include "akclock.h"
 #include "akfrac.h"
 #include "akringbuffer.h"
 
@@ -56,7 +57,9 @@ class AkAudioMixerPrivate
         AkAudioConverter m_outputConverter;
         QMutex m_waitMutex;
         QWaitCondition m_waitCond;
-        qint64 m_pts {0};
+        // Pts of the next block in samples (1/rate), it is anchored to the
+        // shared clock in the first read after allocate().
+        qint64 m_pts {-1};
 
         static AkAudioCaps mixCaps(const AkAudioCaps &outputCaps);
         static void normalizeFrame(AkAudioPacket &packet);
@@ -172,6 +175,14 @@ AkAudioPacket AkAudioMixer::read(size_t samples) const
 
     if (!outputPacket)
         return {};
+
+    /* Anchor the mixer timeline to the shared clock (the same used by the
+     * video compositor) in the first block, the following ones continue by
+     * counting samples so there are no gaps or overlaps between blocks.
+     */
+    if (this->d->m_pts < 0)
+        this->d->m_pts = AkClock::nsecsToUnits(AkClock::nsecs(),
+                                               mixCaps.rate());
 
     outputPacket.setPts(this->d->m_pts);
     outputPacket.setDuration(nSamples);
@@ -386,7 +397,7 @@ bool AkAudioMixer::allocate()
     }
 
     this->d->m_outputConverter.setOutputCaps(outputCaps);
-    this->d->m_pts = 0;
+    this->d->m_pts = -1;
 
     return true;
 }

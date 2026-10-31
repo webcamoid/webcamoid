@@ -40,6 +40,7 @@
 #include "akglcompositor.h"
 #include "ak.h"
 #include "akalgorithm.h"
+#include "akclock.h"
 #include "akfrac.h"
 #include "akglpipeline.h"
 #include "akpacket.h"
@@ -142,7 +143,6 @@ class AkGLCompositorPrivate
         QReadWriteLock m_packetsBufferMutex;
         QMutex m_pendingRemovalsMutex;
         QVector<qint64> m_pendingRemovals;
-        QElapsedTimer m_clock;
         AkVideoCaps m_outputCaps;
         QRgb m_canvasColor {qRgba(0, 0, 0, 0)};
         bool m_asyncRead {false};
@@ -1397,7 +1397,6 @@ void AkGLCompositorPrivate::renderFrame()
 
         this->initGL();
         this->m_pipeline.init(self, this->m_vbo, this->m_ibo);
-        this->m_clock.start();
         this->m_lastTickNs = 0;
         this->m_id = Ak::id();
         this->m_glInitialized = true;
@@ -1540,7 +1539,9 @@ void AkGLCompositorPrivate::processTick()
     }
 
     this->compositeSourcesIntoCanvas();
-    auto pts = this->m_clock.nsecsElapsed();
+    // Use the shared clock, the same used by the audio mixer, so the video
+    // and the audio sent to the outputs have the same time base and origin.
+    auto pts = AkClock::nsecs();
 
     this->ensureFboSize(this->m_effectFbo,
                         this->m_canvasFbo->width(),
@@ -1563,7 +1564,7 @@ void AkGLCompositorPrivate::processTick()
         auto fps = this->m_outputCaps.fps();
         auto fpsValue = fps.value() > 0.0? fps.value(): 30.0;
         auto tickIntervalNs = qint64(1'000'000'000.0 / fpsValue);
-        auto now = this->m_clock.nsecsElapsed();
+        auto now = AkClock::nsecs();
 
         if (now - this->m_lastTickNs >= tickIntervalNs) {
             this->m_lastTickNs = now;

@@ -44,6 +44,11 @@ class FillAudioGapsElement: public AkElement
                WRITE setFillGaps
                RESET resetFillGaps
                NOTIFY fillGapsChanged)
+    Q_PROPERTY(qint64 startTime
+               READ startTime
+               WRITE setStartTime
+               RESET resetStartTime
+               NOTIFY startTimeChanged)
 
     public:
         FillAudioGapsElement();
@@ -52,6 +57,7 @@ class FillAudioGapsElement: public AkElement
         Q_INVOKABLE AkAudioCaps outputCaps() const;
         Q_INVOKABLE int outputSamples() const;
         Q_INVOKABLE bool fillGaps() const;
+        Q_INVOKABLE qint64 startTime() const;
 
     private:
         FillAudioGapsElementPrivate *d;
@@ -63,14 +69,17 @@ class FillAudioGapsElement: public AkElement
         void outputCapsChanged(const AkAudioCaps &outputCaps);
         void outputSamplesChanged(int outputSamples);
         void fillGapsChanged(bool fillGaps);
+        void startTimeChanged(qint64 startTime);
 
     public slots:
         void setOutputCaps(const AkAudioCaps &outputCaps);
         void setOutputSamples(int outputSamples);
         void setFillGaps(bool fillGaps);
+        void setStartTime(qint64 startTime);
         void resetOutputCaps();
         void resetOutputSamples();
         void resetFillGaps();
+        void resetStartTime();
         bool setState(AkElement::ElementState state) override;
 };
 

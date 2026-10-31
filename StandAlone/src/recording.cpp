@@ -35,10 +35,11 @@
 #include <QThread>
 #include <QtConcurrent>
 #include <QtGlobal>
-
+#include <atomic>
 #include <ak.h>
 #include <akaudiocaps.h>
 #include <akcaps.h>
+#include <akclock.h>
 #include <akcompressedcaps.h>
 #include <akfrac.h>
 #include <akpacket.h>
@@ -108,6 +109,8 @@ class RecordingPrivate
         int m_photoTimeout {0};
         bool m_recordAudio {DEFAULT_RECORD_AUDIO};
         bool m_isRecording {false};
+        std::atomic<bool> m_originSet {false};
+        QMutex m_originMutex;
         bool m_pause {false};
         AkVideoConverter m_videoConverter {{AkVideoCaps::Format_argbpack, 0, 0, {}}};
 
@@ -125,6 +128,7 @@ class RecordingPrivate
         void refreshCodecs();
         void printRecordingParameters();
         bool init();
+        void syncOrigin(const AkPacket &packet);
         void uninit();
         static QString normatizePluginID(const QString &pluginID);
         void loadConfigs();
@@ -751,6 +755,8 @@ bool Recording::copyToClipboard()
 AkPacket Recording::iStream(const AkPacket &packet)
 {
     if (this->d->m_isRecording) {
+        this->d->syncOrigin(packet);
+
         switch (packet.type()) {
         case AkPacket::PacketAudio:
             if (this->d->m_audioEncoder)
@@ -1243,10 +1249,51 @@ bool RecordingPrivate::init()
         this->m_audioEncoder->setState(AkElement::ElementStatePlaying);
 
     this->m_videoEncoder->setState(AkElement::ElementStatePlaying);
+
+    /* The common origin of the audio and video encoders is set with the
+     * first packet received, see syncOrigin().
+     */
+    this->m_originSet = false;
     qInfo() << "Recording started";
     this->m_isRecording = true;
 
     return true;
+}
+
+/* The audio and the video encoders measure their timestamps from the same
+ * origin, so the real offset between the first video frame and the first audio
+ * block is preserved: the first packet that arrives, audio or video, is the
+ * time zero, and the other stream starts at its real offset from it. The
+ * packets are timestamped with the shared clock (AkClock) by the compositor and
+ * the audio mixer, so they are comparable.
+ *
+ * The audio and the video arrive from different threads: the one that comes
+ * second waits until the origin is set, so no packet reaches an encoder before
+ * it.
+ */
+void RecordingPrivate::syncOrigin(const AkPacket &packet)
+{
+    if (this->m_originSet.load(std::memory_order_acquire))
+        return;
+
+    if (packet.type() != AkPacket::PacketAudio
+        && packet.type() != AkPacket::PacketVideo)
+        return;
+
+    QMutexLocker locker(&this->m_originMutex);
+
+    if (this->m_originSet.load(std::memory_order_relaxed))
+        return;
+
+    auto startTime = AkClock::ptsToNsecs(packet.pts(), packet.timeBase());
+
+    if (this->m_audioEncoder)
+        this->m_audioEncoder->setStartTime(startTime);
+
+    if (this->m_videoEncoder)
+        this->m_videoEncoder->setStartTime(startTime);
+
+    this->m_originSet.store(true, std::memory_order_release);
 }
 
 void RecordingPrivate::uninit()

@@ -30,12 +30,14 @@
 #include <ak.h>
 #include <akaudiopacket.h>
 #include <akcaps.h>
+#include <akfrac.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>
 #include <iak/akelement.h>
 
 #include "audioinputs.h"
 #include "akaudiomixer.h"
+#include "akclock.h"
 
 // Represents one active source slot in the mixer.
 struct AudioSource
@@ -485,11 +487,8 @@ void AudioInputs::setLatency(int latency)
 
 void AudioInputs::resetActiveInputs()
 {
-    for (int i = 0; i < this->d->m_audioSources.size(); ++i)
-        this->d->m_audioSources.removeAt(i);
-
-    for (int i = 0; i < this->d->m_videoSources.size(); ++i)
-        this->d->m_videoSources.removeAt(i);
+    this->d->m_audioSources.clear();
+    this->d->m_videoSources.clear();
 
     this->d->rebuildMixer();
     this->d->saveProperties();
@@ -652,22 +651,38 @@ void AudioInputsPrivate::pushLoop()
     if (nSamples < 1)
         nSamples = 1;
 
+    /* The loop is paced with the shared clock, the same used by the video
+     * compositor to timestamp its frames, so the blocks are produced at the
+     * same time that their pts say.
+     */
+    qint64 startNs = -1;
     qint64 totalSamples = 0;
-    QElapsedTimer et;
-    et.start();
 
     while (this->m_pushRun) {
-        qint64 nowUs = et.nsecsElapsed() / 1000;
-        qint64 targetUs = totalSamples * 1000000LL / rate;
-        qint64 sleepUs = targetUs - nowUs;
+        if (startNs >= 0) {
+            auto targetNs = startNs + AkClock::unitsToNsecs(totalSamples, rate);
+            auto sleepUs = (targetNs - AkClock::nsecs()) / 1000;
 
-        if (sleepUs > 0)
-            QThread::usleep(ulong(sleepUs));
+            if (sleepUs > 0)
+                QThread::usleep(ulong(sleepUs));
+        }
 
         if (!this->m_pushRun)
             break;
 
         auto packet = this->m_mixer.read(size_t(nSamples));
+
+        if (startNs < 0) {
+            /* The mixer anchors its timeline to the shared clock in the
+             * first block, use the same origin for the pacing.
+             */
+            startNs = packet?
+                          AkClock::unitsToNsecs(packet.pts(),
+                                                packet.timeBase().den()):
+                          AkClock::nsecs();
+            totalSamples = 0;
+        }
+
         totalSamples += nSamples;
 
         if (packet) {

@@ -423,6 +423,14 @@ AudioEncoderFFmpegElementPrivate::AudioEncoderFFmpegElementPrivate(AudioEncoderF
                          });
 
     QObject::connect(self,
+                     &AkAudioEncoder::startTimeChanged,
+                     [this] (qint64 startTime) {
+                         if (this->m_fillAudioGaps)
+                             this->m_fillAudioGaps->setProperty("startTime",
+                                                                startTime);
+                     });
+
+    QObject::connect(self,
                      &AkAudioEncoder::inputCapsChanged,
                      [this] (const AkAudioCaps &inputCaps) {
                         Q_UNUSED(inputCaps)
@@ -877,6 +885,7 @@ bool AudioEncoderFFmpegElementPrivate::init()
 
     if (this->m_fillAudioGaps) {
         this->m_fillAudioGaps->setProperty("fillGaps", self->fillGaps());
+        this->m_fillAudioGaps->setProperty("startTime", self->startTime());
         this->m_fillAudioGaps->setProperty("outputSamples",
                                            this->m_context->frame_size);
         this->m_fillAudioGaps->setState(AkElement::ElementStatePlaying);

@@ -50,6 +50,18 @@ class PacketSyncElementPrivate
         bool m_discardLast {false};
         qint64 m_audioClock {0};
         qint64 m_videoClock {0};
+        // Time in seconds of the first packet of each stream. The timestamps
+        // of the packets come from the encoders measured from a common
+        // origin, so they are comparable between audio and video.
+        bool m_hasAudioOrigin {false};
+        bool m_hasVideoOrigin {false};
+        qreal m_audioOrigin {0.0};
+        qreal m_videoOrigin {0.0};
+        // The earliest of the two. It is subtracted from all the packets, so
+        // the first stream to start is at 0 and the other one keeps its real
+        // offset from it.
+        bool m_hasBase {false};
+        qreal m_base {0.0};
         qint64 m_lastVideoPts {0};
         qint64 m_videoId {-1};
         QThreadPool m_threadPool;
@@ -65,6 +77,7 @@ class PacketSyncElementPrivate
         bool init();
         void uninit();
         void packetLoop();
+        void emitPacket(AkPacket packet);
 };
 
 PacketSyncElement::PacketSyncElement():
@@ -130,6 +143,15 @@ AkPacket PacketSyncElement::iStream(const AkPacket &packet)
             break;
 
         auto pkt = packet;
+
+        // The timeline starts at the pts of the first packet, the rest
+        // continues counting the duration of the packets.
+        if (!this->d->m_hasAudioOrigin) {
+            this->d->m_hasAudioOrigin = true;
+            this->d->m_audioOrigin = packet.pts() * packet.timeBase().value();
+            this->d->m_audioClock = packet.pts();
+        }
+
         pkt.setPts(this->d->m_audioClock);
         this->d->m_audioPackets << pkt;
         this->d->m_audioClock += packet.duration();
@@ -142,9 +164,11 @@ AkPacket PacketSyncElement::iStream(const AkPacket &packet)
     case AkPacket::PacketVideoCompressed: {
         auto pkt = packet;
 
-        if (this->d->m_videoPackets.isEmpty()) {
-            pkt.setPts(0);
-            this->d->m_videoClock = 0;
+        if (!this->d->m_hasVideoOrigin) {
+            this->d->m_hasVideoOrigin = true;
+            this->d->m_videoOrigin = packet.pts() * packet.timeBase().value();
+            this->d->m_videoClock = packet.pts();
+            pkt.setPts(this->d->m_videoClock);
         } else {
             if (this->d->m_videoId == packet.id()) {
                 auto duration = packet.pts() - this->d->m_lastVideoPts;
@@ -241,6 +265,12 @@ bool PacketSyncElementPrivate::init()
 
     this->m_audioClock = 0;
     this->m_videoClock = 0;
+    this->m_hasAudioOrigin = false;
+    this->m_hasVideoOrigin = false;
+    this->m_audioOrigin = 0.0;
+    this->m_videoOrigin = 0.0;
+    this->m_hasBase = false;
+    this->m_base = 0.0;
     this->m_lastVideoPts = 0;
     this->m_videoId = 1;
     this->m_audioPackets.clear();
@@ -263,6 +293,34 @@ void PacketSyncElementPrivate::uninit()
 
     this->m_audioPackets.clear();
     this->m_videoPackets.clear();
+}
+
+void PacketSyncElementPrivate::emitPacket(AkPacket packet)
+{
+    // The base is the start of the first stream to start. In normal operation
+    // both streams are known when the first packet is sent.
+    if (!this->m_hasBase) {
+        if (this->m_audioEnabled
+            && this->m_hasAudioOrigin
+            && this->m_hasVideoOrigin) {
+            this->m_base = qMin(this->m_audioOrigin, this->m_videoOrigin);
+        } else if (this->m_hasVideoOrigin) {
+            this->m_base = this->m_videoOrigin;
+        } else {
+            this->m_base = this->m_audioOrigin;
+        }
+
+        this->m_hasBase = true;
+    }
+
+    auto timeBase = packet.timeBase().value();
+
+    if (timeBase > 0.0)
+        packet.setPts(qMax<qint64>(packet.pts()
+                                   - qRound64(this->m_base / timeBase),
+                                   0));
+
+    emit self->oStream(packet);
 }
 
 void PacketSyncElementPrivate::packetLoop()
@@ -290,9 +348,9 @@ void PacketSyncElementPrivate::packetLoop()
                         this->m_videoPackets.takeFirst():
                         this->m_audioPackets.takeFirst();
 
-            emit self->oStream(packet);
+            this->emitPacket(packet);
         } else {
-            emit self->oStream(this->m_videoPackets.takeFirst());
+            this->emitPacket(this->m_videoPackets.takeFirst());
         }
     }
 
@@ -323,7 +381,7 @@ void PacketSyncElementPrivate::packetLoop()
             packet = this->m_videoPackets.takeFirst();
         }
 
-        emit self->oStream(packet);
+        this->emitPacket(packet);
 
         if (this->m_discardLast
             && (this->m_audioPackets.isEmpty()

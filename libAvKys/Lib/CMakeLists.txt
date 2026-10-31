@@ -74,6 +74,8 @@ qt_add_library(avkys
                src/akaudiopacket.h
                src/akcaps.cpp
                src/akcaps.h
+               src/akclock.cpp
+               src/akclock.h
                src/akcolorcomponent.cpp
                src/akcolorcomponent.h
                src/akcolorconvert.cpp

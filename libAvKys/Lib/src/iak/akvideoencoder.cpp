@@ -32,6 +32,7 @@ class AkVideoEncoderPrivate
         int m_bitrate {1500000};
         int m_gop {1000};
         bool m_fillGaps {false};
+        qint64 m_startTime {-1};
         QVariantMap m_optionValues;
         AkVideoEncoder::BitrateMode m_bitrateMode {AkVideoEncoder::BitrateMode_VBR};
 
@@ -80,6 +81,11 @@ QByteArray AkVideoEncoder::headers() const
 bool AkVideoEncoder::fillGaps() const
 {
     return this->d->m_fillGaps;
+}
+
+qint64 AkVideoEncoder::startTime() const
+{
+    return this->d->m_startTime;
 }
 
 AkPropertyOptions AkVideoEncoder::options() const
@@ -179,6 +185,15 @@ void AkVideoEncoder::setFillGaps(bool fillGaps)
     emit this->fillGapsChanged(fillGaps);
 }
 
+void AkVideoEncoder::setStartTime(qint64 startTime)
+{
+    if (this->d->m_startTime == startTime)
+        return;
+
+    this->d->m_startTime = startTime;
+    emit this->startTimeChanged(startTime);
+}
+
 void AkVideoEncoder::setOptionValue(const QString &option, const QVariant &value)
 {
     auto curValue = this->optionValue(option);
@@ -242,6 +257,11 @@ void AkVideoEncoder::resetGop()
 void AkVideoEncoder::resetFillGaps()
 {
     this->setFillGaps(false);
+}
+
+void AkVideoEncoder::resetStartTime()
+{
+    this->setStartTime(-1);
 }
 
 void AkVideoEncoder::resetOptionValue(const QString &option)
@@ -322,6 +342,18 @@ void AkVideoEncoder::regulateFps(const AkVideoPacket &packet)
         && this->d->m_prevId == packet.id()
         && pts == this->d->m_prevPts) {
         return;
+    }
+
+    /* The first frame is not necessarily the time 0: it is measured from the
+     * common origin shared with the audio, so the offset between both is kept.
+     * The origin is converted to frames the same way as the pts, so the
+     * truncation is consistent.
+     */
+    if (this->d->m_prevPts < 0) {
+        auto originPts = this->d->m_startTime >= 0?
+                             qint64(this->d->m_startTime * 1e-9 * fps.value()):
+                             pts;
+        this->d->m_ptsOut = qMax<qint64>(pts - originPts, 0);
     }
 
     // Calculate the number of frames between the previous and the current one.

@@ -20,6 +20,8 @@
 #include <QDebug>
 #include <QQmlEngine>
 #include <QtEndian>
+#include <limits>
+#include <type_traits>
 
 #include "akaudiopacket.h"
 #include "akaudioconverter.h"
@@ -74,17 +76,64 @@ class AkAudioPacketPrivate
             return qToBigEndian(value);
         }
 
+        // Unsigned formats are centered in the middle of their range, so the
+        // silence is not 0 but half of the maximum value plus one.
+        template<typename SampleType>
+        inline static SampleType centerOf(std::true_type)
+        {
+            return SampleType((std::numeric_limits<SampleType>::max() >> 1) + 1);
+        }
+
+        template<typename SampleType>
+        inline static SampleType centerOf(std::false_type)
+        {
+            return SampleType(0);
+        }
+
+        // Distance of the sample to the silence level.
+        template<typename SampleType>
+        inline static SampleType levelOf(SampleType value,
+                                         SampleType center,
+                                         std::true_type)
+        {
+            return value >= center?
+                       SampleType(value - center):
+                       SampleType(center - value);
+        }
+
+        template<typename SampleType>
+        inline static SampleType levelOf(SampleType value,
+                                         SampleType center,
+                                         std::false_type)
+        {
+            Q_UNUSED(center)
+
+            return qAbs(value);
+        }
+
         template<typename SampleType, typename TransformFuncType>
         inline qreal volume(TransformFuncType transformFrom) const
         {
+            using IsUnsigned = std::is_unsigned<SampleType>;
+
+            auto center = centerOf<SampleType>(IsUnsigned());
             auto amplitude = SampleType(0);
 
             if (this->m_nPlanes > 0) {
+                // Planar packets hold m_samples values per plane, packed
+                // packets hold a single plane with all the channels
+                // interleaved.
+                auto planeSamples = this->m_caps.planar()?
+                                        this->m_samples:
+                                        this->m_samples * this->m_caps.channels();
+
                 for (int plane = 0; plane < this->m_nPlanes; ++plane) {
                     auto samples = reinterpret_cast<SampleType *>(this->m_planes[plane]);
 
-                    for (int sample = 0; sample < this->m_samples; ++sample) {
-                        auto value = qAbs(transformFrom(samples[sample]));
+                    for (size_t sample = 0; sample < planeSamples; ++sample) {
+                        auto value = levelOf<SampleType>(transformFrom(samples[sample]),
+                                                         center,
+                                                         IsUnsigned());
 
                         if (value > amplitude)
                             amplitude = value;
@@ -95,7 +144,9 @@ class AkAudioPacketPrivate
                 auto totalSamples = this->m_samples * this->m_caps.channels();
 
                 for (int sample = 0; sample < totalSamples; ++sample) {
-                    auto value = qAbs(transformFrom(samples[sample]));
+                    auto value = levelOf<SampleType>(transformFrom(samples[sample]),
+                                                     center,
+                                                     IsUnsigned());
 
                     if (value > amplitude)
                         amplitude = value;
@@ -104,7 +155,9 @@ class AkAudioPacketPrivate
 
             SampleType max;
 
-            if (typeid(SampleType) == typeid(float))
+            if (std::is_unsigned<SampleType>::value)
+                max = center;
+            else if (typeid(SampleType) == typeid(float))
                 max = SampleType(1.0f);
             else if (typeid(SampleType) == typeid(qreal))
                 max = SampleType(1.0);

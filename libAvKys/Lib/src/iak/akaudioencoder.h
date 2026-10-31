@@ -68,6 +68,11 @@ class AKCOMMONS_EXPORT AkAudioEncoder: public AkElement
                WRITE setFillGaps
                RESET resetFillGaps
                NOTIFY fillGapsChanged)
+    Q_PROPERTY(qint64 startTime
+               READ startTime
+               WRITE setStartTime
+               RESET resetStartTime
+               NOTIFY startTimeChanged)
     Q_PROPERTY(AkPropertyOptions options
                READ options
                NOTIFY optionsChanged)
@@ -86,6 +91,13 @@ class AKCOMMONS_EXPORT AkAudioEncoder: public AkElement
         Q_INVOKABLE virtual QByteArray headers() const;
         Q_INVOKABLE virtual qint64 encodedTimePts() const = 0;
         Q_INVOKABLE bool fillGaps() const;
+        /* Origin of the output timestamps, in nanoseconds of the AkClock
+         * clock. The pts of the first packet is measured from it, so the video
+         * and the audio encoders started with the same origin keep the real
+         * offset between their first packets. A negative value (default)
+         * means that the first packet is the origin.
+         */
+        Q_INVOKABLE qint64 startTime() const;
         Q_INVOKABLE virtual AkPropertyOptions options() const;
         Q_INVOKABLE QVariant optionValue(const QString &option) const;
         Q_INVOKABLE bool isOptionSet(const QString &option) const;
@@ -101,6 +113,7 @@ class AKCOMMONS_EXPORT AkAudioEncoder: public AkElement
         void headersChanged(const QByteArray &headers);
         void encodedTimePtsChanged(qint64 encodedTimePts);
         void fillGapsChanged(bool fillGaps);
+        void startTimeChanged(qint64 startTime);
         void optionsChanged(const AkPropertyOptions &options);
         void optionValueChanged(const QString &option, const QVariant &value);
 
@@ -109,11 +122,13 @@ class AKCOMMONS_EXPORT AkAudioEncoder: public AkElement
         void setInputCaps(const AkAudioCaps &inputCaps);
         void setBitrate(int bitrate);
         void setFillGaps(bool fillGaps);
+        void setStartTime(qint64 startTime);
         void setOptionValue(const QString &option, const QVariant &value);
         void resetCodec();
         void resetInputCaps();
         void resetBitrate();
         void resetFillGaps();
+        void resetStartTime();
         void resetOptionValue(const QString &option);
         virtual void resetOptions();
 };

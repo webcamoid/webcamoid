@@ -18,10 +18,11 @@
  */
 
 #include <QtDebug>
-#include <akaudioconverter.h>
-#include <akpacket.h>
 #include <akaudiocaps.h>
+#include <akaudioconverter.h>
 #include <akaudiopacket.h>
+#include <akfrac.h>
+#include <akpacket.h>
 
 #include "fillaudiogapselement.h"
 
@@ -32,6 +33,8 @@ class FillAudioGapsElementPrivate
         AkAudioCaps m_outputCaps;
         int m_outputSamples {0};
         bool m_fillGaps {false};
+        qint64 m_startTime {-1};
+        bool m_first {true};
         AkAudioConverter m_audioConvert;
         AkAudioPacket m_audioBuffer;
         qint64 m_id {-1};
@@ -43,6 +46,7 @@ class FillAudioGapsElementPrivate
         explicit FillAudioGapsElementPrivate(FillAudioGapsElement *self);
         bool init();
         void uninit();
+        qint64 firstPts(const AkAudioPacket &packet) const;
 };
 
 FillAudioGapsElement::FillAudioGapsElement():
@@ -71,6 +75,11 @@ bool FillAudioGapsElement::fillGaps() const
     return this->d->m_fillGaps;
 }
 
+qint64 FillAudioGapsElement::startTime() const
+{
+    return this->d->m_startTime;
+}
+
 AkPacket FillAudioGapsElement::iAudioStream(const AkAudioPacket &packet)
 {
     if (this->d->m_paused)
@@ -82,12 +91,23 @@ AkPacket FillAudioGapsElement::iAudioStream(const AkAudioPacket &packet)
         return {};
 
     if (this->d->m_fillGaps) {
+        /* The packets of the mixer have the default id (-1), the same value
+         * as the initial one, so the first packet must be checked
+         * explicitly: otherwise the gap would be computed against the initial
+         * values and a silence as long as the pts itself would be inserted.
+         */
         qint64 samples =
-                this->d->m_id == src.id()?
+                !this->d->m_first && this->d->m_id == src.id()?
                     qMax<qint64>(src.pts()
                                  - this->d->m_prevPts
                                  - this->d->m_prevDuration, 0):
                     0;
+
+        /* The output timeline starts at the pts of the first packet measured
+         * from the common origin (or at 0 if there is none).
+         */
+        if (this->d->m_first)
+            this->d->m_audioBuffer.setPts(this->d->firstPts(src));
 
         this->d->m_audioBuffer.setId(src.id());
         this->d->m_audioBuffer.setIndex(src.pts());
@@ -114,7 +134,7 @@ AkPacket FillAudioGapsElement::iAudioStream(const AkAudioPacket &packet)
         }
     } else {
         if (this->d->m_pts < 0)
-            this->d->m_pts = 0;
+            this->d->m_pts = this->d->firstPts(src);
         else if (src.id() == this->d->m_id)
             this->d->m_pts += src.pts() - this->d->m_prevPts;
         else
@@ -125,6 +145,7 @@ AkPacket FillAudioGapsElement::iAudioStream(const AkAudioPacket &packet)
         emit this->oStream(src);
     }
 
+    this->d->m_first = false;
     this->d->m_id = src.id();
     this->d->m_prevPts = src.pts();
     this->d->m_prevDuration = src.duration();
@@ -160,9 +181,23 @@ void FillAudioGapsElement::setFillGaps(bool fillGaps)
     emit this->fillGapsChanged(fillGaps);
 }
 
+void FillAudioGapsElement::setStartTime(qint64 startTime)
+{
+    if (this->d->m_startTime == startTime)
+        return;
+
+    this->d->m_startTime = startTime;
+    emit this->startTimeChanged(startTime);
+}
+
 void FillAudioGapsElement::resetOutputCaps()
 {
     this->setOutputCaps(AkAudioCaps());
+}
+
+void FillAudioGapsElement::resetStartTime()
+{
+    this->setStartTime(-1);
 }
 
 void FillAudioGapsElement::resetOutputSamples()
@@ -245,12 +280,29 @@ bool FillAudioGapsElementPrivate::init()
 {
     this->m_audioConvert.reset();
     this->m_audioBuffer = AkAudioPacket(this->m_audioConvert.outputCaps());
+    this->m_first = true;
     this->m_id = -1;
     this->m_pts = -1;
     this->m_prevPts = -1;
     this->m_prevDuration = -1;
 
     return true;
+}
+
+qint64 FillAudioGapsElementPrivate::firstPts(const AkAudioPacket &packet) const
+{
+    if (this->m_startTime < 0)
+        return 0;
+
+    auto timeBase = packet.timeBase().value();
+
+    if (timeBase <= 0.0)
+        return 0;
+
+    // Same units as the packet pts.
+    auto originPts = qint64(double(this->m_startTime) * 1e-9 / timeBase);
+
+    return qMax<qint64>(packet.pts() - originPts, 0);
 }
 
 void FillAudioGapsElementPrivate::uninit()

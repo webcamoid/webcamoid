@@ -29,6 +29,7 @@ class AkAudioEncoderPrivate
         AkAudioCaps m_inputCaps;
         int m_bitrate {128000};
         bool m_fillGaps {false};
+        qint64 m_startTime {-1};
         QVariantMap m_optionValues;
 };
 
@@ -66,6 +67,11 @@ QByteArray AkAudioEncoder::headers() const
 bool AkAudioEncoder::fillGaps() const
 {
     return this->d->m_fillGaps;
+}
+
+qint64 AkAudioEncoder::startTime() const
+{
+    return this->d->m_startTime;
 }
 
 AkPropertyOptions AkAudioEncoder::options() const
@@ -144,6 +150,15 @@ void AkAudioEncoder::setFillGaps(bool fillGaps)
     emit this->fillGapsChanged(fillGaps);
 }
 
+void AkAudioEncoder::setStartTime(qint64 startTime)
+{
+    if (this->d->m_startTime == startTime)
+        return;
+
+    this->d->m_startTime = startTime;
+    emit this->startTimeChanged(startTime);
+}
+
 void AkAudioEncoder::setOptionValue(const QString &option,
                                     const QVariant &value)
 {
@@ -194,6 +209,11 @@ void AkAudioEncoder::resetBitrate()
 void AkAudioEncoder::resetFillGaps()
 {
     this->setFillGaps(false);
+}
+
+void AkAudioEncoder::resetStartTime()
+{
+    this->setStartTime(-1);
 }
 
 void AkAudioEncoder::resetOptionValue(const QString &option)
