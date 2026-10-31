@@ -17,10 +17,12 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QFile>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QNetworkRequest>
 #include <QQmlContext>
+#include <QSharedPointer>
 #include <QtQml>
 
 #include "downloadmanager.h"
@@ -30,11 +32,15 @@ class DownloadInfo
     public:
         QString title;
         QString url;
-        QFile file;
+        // QFile is not copyable, and QVector copies/assigns its elements when
+        // it grows or erases items. A shared pointer keeps the open file (and
+        // its state) alive across those copies.
+        QSharedPointer<QFile> file {new QFile};
         qint64 size {0};
         qint64 downloaded {0};
         DownloadManager::DownloadStatus status {DownloadManager::DownloadStatusFinished};
         bool abort {false};
+        bool writeFailed {false};
         QElapsedTimer timeElapsed;
         QString errorString;
 
@@ -63,6 +69,7 @@ class DownloadManagerPrivate
         void downloadFinished(const QString &url, QNetworkReply *reply);
         void downloadFile(const QString &url, QNetworkReply *reply);
         bool abort(const QString &url);
+        void setWriteError(const QString &url, const QString &error);
 };
 
 DownloadManager::DownloadManager(QQmlApplicationEngine *engine, QObject *parent):
@@ -108,7 +115,7 @@ QString DownloadManager::downloadFile(const QString &url) const
 
     for (auto &info: this->d->m_downloads)
         if (info.url == url)
-            file = info.file.fileName();
+            file = info.file->fileName();
 
     return file;
 }
@@ -184,7 +191,6 @@ inline bool DownloadManager::enqueue(const QString &title,
 
     DownloadInfo info(title, fromUrl, toFile);
     info.status = DownloadManager::DownloadStatusStarted;
-    info.file.setFileName(toFile);
 
     auto reply = this->d->m_manager.get(QNetworkRequest(QUrl(fromUrl)));
     QObject::connect(reply,
@@ -209,7 +215,7 @@ inline bool DownloadManager::enqueue(const QString &title,
     qDebug() << "Downloading file from "
              << reply->url()
              << "to"
-             << info.file.fileName();
+             << info.file->fileName();
     info.timeElapsed.start();
     
     {
@@ -349,17 +355,44 @@ void DownloadManagerPrivate::downloadFinished(const QString &url,
 
         for (auto &info: this->m_downloads)
             if (info.url == url) {
-                info.file.close();
+                bool wasOpen = info.file->isOpen();
 
-                if (info.abort)
+                // Data still buffered by QFile is written to disk here, so
+                // a full disk or an exhausted quota can show up only now.
+                if (wasOpen) {
+                    if (!info.file->flush() && !info.writeFailed) {
+                        info.writeFailed = true;
+                        info.errorString = info.file->errorString();
+                    }
+
+                    info.file->close();
+
+                    if (info.file->error() != QFileDevice::NoError
+                        && !info.writeFailed) {
+                        info.writeFailed = true;
+                        info.errorString = info.file->errorString();
+                    }
+                }
+
+                if (info.writeFailed) {
+                    // The saved file is incomplete: never report success.
+                    info.status = DownloadManager::DownloadStatusFailed;
+
+                    // Remove the partial file, but only if it was us who
+                    // created it (not when open() itself failed).
+                    if (wasOpen)
+                        info.file->remove();
+                } else if (info.abort) {
                     info.status = DownloadManager::DownloadStatusCanceled;
-                else
+                    info.errorString = reply->errorString();
+                } else {
                     info.status = reply->error() == QNetworkReply::NoError?
                                       DownloadManager::DownloadStatusFinished:
                                       DownloadManager::DownloadStatusFailed;
+                    info.errorString = reply->errorString();
+                }
 
                 info.timeElapsed = {};
-                info.errorString = reply->errorString();
                 emitSignals = true;
 
                 break;
@@ -378,21 +411,31 @@ void DownloadManagerPrivate::downloadFile(const QString &url,
                                           QNetworkReply *reply)
 {
     bool isOpen = false;
+    QString openError;
 
     {
         QMutexLocker locker(&this->m_mutex);
 
         for (auto &info: this->m_downloads)
             if (info.url == url) {
-                isOpen = info.file.isOpen();
+                isOpen = info.file->isOpen();
 
-                if (!isOpen)
-                    isOpen = info.file.open(QIODevice::WriteOnly);
+                if (!isOpen) {
+                    isOpen = info.file->open(QIODevice::WriteOnly);
+
+                    if (!isOpen)
+                        openError = info.file->errorString();
+                }
 
                 break;
             }
     }
 
+    if (!isOpen)
+        this->setWriteError(url, openError);
+
+    // reply->abort() emits finished(), so it must be called without
+    // holding the mutex.
     if (!isOpen || this->abort(url)) {
         reply->abort();
 
@@ -400,18 +443,36 @@ void DownloadManagerPrivate::downloadFile(const QString &url,
     }
 
     bool emitSignal = false;
+    bool writeFailed = false;
 
     {
         QMutexLocker locker(&this->m_mutex);
 
         for (auto &info: this->m_downloads)
             if (info.url == url) {
-                info.file.write(reply->readAll());
-                info.status = DownloadManager::DownloadStatusInProgress;
-                emitSignal = true;
+                auto data = reply->readAll();
+                auto written = info.file->write(data);
+
+                // QFile is buffered, so flush to detect errors (no space
+                // left, quota exceeded, etc.) now instead of at the end.
+                if (written != data.size() || !info.file->flush()) {
+                    info.writeFailed = true;
+                    info.errorString = info.file->errorString();
+                    writeFailed = true;
+                } else {
+                    info.status = DownloadManager::DownloadStatusInProgress;
+                    emitSignal = true;
+                }
 
                 break;
             }
+    }
+
+    if (writeFailed) {
+        // Stop downloading; downloadFinished() will mark it as failed.
+        reply->abort();
+
+        return;
     }
 
     if (emitSignal)
@@ -430,6 +491,20 @@ bool DownloadManagerPrivate::abort(const QString &url)
     return abort;
 }
 
+void DownloadManagerPrivate::setWriteError(const QString &url,
+                                           const QString &error)
+{
+    QMutexLocker locker(&this->m_mutex);
+
+    for (auto &info: this->m_downloads)
+        if (info.url == url) {
+            info.writeFailed = true;
+            info.errorString = error;
+
+            break;
+        }
+}
+
 DownloadInfo::DownloadInfo()
 {
 
@@ -440,7 +515,7 @@ DownloadInfo::DownloadInfo(const QString &title,
                            const QString &file):
     title(title),
     url(url),
-    file(file)
+    file(new QFile(file))
 {
 
 }
@@ -448,14 +523,15 @@ DownloadInfo::DownloadInfo(const QString &title,
 DownloadInfo::DownloadInfo(const DownloadInfo &other):
     title(other.title),
     url(other.url),
+    file(other.file),
     size(other.size),
     downloaded(other.downloaded),
     status(other.status),
     abort(other.abort),
+    writeFailed(other.writeFailed),
     timeElapsed(other.timeElapsed),
     errorString(other.errorString)
 {
-    this->file.setFileName(other.file.fileName());
 }
 
 DownloadInfo &DownloadInfo::operator =(const DownloadInfo &other)
@@ -467,10 +543,10 @@ DownloadInfo &DownloadInfo::operator =(const DownloadInfo &other)
         this->downloaded = other.downloaded;
         this->status = other.status;
         this->abort = other.abort;
+        this->writeFailed = other.writeFailed;
         this->timeElapsed = other.timeElapsed;
         this->errorString = other.errorString;
-        this->file.close();
-        this->file.setFileName(other.file.fileName());
+        this->file = other.file;
     }
 
     return *this;

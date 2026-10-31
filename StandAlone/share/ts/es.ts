@@ -2230,7 +2230,7 @@
     <message>
         <location filename="../qml/VideoCodecOptions.qml" line="216"/>
         <source>Show advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Muestra opciones avanzadas</translation>
     </message>
 </context>
 <context>
