@@ -150,12 +150,12 @@
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="28"/>
         <source>Audio Encoder Options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opciones de codificación del sonido</translation>
     </message>
     <message>
         <location filename="../qml/AudioCodecOptions.qml" line="205"/>
         <source>Show advanced options</source>
-        <translation type="unfinished"></translation>
+        <translation>Muestra opciones avanzadas</translation>
     </message>
 </context>
 <context>
@@ -704,105 +704,105 @@
     <message>
         <location filename="../qml/CompositionConfig.qml" line="28"/>
         <source>Composition</source>
-        <translation type="unfinished"></translation>
+        <translation>Composición</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="29"/>
         <source>Configure the canvas, the output resolution, and the frame rate.</source>
-        <translation type="unfinished"></translation>
+        <translation>Configura el lienzo, la resolución de salida y la velocidad de fotogramas.</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="136"/>
         <source>Orientation</source>
-        <translation type="unfinished"></translation>
+        <translation>Orientación</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="137"/>
         <source>Landscape</source>
-        <translation type="unfinished"></translation>
+        <translation>Paisaje</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="137"/>
         <source>Portrait</source>
-        <translation type="unfinished"></translation>
+        <translation>Retrato</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="164"/>
         <location filename="../qml/CompositionConfig.qml" line="183"/>
         <source>Canvas resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Resolución del lienzo</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="222"/>
         <source>Custom</source>
-        <translation type="unfinished">Personalizado</translation>
+        <translation>Personalizado</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="226"/>
         <location filename="../qml/CompositionConfig.qml" line="272"/>
         <source>%1×%2 @ %3 FPS</source>
-        <translation type="unfinished"></translation>
+        <translation>%1×%2 @ %3 MPS</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="239"/>
         <location filename="../qml/CompositionConfig.qml" line="258"/>
         <source>Output resolution</source>
-        <translation type="unfinished"></translation>
+        <translation>Resolución de salida</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="278"/>
         <source>same as the canvas</source>
-        <translation type="unfinished"></translation>
+        <translation>lo mismo que el lienzo</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="285"/>
         <source>Canvas color</source>
-        <translation type="unfinished"></translation>
+        <translation>Color del lienzo</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="287"/>
         <source>Choose the canvas color</source>
-        <translation type="unfinished"></translation>
+        <translation>Elija el color del lienzo</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="301"/>
         <source>Advanced settings</source>
-        <translation type="unfinished">Configuración avanzada</translation>
+        <translation>Ajustes avanzados</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="314"/>
         <source>Canvas size</source>
-        <translation type="unfinished"></translation>
+        <translation>Tamaño del lienzo</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="332"/>
         <source>Width</source>
-        <translation type="unfinished">Ancho</translation>
+        <translation>Anchura</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="361"/>
         <source>Height</source>
-        <translation type="unfinished">Alto</translation>
+        <translation>Altura</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="390"/>
         <source>Frame rate</source>
-        <translation type="unfinished">Cuadros por segundo</translation>
+        <translation>Velocidad de fotogramas</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="414"/>
         <source>Canvas output buffers</source>
-        <translation type="unfinished"></translation>
+        <translation>Tampones de salida del lienzo</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="425"/>
         <source>Enable asynchronous read</source>
-        <translation type="unfinished"></translation>
+        <translation>Habilitar lectura asíncrona</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="441"/>
         <source>Output buffers</source>
-        <translation type="unfinished"></translation>
+        <translation>Tampones salientes</translation>
     </message>
 </context>
 <context>
@@ -849,12 +849,12 @@
     <message>
         <location filename="../qml/DebugLog.qml" line="100"/>
         <source>Clear</source>
-        <translation>Limpiar</translation>
+        <translation>Vaciar</translation>
     </message>
     <message>
         <location filename="../qml/DebugLog.qml" line="103"/>
         <source>Clear the debug log</source>
-        <translation>Limpiar el registro de depuración</translation>
+        <translation>Vacía la bitácora depurativa</translation>
     </message>
     <message>
         <location filename="../qml/DebugLog.qml" line="114"/>
@@ -864,12 +864,12 @@
     <message>
         <location filename="../qml/DebugLog.qml" line="117"/>
         <source>Save the debug log</source>
-        <translation>Guardar el registro de depuración</translation>
+        <translation>Guarda la bitácora depurativa</translation>
     </message>
     <message>
         <location filename="../qml/DebugLog.qml" line="142"/>
         <source>Select the folder to save the logs</source>
-        <translation>Seleccionar la carpeta para guardar los registros</translation>
+        <translation>Selecciona la carpeta para guardar las bitácoras</translation>
     </message>
 </context>
 <context>
@@ -882,12 +882,12 @@
     <message>
         <location filename="../qml/DownloadDialog.qml" line="155"/>
         <source>&lt;b&gt;From:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;De:&lt;/b&gt; %1</translation>
+        <translation>&lt;b&gt;Remite:&lt;/b&gt; %1</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="160"/>
         <source>&lt;b&gt;To:&lt;/b&gt; %1</source>
-        <translation>&lt;b&gt;A:&lt;/b&gt; %1</translation>
+        <translation>&lt;b&gt;Destino:&lt;/b&gt; %1</translation>
     </message>
     <message>
         <location filename="../qml/DownloadDialog.qml" line="165"/>
@@ -910,7 +910,7 @@
     <message>
         <location filename="../qml/DownloadFailedDialog.qml" line="34"/>
         <source>Download failed</source>
-        <translation>La descarga ha fallado</translation>
+        <translation>Descarga incorrecta</translation>
     </message>
 </context>
 <context>
@@ -918,7 +918,7 @@
     <message>
         <location filename="../qml/DownloadSucceededDialog.qml" line="34"/>
         <source>Download ready</source>
-        <translation>La descarga está lista</translation>
+        <translation>Descarga realizada</translation>
     </message>
     <message>
         <location filename="../qml/DownloadSucceededDialog.qml" line="52"/>
@@ -931,59 +931,59 @@
     <message>
         <location filename="../qml/EncodingConfig.qml" line="29"/>
         <source>Encoding</source>
-        <translation type="unfinished"></translation>
+        <translation>Codificación</translation>
     </message>
     <message>
         <location filename="../qml/EncodingConfig.qml" line="30"/>
         <source>Configure the video and audio encoding shared by recording and streaming.</source>
-        <translation type="unfinished"></translation>
+        <translation>Configura la codificación de vídeo y sonido compartida por grabación y transmisión.</translation>
     </message>
     <message>
         <location filename="../qml/EncodingConfig.qml" line="49"/>
         <source>%1 (hardware)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 (hardware)</translation>
     </message>
     <message>
         <location filename="../qml/EncodingConfig.qml" line="106"/>
         <source>Video</source>
-        <translation type="unfinished">Vídeo</translation>
+        <translation>Vídeo</translation>
     </message>
     <message>
         <location filename="../qml/EncodingConfig.qml" line="124"/>
         <source>Video bitrate (kbps)</source>
-        <translation type="unfinished">Tasa de bits de vídeo (kbps)</translation>
+        <translation>Tasa de bits de vídeo (kbps)</translation>
     </message>
     <message>
         <location filename="../qml/EncodingConfig.qml" line="141"/>
         <source>Keyframes interval (ms)</source>
-        <translation type="unfinished"></translation>
+        <translation>Intervalo de fotograma clave (ms)</translation>
     </message>
     <message>
         <location filename="../qml/EncodingConfig.qml" line="159"/>
         <source>Advanced video options</source>
-        <translation type="unfinished"></translation>
+        <translation>Opciones de vídeo avanzado</translation>
     </message>
     <message>
         <location filename="../qml/EncodingConfig.qml" line="171"/>
         <source>Video codec associations</source>
-        <translation type="unfinished"></translation>
+        <translation>Asociaciones de códec de vídeo</translation>
     </message>
     <message>
         <location filename="../qml/EncodingConfig.qml" line="221"/>
         <location filename="../qml/EncodingConfig.qml" line="394"/>
         <source>Configure the encoder</source>
-        <translation type="unfinished"></translation>
+        <translation>Configure el codificador</translation>
     </message>
     <message>
         <location filename="../qml/EncodingConfig.qml" line="229"/>
         <location filename="../qml/EncodingConfig.qml" line="402"/>
         <source>Configure the %1 encoder</source>
-        <translation type="unfinished"></translation>
+        <translation>Configure el codificador %1</translation>
     </message>
     <message>
         <location filename="../qml/EncodingConfig.qml" line="243"/>
         <source>MJPEG quality: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Calidad de MJPEG: %1</translation>
     </message>
     <message>
         <location filename="../qml/EncodingConfig.qml" line="265"/>
