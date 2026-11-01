@@ -49,6 +49,8 @@ Dialog {
     onVisibleChanged: {
         if (addEdit.mediaType == VideoInputAddEdit.MediaType.FileMedia)
             fileDescription.forceActiveFocus()
+        else if (addEdit.mediaType == VideoInputAddEdit.MediaType.TextMedia)
+            textDescription.forceActiveFocus()
         else
             urlDescription.forceActiveFocus()
     }
@@ -79,13 +81,19 @@ Dialog {
                                     videoLayer.sourceLabel(addEdit.sourceId):
                                     ""
         urlDescription.text = fileDescription.text
+        textDescription.text = fileDescription.text
         filePath.labelText = ""
         urlPath.text = ""
 
         if (addEdit.sourceId >= 0) {
             let device = videoLayer.sourceDevice(addEdit.sourceId)
 
-            if (addEdit.isFile(device)) {
+            if (device.indexOf(videoLayer.textDevicePrefix()) === 0) {
+                addEdit.mediaType = VideoInputAddEdit.MediaType.TextMedia
+                textDescription.text =
+                        videoLayer.sourceCustomLabel(addEdit.sourceId)
+                title = qsTr("Rename text source")
+            } else if (addEdit.isFile(device)) {
                 addEdit.mediaType = VideoInputAddEdit.MediaType.FileMedia
                 filePath.labelText = device
                 title = qsTr("Edit media file source")
@@ -105,7 +113,8 @@ Dialog {
 
     enum MediaType {
         FileMedia,
-        UrlMedia
+        UrlMedia,
+        TextMedia
     }
 
     ColumnLayout {
@@ -209,12 +218,49 @@ Dialog {
                     }
                 }
             }
+            ScrollView {
+                id: textScrollView
+                width: stack.width
+                height: stack.height
+                contentHeight: textLayout.height
+                clip: true
+
+                ColumnLayout {
+                    id: textLayout
+                    width: textScrollView.width
+
+                    Label {
+                        id: txtDescriptionText
+                        text: qsTr("Description")
+                        font.bold: true
+                        Layout.fillWidth: true
+                    }
+                    TextField {
+                        id: textDescription
+                        placeholderText: qsTr("Leave empty to use the text")
+                        Accessible.name: txtDescriptionText.text
+                        selectByMouse: true
+                        Layout.fillWidth: true
+                    }
+                }
+            }
         }
     }
 
     onAccepted: {
         let description = ""
         let uri = ""
+
+        if (addEdit.mediaType == VideoInputAddEdit.MediaType.TextMedia) {
+            if (addEdit.sourceId >= 0) {
+                // An empty description goes back to using the text.
+                description = textDescription.text.trim()
+                videoLayer.setSourceLabel(addEdit.sourceId, description)
+                addEdit.edited()
+            }
+
+            return
+        }
 
         if (addEdit.mediaType == VideoInputAddEdit.MediaType.FileMedia) {
             description = fileDescription.text

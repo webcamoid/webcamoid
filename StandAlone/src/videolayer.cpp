@@ -263,7 +263,8 @@ QStringList VideoLayer::devicesByType(InputType type) const
         return this->d->m_availableScreens + this->d->m_availableWindows;
 
     case InputImage:
-    case InputStream: {
+    case InputStream:
+    case InputText: {
         QStringList devices;
 
         for (const auto &source: this->d->m_activeSources)
@@ -292,10 +293,19 @@ QString VideoLayer::description(const QString &device) const
         return this->d->screenDescription(device);
 
     case InputImage:
-    case InputStream: {
-        for (const auto &source: this->d->m_activeSources)
-            if (source.device == device && !source.label.isEmpty())
+    case InputStream:
+    case InputText: {
+        for (const auto &source: this->d->m_activeSources) {
+            if (source.device != device)
+                continue;
+
+            if (!source.label.isEmpty())
                 return source.label;
+
+            // Text sources without a description use their own text.
+            if (source.type == InputText && source.element)
+                return source.element->property("summary").toString();
+        }
 
         return QFileInfo(device).fileName();
     }
@@ -305,6 +315,11 @@ QString VideoLayer::description(const QString &device) const
     }
 
     return {};
+}
+
+QString VideoLayer::textDevicePrefix()
+{
+    return QStringLiteral("text://");
 }
 
 bool VideoLayer::embedControls(const QString &where,
@@ -375,11 +390,25 @@ QString VideoLayer::sourceLabel(qint64 id) const
     case InputScreen:
         return this->d->screenDescription(source.device);
 
+    case InputText:
+        if (source.label.isEmpty() && source.element)
+            return source.element->property("summary").toString();
+
+        break;
+
     default:
         break;
     }
 
     return source.label;
+}
+
+QString VideoLayer::sourceCustomLabel(qint64 id) const
+{
+    if (!this->d->m_activeSources.contains(id))
+        return {};
+
+    return this->d->m_activeSources[id].label;
 }
 
 bool VideoLayer::sourceEnabled(qint64 id) const
@@ -566,6 +595,12 @@ qint64 VideoLayer::addSource(const QString &device)
                      this,
                      SLOT(handleStreamsChanged(QList<int>)));
 
+    if (type == InputText)
+        QObject::connect(element.data(),
+                         SIGNAL(summaryChanged(QString)),
+                         this,
+                         SLOT(handleTextSummaryChanged(QString)));
+
     if (type == InputCamera) {
         QObject::connect(element.data(),
                          SIGNAL(isTorchSupportedChanged(bool)),
@@ -585,10 +620,37 @@ qint64 VideoLayer::addSource(const QString &device)
     this->d->m_activeSources[id] = source;
 
     this->d->saveSources();
+
+    // The signal with the initial size was emitted before connecting.
+    if (type == InputText)
+        this->updateSourceCaps(id);
+
     emit this->sourceAdded(id, device);
 
     if (this->d->m_globalState == AkElement::ElementStatePlaying)
         element->setState(AkElement::ElementStatePlaying);
+
+    return id;
+}
+
+qint64 VideoLayer::addTextSource(const QString &label)
+{
+    // Find the first free text source number.
+    QStringList devices;
+
+    for (const auto &source: this->d->m_activeSources)
+        devices << source.device;
+
+    int n = 1;
+
+    while (devices.contains(textDevicePrefix() + QString::number(n)))
+        n++;
+
+    auto id = this->addSource(textDevicePrefix() + QString::number(n));
+
+    // Without a label the source is named after its text.
+    if (id >= 0 && !label.isEmpty())
+        this->setSourceLabel(id, label);
 
     return id;
 }
@@ -602,6 +664,12 @@ void VideoLayer::removeSource(qint64 id)
 
     if (source.element) {
         source.element->setState(AkElement::ElementStateNull);
+
+        // Text sources keep their own configuration, forget it for good.
+        if (source.type == InputText)
+            QMetaObject::invokeMethod(source.element.data(),
+                                      "removeSettings");
+
         QObject::disconnect(source.element.data(), nullptr, this, nullptr);
     }
 
@@ -659,7 +727,9 @@ void VideoLayer::setSourceLabel(qint64 id, const QString &label)
 
     auto &source = this->d->m_activeSources[id];
 
-    if (source.type != InputImage && source.type != InputStream)
+    if (source.type != InputImage
+        && source.type != InputStream
+        && source.type != InputText)
         return;
 
     if (source.label == label)
@@ -667,7 +737,7 @@ void VideoLayer::setSourceLabel(qint64 id, const QString &label)
 
     source.label = label;
     this->d->saveSources();
-    emit this->sourceLabelChanged(id, label);
+    emit this->sourceLabelChanged(id, this->sourceLabel(id));
 }
 
 void VideoLayer::setSourceRect(qint64 id, const QRectF &rect)
@@ -1003,6 +1073,18 @@ void VideoLayer::handleStreamsChanged(const QList<int> &streams)
     this->updateSourceCaps(id);
 }
 
+void VideoLayer::handleTextSummaryChanged(const QString &summary)
+{
+    auto id = this->sender()->property("__sourceId").toLongLong();
+
+    // A description set by the user takes priority over the text.
+    if (!this->d->m_activeSources.contains(id)
+        || !this->d->m_activeSources[id].label.isEmpty())
+        return;
+
+    emit this->sourceLabelChanged(id, summary);
+}
+
 void VideoLayer::handleIsTorchSupportedChanged(bool torchSupported)
 {
     auto id = this->sender()->property("__sourceId").toLongLong();
@@ -1290,6 +1372,10 @@ void VideoLayerPrivate::loadProperties()
             && (deviceType == VideoLayer::InputImage
                 || deviceType == VideoLayer::InputStream)) {
             label = QFileInfo(device).baseName();
+        } else if (deviceType == VideoLayer::InputText
+                   && (label == "Text" || label == QObject::tr("Text"))) {
+            // Old default title, now texts are named after their content.
+            label.clear();
         }
 
         self->setSourceLabel(id, label);
@@ -1409,6 +1495,8 @@ QString VideoLayerPrivate::pluginIdForType(VideoLayer::InputType type) const
         return "VideoSource/ImageSrc";
     case VideoLayer::InputStream:
         return "MultimediaSource/MultiSrc";
+    case VideoLayer::InputText:
+        return "VideoSource/TextSrc";
     default:
         return {};
     }
@@ -1416,6 +1504,9 @@ QString VideoLayerPrivate::pluginIdForType(VideoLayer::InputType type) const
 
 VideoLayer::InputType VideoLayerPrivate::classifyByExtension(const QString &device) const
 {
+    if (device.startsWith(VideoLayer::textDevicePrefix()))
+        return VideoLayer::InputText;
+
     auto suffix = QFileInfo(device).suffix().toLower();
 
     if (suffix.isEmpty())

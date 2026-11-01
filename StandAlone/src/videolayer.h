@@ -74,7 +74,8 @@ class VideoLayer: public QObject
             InputCamera,
             InputScreen,
             InputImage,
-            InputStream
+            InputStream,
+            InputText
         };
         Q_ENUM(InputType)
 
@@ -106,6 +107,7 @@ class VideoLayer: public QObject
         Q_INVOKABLE InputType deviceType(qint64 id) const;
         Q_INVOKABLE QStringList devicesByType(InputType type) const;
         Q_INVOKABLE QString description(const QString &device) const;
+        Q_INVOKABLE static QString textDevicePrefix();
 
         // Global state -- the "instant play/stop everything" master switch.
         Q_INVOKABLE AkElement::ElementState state() const;
@@ -118,6 +120,7 @@ class VideoLayer: public QObject
         Q_INVOKABLE QVariantList sourceIds() const;
         Q_INVOKABLE QString sourceDevice(qint64 id) const;
         Q_INVOKABLE QString sourceLabel(qint64 id) const;
+        Q_INVOKABLE QString sourceCustomLabel(qint64 id) const;
         Q_INVOKABLE bool sourceEnabled(qint64 id) const;
         Q_INVOKABLE QRectF sourceRect(qint64 id) const;
         Q_INVOKABLE int sourceZOrder(qint64 id) const;
@@ -173,6 +176,7 @@ class VideoLayer: public QObject
 
     public slots:
         qint64 addSource(const QString &device);
+        qint64 addTextSource(const QString &label={});
         void removeSource(qint64 id);
         void setSourceEnabled(qint64 id, bool enabled);
         void setSourceLabel(qint64 id, const QString &label);
@@ -197,6 +201,7 @@ class VideoLayer: public QObject
         void handleDevicesChanged();
         void handleSourceError(const QString &error);
         void handleStreamsChanged(const QList<int> &streams);
+        void handleTextSummaryChanged(const QString &summary);
         void handleIsTorchSupportedChanged(bool torchSupported);
         void handleTorchModeChanged(TorchMode mode);
         void handlePermissionStatusChanged(PermissionStatus status);

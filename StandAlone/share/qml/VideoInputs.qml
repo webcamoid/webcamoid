@@ -34,6 +34,7 @@ ScrollView {
     signal openVideoInputAddWindowDialog()
     signal openVideoInputAddFileDialog()
     signal openVideoInputAddUrlDialog()
+    signal openVideoInputAddTextDialog()
     signal openVideoInputOptions(int sourceId)
     signal openCanvasVideoEffectsDialog()
     signal enterEditLayoutMode()
@@ -86,6 +87,8 @@ ScrollView {
                 return "screen"
             case VideoLayer.InputImage:
                 return "picture"
+            case VideoLayer.InputText:
+                return "fonts"
             default:
                 return "video"
         }
@@ -101,6 +104,8 @@ ScrollView {
                 return qsTr("Image")
             case VideoLayer.InputStream:
                 return qsTr("Video")
+            case VideoLayer.InputText:
+                return qsTr("Text")
             default:
                 return qsTr("Unknown")
         }
@@ -168,6 +173,12 @@ ScrollView {
                     icon.source: "image://icons/link"
 
                     onClicked: view.openVideoInputAddUrlDialog()
+                }
+                MenuItem {
+                    text: qsTr("Add text")
+                    icon.source: "image://icons/fonts"
+
+                    onClicked: view.openVideoInputAddTextDialog()
                 }
             }
         }

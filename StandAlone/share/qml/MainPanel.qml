@@ -119,6 +119,15 @@ OptionsPanel {
                 videoInputAddEdit.mediaType = VideoInputAddEdit.MediaType.UrlMedia
                 videoInputAddEdit.openOptions(-1)
             }
+            onOpenVideoInputAddTextDialog: {
+                let id = videoLayer.addTextSource("")
+
+                if (id >= 0) {
+                    closeAndOpen()
+                    layout.currentIndex = 3
+                    videoInputOptions.setInput(id)
+                }
+            }
             onOpenVideoOutputAddEditDialog: videoOutput =>
                 videoOutputAddEdit.openOptions(videoOutput)
             onOpenVideoInputOptions: function (videoInput) {

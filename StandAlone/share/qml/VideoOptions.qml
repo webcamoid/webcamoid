@@ -30,6 +30,7 @@ ColumnLayout {
     signal openVideoInputAddWindowDialog()
     signal openVideoInputAddFileDialog()
     signal openVideoInputAddUrlDialog()
+    signal openVideoInputAddTextDialog()
     signal openVideoOutputAddEditDialog(string videoOutput)
     signal openVideoInputOptions(int sourceId)
     signal openCanvasVideoEffectsDialog()
@@ -71,6 +72,8 @@ ColumnLayout {
                 videoOptions.openVideoInputAddFileDialog()
             onOpenVideoInputAddUrlDialog:
                 videoOptions.openVideoInputAddUrlDialog()
+            onOpenVideoInputAddTextDialog:
+                videoOptions.openVideoInputAddTextDialog()
             onOpenVideoInputOptions: sourceId =>
                 videoOptions.openVideoInputOptions(sourceId)
             onOpenCanvasVideoEffectsDialog:

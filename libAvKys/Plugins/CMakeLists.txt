@@ -32,6 +32,7 @@ add_subdirectory(FillAudioGaps)
 add_subdirectory(ImageSrc)
 add_subdirectory(MultiSrc)
 add_subdirectory(PacketSync)
+add_subdirectory(TextSrc)
 add_subdirectory(VideoCapture)
 
 if (NOT APPLE AND NOT ANDROID)

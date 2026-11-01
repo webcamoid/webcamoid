@@ -40,14 +40,34 @@ ScrollView {
     signal videoInputRemoved()
     signal openSourceVideoEffectsDialog(int sourceId)
 
+    function updateInfo()
+    {
+        if (view.sourceId < 0)
+            return
+
+        deviceInfo.text =
+                "<b>" + videoLayer.sourceLabel(view.sourceId) + "</b>"
+                + (videoLayer.sourceType(view.sourceId) == VideoLayer.InputText?
+                       "":
+                       "<br/><i>" + videoLayer.sourceDevice(view.sourceId) + "</i>")
+    }
+
     function setInput(sourceId)
     {
         view.sourceId = sourceId
-        deviceInfo.text =
-                "<b>" + videoLayer.sourceLabel(sourceId) + "</b>"
-                + "<br/><i>" + videoLayer.sourceDevice(sourceId) + "</i>"
+        view.updateInfo()
         videoLayer.removeInterface("itmVideoInputOptions")
         videoLayer.embedControls("itmVideoInputOptions", sourceId, "")
+    }
+
+    Connections {
+        target: videoLayer
+
+        function onSourceLabelChanged(id, label)
+        {
+            if (id === view.sourceId)
+                view.updateInfo()
+        }
     }
 
     ColumnLayout {
@@ -65,13 +85,16 @@ ScrollView {
         }
 
         Button {
-            text: qsTr("Edit")
+            text: view.inputType == VideoLayer.InputText?
+                      qsTr("Rename"):
+                      qsTr("Edit")
             icon.source: "image://icons/edit"
             flat: true
             Layout.leftMargin: view.leftMargin
             Layout.rightMargin: view.rightMargin
             visible: view.inputType == VideoLayer.InputStream
                      || view.inputType == VideoLayer.InputImage
+                     || view.inputType == VideoLayer.InputText
 
             onClicked: view.openVideoInputAddEditDialog(view.sourceId)
         }

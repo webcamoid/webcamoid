@@ -1,0 +1,12 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "TextSrc",
+            "description": "Use styled text as a source",
+            "id": "VideoSource/TextSrc",
+            "implements": ["Element"],
+            "type": "qtplugin"
+        }
+    ]
+}

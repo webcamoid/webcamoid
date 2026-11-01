@@ -1656,167 +1656,172 @@
         <translation>%1/Video %2.%3</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1028"/>
+        <location filename="../../src/videolayer.cpp" line="1110"/>
         <source>3GP Video</source>
         <translation>Video 3GP</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1029"/>
+        <location filename="../../src/videolayer.cpp" line="1111"/>
         <source>AVI Video</source>
         <translation>Video AVI</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1030"/>
+        <location filename="../../src/videolayer.cpp" line="1112"/>
         <source>Windows Bitmap</source>
         <translation>Peta Bit Windows</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1031"/>
+        <location filename="../../src/videolayer.cpp" line="1113"/>
         <source>Microsoft Windows Cursor</source>
         <translation>Kursor Microsoft Windows</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1033"/>
+        <location filename="../../src/videolayer.cpp" line="1115"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
         <translation>Video Flash</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1034"/>
+        <location filename="../../src/videolayer.cpp" line="1116"/>
         <source>Animated GIF</source>
         <translation>GIF Animasi</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1035"/>
+        <location filename="../../src/videolayer.cpp" line="1117"/>
         <source>Graphic Interchange Format</source>
         <translation>Format Pertukaran Grafik</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1036"/>
+        <location filename="../../src/videolayer.cpp" line="1118"/>
         <source>Apple Icon Image</source>
         <translation>Imej Ikon Apple</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1037"/>
+        <location filename="../../src/videolayer.cpp" line="1119"/>
         <source>Microsoft Windows Icon</source>
         <translation>Ikon Microsoft Windows</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1038"/>
+        <location filename="../../src/videolayer.cpp" line="1120"/>
         <source>Joint Photographic Experts Group</source>
         <translation>Kumpulan Pakar Fotografi Bersama</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1039"/>
+        <location filename="../../src/videolayer.cpp" line="1121"/>
         <source>MKV Video</source>
         <translation>Video MKV</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1040"/>
+        <location filename="../../src/videolayer.cpp" line="1122"/>
         <source>Animated PNG</source>
         <translation>PNG Animasi</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1041"/>
+        <location filename="../../src/videolayer.cpp" line="1123"/>
         <source>Multiple-image Network Graphics</source>
         <translation>Grafik Rangkaian Berbilang Imej</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1042"/>
+        <location filename="../../src/videolayer.cpp" line="1124"/>
         <source>QuickTime Video</source>
         <translation>Video QuickTime</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1043"/>
+        <location filename="../../src/videolayer.cpp" line="1125"/>
         <source>MP4 Video</source>
         <translation>Video MP4</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1044"/>
+        <location filename="../../src/videolayer.cpp" line="1126"/>
         <source>MPEG Video</source>
         <translation>Video MPEG</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1045"/>
+        <location filename="../../src/videolayer.cpp" line="1127"/>
         <source>Ogg Video</source>
         <translation>Video Ogg</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1046"/>
+        <location filename="../../src/videolayer.cpp" line="1128"/>
         <source>Portable Bitmap</source>
         <translation>Peta Bit Mudah Alih</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1047"/>
+        <location filename="../../src/videolayer.cpp" line="1129"/>
         <source>Portable Graymap</source>
         <translation>Peta Kelabu Mudah Alih</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1048"/>
+        <location filename="../../src/videolayer.cpp" line="1130"/>
         <source>Portable Network Graphics</source>
         <translation>Grafik Rangkaian Mudah Alih</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1049"/>
+        <location filename="../../src/videolayer.cpp" line="1131"/>
         <source>Portable Pixmap</source>
         <translation>Peta Pixel Mudah Alih</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1051"/>
+        <location filename="../../src/videolayer.cpp" line="1133"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
         <translation>Video RealMedia</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1052"/>
+        <location filename="../../src/videolayer.cpp" line="1134"/>
         <source>Scalable Vector Graphics</source>
         <translation>Grafik Vektor Skalabel</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1053"/>
+        <location filename="../../src/videolayer.cpp" line="1135"/>
         <source>Truevision TGA</source>
         <translation>Truevision TGA</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1054"/>
+        <location filename="../../src/videolayer.cpp" line="1136"/>
         <source>Tagged Image File Format</source>
         <translation>Format Fail Imej Bertag</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1055"/>
+        <location filename="../../src/videolayer.cpp" line="1137"/>
         <source>DVD Video</source>
         <translation>Video DVD</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1056"/>
+        <location filename="../../src/videolayer.cpp" line="1138"/>
         <source>Wireless Bitmap</source>
         <translation>Peta Bit Tanpa Wayar</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1057"/>
+        <location filename="../../src/videolayer.cpp" line="1139"/>
         <source>WebM Video</source>
         <translation>Video WebM</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1058"/>
+        <location filename="../../src/videolayer.cpp" line="1140"/>
         <source>WebP</source>
         <translation>WebP</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1060"/>
+        <location filename="../../src/videolayer.cpp" line="1142"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
         <translation>Windows Media Video</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1061"/>
+        <location filename="../../src/videolayer.cpp" line="1143"/>
         <source>X11 Bitmap</source>
         <translation>Peta Bit X11</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1062"/>
+        <location filename="../../src/videolayer.cpp" line="1144"/>
         <source>X11 Pixmap</source>
         <translation>Peta Pixel X11</translation>
+    </message>
+    <message>
+        <location filename="../../src/videolayer.cpp" line="1376"/>
+        <source>Text</source>
+        <translation type="unfinished">Teks</translation>
     </message>
 </context>
 <context>
@@ -2303,59 +2308,70 @@
 <context>
     <name>VideoInputAddEdit</name>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="91"/>
-        <source>Edit media file source</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="95"/>
-        <source>Edit media URL source</source>
+        <source>Rename text source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="99"/>
+        <source>Edit media file source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="103"/>
+        <source>Edit media URL source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="107"/>
         <source>Add media file source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="100"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="108"/>
         <source>Add media URL source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="133"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="180"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="142"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="189"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="234"/>
         <source>Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="139"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="186"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="148"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="195"/>
         <source>Source title</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="149"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="158"/>
         <source>Path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="159"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="168"/>
         <source>File path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="160"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="169"/>
         <source>Search file to use as source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="196"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="205"/>
         <source>URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="254"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="240"/>
+        <source>Leave empty to use the text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="300"/>
         <source>Choose the file to add as source</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2389,47 +2405,52 @@
 <context>
     <name>VideoInputOptions</name>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="68"/>
+        <location filename="../qml/VideoInputOptions.qml" line="89"/>
+        <source>Rename</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputOptions.qml" line="90"/>
         <source>Edit</source>
         <translation>Sunting</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="80"/>
+        <location filename="../qml/VideoInputOptions.qml" line="103"/>
         <source>Remove</source>
         <translation>Buang</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="95"/>
+        <location filename="../qml/VideoInputOptions.qml" line="118"/>
         <source>Manage source effects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="107"/>
+        <location filename="../qml/VideoInputOptions.qml" line="130"/>
         <source>Opacity</source>
         <translation type="unfinished">Kelegapan</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="125"/>
+        <location filename="../qml/VideoInputOptions.qml" line="148"/>
         <source>Source opacity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="136"/>
+        <location filename="../qml/VideoInputOptions.qml" line="159"/>
         <source>Aspect ratio mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="138"/>
+        <location filename="../qml/VideoInputOptions.qml" line="161"/>
         <source>Ignore</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="139"/>
+        <location filename="../qml/VideoInputOptions.qml" line="162"/>
         <source>Keep</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="140"/>
+        <location filename="../qml/VideoInputOptions.qml" line="163"/>
         <source>Keep by expanding</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2437,77 +2458,87 @@
 <context>
     <name>VideoInputs</name>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="97"/>
+        <location filename="../qml/VideoInputs.qml" line="100"/>
         <source>Camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="99"/>
+        <location filename="../qml/VideoInputs.qml" line="102"/>
         <source>Screen</source>
         <translation type="unfinished">Skrin</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="101"/>
+        <location filename="../qml/VideoInputs.qml" line="104"/>
         <source>Image</source>
         <translation type="unfinished">Imej</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="103"/>
+        <location filename="../qml/VideoInputs.qml" line="106"/>
         <source>Video</source>
         <translation type="unfinished">Video</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="105"/>
+        <location filename="../qml/VideoInputs.qml" line="108"/>
+        <source>Text</source>
+        <translation type="unfinished">Teks</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="110"/>
         <source>Unknown</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="124"/>
+        <location filename="../qml/VideoInputs.qml" line="129"/>
         <source>Add source</source>
         <translation>Tambah sumber</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="136"/>
+        <location filename="../qml/VideoInputs.qml" line="141"/>
         <source>Add camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="144"/>
+        <location filename="../qml/VideoInputs.qml" line="149"/>
         <source>Add screen</source>
         <translation>Tambah skrin</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="145"/>
+        <location filename="../qml/VideoInputs.qml" line="150"/>
         <source>Add screen source</source>
         <translation>Tambah sumber skrin</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="152"/>
+        <location filename="../qml/VideoInputs.qml" line="157"/>
         <source>Add window</source>
         <translation>Tambah tetingkap</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="161"/>
+        <location filename="../qml/VideoInputs.qml" line="166"/>
         <source>Add media file</source>
         <translation>Tambah fail media</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="167"/>
+        <location filename="../qml/VideoInputs.qml" line="172"/>
         <source>Add media URL</source>
         <translation>Tambah URL media</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="183"/>
+        <location filename="../qml/VideoInputs.qml" line="178"/>
+        <source>Add text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="194"/>
         <source>Manage canvas effects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="175"/>
+        <location filename="../qml/VideoInputs.qml" line="186"/>
         <source>Edit layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="379"/>
+        <location filename="../qml/VideoInputs.qml" line="390"/>
         <source>Source %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2528,12 +2559,12 @@
 <context>
     <name>VideoOptions</name>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="48"/>
+        <location filename="../qml/VideoOptions.qml" line="49"/>
         <source>Sources</source>
         <translation>Sumber</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="51"/>
+        <location filename="../qml/VideoOptions.qml" line="52"/>
         <source>Outputs</source>
         <translation>Output</translation>
     </message>
@@ -3136,6 +3167,7 @@
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="94"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="82"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="90"/>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="145"/>
         <source>Font</source>
         <translation>Fon</translation>
     </message>
@@ -3179,6 +3211,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="134"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="131"/>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="430"/>
         <source>Style</source>
         <extracomment>Different font rendering strategies</extracomment>
         <translation>Gaya</translation>
@@ -3198,6 +3231,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="154"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="151"/>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="475"/>
         <source>Outline</source>
         <translation>Kerangka</translation>
     </message>
@@ -3273,6 +3307,7 @@
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="214"/>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="69"/>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="87"/>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="308"/>
         <source>Background color</source>
         <translation>Warna latar belakang</translation>
     </message>
@@ -3282,6 +3317,7 @@
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="216"/>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="71"/>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="89"/>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="310"/>
         <source>Choose the background color</source>
         <translation>Pilih warna latar belakang</translation>
     </message>
@@ -3519,21 +3555,25 @@
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="51"/>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="248"/>
         <source>Left</source>
         <translation>Kiri</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="68"/>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="250"/>
         <source>Right</source>
         <translation>Kanan</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="85"/>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="260"/>
         <source>Top</source>
         <translation>Atas</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="102"/>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="262"/>
         <source>Bottom</source>
         <translation>Bawah</translation>
     </message>
@@ -3776,11 +3816,13 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="229"/>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="329"/>
         <source>Rectangle</source>
         <translation>Segi empat tepat</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="233"/>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="330"/>
         <source>Ellipse</source>
         <translation>Elips</translation>
     </message>
@@ -4303,6 +4345,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="156"/>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="435"/>
         <source>Lightning</source>
         <translation>Kilat</translation>
     </message>
@@ -4663,6 +4706,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="162"/>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="510"/>
         <source>Shadow</source>
         <translation>Bayang</translation>
     </message>
@@ -4673,6 +4717,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Warhol/share/qml/main.qml" line="189"/>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="521"/>
         <source>Shadow color</source>
         <translation>Warna bayang</translation>
     </message>
@@ -4943,6 +4988,332 @@
         <location filename="../../../libAvKys/ExtraPlugins/Shagadelic/share/qml/main.qml" line="63"/>
         <source>Blue intensity</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="75"/>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="102"/>
+        <source>Text</source>
+        <translation type="unfinished">Teks</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="79"/>
+        <source>Text from</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="81"/>
+        <source>Text box</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="81"/>
+        <source>File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="97"/>
+        <source>Type the text here</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="114"/>
+        <source>Text file path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="115"/>
+        <source>Search the text file to use</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="134"/>
+        <source>The text updates automatically when the file changes.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="148"/>
+        <source>Family</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="157"/>
+        <source>Size (pixels)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="165"/>
+        <source>Bold</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="173"/>
+        <source>Italic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="181"/>
+        <source>Underline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="189"/>
+        <source>Strikethrough</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="197"/>
+        <source>Letter spacing (pixels)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="205"/>
+        <source>Line spacing (%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="214"/>
+        <source>Antialiasing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="225"/>
+        <source>Layout</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="228"/>
+        <source>Frame width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="237"/>
+        <source>Frame height</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="246"/>
+        <source>Horizontal alignment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="249"/>
+        <source>Center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="251"/>
+        <source>Justify</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="258"/>
+        <source>Vertical alignment</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="261"/>
+        <source>Middle</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="269"/>
+        <source>Word wrap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="277"/>
+        <source>Padding (pixels)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="288"/>
+        <source>Colors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="291"/>
+        <source>Text color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="293"/>
+        <source>Choose the text color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="305"/>
+        <source>Background</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="319"/>
+        <source>Background fits the text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="327"/>
+        <source>Shape</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="331"/>
+        <source>Cloud (thought)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="332"/>
+        <source>Burst (shout)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="339"/>
+        <source>Corner radius</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="348"/>
+        <source>Enable border</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="356"/>
+        <source>Border color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="358"/>
+        <source>Choose the border color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="368"/>
+        <source>Border width (pixels)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="377"/>
+        <source>Enable background shadow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="385"/>
+        <source>Background shadow color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="387"/>
+        <source>Choose the background shadow color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="397"/>
+        <source>Background shadow horizontal offset (pixels)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="406"/>
+        <source>Background shadow vertical offset (pixels)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="415"/>
+        <source>Background shadow blur (pixels)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="427"/>
+        <source>Balloon tail</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="432"/>
+        <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="433"/>
+        <source>Pointer (speech)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="434"/>
+        <source>Circles (thought)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="442"/>
+        <source>Direction (degrees, 90 = down)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="452"/>
+        <source>Length (pixels)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="462"/>
+        <source>Width (pixels)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="478"/>
+        <source>Enable outline</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="486"/>
+        <source>Outline color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="488"/>
+        <source>Choose the outline color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="498"/>
+        <source>Outline width (pixels)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="513"/>
+        <source>Enable shadow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="523"/>
+        <source>Choose the shadow color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="533"/>
+        <source>Horizontal offset (pixels)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="542"/>
+        <source>Vertical offset (pixels)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="551"/>
+        <source>Blur (pixels)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="562"/>
+        <source>Choose the text file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="564"/>
+        <source>Text files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="565"/>
+        <source>All Files</source>
+        <translation type="unfinished">Semua Fail</translation>
     </message>
 </context>
 </TS>
