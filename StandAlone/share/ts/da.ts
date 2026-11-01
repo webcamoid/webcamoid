@@ -3418,7 +3418,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="163"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorTap/share/qml/main.qml" line="131"/>
-        <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="639"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="671"/>
         <location filename="../../../libAvKys/ExtraPlugins/Halftone/share/qml/main.qml" line="212"/>
         <source>Please choose an image file</source>
         <translation>Vælg venligst en billedfil</translation>
@@ -3852,6 +3852,21 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="533"/>
         <source>Adjust the size and position of the face marker area.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="639"/>
+        <source>Detection Loss</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="644"/>
+        <source>Keep the marker in its last position for some time after the face is lost, to avoid showing the face when the detector misses it. Set to 0 to disable.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FaceDetect/share/qml/main.qml" line="652"/>
+        <source>Hold time (ms)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
