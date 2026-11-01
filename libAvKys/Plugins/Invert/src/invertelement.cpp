@@ -108,7 +108,7 @@ void InvertElement::process(QOpenGLFramebufferObject *inputFbo,
         || outputFbo->height() != height) {
         if (outputFbo)
             delete outputFbo;
-}{
+
         outputFbo = new QOpenGLFramebufferObject(width, height);
     }
 

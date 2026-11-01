@@ -3039,6 +3039,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="49"/>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="48"/>
+        <location filename="../../../libAvKys/ExtraPlugins/FreezeFrame/share/qml/main.qml" line="75"/>
         <location filename="../../../libAvKys/ExtraPlugins/Hypnotic/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="48"/>
         <location filename="../../../libAvKys/ExtraPlugins/Ripple/share/qml/main.qml" line="43"/>
@@ -5330,6 +5331,46 @@
         <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="565"/>
         <source>All Files</source>
         <translation type="unfinished">Todos los archivos</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FreezeFrame/share/qml/main.qml" line="83"/>
+        <source>Still</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FreezeFrame/share/qml/main.qml" line="87"/>
+        <source>Loop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FreezeFrame/share/qml/main.qml" line="96"/>
+        <source>Loop: while Freeze is off, the last seconds of video are kept in memory. When Freeze is on, they are played back and forth.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FreezeFrame/share/qml/main.qml" line="97"/>
+        <source>Still: when Freeze is on, the current frame is kept on the output.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FreezeFrame/share/qml/main.qml" line="106"/>
+        <source>Freeze</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FreezeFrame/share/qml/main.qml" line="118"/>
+        <source>Duration: %1 s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FreezeFrame/share/qml/main.qml" line="138"/>
+        <source>Loop maximum height</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/FreezeFrame/share/qml/main.qml" line="167"/>
+        <source>The loop is stored at this height or lower and scaled up when played. Estimated memory: %1 MiB (30 FPS, 16:9).</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
