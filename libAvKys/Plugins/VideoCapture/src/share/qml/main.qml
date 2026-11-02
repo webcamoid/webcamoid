@@ -103,6 +103,20 @@ ColumnLayout {
         createBatch()
     }
 
+    // Change the video stream (format, resolution and FPS). It must be called
+    // only when the user selects something: the streamIndex() function returns
+    // the first stream when an index is invalid (like the -1 of a combo box that
+    // is still being created), and that stream was saved as the choice of the
+    // user every time the page was built or the camera was changed.
+    function selectStream(formatIndex, resolutionIndex, fpsIndex)
+    {
+        VideoCapture.streams =
+            [VideoCapture.streamIndex(VideoCapture.media,
+                                      formatIndex,
+                                      resolutionIndex,
+                                      fpsIndex)]
+    }
+
     function createCameraControls()
     {
         createControlsInBatches(VideoCapture.imageControls(),
@@ -133,13 +147,8 @@ ColumnLayout {
         currentIndex: VideoCapture.formatIndex(VideoCapture.media,
                                                recCameraControls.streamIndex)
 
-        onCurrentIndexChanged: {
-            VideoCapture.streams =
-                [VideoCapture.streamIndex(VideoCapture.media,
-                                          cbxFormat.currentIndex,
-                                          cbxResolution.currentIndex,
-                                          cbxFps.currentIndex)]
-        }
+        // A new format starts with its first resolution and FPS.
+        onActivated: (index) => recCameraControls.selectStream(index, 0, 0)
     }
     AK.LabeledComboBox {
         id: cbxResolution
@@ -151,13 +160,10 @@ ColumnLayout {
         currentIndex: VideoCapture.resolutionIndex(VideoCapture.media,
                                                    recCameraControls.streamIndex)
 
-        onCurrentIndexChanged: {
-            VideoCapture.streams =
-                [VideoCapture.streamIndex(VideoCapture.media,
-                                          cbxFormat.currentIndex,
-                                          cbxResolution.currentIndex,
-                                          cbxFps.currentIndex)]
-        }
+        // A new resolution starts with its first FPS.
+        onActivated: (index) => recCameraControls.selectStream(cbxFormat.currentIndex,
+                                                               index,
+                                                               0)
     }
     AK.LabeledComboBox {
         id: cbxFps
@@ -171,13 +177,9 @@ ColumnLayout {
         currentIndex: VideoCapture.fpsIndex(VideoCapture.media,
                                             recCameraControls.streamIndex)
 
-        onCurrentIndexChanged: {
-            VideoCapture.streams =
-                [VideoCapture.streamIndex(VideoCapture.media,
-                                          cbxFormat.currentIndex,
-                                          cbxResolution.currentIndex,
-                                          cbxFps.currentIndex)]
-        }
+        onActivated: (index) => recCameraControls.selectStream(cbxFormat.currentIndex,
+                                                               cbxResolution.currentIndex,
+                                                               index)
     }
     Button {
         id: btnReset

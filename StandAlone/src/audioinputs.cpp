@@ -482,6 +482,7 @@ void AudioInputs::setLatency(int latency)
         return;
 
     this->d->m_latency = latency;
+    this->d->saveProperties();
     emit this->latencyChanged(latency);
 }
 

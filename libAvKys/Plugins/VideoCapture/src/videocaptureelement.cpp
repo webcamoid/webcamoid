@@ -20,11 +20,14 @@
 #include <QAbstractEventDispatcher>
 #include <QFuture>
 #include <QImage>
+#include <QJsonDocument>
 #include <QQmlContext>
 #include <QReadWriteLock>
+#include <QSettings>
 #include <QSharedPointer>
 #include <QThreadPool>
 #include <QtConcurrent>
+#include <cmath>
 
 #ifdef SHOWCASE_MODE
 #include <QFileDialog>
@@ -80,6 +83,16 @@ struct FormatStringCache
 
 using StringsCache = QVector<FormatStringCache>;
 
+// Settings saved for each camera.
+struct DeviceSettings
+{
+    QString id;
+    QString description;
+    int stream {0};
+    QVariantMap imageControls;  // Only the controls changed by the user.
+    QVariantMap cameraControls; // Only the controls changed by the user.
+};
+
 class VideoCaptureElementPrivate
 {
     public:
@@ -100,6 +113,16 @@ class VideoCaptureElementPrivate
         void cameraLoop();
         void linksChanged(const AkPluginLinks &links);
         void buildStringCache();
+        QList<DeviceSettings> loadDeviceSettings() const;
+        void saveDeviceSettings(const QList<DeviceSettings> &devices) const;
+        DeviceSettings deviceSettings(const QString &media,
+                                      const QString &description) const;
+        void updateDeviceSettings(const DeviceSettings &device) const;
+        void restoreDevice(const CapturePtr &capture, const QString &media);
+        void storeControls(const CapturePtr &capture,
+                           bool camera,
+                           const QVariantMap &controls);
+        void clearControls(const CapturePtr &capture, bool image, bool camera);
 
 #ifdef SHOWCASE_MODE
         static QString showcasePicturePath();
@@ -172,36 +195,7 @@ VideoCaptureElement::VideoCaptureElement():
         if (!medias.isEmpty()) {
             auto media = medias.first();
             this->d->m_capture->setDevice(media);
-            QSettings settings;
-            settings.beginGroup("VideoCapture");
-            auto ndevices = settings.beginReadArray("devices");
-            auto deviceDescription = this->d->m_capture->description(media);
-            int streamIndex = 0;
-
-            for (decltype(ndevices) i = 0; i < ndevices; i++) {
-                settings.setArrayIndex(i);
-                auto deviceId = settings.value("id").toString();
-                auto description = settings.value("description").toString();
-
-                if (deviceId == media && description == deviceDescription) {
-                    streamIndex = settings.value("stream", 0).toInt();
-                    auto tracks = this->d->m_capture->listTracks(AkCaps::CapsVideo);
-
-                    if (tracks.isEmpty())
-                        streamIndex = 0;
-                    else
-                        streamIndex = qBound<int>(0,
-                                                  streamIndex,
-                                                  tracks.size() - 1);
-
-                    break;
-                }
-            }
-
-            settings.endArray();
-            settings.endGroup();
-
-            this->d->m_capture->setStreams({streamIndex});
+            this->d->restoreDevice(this->d->m_capture, media);
         }
     }
 }
@@ -437,8 +431,12 @@ bool VideoCaptureElement::setImageControls(const QVariantMap &imageControls)
 
     bool result = false;
 
-    if (capture)
+    if (capture) {
         result = capture->setImageControls(imageControls);
+
+        if (result)
+            this->d->storeControls(capture, false, imageControls);
+    }
 
     return result;
 }
@@ -451,8 +449,10 @@ bool VideoCaptureElement::resetImageControls()
 
     bool result = false;
 
-    if (capture)
+    if (capture) {
         result = capture->resetImageControls();
+        this->d->clearControls(capture, true, false);
+    }
 
     return result;
 }
@@ -479,8 +479,12 @@ bool VideoCaptureElement::setCameraControls(const QVariantMap &cameraControls)
 
     bool result = false;
 
-    if (capture)
+    if (capture) {
         result = capture->setCameraControls(cameraControls);
+
+        if (result)
+            this->d->storeControls(capture, true, cameraControls);
+    }
 
     return result;
 }
@@ -493,8 +497,10 @@ bool VideoCaptureElement::resetCameraControls()
 
     bool result = false;
 
-    if (capture)
+    if (capture) {
         result = capture->resetCameraControls();
+        this->d->clearControls(capture, false, true);
+    }
 
     return result;
 }
@@ -713,37 +719,7 @@ void VideoCaptureElement::setMedia(const QString &media)
         return;
 
     capture->setDevice(media);
-    QSettings settings;
-
-    settings.beginGroup("VideoCapture");
-    auto ndevices = settings.beginReadArray("devices");
-    auto deviceDescription = capture->description(media);
-    int streamIndex = 0;
-
-    for (int i = 0; i < ndevices; i++) {
-        settings.setArrayIndex(i);
-        auto deviceId = settings.value("id").toString();
-        auto description = settings.value("description").toString();
-
-        if (deviceId == media && description == deviceDescription) {
-            streamIndex = settings.value("stream", 0).toInt();
-            auto tracks = capture->listTracks(AkCaps::CapsVideo);
-
-            if (tracks.isEmpty())
-                streamIndex = 0;
-            else
-                streamIndex = qBound<int>(0,
-                                          streamIndex,
-                                          tracks.size() - 1);
-
-            break;
-        }
-    }
-
-    settings.endArray();
-    settings.endGroup();
-
-   capture->setStreams({streamIndex});
+    this->d->restoreDevice(capture, media);
 }
 
 void VideoCaptureElement::setStreams(const QList<int> &streams)
@@ -766,31 +742,12 @@ void VideoCaptureElement::setStreams(const QList<int> &streams)
     if (running)
         this->setState(AkElement::ElementStatePlaying);
 
-    QSettings settings;
+    if (media.isEmpty())
+        return;
 
-    settings.beginGroup("VideoCapture");
-    auto ndevices = settings.beginReadArray("devices");
-    decltype(ndevices) i = 0;
-
-    for (; i < ndevices; i++) {
-        settings.setArrayIndex(i);
-        auto deviceId = settings.value("id").toString();
-        auto description = settings.value("description").toString();
-
-        if (deviceId == media && description == deviceDescription)
-            break;
-    }
-
-    settings.endArray();
-
-    settings.beginWriteArray("devices");
-    settings.setArrayIndex(i);
-    settings.setValue("id", media);
-    settings.setValue("description", deviceDescription);
-    settings.setValue("stream", streams.isEmpty()? 0: streams.first());
-
-    settings.endArray();
-    settings.endGroup();
+    auto device = this->d->deviceSettings(media, deviceDescription);
+    device.stream = streams.isEmpty()? 0: streams.first();
+    this->d->updateDeviceSettings(device);
 }
 
 void VideoCaptureElement::setIoMethod(const QString &ioMethod)
@@ -895,29 +852,15 @@ void VideoCaptureElement::reset()
     if (running)
         this->setState(AkElement::ElementStatePlaying);
 
-    QSettings settings;
+    if (media.isEmpty())
+        return;
 
-    settings.beginGroup("VideoCapture");
-    auto ndevices = settings.beginReadArray("devices");
-    int i = 0;
-
-    for (; i < ndevices; i++) {
-        settings.setArrayIndex(i);
-        auto deviceId = settings.value("id").toString();
-        auto description = settings.value("description").toString();
-
-        if (deviceId == media && description == deviceDescription)
-            break;
-    }
-
-    settings.endArray();
-    settings.beginWriteArray("devices");
-    settings.setArrayIndex(i);
-    settings.setValue("id", media);
-    settings.setValue("description", deviceDescription);
-    settings.setValue("stream", streams.isEmpty()? 0: streams.first());
-    settings.endArray();
-    settings.endGroup();
+    // The controls were reset to their default values too.
+    auto device = this->d->deviceSettings(media, deviceDescription);
+    device.stream = streams.isEmpty()? 0: streams.first();
+    device.imageControls.clear();
+    device.cameraControls.clear();
+    this->d->updateDeviceSettings(device);
 }
 
 void VideoCaptureElement::takePictures(int count, int delayMsecs)
@@ -1172,6 +1115,210 @@ void VideoCaptureElementPrivate::cameraLoop()
 
         capture->uninit();
     }
+}
+
+// The controls are saved as a JSON object (control name -> value), because the
+// names of the controls can contain any character.
+static QString controlsToJson(const QVariantMap &controls)
+{
+    if (controls.isEmpty())
+        return {};
+
+    return QString::fromUtf8(QJsonDocument::fromVariant(controls)
+                             .toJson(QJsonDocument::Compact));
+}
+
+static QVariantMap controlsFromJson(const QString &json)
+{
+    if (json.isEmpty())
+        return {};
+
+    auto controls = QJsonDocument::fromJson(json.toUtf8()).toVariant().toMap();
+
+    // JSON numbers are read as floating point, restore the integer values.
+    for (auto it = controls.begin(); it != controls.end(); it++) {
+        auto type = it.value().typeId();
+
+        if (type == QMetaType::Double || type == QMetaType::LongLong) {
+            auto value = it.value().toDouble();
+
+            if (value == std::floor(value) && std::abs(value) < 2147483648.0)
+                it.value() = int(value);
+        }
+    }
+
+    return controls;
+}
+
+QList<DeviceSettings> VideoCaptureElementPrivate::loadDeviceSettings() const
+{
+    QList<DeviceSettings> devices;
+    QSettings settings;
+    settings.beginGroup("VideoCapture");
+    auto ndevices = settings.beginReadArray("devices");
+
+    for (decltype(ndevices) i = 0; i < ndevices; i++) {
+        settings.setArrayIndex(i);
+        DeviceSettings device;
+        device.id = settings.value("id").toString();
+        device.description = settings.value("description").toString();
+        device.stream = settings.value("stream", 0).toInt();
+        device.imageControls =
+                controlsFromJson(settings.value("imageControls").toString());
+        device.cameraControls =
+                controlsFromJson(settings.value("cameraControls").toString());
+        devices << device;
+    }
+
+    settings.endArray();
+    settings.endGroup();
+
+    return devices;
+}
+
+// The whole list is written at once with its real size. Writing only the entry
+// of one camera with beginWriteArray() makes Qt to truncate the array to that
+// entry, and the settings of the other cameras are lost.
+void VideoCaptureElementPrivate::saveDeviceSettings(const QList<DeviceSettings> &devices) const
+{
+    QSettings settings;
+    settings.beginGroup("VideoCapture");
+    settings.beginWriteArray("devices", devices.size());
+
+    for (int i = 0; i < devices.size(); i++) {
+        settings.setArrayIndex(i);
+        settings.setValue("id", devices[i].id);
+        settings.setValue("description", devices[i].description);
+        settings.setValue("stream", devices[i].stream);
+
+        if (devices[i].imageControls.isEmpty())
+            settings.remove("imageControls");
+        else
+            settings.setValue("imageControls",
+                              controlsToJson(devices[i].imageControls));
+
+        if (devices[i].cameraControls.isEmpty())
+            settings.remove("cameraControls");
+        else
+            settings.setValue("cameraControls",
+                              controlsToJson(devices[i].cameraControls));
+    }
+
+    settings.endArray();
+    settings.endGroup();
+}
+
+DeviceSettings VideoCaptureElementPrivate::deviceSettings(const QString &media,
+                                                          const QString &description) const
+{
+    for (auto &device: this->loadDeviceSettings())
+        if (device.id == media && device.description == description)
+            return device;
+
+    DeviceSettings device;
+    device.id = media;
+    device.description = description;
+
+    return device;
+}
+
+void VideoCaptureElementPrivate::updateDeviceSettings(const DeviceSettings &device) const
+{
+    auto devices = this->loadDeviceSettings();
+    bool found = false;
+
+    for (auto &saved: devices)
+        if (saved.id == device.id && saved.description == device.description) {
+            saved = device;
+            found = true;
+
+            break;
+        }
+
+    if (!found)
+        devices << device;
+
+    this->saveDeviceSettings(devices);
+}
+
+// Select the device and restore the stream (format, resolution and FPS) and
+// the controls that the user changed in the last session.
+void VideoCaptureElementPrivate::restoreDevice(const CapturePtr &capture,
+                                               const QString &media)
+{
+    if (!capture)
+        return;
+
+    auto device = this->deviceSettings(media, capture->description(media));
+    auto tracks = capture->listTracks(AkCaps::CapsVideo);
+    int streamIndex = tracks.isEmpty()?
+                          0:
+                          qBound<int>(0, device.stream, tracks.size() - 1);
+
+    capture->setStreams({streamIndex});
+
+    if (!device.imageControls.isEmpty())
+        capture->setImageControls(device.imageControls);
+
+    if (!device.cameraControls.isEmpty())
+        capture->setCameraControls(device.cameraControls);
+}
+
+// Save the controls changed by the user. The controls with their default value
+// are not saved, so the camera is left untouched if the user never changed them.
+void VideoCaptureElementPrivate::storeControls(const CapturePtr &capture,
+                                               bool camera,
+                                               const QVariantMap &controls)
+{
+    auto media = capture->device();
+
+    if (media.isEmpty())
+        return;
+
+    auto device = this->deviceSettings(media, capture->description(media));
+    auto &stored = camera? device.cameraControls: device.imageControls;
+
+    QVariantMap defaults;
+
+    for (auto &control: camera? capture->cameraControls(): capture->imageControls()) {
+        auto params = control.toList();
+
+        if (params.size() > 5)
+            defaults[params[0].toString()] = params[5];
+    }
+
+    for (auto it = controls.cbegin(); it != controls.cend(); it++) {
+        // Ignore what isn't a control of this camera.
+        if (!defaults.contains(it.key()))
+            continue;
+
+        if (it.value() == defaults[it.key()])
+            stored.remove(it.key());
+        else
+            stored[it.key()] = it.value();
+    }
+
+    this->updateDeviceSettings(device);
+}
+
+void VideoCaptureElementPrivate::clearControls(const CapturePtr &capture,
+                                               bool image,
+                                               bool camera)
+{
+    auto media = capture->device();
+
+    if (media.isEmpty())
+        return;
+
+    auto device = this->deviceSettings(media, capture->description(media));
+
+    if (image)
+        device.imageControls.clear();
+
+    if (camera)
+        device.cameraControls.clear();
+
+    this->updateDeviceSettings(device);
 }
 
 void VideoCaptureElementPrivate::linksChanged(const AkPluginLinks &links)

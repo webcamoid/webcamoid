@@ -1400,16 +1400,39 @@ bool CaptureV4L2Private::setControls(int fd,
 
     auto ctrl2id = this->findControls(fd, controlClass);
 
-    for (auto it = controls.cbegin(); it != controls.cend(); it++) {
-        if (!ctrl2id.contains(it.key()))
-            continue;
+    // The switches (booleans and menus, like auto exposure, auto focus or auto
+    // white balance) must be written before the controls that they enable or
+    // disable, otherwise the driver rejects the values of the later ones. The
+    // controls are sorted by name, so for example 'Focus (absolute)' would be
+    // written before 'Focus, Automatic Continuous'.
+    auto isSwitch = [fd] (quint32 id) -> bool {
+        v4l2_queryctrl qctrl;
+        memset(&qctrl, 0, sizeof(v4l2_queryctrl));
+        qctrl.id = id;
 
-        v4l2_control ctrl;
-        memset(&ctrl, 0, sizeof(v4l2_control));
-        ctrl.id = ctrl2id[it.key()];
-        ctrl.value = it.value().toInt();
-        x_ioctl(fd, VIDIOC_S_CTRL, &ctrl);
-    }
+        if (x_ioctl(fd, VIDIOC_QUERYCTRL, &qctrl) < 0)
+            return false;
+
+        return qctrl.type == V4L2_CTRL_TYPE_BOOLEAN
+               || qctrl.type == V4L2_CTRL_TYPE_MENU;
+    };
+
+    for (int pass = 0; pass < 2; pass++)
+        for (auto it = controls.cbegin(); it != controls.cend(); it++) {
+            if (!ctrl2id.contains(it.key()))
+                continue;
+
+            auto id = ctrl2id[it.key()];
+
+            if (isSwitch(id) != (pass == 0))
+                continue;
+
+            v4l2_control ctrl;
+            memset(&ctrl, 0, sizeof(v4l2_control));
+            ctrl.id = id;
+            ctrl.value = it.value().toInt();
+            x_ioctl(fd, VIDIOC_S_CTRL, &ctrl);
+        }
 
     return true;
 }
