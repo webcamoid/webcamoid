@@ -145,7 +145,7 @@ struct FFmpegCodecs
     {
         static const char *ffmpegVideoEncBannedCodecsTable[] = {
             "libx264rgb",
-            "av1_mediacodec", // Very unestable
+            "av1_mediacodec", // Very unstable
             nullptr
         };
 
