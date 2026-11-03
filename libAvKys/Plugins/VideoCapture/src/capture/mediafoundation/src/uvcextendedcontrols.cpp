@@ -213,6 +213,10 @@ namespace UvcExtendedControlsPrivate
                     ULONG propId,
                     VariantValue value,
                     ULONGLONG flags);
+    bool menuOptionValue(const UvcExtendedControl *control,
+                         ULONGLONG capabilities,
+                         int index,
+                         ULONGLONG *value);
 }
 
 QVariantList UvcExtendedControls::controls(IUnknown *device)
@@ -250,18 +254,17 @@ QVariantList UvcExtendedControls::controls(IUnknown *device)
 
             if (it->id == KSPROPERTY_CAMERACONTROL_EXTENDED_ZOOM) {
                 QStringList menuOptions;
-                size_t currentIndex = 0;
-                size_t i = 0;
+                int currentIndex = 0;
 
+                // The index must be the position inside the list of supported
+                // options, not inside the full table of options.
                 for (auto option = it->menu; option->description && option->description[0]; ++option) {
                     if (capabilities & option->value.ull) {
-                        menuOptions << QString(option->description);
-
                         if (option->value.ull == flags)
-                            currentIndex = i;
-                    }
+                            currentIndex = menuOptions.size();
 
-                    ++i;
+                        menuOptions << QString(option->description);
+                    }
                 }
 
                 QVariantList controlZoomMode {
@@ -291,18 +294,15 @@ QVariantList UvcExtendedControls::controls(IUnknown *device)
                 controls << QVariant(controlZoom);
             } else {
                 QStringList menuOptions;
-                size_t currentIndex = 0;
-                size_t i = 0;
+                int currentIndex = 0;
 
                 for (auto option = it->menu; option->description && option->description[0]; ++option) {
                     if (capabilities & option->value.ull) {
-                        menuOptions << QString(option->description);
-
                         if (option->value.ull == value.ull)
-                            currentIndex = i;
-                    }
+                            currentIndex = menuOptions.size();
 
-                    ++i;
+                        menuOptions << QString(option->description);
+                    }
                 }
 
                 QVariantList control {
@@ -336,6 +336,7 @@ bool UvcExtendedControls::setControls(IUnknown *device,
     LONG max = 0;
     VariantValue value = {0};
     ULONGLONG flags = 0;
+    ULONGLONG capabilities = 0;
 
     IKsControl *ksControl = nullptr;
 
@@ -348,9 +349,16 @@ bool UvcExtendedControls::setControls(IUnknown *device,
         for (auto it = UvcExtendedControl::table();
              it->id != KSPROPERTY_CAMERACONTROL_EXTENDED_END;
              ++it) {
-            if (!controls.contains(it->description)
-                && !controls.contains(descZoomMode))
+            bool isZoom = it->id == KSPROPERTY_CAMERACONTROL_EXTENDED_ZOOM;
+
+            // Only touch the controls that were really requested.
+            if (isZoom) {
+                if (!controls.contains(it->description)
+                    && !controls.contains(descZoomMode))
+                    continue;
+            } else if (!controls.contains(it->description)) {
                 continue;
+            }
 
             auto ok =
                     UvcExtendedControlsPrivate::control(ksControl,
@@ -360,23 +368,41 @@ bool UvcExtendedControls::setControls(IUnknown *device,
                                                         nullptr,
                                                         &value,
                                                         &flags,
-                                                        nullptr);
+                                                        &capabilities);
 
             if (!ok)
                 continue;
 
-            if (it->id == KSPROPERTY_CAMERACONTROL_EXTENDED_ZOOM) {
+            // The menu controls are set using the index of the option in the
+            // list of supported options, it must be converted to the real
+            // value expected by the device.
+
+            if (isZoom) {
                 if (controls.contains(it->description))
                     value.l =
                             qBound(min,
                                    controls.value(it->description).toInt(),
                                    max);
 
-                if (controls.contains(descZoomMode))
-                    flags = controls.value(it->description).toULongLong();
+                if (controls.contains(descZoomMode)) {
+                    ULONGLONG mode = 0;
+
+                    if (UvcExtendedControlsPrivate::menuOptionValue(it,
+                                                                    capabilities,
+                                                                    controls.value(descZoomMode).toInt(),
+                                                                    &mode))
+                        flags = mode;
+                }
             } else {
-                flags = value.ull =
-                        controls.value(it->description).toULongLong();
+                ULONGLONG optionValue = 0;
+
+                if (!UvcExtendedControlsPrivate::menuOptionValue(it,
+                                                                 capabilities,
+                                                                 controls.value(it->description).toInt(),
+                                                                 &optionValue))
+                    continue;
+
+                flags = value.ull = optionValue;
             }
 
             UvcExtendedControlsPrivate::setControl(ksControl,
@@ -389,6 +415,33 @@ bool UvcExtendedControls::setControls(IUnknown *device,
     }
 
     return true;
+}
+
+bool UvcExtendedControlsPrivate::menuOptionValue(const UvcExtendedControl *control,
+                                                 ULONGLONG capabilities,
+                                                 int index,
+                                                 ULONGLONG *value)
+{
+    if (!control || index < 0)
+        return false;
+
+    int i = 0;
+
+    for (auto option = control->menu; option->description && option->description[0]; ++option) {
+        if (!(capabilities & option->value.ull))
+            continue;
+
+        if (i == index) {
+            if (value)
+                *value = option->value.ull;
+
+            return true;
+        }
+
+        ++i;
+    }
+
+    return false;
 }
 
 size_t UvcExtendedControlsPrivate::controlDataSize(IKsControl *ksControl,

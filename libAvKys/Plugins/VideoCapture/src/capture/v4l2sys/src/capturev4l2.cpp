@@ -196,6 +196,16 @@ struct RawFormatToStrMap
             {V4L2_PIX_FMT_YUV444M, AkVideoCaps::Format_yuv444p},
             {V4L2_PIX_FMT_YVU444M, AkVideoCaps::Format_yvu444p},
 
+            // Bayer formats (8 bits). They are demosaiced to RGB24 by
+            // demosaicBayer(), so they are exposed as RGB24 to the rest of the
+            // application. Keep them at the end of the table so reverse
+            // lookups by pixel format find the native RGB24 format first.
+
+            {V4L2_PIX_FMT_SBGGR8, AkVideoCaps::Format_rgb24},
+            {V4L2_PIX_FMT_SGBRG8, AkVideoCaps::Format_rgb24},
+            {V4L2_PIX_FMT_SGRBG8, AkVideoCaps::Format_rgb24},
+            {V4L2_PIX_FMT_SRGGB8, AkVideoCaps::Format_rgb24},
+
             {0, AkVideoCaps::Format_none},
         };
 
@@ -224,6 +234,84 @@ struct RawFormatToStrMap
         return fmt;
     }
 };
+
+// Returns the color filter array of a Bayer format, as the color of each
+// pixel in a 2x2 block (row major): 0 = red, 1 = green, 2 = blue.
+// Returns false if the format is not a supported Bayer format.
+static bool bayerPattern(__u32 v4l2Format, int pattern[4])
+{
+    static const struct {
+        __u32 v4l2Format;
+        int pattern[4];
+    } bayerPatterns[] = {
+        {V4L2_PIX_FMT_SBGGR8, {2, 1, 1, 0}},
+        {V4L2_PIX_FMT_SGBRG8, {1, 2, 0, 1}},
+        {V4L2_PIX_FMT_SGRBG8, {1, 0, 2, 1}},
+        {V4L2_PIX_FMT_SRGGB8, {0, 1, 1, 2}},
+    };
+
+    for (auto &fmt: bayerPatterns)
+        if (fmt.v4l2Format == v4l2Format) {
+            for (int i = 0; i < 4; i++)
+                pattern[i] = fmt.pattern[i];
+
+            return true;
+        }
+
+    return false;
+}
+
+// Bilinear demosaicing of an 8 bits Bayer image to RGB24. The borders are
+// mirrored so the color pattern is preserved there.
+static void demosaicBayer(const quint8 *src,
+                          size_t srcStride,
+                          int width,
+                          int height,
+                          const int pattern[4],
+                          AkVideoPacket &dst)
+{
+    if (width < 2 || height < 2)
+        return;
+
+    for (int y = 0; y < height; y++) {
+        int yu = y > 0? y - 1: y + 1;
+        int yd = y < height - 1? y + 1: y - 1;
+        auto up = src + size_t(yu) * srcStride;
+        auto cur = src + size_t(y) * srcStride;
+        auto down = src + size_t(yd) * srcStride;
+        auto out = dst.line(0, y);
+        auto rowPattern = pattern + ((y & 1) << 1);
+
+        for (int x = 0; x < width; x++) {
+            int xl = x > 0? x - 1: x + 1;
+            int xr = x < width - 1? x + 1: x - 1;
+            int c = rowPattern[x & 1];
+            int rgb[3] = {0, 0, 0};
+            rgb[c] = cur[x];
+
+            if (c == 1) {
+                // Green pixel: the horizontal neighbors have the color of the
+                // opposite pixel in the same row, the vertical neighbors have
+                // the color of the opposite pixel in the same column.
+                int h = rowPattern[(x & 1) ^ 1];
+                int v = pattern[(((y & 1) ^ 1) << 1) + (x & 1)];
+                rgb[h] = (cur[xl] + cur[xr] + 1) >> 1;
+                rgb[v] = (up[x] + down[x] + 1) >> 1;
+            } else {
+                // Red or blue pixel: green is in the 4 direct neighbors, and
+                // the opposite color (blue or red) is in the 4 diagonals.
+                int other = 2 - c;
+                rgb[1] = (up[x] + down[x] + cur[xl] + cur[xr] + 2) >> 2;
+                rgb[other] = (up[xl] + up[xr] + down[xl] + down[xr] + 2) >> 2;
+            }
+
+            out[0] = quint8(rgb[0]);
+            out[1] = quint8(rgb[1]);
+            out[2] = quint8(rgb[2]);
+            out += 3;
+        }
+    }
+}
 
 struct CompressedFormatToStrMap
 {
@@ -1830,6 +1918,42 @@ AkPacket CaptureV4L2Private::processFrame(const char * const *planeData,
 
     if (this->m_outPacket) {
         this->m_outPacket.setPts(pts);
+
+        bool isCapture = this->m_v4l2Format.type == V4L2_BUF_TYPE_VIDEO_CAPTURE;
+        auto v4l2PixFormat =
+                isCapture?
+                    this->m_v4l2Format.fmt.pix.pixelformat:
+                    this->m_v4l2Format.fmt.pix_mp.pixelformat;
+        int pattern[4];
+
+        if (bayerPattern(v4l2PixFormat, pattern)) {
+            int width = isCapture?
+                            int(this->m_v4l2Format.fmt.pix.width):
+                            int(this->m_v4l2Format.fmt.pix_mp.width);
+            int height = isCapture?
+                            int(this->m_v4l2Format.fmt.pix.height):
+                            int(this->m_v4l2Format.fmt.pix_mp.height);
+            size_t stride = isCapture?
+                                this->m_v4l2Format.fmt.pix.bytesperline:
+                                this->m_v4l2Format.fmt.pix_mp.plane_fmt[0].bytesperline;
+
+            if (stride < size_t(width))
+                stride = size_t(width);
+
+            // Don't read out of the buffer if the driver sends a short frame.
+            if (height > 0
+                && planeSize[0] >= ssize_t(stride * size_t(height - 1)
+                                           + size_t(width))) {
+                demosaicBayer(reinterpret_cast<const quint8 *>(planeData[0]),
+                              stride,
+                              width,
+                              height,
+                              pattern,
+                              this->m_outPacket);
+            }
+
+            return this->m_outPacket;
+        }
 
         if (this->m_v4l2Format.type == V4L2_BUF_TYPE_VIDEO_CAPTURE) {
             auto iData = planeData[0];

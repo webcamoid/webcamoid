@@ -206,6 +206,7 @@ class CaptureMMFPrivate
         QVariantList m_globalCameraControls;
         QVariantMap m_localImageControls;
         QVariantMap m_localCameraControls;
+        bool m_controlsSeeded {false};
 
         explicit CaptureMMFPrivate(CaptureMMF *self);
         QVector<ActivatePtr> sources() const;
@@ -426,6 +427,20 @@ AkPacket CaptureMMF::readFrame()
 {
     if (!this->d->m_sourceReader)
         return AkPacket();
+
+    if (!this->d->m_controlsSeeded) {
+        // Start from the real state of the device, so only the controls that
+        // differ from it (user changes or saved settings) are written.
+        // Writing every control at startup can make some cameras change their
+        // mode (eg. night/infrared mode).
+        auto mediaSource = this->d->m_mediaSource.data();
+        this->d->m_localImageControls =
+                this->d->controlStatus(this->d->imageControls(mediaSource));
+        this->d->m_localCameraControls =
+                this->d->controlStatus(this->d->cameraControls(mediaSource)
+                                       + UvcExtendedControls::controls(mediaSource));
+        this->d->m_controlsSeeded = true;
+    }
 
     this->d->m_controlsMutex.lockForRead();
     auto imageControls = this->d->controlStatus(this->d->m_globalImageControls);
@@ -802,6 +817,7 @@ bool CaptureMMF::init()
     }
 
     this->d->m_mediaSource = mediaSource;
+    this->d->m_controlsSeeded = false;
     this->d->m_id = Ak::id();
     this->d->m_streamIndex = streamIndex;
     attributes->Release();

@@ -221,6 +221,7 @@ class CaptureDShowPrivate
         QVariantList m_globalCameraControls;
         QVariantMap m_localImageControls;
         QVariantMap m_localCameraControls;
+        bool m_controlsSeeded {false};
         bool m_filterOutSWCameras {false};
 
         explicit CaptureDShowPrivate(CaptureDShow *self);
@@ -462,6 +463,19 @@ AkPacket CaptureDShow::readFrame()
     this->d->m_graph->FindFilterByName(SOURCE_FILTER_NAME, &source);
 
     if (source) {
+        if (!this->d->m_controlsSeeded) {
+            // Start from the real state of the device, so only the controls
+            // that differ from it (user changes or saved settings) are
+            // written. Writing every control at startup can make some
+            // cameras change their mode (eg. night/infrared mode).
+            this->d->m_localImageControls =
+                    this->d->controlStatus(this->d->imageControls(source));
+            this->d->m_localCameraControls =
+                    this->d->controlStatus(this->d->cameraControls(source)
+                                           + UvcExtendedControls::controls(source));
+            this->d->m_controlsSeeded = true;
+        }
+
         this->d->m_controlsMutex.lockForRead();
         auto imageControls = this->d->controlStatus(this->d->m_globalImageControls);
         this->d->m_controlsMutex.unlock();
@@ -583,6 +597,7 @@ bool CaptureDShow::init()
 {
     this->d->m_localImageControls.clear();
     this->d->m_localCameraControls.clear();
+    this->d->m_controlsSeeded = false;
 
     qDebug() << "Creating FilterGraph";
     auto hr = CoCreateInstance(CLSID_FilterGraph,
