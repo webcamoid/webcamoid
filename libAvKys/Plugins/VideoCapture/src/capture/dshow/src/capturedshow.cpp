@@ -213,6 +213,7 @@ class CaptureDShowPrivate
         SampleGrabberPtr m_grabber;
         FrameGrabber m_frameGrabber;
         QByteArray m_curBuffer;
+        int m_curDataLength {-1};
         AM_MEDIA_TYPE *m_curMediaType {nullptr};
         QReadWriteLock m_mutex;
         QReadWriteLock m_controlsMutex;
@@ -268,7 +269,8 @@ class CaptureDShowPrivate
         void frameReceived(qreal time, QByteArray buffer);
         void sampleReceived(qreal time, IMediaSample *sample);
         AkPacket processFrame(const AM_MEDIA_TYPE *mediaType,
-                              const QByteArray &buffer) const;
+                              const QByteArray &buffer,
+                              int dataLength=-1) const;
         void updateDevices();
 };
 
@@ -513,19 +515,22 @@ AkPacket CaptureDShow::readFrame()
         if (!this->d->m_curBuffer.isEmpty()) {
             if (this->d->m_curMediaType) {
                 packet = this->d->processFrame(this->d->m_curMediaType,
-                                               this->d->m_curBuffer);
+                                               this->d->m_curBuffer,
+                                               this->d->m_curDataLength);
             } else {
                 AM_MEDIA_TYPE mediaType;
                 ZeroMemory(&mediaType, sizeof(AM_MEDIA_TYPE));
 
                 if (SUCCEEDED(this->d->m_grabber->GetConnectedMediaType(&mediaType))) {
                     packet = this->d->processFrame(&mediaType,
-                                                   this->d->m_curBuffer);
+                                                   this->d->m_curBuffer,
+                                                   this->d->m_curDataLength);
                     this->d->freeMediaType(mediaType);
                 }
             }
 
             this->d->m_curBuffer.clear();
+            this->d->m_curDataLength = -1;
         }
 
         this->d->m_mutex.unlock();
@@ -543,13 +548,17 @@ AkPacket CaptureDShow::readFrame()
                                        int(mediaSample->GetSize()));
 
                     if (sampleMediaType) {
-                        packet = this->d->processFrame(sampleMediaType, oBuffer);
+                        packet = this->d->processFrame(sampleMediaType,
+                                                       oBuffer,
+                                                       int(mediaSample->GetActualDataLength()));
                         CaptureDShowPrivate::deleteMediaType(sampleMediaType);
                     } else {
                         AM_MEDIA_TYPE mediaType;
                         ZeroMemory(&mediaType, sizeof(AM_MEDIA_TYPE));
                         this->d->m_grabber->GetConnectedMediaType(&mediaType);
-                        packet = this->d->processFrame(&mediaType, oBuffer);
+                        packet = this->d->processFrame(&mediaType,
+                                                       oBuffer,
+                                                       int(mediaSample->GetActualDataLength()));
                         this->d->freeMediaType(mediaType);
                     }
                 }
@@ -1908,6 +1917,7 @@ void CaptureDShowPrivate::frameReceived(qreal time, QByteArray buffer)
 
     this->m_mutex.lockForWrite();
     this->m_curBuffer = buffer;
+    this->m_curDataLength = -1;
     this->m_waitCondition.wakeAll();
     this->m_mutex.unlock();
 }
@@ -1931,6 +1941,10 @@ void CaptureDShowPrivate::sampleReceived(qreal time, IMediaSample *sample)
         this->m_curBuffer = QByteArray(reinterpret_cast<char *>(data),
                                        int(sampleSize));
 
+        // GetSize() is the capacity of the buffer, not the size of the frame.
+        // Compressed frames (MJPEG) have a variable size.
+        this->m_curDataLength = int(sample->GetActualDataLength());
+
         if (this->m_curMediaType) {
             this->freeMediaType(*this->m_curMediaType);
             this->m_curMediaType = nullptr;
@@ -1949,7 +1963,8 @@ void CaptureDShowPrivate::sampleReceived(qreal time, IMediaSample *sample)
 }
 
 AkPacket CaptureDShowPrivate::processFrame(const AM_MEDIA_TYPE *mediaType,
-                                           const QByteArray &buffer) const
+                                           const QByteArray &buffer,
+                                           int dataLength) const
 {
     bool isRaw = false;
     size_t srcLineSize = 0;
@@ -2009,8 +2024,13 @@ AkPacket CaptureDShowPrivate::processFrame(const AM_MEDIA_TYPE *mediaType,
         return packet;
     }
 
-    AkCompressedVideoPacket packet(caps, buffer.size());
-    memcpy(packet.data(), buffer.constData(), buffer.size());
+    // Use only the real data of the frame, not the whole sample buffer, or the
+    // decoder will receive the garbage left by previous (bigger) frames.
+    int dataSize = dataLength > 0 && dataLength <= buffer.size()?
+                       dataLength:
+                       int(buffer.size());
+    AkCompressedVideoPacket packet(caps, dataSize);
+    memcpy(packet.data(), buffer.constData(), dataSize);
     packet.setPts(pts);
     packet.setDuration(1);
     packet.setTimeBase(this->m_timeBase);

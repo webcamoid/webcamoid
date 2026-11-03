@@ -654,14 +654,16 @@ AkPacket CaptureMMF::readFrame()
     }
 
     // Send compressed packet.
-    AkCompressedVideoPacket packet(caps, bufferLength);
     BYTE *data = nullptr;
     DWORD currentLength = 0;
 
     buffer->Lock(&data, &bufferLength, &currentLength);
-    memcpy(packet.data(),
-           data,
-           qMin<size_t>(bufferLength, currentLength));
+
+    // The packet must have the size of the frame, not the capacity of the
+    // buffer, or the decoder will receive uninitialized data after the frame.
+    size_t dataSize = qMin<size_t>(bufferLength, currentLength);
+    AkCompressedVideoPacket packet(caps, dataSize);
+    memcpy(packet.data(), data, dataSize);
     buffer->Unlock();
 
     packet.setPts(sampleTime);

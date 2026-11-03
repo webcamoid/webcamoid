@@ -568,14 +568,15 @@ AkVideoPacket ConvertVideoFFmpegPrivate::convert(const AVFrame *frame)
               oFrame.linesize);
 
     // Create packet
-    auto nPlanes = av_pix_fmt_count_planes(AVPixelFormat(frame->format));
     AkVideoCaps caps(AkVideoCaps::Format_rgb24,
                      frame->width,
                      frame->height,
                      this->m_fps);
     AkVideoPacket oPacket(caps);
 
-    for (int plane = 0; plane < nPlanes; ++plane) {
+    // The planes to copy are the ones of the output format (RGB24), not the
+    // ones of the decoded frame (eg. 3 planes for YUV 4:2:2).
+    for (int plane = 0; plane < int(oPacket.planes()); ++plane) {
         auto planeData = oFrame.data[plane];
         auto oLineSize = oFrame.linesize[plane];
         auto oPacketLineSize = oPacket.lineSize(plane);
