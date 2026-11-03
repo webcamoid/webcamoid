@@ -821,6 +821,22 @@ bool MediaSourceFFmpeg::initContext()
         inputFormat = av_find_input_format("oss");
     else if (uri.startsWith("udp://"))
         av_dict_set(&inputOptions, "timeout", "3000", 0);
+    else if (uri.startsWith("rtsp://") || uri.startsWith("rtsps://")) {
+        // Live streams: avoid buffering more than needed, otherwise the
+        // latency can reach several seconds (issue #611).
+
+        // Do not buffer packets inside the demuxer.
+        av_dict_set(&inputOptions, "fflags", "nobuffer", 0);
+
+        // Ask the decoder to output frames as soon as possible.
+        av_dict_set(&inputOptions, "flags", "low_delay", 0);
+
+        // avformat_find_stream_info() keeps the packets it reads while probing
+        // and they are played later, so the probing time becomes latency.
+        // The SDP already describes the streams, so a short probe is enough.
+        av_dict_set(&inputOptions, "probesize", "500000", 0);
+        av_dict_set(&inputOptions, "analyzeduration", "500000", 0);
+    }
 
     AVFormatContext *inputContext = nullptr;
 
