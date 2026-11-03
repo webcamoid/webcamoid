@@ -299,6 +299,7 @@ find_package(PkgConfig)
 # Sudoer tool search directory
 
 set(EXTRA_SUDOER_TOOL_DIR "" CACHE PATH "Additional sudoer tool search directory")
+set(EXTRA_KERNEL_MODULES_DIR "" CACHE PATH "Additional kernel modules search directory (the one containing the <kernel version> directories)")
 set(QML_IMPORT_PATH "${CMAKE_SOURCE_DIR}/libAvKys/Lib/share/qml" CACHE STRING "additional libraries" FORCE)
 
 # Try detecting the target architecture.

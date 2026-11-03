@@ -91,6 +91,60 @@ struct V4L2AkFormat
 
 using V4L2AkFormatMap = QVector<V4L2AkFormat>;
 
+#ifndef Q_OS_BSD4
+// The kernel modules tree is not always located at /lib/modules (NixOS,
+// Guix, confined environments...), so look for it in a list of known
+// locations. The result is the directory that contains modules.dep for the
+// running kernel, or an empty string if it can't be found.
+static QString kernelModulesDir()
+{
+    auto kernelVersion = QSysInfo::kernelVersion();
+    QStringList basePaths;
+
+    // Let the user and the packagers provide the location at runtime and at
+    // build time.
+
+    auto envDir = QString::fromLocal8Bit(qgetenv("WEBCAMOID_KERNEL_MODULES_DIR"));
+
+    if (!envDir.isEmpty())
+        basePaths << envDir;
+
+#ifdef EXTRA_KERNEL_MODULES_DIR
+    basePaths << EXTRA_KERNEL_MODULES_DIR;
+#endif
+
+    basePaths << "/lib/modules"                                // Most distros
+              << "/usr/lib/modules"                            // Merged-/usr without /lib
+              << "/run/booted-system/kernel-modules/lib/modules"  // NixOS
+              << "/run/current-system/kernel-modules/lib/modules" // NixOS
+              << "/run/booted-system/kernel/lib/modules"          // Guix
+              << "/run/current-system/kernel/lib/modules";        // Guix
+
+    for (auto &basePath: basePaths) {
+        auto dir = QDir(basePath).filePath(kernelVersion);
+
+        if (QFileInfo::exists(QDir(dir).filePath("modules.dep")))
+            return dir;
+    }
+
+    return {};
+}
+
+// If the module is already loaded, the kernel exposes its version in sysfs,
+// no matter where the modules tree is.
+static QString loadedModuleVersion(const char *moduleName)
+{
+    QFile file(QString("/sys/module/%1/version")
+               .arg(QString::fromLatin1(moduleName)));
+
+    if (!file.open(QIODevice::ReadOnly))
+        return {};
+
+    return QString::fromUtf8(file.readAll().trimmed());
+}
+
+#endif
+
 class VCamV4L2LoopBackPrivate
 {
     public:
@@ -182,11 +236,14 @@ bool VCamV4L2LoopBack::isInstalled() const
             modinfo.waitForFinished(-1);
             result = modinfo.exitCode() == 0;
         } else {
-            auto modules = QString("/lib/modules/%1/modules.dep")
-                           .arg(QSysInfo::kernelVersion());
-            QFile file(modules);
+            auto modulesDir = kernelModulesDir();
+            QFile file(QDir(modulesDir).filePath("modules.dep"));
 
-            if (file.open(QIODevice::ReadOnly)) {
+            if (QFileInfo::exists(QString("/sys/module/%1")
+                                  .arg(QString::fromLatin1(moduleName)))) {
+                // The module is already loaded, so it's installed.
+                result = true;
+            } else if (!modulesDir.isEmpty() && file.open(QIODevice::ReadOnly)) {
                 forever {
                     auto line = file.readLine();
 
@@ -235,10 +292,18 @@ QString VCamV4L2LoopBack::installedVersion() const
             if (modinfo.exitCode() == 0)
                 version = QString::fromUtf8(modinfo.readAllStandardOutput().trimmed());
         } else {
+            // The version of the loaded module is only a fallback, in case
+            // the modules tree can't be found. If the on disk module is
+            // found, its version takes precedence.
+            version = loadedModuleVersion(moduleName);
+
 #ifdef HAVE_LIBKMOD
-            auto modulesDir = QString("/lib/modules/%1").arg(QSysInfo::kernelVersion());
+            // If the modules directory is not found, let libkmod use its
+            // default one.
+            auto modulesDir = kernelModulesDir().toLocal8Bit();
             const char *config = NULL;
-            auto ctx = kmod_new(modulesDir.toStdString().c_str(), &config);
+            auto ctx = kmod_new(modulesDir.isEmpty()? NULL: modulesDir.constData(),
+                                &config);
 
             if (ctx) {
                 struct kmod_module *module = NULL;
