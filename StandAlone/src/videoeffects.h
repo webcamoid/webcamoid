@@ -96,8 +96,40 @@ class VideoEffects: public QObject
                WRITE setChainEffects
                RESET resetChainEffects
                NOTIFY chainEffectsChanged)
+    // Effects rotation of the global effects chain: when it is enabled, only
+    // one effect of the chain is applied at a time, and the active one changes
+    // periodically.
+    Q_PROPERTY(bool effectsRotation
+               READ effectsRotation
+               WRITE setEffectsRotation
+               RESET resetEffectsRotation
+               NOTIFY effectsRotationChanged)
+    // Time in seconds between each effect change.
+    Q_PROPERTY(int effectsRotationInterval
+               READ effectsRotationInterval
+               WRITE setEffectsRotationInterval
+               RESET resetEffectsRotationInterval
+               NOTIFY effectsRotationIntervalChanged)
+    // One of the EffectsRotationMode values.
+    Q_PROPERTY(int effectsRotationMode
+               READ effectsRotationMode
+               WRITE setEffectsRotationMode
+               RESET resetEffectsRotationMode
+               NOTIFY effectsRotationModeChanged)
+    // Read only. Index of the effect currently applied by the rotation, or -1
+    // if the rotation is not active.
+    Q_PROPERTY(int effectsRotationIndex
+               READ effectsRotationIndex
+               NOTIFY effectsRotationIndexChanged)
 
     public:
+        enum EffectsRotationMode
+        {
+            EffectsRotationModeRandom,
+            EffectsRotationModeSequential
+        };
+        Q_ENUM(EffectsRotationMode)
+
         VideoEffects(QQmlApplicationEngine *engine=nullptr,
                      QObject *parent=nullptr);
         ~VideoEffects();
@@ -117,6 +149,10 @@ class VideoEffects: public QObject
         Q_INVOKABLE bool effectEnabled(int index) const;
         Q_INVOKABLE AkElement::ElementState state() const;
         Q_INVOKABLE bool chainEffects() const;
+        Q_INVOKABLE bool effectsRotation() const;
+        Q_INVOKABLE int effectsRotationInterval() const;
+        Q_INVOKABLE int effectsRotationMode() const;
+        Q_INVOKABLE int effectsRotationIndex() const;
         Q_INVOKABLE bool embedControls(const QString &where,
                                        int effectIndex,
                                        const QString &name={}) const;
@@ -147,6 +183,10 @@ class VideoEffects: public QObject
         Q_INVOKABLE bool sourceChainEffects(qint64 id) const;
         Q_INVOKABLE bool sourcePreserveNullPlugins(qint64 id) const;
         Q_INVOKABLE bool sourceIsEmpty(qint64 id) const;
+        Q_INVOKABLE bool sourceEffectsRotation(qint64 id) const;
+        Q_INVOKABLE int sourceEffectsRotationInterval(qint64 id) const;
+        Q_INVOKABLE int sourceEffectsRotationMode(qint64 id) const;
+        Q_INVOKABLE int sourceEffectsRotationIndex(qint64 id) const;
 
         // Source UI embedding
         Q_INVOKABLE bool embedControls(const QString &where,
@@ -178,10 +218,18 @@ class VideoEffects: public QObject
         void stateChanged(AkElement::ElementState state);
         void chainEffectsChanged(bool chainEffects);
         void effectEnabledChanged(int index, bool enabled);
+        void effectsRotationChanged(bool effectsRotation);
+        void effectsRotationIntervalChanged(int effectsRotationInterval);
+        void effectsRotationModeChanged(int effectsRotationMode);
+        void effectsRotationIndexChanged(int effectsRotationIndex);
 
         // Per-source signals
         void sourceAdded(qint64 id);
         void sourceRemoved(qint64 id);
+        void sourceEffectsRotationChanged(qint64 id, bool effectsRotation);
+        void sourceEffectsRotationIntervalChanged(qint64 id, int interval);
+        void sourceEffectsRotationModeChanged(qint64 id, int mode);
+        void sourceEffectsRotationIndexChanged(qint64 id, int index);
         void sourceRectChanged(qint64 id, const QRectF &rect);
         void sourceZOrderChanged(qint64 id, int zOrder);
         void sourceOpacityChanged(qint64 id, qreal opacity);
@@ -207,6 +255,12 @@ class VideoEffects: public QObject
         void setState(AkElement::ElementState state);
         void setChainEffects(bool chainEffects);
         void setEffectEnabled(int index, bool enabled);
+        void setEffectsRotation(bool effectsRotation);
+        void setEffectsRotationInterval(int effectsRotationInterval);
+        void setEffectsRotationMode(int effectsRotationMode);
+        void resetEffectsRotation();
+        void resetEffectsRotationInterval();
+        void resetEffectsRotationMode();
         void resetCanvasCaps();
         void resetOutputResolution();
         void resetCanvasColor();
@@ -246,6 +300,9 @@ class VideoEffects: public QObject
         void setSourceChainEffects(qint64 id, bool chainEffects);
         void setSourcePreserveNullPlugins(qint64 id, bool preserveNullPlugins);
         void setSourceEffectEnabled(qint64 id, int index, bool enabled);
+        void setSourceEffectsRotation(qint64 id, bool effectsRotation);
+        void setSourceEffectsRotationInterval(qint64 id, int interval);
+        void setSourceEffectsRotationMode(qint64 id, int mode);
         void resetSourceEffects(qint64 id);
         void resetSourcePreview(qint64 id);
         void resetSourceChainEffects(qint64 id);

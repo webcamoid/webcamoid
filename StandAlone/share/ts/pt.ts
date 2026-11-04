@@ -2283,14 +2283,44 @@
 <context>
     <name>VideoEffectsList</name>
     <message>
-        <location filename="../qml/VideoEffectsList.qml" line="155"/>
+        <location filename="../qml/VideoEffectsList.qml" line="262"/>
         <source>Add effect</source>
         <translation>Adicionar efeito</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsList.qml" line="162"/>
+        <location filename="../qml/VideoEffectsList.qml" line="269"/>
         <source>Remove all effects</source>
         <translation>Remover todos os efeitos</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoEffectsList.qml" line="284"/>
+        <source>Rotate effects</source>
+        <extracomment>Change the applied effect periodically, one at a time.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoEffectsList.qml" line="306"/>
+        <source>Interval (seconds)</source>
+        <extracomment>Time between each effect change.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoEffectsList.qml" line="332"/>
+        <source>Mode</source>
+        <extracomment>How the next effect is chosen.</extracomment>
+        <translation type="unfinished">Modo</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoEffectsList.qml" line="339"/>
+        <source>Random</source>
+        <extracomment>The next effect is chosen at random.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoEffectsList.qml" line="341"/>
+        <source>Sequential</source>
+        <extracomment>The effects are applied one after another, in order.</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

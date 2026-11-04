@@ -23,8 +23,10 @@
 #include <QQmlContext>
 #include <QQmlProperty>
 #include <QQuickItem>
+#include <QRandomGenerator>
 #include <QRectF>
 #include <QSettings>
+#include <QTimer>
 #include <QVector>
 #include <ak.h>
 #include <akfrac.h>
@@ -41,6 +43,21 @@
 
 #define DEFAULT_OUTPUT_BUFFER_SIZE 2
 
+// Effects rotation, the interval is in seconds.
+#define DEFAULT_ROTATION_INTERVAL 300
+#define MIN_ROTATION_INTERVAL 1
+#define MAX_ROTATION_INTERVAL 86400
+#define GLOBAL_ROTATION_SCOPE -1
+
+struct EffectsRotation
+{
+    bool enabled {false};
+    int interval {DEFAULT_ROTATION_INTERVAL};
+    int mode {VideoEffects::EffectsRotationModeRandom};
+    int current {-1};
+    QTimer *timer {nullptr};
+};
+
 class VideoEffectsPrivate
 {
     public:
@@ -51,6 +68,10 @@ class VideoEffectsPrivate
         QMutex m_mutex;
         QMap<qint64, QString> m_sourceDevices;
         AkElement::ElementState m_state {AkElement::ElementStateNull};
+
+        // Effects rotation state of every effects chain: the key is the id of
+        // the source, or GLOBAL_ROTATION_SCOPE for the global chain.
+        QMap<qint64, EffectsRotation> m_rotations;
 
         explicit VideoEffectsPrivate(VideoEffects *self);
         QString encodeDevice(const QString &device) const;
@@ -75,6 +96,13 @@ class VideoEffectsPrivate
         void saveEffectsProperties();
         void saveSourceEffects(qint64 id, const QString &device);
         void saveSourceEffectsProperties(qint64 id, const QString &device);
+        int effectsCount(qint64 scope) const;
+        void setCompositorRotationIndex(qint64 scope, int index);
+        void updateRotation(qint64 scope);
+        void rotationTick(qint64 scope);
+        void removeRotation(qint64 scope);
+        void loadRotation(qint64 scope, const QString &device);
+        void saveRotation(qint64 scope, const QString &device);
         void linkPreview();
         void unlinkPreview();
         void linkLayoutEditor();
@@ -94,6 +122,28 @@ VideoEffects::VideoEffects(QQmlApplicationEngine *engine, QObject *parent):
     this->d->updateOutputBufferSize();
     this->d->updateChainEffects();
     this->d->updateEffects();
+
+    this->d->m_rotations[GLOBAL_ROTATION_SCOPE] = EffectsRotation();
+    this->d->loadRotation(GLOBAL_ROTATION_SCOPE, {});
+    this->d->updateRotation(GLOBAL_ROTATION_SCOPE);
+
+    // The effects chain can change at any moment (add, remove, reorder...),
+    // so the rotation must be updated to keep its index valid. It is queued
+    // to avoid reentrancy with the code that is changing the chain.
+    QObject::connect(this,
+                     &VideoEffects::effectsChanged,
+                     this,
+                     [this] () {
+                         this->d->updateRotation(GLOBAL_ROTATION_SCOPE);
+                     },
+                     Qt::QueuedConnection);
+    QObject::connect(this,
+                     &VideoEffects::sourceEffectsChanged,
+                     this,
+                     [this] (qint64 id) {
+                         this->d->updateRotation(id);
+                     },
+                     Qt::QueuedConnection);
 }
 
 VideoEffects::~VideoEffects()
@@ -178,6 +228,46 @@ AkElement::ElementState VideoEffects::state() const
 bool VideoEffects::chainEffects() const
 {
     return this->d->m_glCompositor.chainEffects();
+}
+
+bool VideoEffects::effectsRotation() const
+{
+    return this->d->m_rotations.value(GLOBAL_ROTATION_SCOPE).enabled;
+}
+
+int VideoEffects::effectsRotationInterval() const
+{
+    return this->d->m_rotations.value(GLOBAL_ROTATION_SCOPE).interval;
+}
+
+int VideoEffects::effectsRotationMode() const
+{
+    return this->d->m_rotations.value(GLOBAL_ROTATION_SCOPE).mode;
+}
+
+int VideoEffects::effectsRotationIndex() const
+{
+    return this->d->m_glCompositor.rotationIndex();
+}
+
+bool VideoEffects::sourceEffectsRotation(qint64 id) const
+{
+    return this->d->m_rotations.value(id).enabled;
+}
+
+int VideoEffects::sourceEffectsRotationInterval(qint64 id) const
+{
+    return this->d->m_rotations.value(id).interval;
+}
+
+int VideoEffects::sourceEffectsRotationMode(qint64 id) const
+{
+    return this->d->m_rotations.value(id).mode;
+}
+
+int VideoEffects::sourceEffectsRotationIndex(qint64 id) const
+{
+    return this->d->m_glCompositor.sourceRotationIndex(id);
 }
 
 bool VideoEffects::embedControls(const QString &where,
@@ -297,10 +387,16 @@ qint64 VideoEffects::addSource(qint64 id, const QString &device)
         this->d->m_glCompositor.setSourceRotation(id, 0.0);
         this->d->m_glCompositor.setSourceAspectRatioMode(id, Qt::KeepAspectRatio);
 
+        this->d->removeRotation(id);
+        this->d->m_rotations[id] = EffectsRotation();
+
         if (!device.isEmpty()) {
             this->d->m_sourceDevices[id] = device;
             this->d->updateSourceEffects(id, device);
+            this->d->loadRotation(id, device);
         }
+
+        this->d->updateRotation(id);
     }
 
     return id;
@@ -316,6 +412,7 @@ void VideoEffects::removeSource(qint64 id)
         this->d->m_sourceDevices.remove(id);
     }
 
+    this->d->removeRotation(id);
     this->d->m_glCompositor.removeSource(id);
 }
 
@@ -803,6 +900,118 @@ void VideoEffects::setEffectEnabled(int index, bool enabled)
     this->d->saveEffects();
 }
 
+void VideoEffects::setEffectsRotation(bool effectsRotation)
+{
+    auto &rotation = this->d->m_rotations[GLOBAL_ROTATION_SCOPE];
+
+    if (rotation.enabled == effectsRotation)
+        return;
+
+    rotation.enabled = effectsRotation;
+    this->d->updateRotation(GLOBAL_ROTATION_SCOPE);
+    this->d->saveRotation(GLOBAL_ROTATION_SCOPE, {});
+    emit this->effectsRotationChanged(effectsRotation);
+}
+
+void VideoEffects::setEffectsRotationInterval(int effectsRotationInterval)
+{
+    effectsRotationInterval = qBound(MIN_ROTATION_INTERVAL,
+                                     effectsRotationInterval,
+                                     MAX_ROTATION_INTERVAL);
+    auto &rotation = this->d->m_rotations[GLOBAL_ROTATION_SCOPE];
+
+    if (rotation.interval == effectsRotationInterval)
+        return;
+
+    rotation.interval = effectsRotationInterval;
+    this->d->updateRotation(GLOBAL_ROTATION_SCOPE);
+    this->d->saveRotation(GLOBAL_ROTATION_SCOPE, {});
+    emit this->effectsRotationIntervalChanged(effectsRotationInterval);
+}
+
+void VideoEffects::setEffectsRotationMode(int effectsRotationMode)
+{
+    if (effectsRotationMode != EffectsRotationModeRandom
+        && effectsRotationMode != EffectsRotationModeSequential)
+        return;
+
+    auto &rotation = this->d->m_rotations[GLOBAL_ROTATION_SCOPE];
+
+    if (rotation.mode == effectsRotationMode)
+        return;
+
+    rotation.mode = effectsRotationMode;
+    this->d->saveRotation(GLOBAL_ROTATION_SCOPE, {});
+    emit this->effectsRotationModeChanged(effectsRotationMode);
+}
+
+void VideoEffects::resetEffectsRotation()
+{
+    this->setEffectsRotation(false);
+}
+
+void VideoEffects::resetEffectsRotationInterval()
+{
+    this->setEffectsRotationInterval(DEFAULT_ROTATION_INTERVAL);
+}
+
+void VideoEffects::resetEffectsRotationMode()
+{
+    this->setEffectsRotationMode(EffectsRotationModeRandom);
+}
+
+void VideoEffects::setSourceEffectsRotation(qint64 id, bool effectsRotation)
+{
+    if (!this->d->m_rotations.contains(id))
+        return;
+
+    auto &rotation = this->d->m_rotations[id];
+
+    if (rotation.enabled == effectsRotation)
+        return;
+
+    rotation.enabled = effectsRotation;
+    this->d->updateRotation(id);
+    this->d->saveRotation(id, this->d->m_sourceDevices.value(id));
+    emit this->sourceEffectsRotationChanged(id, effectsRotation);
+}
+
+void VideoEffects::setSourceEffectsRotationInterval(qint64 id, int interval)
+{
+    if (!this->d->m_rotations.contains(id))
+        return;
+
+    interval = qBound(MIN_ROTATION_INTERVAL, interval, MAX_ROTATION_INTERVAL);
+    auto &rotation = this->d->m_rotations[id];
+
+    if (rotation.interval == interval)
+        return;
+
+    rotation.interval = interval;
+    this->d->updateRotation(id);
+    this->d->saveRotation(id, this->d->m_sourceDevices.value(id));
+    emit this->sourceEffectsRotationIntervalChanged(id, interval);
+}
+
+void VideoEffects::setSourceEffectsRotationMode(qint64 id, int mode)
+{
+    if (mode != EffectsRotationModeRandom
+        && mode != EffectsRotationModeSequential)
+        return;
+
+    if (!this->d->m_rotations.contains(id))
+        return;
+
+    auto &rotation = this->d->m_rotations[id];
+
+    if (rotation.mode == mode)
+        return;
+
+    rotation.mode = mode;
+    this->d->saveRotation(id, this->d->m_sourceDevices.value(id));
+    emit this->sourceEffectsRotationModeChanged(id, mode);
+}
+
 void VideoEffects::resetCanvasCaps()
 {
     this->setCanvasCaps(AkVideoCaps());
@@ -1033,6 +1242,10 @@ VideoEffectsPrivate::VideoEffectsPrivate(VideoEffects *self):
                      self,
                      &VideoEffects::effectEnabledChanged);
     QObject::connect(&this->m_glCompositor,
+                     &AkGLCompositor::rotationIndexChanged,
+                     self,
+                     &VideoEffects::effectsRotationIndexChanged);
+    QObject::connect(&this->m_glCompositor,
                      &AkGLCompositor::ready,
                      self,
                      &VideoEffects::ready);
@@ -1098,6 +1311,10 @@ VideoEffectsPrivate::VideoEffectsPrivate(VideoEffects *self):
                      &AkGLCompositor::sourceEffectEnabledChanged,
                      self,
                      &VideoEffects::sourceEffectEnabledChanged);
+    QObject::connect(&this->m_glCompositor,
+                     &AkGLCompositor::sourceRotationIndexChanged,
+                     self,
+                     &VideoEffects::sourceEffectsRotationIndexChanged);
 }
 
 QString VideoEffectsPrivate::encodeDevice(const QString &device) const
@@ -1333,6 +1550,180 @@ void VideoEffectsPrivate::saveOutputBufferSize(size_t outputBufferSize)
     QSettings config;
     config.beginGroup("VideoEffects");
     config.setValue("canvasOutputBufferSize", static_cast<quint32>(outputBufferSize));
+    config.endGroup();
+}
+
+int VideoEffectsPrivate::effectsCount(qint64 scope) const
+{
+    return scope == GLOBAL_ROTATION_SCOPE?
+                this->m_glCompositor.effects().size():
+                this->m_glCompositor.sourceEffects(scope).size();
+}
+
+void VideoEffectsPrivate::setCompositorRotationIndex(qint64 scope, int index)
+{
+    if (scope == GLOBAL_ROTATION_SCOPE)
+        this->m_glCompositor.setRotationIndex(index);
+    else
+        this->m_glCompositor.setSourceRotationIndex(scope, index);
+}
+
+// Applies the rotation settings of an effects chain: starts or stops the
+// timer and makes sure that the active effect is valid for the current chain.
+// The rotation only overrides which effect is applied, it never changes the
+// enabled state of the effects, so what is saved in the configuration is not
+// affected.
+void VideoEffectsPrivate::updateRotation(qint64 scope)
+{
+    if (!this->m_rotations.contains(scope))
+        return;
+
+    auto &rotation = this->m_rotations[scope];
+    int count = this->effectsCount(scope);
+
+    // The rotation needs at least two effects.
+    if (!rotation.enabled || count < 2) {
+        if (rotation.timer)
+            rotation.timer->stop();
+
+        rotation.current = -1;
+        this->setCompositorRotationIndex(scope, -1);
+
+        return;
+    }
+
+    if (!rotation.timer) {
+        rotation.timer = new QTimer(this->self);
+        QObject::connect(rotation.timer,
+                         &QTimer::timeout,
+                         this->self,
+                         [this, scope] () {
+                             this->rotationTick(scope);
+                         });
+    }
+
+    if (rotation.current < 0 || rotation.current >= count) {
+        rotation.current =
+                rotation.mode == VideoEffects::EffectsRotationModeSequential?
+                    0:
+                    int(QRandomGenerator::global()->bounded(count));
+    }
+
+    this->setCompositorRotationIndex(scope, rotation.current);
+
+    // Changing the interval of an active timer restarts it.
+    if (rotation.timer->interval() != rotation.interval * 1000
+        || !rotation.timer->isActive())
+        rotation.timer->start(rotation.interval * 1000);
+}
+
+void VideoEffectsPrivate::rotationTick(qint64 scope)
+{
+    if (!this->m_rotations.contains(scope))
+        return;
+
+    auto &rotation = this->m_rotations[scope];
+    int count = this->effectsCount(scope);
+
+    if (!rotation.enabled || count < 2) {
+        this->updateRotation(scope);
+
+        return;
+    }
+
+    int next = 0;
+
+    if (rotation.current < 0 || rotation.current >= count) {
+        next = 0;
+    } else if (rotation.mode == VideoEffects::EffectsRotationModeSequential) {
+        next = (rotation.current + 1) % count;
+    } else {
+        // Random, but never the same effect twice in a row.
+        next = int(QRandomGenerator::global()->bounded(count - 1));
+
+        if (next >= rotation.current)
+            next++;
+    }
+
+    rotation.current = next;
+    this->setCompositorRotationIndex(scope, next);
+}
+
+void VideoEffectsPrivate::removeRotation(qint64 scope)
+{
+    auto it = this->m_rotations.find(scope);
+
+    if (it == this->m_rotations.end())
+        return;
+
+    if (it->timer) {
+        it->timer->stop();
+        it->timer->deleteLater();
+    }
+
+    this->m_rotations.erase(it);
+}
+
+void VideoEffectsPrivate::loadRotation(qint64 scope, const QString &device)
+{
+    if (!this->m_rotations.contains(scope))
+        return;
+
+    QSettings config;
+    QString prefix;
+
+    if (scope == GLOBAL_ROTATION_SCOPE) {
+        config.beginGroup("VideoEffects");
+        prefix = "effectsRotation";
+    } else {
+        if (device.isEmpty())
+            return;
+
+        config.beginGroup("VideoEffects_" + this->encodeDevice(device));
+        prefix = "rotation";
+    }
+
+    auto &rotation = this->m_rotations[scope];
+    rotation.enabled = config.value(prefix, false).toBool();
+    rotation.interval =
+            qBound(MIN_ROTATION_INTERVAL,
+                   config.value(prefix + "Interval",
+                                DEFAULT_ROTATION_INTERVAL).toInt(),
+                   MAX_ROTATION_INTERVAL);
+
+    int mode = config.value(prefix + "Mode",
+                            VideoEffects::EffectsRotationModeRandom).toInt();
+    rotation.mode =
+            mode == VideoEffects::EffectsRotationModeSequential?
+                VideoEffects::EffectsRotationModeSequential:
+                VideoEffects::EffectsRotationModeRandom;
+
+    config.endGroup();
+}
+
+void VideoEffectsPrivate::saveRotation(qint64 scope, const QString &device)
+{
+    if (!this->m_rotations.contains(scope))
+        return;
+
+    QSettings config;
+    QString prefix;
+
+    if (scope == GLOBAL_ROTATION_SCOPE) {
+        config.beginGroup("VideoEffects");
+        prefix = "effectsRotation";
+    } else {
+        if (device.isEmpty())
+            return;
+
+        config.beginGroup("VideoEffects_" + this->encodeDevice(device));
+        prefix = "rotation";
+    }
+
+    auto &rotation = this->m_rotations[scope];
+    config.setValue(prefix, rotation.enabled);
+    config.setValue(prefix + "Interval", rotation.interval);
+    config.setValue(prefix + "Mode", rotation.mode);
     config.endGroup();
 }
 

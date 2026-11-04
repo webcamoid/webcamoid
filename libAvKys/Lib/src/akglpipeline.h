@@ -65,6 +65,9 @@ class AKCOMMONS_EXPORT AkGLPipeline: public QObject
         Q_INVOKABLE bool chainEffects() const;
         Q_INVOKABLE bool preserveNullPlugins() const;
         Q_INVOKABLE bool effectEnabled(int index) const;
+        // Index of the only effect to be applied, ignoring the enabled state
+        // of all the effects, or -1 if the rotation is not active.
+        Q_INVOKABLE int rotationIndex() const;
         Q_INVOKABLE bool isEmpty() const;
         Q_INVOKABLE AkVideoEffectPtr elementAt(int index) const;
         Q_INVOKABLE AkVideoEffectPtr previewElement() const;
@@ -87,6 +90,7 @@ class AKCOMMONS_EXPORT AkGLPipeline: public QObject
         void chainEffectsChanged(bool chainEffects);
         void preserveNullPluginsChanged(bool preserveNullPlugins);
         void effectEnabledChanged(int index, bool enabled);
+        void rotationIndexChanged(int index);
         void isEmptyChanged(bool isEmpty);
 
     public Q_SLOTS:
@@ -95,6 +99,7 @@ class AKCOMMONS_EXPORT AkGLPipeline: public QObject
         void setChainEffects(bool chainEffects);
         void setPreserveNullPlugins(bool preserveNullPlugins);
         void setEffectEnabled(int index, bool enabled);
+        void setRotationIndex(int index);
         void resetEffects();
         void resetPreview();
         void resetChainEffects();

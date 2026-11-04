@@ -35,7 +35,17 @@ ScrollView {
 
     // Internal properties
     property var effectsModel: ListModel {}
+    property int effectsCount: 0
     property bool isDragging: false
+
+    // Effects rotation. While it is active only one effect is applied at a
+    // time, so the controls to enable or move the effects are replaced by an
+    // indicator of the effect that is currently applied.
+    property bool rotationEnabled: false
+    property int rotationInterval: 300
+    property int rotationMode: 0 // 0: random, 1: sequential.
+    property int rotationIndex: -1
+    readonly property bool rotationActive: rotationEnabled && effectsCount >= 2
 
     readonly property int itemHeight: AkUnit.create(56 * AkTheme.controlScale, "dp").pixels
 
@@ -75,9 +85,50 @@ ScrollView {
             videoEffects.moveEffect(from, to)
     }
 
+    function updateRotation() {
+        if (effectsView.isSource) {
+            effectsView.rotationEnabled =
+                videoEffects.sourceEffectsRotation(effectsView.sourceId)
+            effectsView.rotationInterval =
+                videoEffects.sourceEffectsRotationInterval(effectsView.sourceId)
+            effectsView.rotationMode =
+                videoEffects.sourceEffectsRotationMode(effectsView.sourceId)
+            effectsView.rotationIndex =
+                videoEffects.sourceEffectsRotationIndex(effectsView.sourceId)
+        } else {
+            effectsView.rotationEnabled = videoEffects.effectsRotation
+            effectsView.rotationInterval = videoEffects.effectsRotationInterval
+            effectsView.rotationMode = videoEffects.effectsRotationMode
+            effectsView.rotationIndex = videoEffects.effectsRotationIndex
+        }
+    }
+
+    function setRotationEnabled(enabled) {
+        if (effectsView.isSource)
+            videoEffects.setSourceEffectsRotation(effectsView.sourceId, enabled)
+        else
+            videoEffects.effectsRotation = enabled
+    }
+
+    function setRotationInterval(interval) {
+        if (effectsView.isSource)
+            videoEffects.setSourceEffectsRotationInterval(effectsView.sourceId,
+                                                          interval)
+        else
+            videoEffects.effectsRotationInterval = interval
+    }
+
+    function setRotationMode(mode) {
+        if (effectsView.isSource)
+            videoEffects.setSourceEffectsRotationMode(effectsView.sourceId, mode)
+        else
+            videoEffects.effectsRotationMode = mode
+    }
+
     function buildEffectsModel() {
         effectsModel.clear()
         let ids = effectsView.activeEffects()
+        effectsView.effectsCount = ids.length
 
         for (let i = 0; i < ids.length; i++) {
             let info = AkPluginInfo.create(videoEffects.effectInfo(ids[i]))
@@ -90,14 +141,22 @@ ScrollView {
         }
     }
 
-    Component.onCompleted: buildEffectsModel()
+    Component.onCompleted: {
+        buildEffectsModel()
+        updateRotation()
+    }
     onVisibleChanged: {
-        if (visible)
+        if (visible) {
             buildEffectsModel()
+            updateRotation()
+        }
 
         effectsList.forceActiveFocus()
     }
-    onSourceIdChanged: buildEffectsModel()
+    onSourceIdChanged: {
+        buildEffectsModel()
+        updateRotation()
+    }
 
     Connections {
         target: videoEffects
@@ -124,6 +183,54 @@ ScrollView {
         {
             if (effectsView.isSource && id === effectsView.sourceId)
                 effectsView.buildEffectsModel()
+        }
+
+        function onEffectsRotationChanged(effectsRotation)
+        {
+            if (!effectsView.isSource)
+                effectsView.updateRotation()
+        }
+
+        function onEffectsRotationIntervalChanged(interval)
+        {
+            if (!effectsView.isSource)
+                effectsView.updateRotation()
+        }
+
+        function onEffectsRotationModeChanged(mode)
+        {
+            if (!effectsView.isSource)
+                effectsView.updateRotation()
+        }
+
+        function onEffectsRotationIndexChanged(index)
+        {
+            if (!effectsView.isSource)
+                effectsView.updateRotation()
+        }
+
+        function onSourceEffectsRotationChanged(id, effectsRotation)
+        {
+            if (effectsView.isSource && id === effectsView.sourceId)
+                effectsView.updateRotation()
+        }
+
+        function onSourceEffectsRotationIntervalChanged(id, interval)
+        {
+            if (effectsView.isSource && id === effectsView.sourceId)
+                effectsView.updateRotation()
+        }
+
+        function onSourceEffectsRotationModeChanged(id, mode)
+        {
+            if (effectsView.isSource && id === effectsView.sourceId)
+                effectsView.updateRotation()
+        }
+
+        function onSourceEffectsRotationIndexChanged(id, index)
+        {
+            if (effectsView.isSource && id === effectsView.sourceId)
+                effectsView.updateRotation()
         }
     }
 
@@ -169,6 +276,75 @@ ScrollView {
                     videoEffects.removeAllSourceEffects(effectsView.sourceId)
                 else
                     videoEffects.removeAllEffects()
+            }
+        }
+        Switch {
+            id: rotationSwitch
+            //: Change the applied effect periodically, one at a time.
+            text: qsTr("Rotate effects")
+            checked: effectsView.rotationEnabled
+            visible: effectsView.effectsCount >= 2
+            Layout.fillWidth: true
+            Layout.leftMargin: effectsView.leftMargin
+            Layout.rightMargin: effectsView.rightMargin
+
+            onToggled: effectsView.setRotationEnabled(checked)
+        }
+        GridLayout {
+            columns: 2
+            layoutDirection: effectsView.rtl? Qt.RightToLeft: Qt.LeftToRight
+            visible: effectsView.rotationActive
+            Layout.fillWidth: true
+            Layout.leftMargin: effectsView.leftMargin
+            Layout.rightMargin: effectsView.rightMargin
+            Layout.bottomMargin:
+                AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+
+            Label {
+                id: lblRotationInterval
+                //: Time between each effect change.
+                text: qsTr("Interval (seconds)")
+            }
+            SpinBox {
+                value: effectsView.rotationInterval
+                from: 1
+                to: 86400
+                editable: true
+                Layout.fillWidth: true
+                Accessible.name: lblRotationInterval.text
+
+                // It is not a quantity: no thousands separators.
+                textFromValue: function (value, locale) {
+                    return String(value)
+                }
+                valueFromText: function (text, locale) {
+                    let interval = parseInt(text)
+
+                    return isNaN(interval)? value: interval
+                }
+
+                onValueModified: effectsView.setRotationInterval(value)
+            }
+
+            Label {
+                id: lblRotationMode
+                //: How the next effect is chosen.
+                text: qsTr("Mode")
+            }
+            ComboBox {
+                // The index must match the VideoEffects::EffectsRotationMode
+                // values.
+                model: [
+                    //: The next effect is chosen at random.
+                    qsTr("Random"),
+                    //: The effects are applied one after another, in order.
+                    qsTr("Sequential")
+                ]
+                currentIndex: effectsView.rotationMode
+                Layout.fillWidth: true
+                Accessible.name: lblRotationMode.text
+
+                onActivated: effectsView.setRotationMode(currentIndex)
             }
         }
 
@@ -252,6 +428,7 @@ ScrollView {
                         // Drag handle
                         Item {
                             id: dragHandle
+                            visible: !effectsView.rotationActive
                             width: parent.height / 2
                             x: effectsView.rtl? parent.width - width: 0
                             anchors.top: parent.top
@@ -302,6 +479,7 @@ ScrollView {
                         // Visibility toggle (enable/disable the effect)
                         Item {
                             id: btnVisibility
+                            visible: !effectsView.rotationActive
                             width: parent.height / 2
                             x: effectsView.rtl?
                                    dragHandle.x - width:
@@ -339,6 +517,36 @@ ScrollView {
                             }
                         }
 
+                        // Indicator of the effect applied by the rotation: a
+                        // filled circle for the active one, an empty one for
+                        // the rest.
+                        Item {
+                            id: rotationIndicator
+                            visible: effectsView.rotationActive
+                            width: parent.height / 2
+                            x: btnVisibility.x
+                            anchors.top: parent.top
+                            anchors.bottom: parent.bottom
+
+                            property bool isCurrent:
+                                model.effectIndex === effectsView.rotationIndex
+
+                            Rectangle {
+                                width: 0.4 * Math.min(parent.width, parent.height)
+                                height: width
+                                radius: width / 2
+                                anchors.centerIn: parent
+                                color: rotationIndicator.isCurrent?
+                                           effectsView.activeHighlight:
+                                           "transparent"
+                                border.width:
+                                    AkUnit.create(2 * AkTheme.controlScale, "dp").pixels
+                                border.color: rotationIndicator.isCurrent?
+                                                  effectsView.activeHighlight:
+                                                  effectsView.activeWindowText
+                            }
+                        }
+
                         // Effect label
                         ColumnLayout {
                             x: effectsView.rtl?
@@ -349,6 +557,8 @@ ScrollView {
 
                             Label {
                                 text: model.label
+                                font.bold: effectsView.rotationActive
+                                           && model.effectIndex === effectsView.rotationIndex
                                 elide: Text.ElideRight
                                 color: dragMouseArea.drag.active?
                                             effectsView.activeHighlightedText:

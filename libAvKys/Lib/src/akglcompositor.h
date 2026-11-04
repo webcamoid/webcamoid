@@ -110,6 +110,7 @@ class AKCOMMONS_EXPORT AkGLCompositor:
         Q_INVOKABLE AkVideoEffectPtr previewElement() const;
         Q_INVOKABLE AkPluginInfo effectInfo(int index) const;
         Q_INVOKABLE bool effectEnabled(int index) const;
+        Q_INVOKABLE int rotationIndex() const;
         Q_INVOKABLE bool chainEffects() const;
         Q_INVOKABLE bool preserveNullPlugins() const;
         Q_INVOKABLE bool isEmpty() const;
@@ -135,6 +136,7 @@ class AKCOMMONS_EXPORT AkGLCompositor:
         Q_INVOKABLE AkVideoEffectPtr sourcePreviewElement(qint64 id) const;
         Q_INVOKABLE AkPluginInfo sourceEffectInfo(qint64 id, int index) const;
         Q_INVOKABLE bool sourceEffectEnabled(qint64 id, int index) const;
+        Q_INVOKABLE int sourceRotationIndex(qint64 id) const;
         Q_INVOKABLE bool sourceChainEffects(qint64 id) const;
         Q_INVOKABLE bool sourcePreserveNullPlugins(qint64 id) const;
         Q_INVOKABLE bool sourceIsEmpty(qint64 id) const;
@@ -158,6 +160,7 @@ class AKCOMMONS_EXPORT AkGLCompositor:
         void preserveNullPluginsChanged(bool preserveNullPlugins);
         void isEmptyChanged(bool isEmpty);
         void effectEnabledChanged(int index, bool enabled);
+        void rotationIndexChanged(int index);
 
         void sourceAdded(qint64 id);
         void sourceRemoved(qint64 id);
@@ -174,6 +177,7 @@ class AKCOMMONS_EXPORT AkGLCompositor:
         void sourcePreserveNullPluginsChanged(qint64 id, bool preserveNullPlugins);
         void sourceIsEmptyChanged(qint64 id, bool isEmpty);
         void sourceEffectEnabledChanged(qint64 id, int index, bool enabled);
+        void sourceRotationIndexChanged(qint64 id, int index);
 
         // Direct read of the output texture
         void outputTextureReady(GLuint texture, const QSize &size);
@@ -196,6 +200,7 @@ class AKCOMMONS_EXPORT AkGLCompositor:
         void setChainEffects(bool chainEffects);
         void setPreserveNullPlugins(bool preserveNullPlugins);
         void setEffectEnabled(int index, bool enabled);
+        void setRotationIndex(int index);
         void resetEffects();
         void resetPreview();
         void resetChainEffects();
@@ -219,6 +224,7 @@ class AKCOMMONS_EXPORT AkGLCompositor:
         void setSourceChainEffects(qint64 id, bool chainEffects);
         void setSourcePreserveNullPlugins(qint64 id, bool preserveNullPlugins);
         void setSourceEffectEnabled(qint64 id, int index, bool enabled);
+        void setSourceRotationIndex(qint64 id, int index);
         void resetSourceEffects(qint64 id);
         void resetSourcePreview(qint64 id);
         void resetSourceChainEffects(qint64 id);

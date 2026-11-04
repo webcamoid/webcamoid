@@ -17,6 +17,7 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+#include <QAtomicInt>
 #include <QDebug>
 #include <QMutex>
 #include <QOpenGLBuffer>
@@ -58,6 +59,10 @@ class AkGLPipelinePrivate
         bool m_requestChainEffects {false};
         bool m_requestDirty {false};
         bool m_preserveNullPlugins {false};
+
+        // Read by the render thread in every frame. It is not part of the
+        // request, so changing it does not reinitialize the effects.
+        QAtomicInt m_rotationIndex {-1};
 
         // Render thread
         QVector<AkGLPipelineEffect> m_activeEffects;
@@ -133,6 +138,11 @@ bool AkGLPipeline::effectEnabled(int index) const
     return this->d->m_requestEffects.at(index).enabled;
 }
 
+
+int AkGLPipeline::rotationIndex() const
+{
+    return this->d->m_rotationIndex.loadAcquire();
+}
 
 bool AkGLPipeline::isEmpty() const
 {
@@ -237,10 +247,24 @@ void AkGLPipeline::process(QOpenGLFramebufferObject *inputFbo,
         dstIdx = 1 - dstIdx;
     };
 
-    if (this->d->m_activeChainEffects || !this->d->m_activePreview.element)
-        for (auto &effect: this->d->m_activeEffects)
-            if (effect.element && effect.enabled)
-                runStep(effect.element);
+    if (this->d->m_activeChainEffects || !this->d->m_activePreview.element) {
+        int rotationIndex = this->d->m_rotationIndex.loadAcquire();
+
+        if (rotationIndex >= 0) {
+            // Rotation: only one effect is applied, no matter if it is
+            // enabled or not.
+            if (rotationIndex < this->d->m_activeEffects.size()) {
+                auto &effect = this->d->m_activeEffects.at(rotationIndex);
+
+                if (effect.element)
+                    runStep(effect.element);
+            }
+        } else {
+            for (auto &effect: this->d->m_activeEffects)
+                if (effect.element && effect.enabled)
+                    runStep(effect.element);
+        }
+    }
 
     if (this->d->m_activePreview.element)
         runStep(this->d->m_activePreview.element);
@@ -378,6 +402,17 @@ void AkGLPipeline::setEffectEnabled(int index, bool enabled)
     }
 
     emit this->effectEnabledChanged(index, enabled);
+}
+
+void AkGLPipeline::setRotationIndex(int index)
+{
+    if (index < -1)
+        index = -1;
+
+    if (this->d->m_rotationIndex.fetchAndStoreAcquire(index) == index)
+        return;
+
+    emit this->rotationIndexChanged(index);
 }
 
 void AkGLPipeline::resetEffects()

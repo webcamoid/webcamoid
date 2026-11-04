@@ -273,6 +273,11 @@ bool AkGLCompositor::effectEnabled(int index) const
     return this->d->m_pipeline.effectEnabled(index);
 }
 
+int AkGLCompositor::rotationIndex() const
+{
+    return this->d->m_pipeline.rotationIndex();
+}
+
 bool AkGLCompositor::chainEffects() const
 {
     return this->d->m_pipeline.chainEffects();
@@ -486,6 +491,17 @@ bool AkGLCompositor::sourceEffectEnabled(qint64 id, int index) const
     return source->pipeline.effectEnabled(index);
 }
 
+int AkGLCompositor::sourceRotationIndex(qint64 id) const
+{
+    QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
+    auto source = this->d->m_sources.value(id, nullptr);
+
+    if (!source)
+        return -1;
+
+    return source->pipeline.rotationIndex();
+}
+
 bool AkGLCompositor::sourceChainEffects(qint64 id) const
 {
     QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
@@ -681,6 +697,15 @@ void AkGLCompositor::setEffectEnabled(int index, bool enabled)
     emit this->effectEnabledChanged(index, enabled);
 }
 
+void AkGLCompositor::setRotationIndex(int index)
+{
+    {
+        QMutexLocker mutexLocker(&this->d->m_effectsMutex);
+        this->d->m_pipeline.setRotationIndex(index);
+    }
+
+    emit this->rotationIndexChanged(index);
+}
 
 void AkGLCompositor::resetEffects()
 {
@@ -996,6 +1021,21 @@ void AkGLCompositor::setSourceEffectEnabled(qint64 id, int index, bool enabled)
     }
 
     emit this->sourceEffectEnabledChanged(id, index, enabled);
+}
+
+void AkGLCompositor::setSourceRotationIndex(qint64 id, int index)
+{
+    {
+        QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
+        auto source = this->d->m_sources.value(id, nullptr);
+
+        if (!source)
+            return;
+
+        source->pipeline.setRotationIndex(index);
+    }
+
+    emit this->sourceRotationIndexChanged(id, index);
 }
 
 void AkGLCompositor::resetSourceEffects(qint64 id)
