@@ -227,10 +227,18 @@ void FFmpegDev::resetMedia()
     QString defaultMedia;
 
 #ifdef Q_OS_WIN32
-    auto screenSize = this->d->screenSize("gdigrab", "desktop");
+    QString format = "ddagrab";
+    QString input = "0";
+
+    if (!av_find_input_format("ddagrab")) {
+        format = "gdigrab";
+        input = "desktop";
+    }
+
+    auto screenSize = this->d->screenSize(format, input);
 
     if (!screenSize.isEmpty())
-        defaultMedia = "screen://desktop";
+        defaultMedia = QString("screen://%1").arg(input);
 #elif defined(Q_OS_MACOS)
     auto devices = this->d->listAVFoundationDevices();
 
@@ -274,7 +282,10 @@ bool FFmpegDev::init()
 #endif
 
 #ifdef Q_OS_WIN32
-    auto inputFormat = av_find_input_format("gdigrab");
+    auto inputFormat = av_find_input_format("ddagrab");
+
+    if (!inputFormat)
+        inputFormat = av_find_input_format("gdigrab");
 #elif defined(Q_OS_MACOS)
     auto inputFormat = av_find_input_format("avfoundation");
 #elif defined(Q_OS_UNIX)
@@ -674,10 +685,18 @@ void FFmpegDevPrivate::updateDevices()
     decltype(this->m_devicesCaps) devicesCaps;
 
 #ifdef Q_OS_WIN32
-    auto screenSize = this->screenSize("gdigrab", "desktop");
+    QString format = "ddagrab";
+    QString input = "0";
+
+    if (!av_find_input_format("ddagrab")) {
+        format = "gdigrab";
+        input = "desktop";
+    }
+
+    auto screenSize = this->screenSize(format, input);
 
     if (!screenSize.isEmpty()) {
-        auto deviceId = "screen://desktop";
+        auto deviceId = QString("screen://%1").arg(input);
         devices << deviceId;
         device = deviceId;
         descriptions[deviceId] = QString("Screen 0");
