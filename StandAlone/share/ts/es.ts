@@ -3936,6 +3936,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="154"/>
+        <location filename="../../../libAvKys/ExtraPlugins/LensDistortion/share/qml/main.qml" line="66"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="109"/>
         <location filename="../../../libAvKys/Plugins/Zoom/share/qml/main.qml" line="28"/>
         <source>Zoom</source>
@@ -5401,6 +5402,26 @@
         <location filename="../../../libAvKys/ExtraPlugins/FreezeFrame/share/qml/main.qml" line="167"/>
         <source>The loop is stored at this height or lower and scaled up when played. Estimated memory: %1 MiB (30 FPS, 16:9).</source>
         <translation>El bucle se almacena a esta altura o inferior y se amplía al reproducirse. Memoria estimada: 1 MiB (30 FPS, 16:9).</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/LensDistortion/share/qml/main.qml" line="30"/>
+        <source>Distortion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/LensDistortion/share/qml/main.qml" line="48"/>
+        <source>Edge distortion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/LensDistortion/share/qml/main.qml" line="84"/>
+        <source>Horizontal center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/LensDistortion/share/qml/main.qml" line="102"/>
+        <source>Vertical center</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 </TS>
