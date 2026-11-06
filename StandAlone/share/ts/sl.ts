@@ -3339,6 +3339,7 @@
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="208"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="137"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="214"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="69"/>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="87"/>
         <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="308"/>
@@ -3349,6 +3350,7 @@
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="210"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="139"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="216"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="45"/>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="71"/>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="89"/>
         <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="310"/>
@@ -5423,6 +5425,61 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/LensDistortion/share/qml/main.qml" line="102"/>
         <source>Vertical center</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="33"/>
+        <source>Radar color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="35"/>
+        <source>Choose the radar color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="54"/>
+        <source>Glow intensity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="72"/>
+        <source>Sweep speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="90"/>
+        <source>Sweep width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="108"/>
+        <source>Fade speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="126"/>
+        <source>Keep color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="134"/>
+        <source>Circular radar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="142"/>
+        <source>Enable glow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="150"/>
+        <source>Enable grid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="158"/>
+        <source>Grid opacity</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
