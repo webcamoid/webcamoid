@@ -3902,6 +3902,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="154"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Kaleidoscope/share/qml/main.qml" line="52"/>
         <location filename="../../../libAvKys/ExtraPlugins/LensDistortion/share/qml/main.qml" line="66"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radiactive/share/qml/main.qml" line="109"/>
         <location filename="../../../libAvKys/Plugins/Zoom/share/qml/main.qml" line="28"/>
@@ -4994,14 +4995,36 @@
         <translation>區塊高度</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Kaleidoscope/share/qml/main.qml" line="34"/>
+        <source>Segments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Kaleidoscope/share/qml/main.qml" line="70"/>
+        <source>Rotation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Kaleidoscope/share/qml/main.qml" line="88"/>
+        <source>Rotation speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Kaleidoscope/share/qml/main.qml" line="106"/>
         <location filename="../../../libAvKys/ExtraPlugins/Swirl/share/qml/main.qml" line="28"/>
         <source>Center X</source>
         <translation>中心 X</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Kaleidoscope/share/qml/main.qml" line="124"/>
         <location filename="../../../libAvKys/ExtraPlugins/Swirl/share/qml/main.qml" line="47"/>
         <source>Center Y</source>
         <translation>中心 Y</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Kaleidoscope/share/qml/main.qml" line="142"/>
+        <source>Mirror</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Swirl/share/qml/main.qml" line="66"/>
