@@ -3336,6 +3336,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="208"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="137"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="33"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="214"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="43"/>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="69"/>
@@ -3347,6 +3348,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Charify/share/qml/main.qml" line="210"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="139"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="35"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="216"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="45"/>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="71"/>
@@ -4260,6 +4262,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="44"/>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="154"/>
         <location filename="../../../libAvKys/ExtraPlugins/Kaleidoscope/share/qml/main.qml" line="52"/>
         <location filename="../../../libAvKys/ExtraPlugins/LensDistortion/share/qml/main.qml" line="66"/>
@@ -4267,6 +4270,51 @@
         <location filename="../../../libAvKys/Plugins/Zoom/share/qml/main.qml" line="28"/>
         <source>Zoom</source>
         <translation>Zmadhim</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="62"/>
+        <source>Camera distance</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="80"/>
+        <source>Rotation X</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="98"/>
+        <source>Rotation Y</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="116"/>
+        <source>Rotation Z</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="134"/>
+        <source>Speed X</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="152"/>
+        <source>Speed Y</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="170"/>
+        <source>Speed Z</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="188"/>
+        <source>Keep aspect ratio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="196"/>
+        <source>Shading</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="195"/>
