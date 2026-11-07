@@ -2952,6 +2952,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/AnalogTV/share/qml/main.qml" line="117"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Glitch/share/qml/main.qml" line="142"/>
         <source>Noise</source>
         <translation>Noise</translation>
     </message>
@@ -3526,6 +3527,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/DelayGrab/share/qml/main.qml" line="72"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Glitch/share/qml/main.qml" line="52"/>
         <source>Block size</source>
         <translation>Block size</translation>
     </message>
@@ -5549,6 +5551,46 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="158"/>
         <source>Grid opacity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Glitch/share/qml/main.qml" line="34"/>
+        <source>Glitch rate</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Glitch/share/qml/main.qml" line="70"/>
+        <source>Block displacement</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Glitch/share/qml/main.qml" line="88"/>
+        <source>RGB split</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Glitch/share/qml/main.qml" line="106"/>
+        <source>Line jitter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Glitch/share/qml/main.qml" line="124"/>
+        <source>Corruption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Glitch/share/qml/main.qml" line="160"/>
+        <source>Datamosh</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Glitch/share/qml/main.qml" line="178"/>
+        <source>Datamosh motion</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Glitch/share/qml/main.qml" line="196"/>
+        <source>Keyframe interval (s)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
