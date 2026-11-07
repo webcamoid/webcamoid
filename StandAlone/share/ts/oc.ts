@@ -3233,6 +3233,7 @@
         <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="33"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="214"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="43"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="33"/>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="69"/>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="87"/>
         <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="308"/>
@@ -3262,6 +3263,7 @@
         <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="35"/>
         <location filename="../../../libAvKys/ExtraPlugins/Matrix/share/qml/main.qml" line="216"/>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="45"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="35"/>
         <location filename="../../../libAvKys/Plugins/AspectRatio/share/qml/main.qml" line="71"/>
         <location filename="../../../libAvKys/Plugins/Edge/share/qml/main.qml" line="89"/>
         <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="310"/>
@@ -3440,6 +3442,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/DelayGrab/share/qml/main.qml" line="72"/>
         <location filename="../../../libAvKys/ExtraPlugins/Glitch/share/qml/main.qml" line="52"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="44"/>
         <source>Block size</source>
         <translation>Talha del blòt</translation>
     </message>
@@ -5591,6 +5594,46 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Glitch/share/qml/main.qml" line="196"/>
         <source>Keyframe interval (s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="62"/>
+        <source>Fill time (s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="80"/>
+        <source>Fall time (s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="98"/>
+        <source>Hold time (s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="116"/>
+        <source>Explosion time (s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="134"/>
+        <source>Explosion power</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="152"/>
+        <source>Piece color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="170"/>
+        <source>Border</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="188"/>
+        <source>Smart placement</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
