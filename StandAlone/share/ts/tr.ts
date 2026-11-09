@@ -3868,6 +3868,7 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="188"/>
+        <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="148"/>
         <source>Keep aspect ratio</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5633,6 +5634,51 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="188"/>
         <source>Smart placement</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="34"/>
+        <source>Window frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="42"/>
+        <source>Elephants in their own window</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="50"/>
+        <source>Realistic elephant</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="58"/>
+        <source>Camera window size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="76"/>
+        <source>Elephants</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="94"/>
+        <source>Elephant speed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="112"/>
+        <source>Elephant size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="130"/>
+        <source>Dithering</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="156"/>
+        <source>Stretch to the frame</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
