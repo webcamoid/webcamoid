@@ -2296,31 +2296,31 @@
         <location filename="../qml/VideoEffectsList.qml" line="284"/>
         <source>Rotate effects</source>
         <extracomment>Change the applied effect periodically, one at a time.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Efectos de rotación</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsList.qml" line="306"/>
         <source>Interval (seconds)</source>
         <extracomment>Time between each effect change.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Intervalo (seg.)</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsList.qml" line="332"/>
         <source>Mode</source>
         <extracomment>How the next effect is chosen.</extracomment>
-        <translation type="unfinished">Modo</translation>
+        <translation>Modo</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsList.qml" line="339"/>
         <source>Random</source>
         <extracomment>The next effect is chosen at random.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Aleatorio</translation>
     </message>
     <message>
         <location filename="../qml/VideoEffectsList.qml" line="341"/>
         <source>Sequential</source>
         <extracomment>The effects are applied one after another, in order.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Secuencial</translation>
     </message>
 </context>
 <context>
@@ -3955,48 +3955,48 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="62"/>
         <source>Camera distance</source>
-        <translation type="unfinished"></translation>
+        <translation>Distancia de cámara</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="80"/>
         <source>Rotation X</source>
-        <translation type="unfinished"></translation>
+        <translation>Rotación X</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="98"/>
         <source>Rotation Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Rotación Y</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="116"/>
         <source>Rotation Z</source>
-        <translation type="unfinished"></translation>
+        <translation>Rotación Z</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="134"/>
         <source>Speed X</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocidad&#xa0;X</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="152"/>
         <source>Speed Y</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocidad&#xa0;Y</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="170"/>
         <source>Speed Z</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocidad&#xa0;Z</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="188"/>
         <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="148"/>
         <source>Keep aspect ratio</source>
-        <translation type="unfinished"></translation>
+        <translation>Mantener proporción de aspecto</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Cube/share/qml/main.qml" line="196"/>
         <source>Shading</source>
-        <translation type="unfinished"></translation>
+        <translation>Sombreado</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Fire/share/qml/main.qml" line="273"/>
@@ -5052,17 +5052,17 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Kaleidoscope/share/qml/main.qml" line="34"/>
         <source>Segments</source>
-        <translation type="unfinished"></translation>
+        <translation>Segmentos</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Kaleidoscope/share/qml/main.qml" line="70"/>
         <source>Rotation</source>
-        <translation type="unfinished"></translation>
+        <translation>Rotación</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Kaleidoscope/share/qml/main.qml" line="88"/>
         <source>Rotation speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Vel. de rotación</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Kaleidoscope/share/qml/main.qml" line="106"/>
@@ -5079,7 +5079,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Kaleidoscope/share/qml/main.qml" line="142"/>
         <source>Mirror</source>
-        <translation type="unfinished"></translation>
+        <translation>Espejo</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Swirl/share/qml/main.qml" line="66"/>
@@ -5485,202 +5485,202 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/LensDistortion/share/qml/main.qml" line="30"/>
         <source>Distortion</source>
-        <translation type="unfinished"></translation>
+        <translation>Distorsión</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/LensDistortion/share/qml/main.qml" line="48"/>
         <source>Edge distortion</source>
-        <translation type="unfinished"></translation>
+        <translation>Distorsión de borde</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/LensDistortion/share/qml/main.qml" line="84"/>
         <source>Horizontal center</source>
-        <translation type="unfinished"></translation>
+        <translation>Centro horizontal</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/LensDistortion/share/qml/main.qml" line="102"/>
         <source>Vertical center</source>
-        <translation type="unfinished"></translation>
+        <translation>Centro vertical</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="33"/>
         <source>Radar color</source>
-        <translation type="unfinished"></translation>
+        <translation>Color de radar</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="35"/>
         <source>Choose the radar color</source>
-        <translation type="unfinished"></translation>
+        <translation>Elija el color del radar</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="54"/>
         <source>Glow intensity</source>
-        <translation type="unfinished"></translation>
+        <translation>Intensidad del brillo</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="72"/>
         <source>Sweep speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocidad de barrido</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="90"/>
         <source>Sweep width</source>
-        <translation type="unfinished"></translation>
+        <translation>Anchura de barrido</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="108"/>
         <source>Fade speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocidad de desvanecimiento</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="126"/>
         <source>Keep color</source>
-        <translation type="unfinished"></translation>
+        <translation>Conservar color</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="134"/>
         <source>Circular radar</source>
-        <translation type="unfinished"></translation>
+        <translation>Radar circular</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="142"/>
         <source>Enable glow</source>
-        <translation type="unfinished"></translation>
+        <translation>Habilitar brillo</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="150"/>
         <source>Enable grid</source>
-        <translation type="unfinished"></translation>
+        <translation>Habilitar cuadrícula</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="158"/>
         <source>Grid opacity</source>
-        <translation type="unfinished"></translation>
+        <translation>Opacidad de cuadrícula</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Glitch/share/qml/main.qml" line="34"/>
         <source>Glitch rate</source>
-        <translation type="unfinished"></translation>
+        <translation>Estimación de fallo</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Glitch/share/qml/main.qml" line="70"/>
         <source>Block displacement</source>
-        <translation type="unfinished"></translation>
+        <translation>Desplazamiento de bloque</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Glitch/share/qml/main.qml" line="88"/>
         <source>RGB split</source>
-        <translation type="unfinished"></translation>
+        <translation>Desglose RBG</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Glitch/share/qml/main.qml" line="106"/>
         <source>Line jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Fluctuación lineal</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Glitch/share/qml/main.qml" line="124"/>
         <source>Corruption</source>
-        <translation type="unfinished"></translation>
+        <translation>Corrupción</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Glitch/share/qml/main.qml" line="160"/>
         <source>Datamosh</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Datamosh</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Glitch/share/qml/main.qml" line="178"/>
         <source>Datamosh motion</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Moción de datamosh</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Glitch/share/qml/main.qml" line="196"/>
         <source>Keyframe interval (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Intervalo entre fotogramas clave (s)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="62"/>
         <source>Fill time (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tiempo de llenado (s)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="80"/>
         <source>Fall time (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tiempo de caída (s)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="98"/>
         <source>Hold time (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tiempo de espera (s)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="116"/>
         <source>Explosion time (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tiempo de explosión (s)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="134"/>
         <source>Explosion power</source>
-        <translation type="unfinished"></translation>
+        <translation>Energía de explosión</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="152"/>
         <source>Piece color</source>
-        <translation type="unfinished"></translation>
+        <translation>Color de pieza</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="170"/>
         <source>Border</source>
-        <translation type="unfinished"></translation>
+        <translation>Borde</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="188"/>
         <source>Smart placement</source>
-        <translation type="unfinished"></translation>
+        <translation>Lugar inteligente</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="34"/>
         <source>Window frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Marco de ventana</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="42"/>
         <source>Elephants in their own window</source>
-        <translation type="unfinished"></translation>
+        <translation>Elefantes en su propio escaparate</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="50"/>
         <source>Realistic elephant</source>
-        <translation type="unfinished"></translation>
+        <translation>Elefante realista</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="58"/>
         <source>Camera window size</source>
-        <translation type="unfinished"></translation>
+        <translation>Tamaño de ventana de la cámara</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="76"/>
         <source>Elephants</source>
-        <translation type="unfinished"></translation>
+        <translation>Elefantes</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="94"/>
         <source>Elephant speed</source>
-        <translation type="unfinished"></translation>
+        <translation>Vel. de elefante</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="112"/>
         <source>Elephant size</source>
-        <translation type="unfinished"></translation>
+        <translation>Tam. de elefante</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="130"/>
         <source>Dithering</source>
-        <translation type="unfinished"></translation>
+        <translation>Difuminado</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="156"/>
         <source>Stretch to the frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Estirar hasta el marco</translation>
     </message>
 </context>
 </TS>
