@@ -4541,11 +4541,13 @@
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/AudioMeter/share/qml/main.qml" line="86"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AudioWarp/share/qml/main.qml" line="146"/>
         <source>Minimum level (dB)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/AudioMeter/share/qml/main.qml" line="105"/>
+        <location filename="../../../libAvKys/ExtraPlugins/AudioWarp/share/qml/main.qml" line="167"/>
         <source>Fall time (ms)</source>
         <translation type="unfinished"></translation>
     </message>
@@ -5731,6 +5733,46 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="156"/>
         <source>Stretch to the frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AudioWarp/share/qml/main.qml" line="37"/>
+        <source>Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AudioWarp/share/qml/main.qml" line="44"/>
+        <source>Waveform</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AudioWarp/share/qml/main.qml" line="48"/>
+        <source>Spectrum</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AudioWarp/share/qml/main.qml" line="59"/>
+        <source>Radius (%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AudioWarp/share/qml/main.qml" line="78"/>
+        <source>Amplitude (%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AudioWarp/share/qml/main.qml" line="97"/>
+        <source>Rotation (°)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AudioWarp/share/qml/main.qml" line="116"/>
+        <source>Symmetric</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AudioWarp/share/qml/main.qml" line="127"/>
+        <source>Gain (dB)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
