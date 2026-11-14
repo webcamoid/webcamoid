@@ -27,6 +27,7 @@
 #include <QQuickItem>
 
 #include "akvideoeffect.h"
+#include "../akaudiopacket.h"
 
 AkVideoEffect::AkVideoEffect(QObject *parent):
     QObject(parent)
@@ -35,6 +36,11 @@ AkVideoEffect::AkVideoEffect(QObject *parent):
 
 AkVideoEffect::~AkVideoEffect()
 {
+}
+
+bool AkVideoEffect::canProcessAudio() const
+{
+    return false;
 }
 
 QObject *AkVideoEffect::controlInterface(QQmlEngine *engine,
@@ -98,6 +104,11 @@ void AkVideoEffect::controlInterfaceConfigure(QQmlContext *context,
 void AkVideoEffect::setGLFunctions(QOpenGLFunctions *gl)
 {
     this->m_gl = gl;
+}
+
+AkAudioPacket AkVideoEffect::iAudioStream(const AkAudioPacket &audioPacket)
+{
+    return audioPacket;
 }
 
 #include "moc_akvideoeffect.cpp"

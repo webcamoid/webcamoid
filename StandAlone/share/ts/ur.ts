@@ -1486,7 +1486,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1554"/>
+        <location filename="../../src/mediatools.cpp" line="1597"/>
         <source>%1/log %2.txt</source>
         <translation>%1/log %2.txt</translation>
     </message>
@@ -1657,170 +1657,170 @@
         <translation>%1/ویڈیو %2.%3</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1110"/>
+        <location filename="../../src/videolayer.cpp" line="1134"/>
         <source>3GP Video</source>
         <translation>3GP ویڈیو</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1111"/>
+        <location filename="../../src/videolayer.cpp" line="1135"/>
         <source>AVI Video</source>
         <translation>AVI ویڈیو</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1112"/>
+        <location filename="../../src/videolayer.cpp" line="1136"/>
         <source>Windows Bitmap</source>
         <translation>ونڈوز بٹ میپ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1113"/>
+        <location filename="../../src/videolayer.cpp" line="1137"/>
         <source>Microsoft Windows Cursor</source>
         <translation>مائیکروسافٹ ونڈوز کرسر</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1115"/>
+        <location filename="../../src/videolayer.cpp" line="1139"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
         <translation>فلیش ویڈیو</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1116"/>
+        <location filename="../../src/videolayer.cpp" line="1140"/>
         <source>Animated GIF</source>
         <translation>اینیمیٹڈ GIF</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1117"/>
+        <location filename="../../src/videolayer.cpp" line="1141"/>
         <source>Graphic Interchange Format</source>
         <translation>گرافک انٹرچینج فارمیٹ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1118"/>
+        <location filename="../../src/videolayer.cpp" line="1142"/>
         <source>Apple Icon Image</source>
         <translation>ایپل آئیکن تصویر</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1119"/>
+        <location filename="../../src/videolayer.cpp" line="1143"/>
         <source>Microsoft Windows Icon</source>
         <translation>مائیکروسافٹ ونڈوز آئیکن</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1120"/>
+        <location filename="../../src/videolayer.cpp" line="1144"/>
         <source>Joint Photographic Experts Group</source>
         <translation>جوائنٹ فوٹوگرافک ایکسپرٹس گروپ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1121"/>
+        <location filename="../../src/videolayer.cpp" line="1145"/>
         <source>MKV Video</source>
         <translation>MKV ویڈیو</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1122"/>
+        <location filename="../../src/videolayer.cpp" line="1146"/>
         <source>Animated PNG</source>
         <translation>اینیمیٹڈ PNG</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1123"/>
+        <location filename="../../src/videolayer.cpp" line="1147"/>
         <source>Multiple-image Network Graphics</source>
         <translation>ملٹی پل امیج نیٹ ورک گرافکس</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1124"/>
+        <location filename="../../src/videolayer.cpp" line="1148"/>
         <source>QuickTime Video</source>
         <translation>کوئک ٹائم ویڈیو</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1125"/>
+        <location filename="../../src/videolayer.cpp" line="1149"/>
         <source>MP4 Video</source>
         <translation>MP4 ویڈیو</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1126"/>
+        <location filename="../../src/videolayer.cpp" line="1150"/>
         <source>MPEG Video</source>
         <translation>MPEG ویڈیو</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1127"/>
+        <location filename="../../src/videolayer.cpp" line="1151"/>
         <source>Ogg Video</source>
         <translation>Ogg ویڈیو</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1128"/>
+        <location filename="../../src/videolayer.cpp" line="1152"/>
         <source>Portable Bitmap</source>
         <translation>پورٹیبل بٹ میپ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1129"/>
+        <location filename="../../src/videolayer.cpp" line="1153"/>
         <source>Portable Graymap</source>
         <translation>پورٹیبل گرے میپ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1130"/>
+        <location filename="../../src/videolayer.cpp" line="1154"/>
         <source>Portable Network Graphics</source>
         <translation>پورٹیبل نیٹ ورک گرافکس</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1131"/>
+        <location filename="../../src/videolayer.cpp" line="1155"/>
         <source>Portable Pixmap</source>
         <translation>پورٹیبل پکس میپ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1133"/>
+        <location filename="../../src/videolayer.cpp" line="1157"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
         <translation>RealMedia ویڈیو</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1134"/>
+        <location filename="../../src/videolayer.cpp" line="1158"/>
         <source>Scalable Vector Graphics</source>
         <translation>سکیل ایبل ویکٹر گرافکس</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1135"/>
+        <location filename="../../src/videolayer.cpp" line="1159"/>
         <source>Truevision TGA</source>
         <translation>ٹرو ویژن TGA</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1136"/>
+        <location filename="../../src/videolayer.cpp" line="1160"/>
         <source>Tagged Image File Format</source>
         <translation>ٹیگڈ امیج فائل فارمیٹ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1137"/>
+        <location filename="../../src/videolayer.cpp" line="1161"/>
         <source>DVD Video</source>
         <translation>DVD ویڈیو</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1138"/>
+        <location filename="../../src/videolayer.cpp" line="1162"/>
         <source>Wireless Bitmap</source>
         <translation>وائرلیس بٹ میپ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1139"/>
+        <location filename="../../src/videolayer.cpp" line="1163"/>
         <source>WebM Video</source>
         <translation>WebM ویڈیو</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1140"/>
+        <location filename="../../src/videolayer.cpp" line="1164"/>
         <source>WebP</source>
         <translation>WebP</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1142"/>
+        <location filename="../../src/videolayer.cpp" line="1166"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
         <translation>ونڈوز میڈیا ویڈیو</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1143"/>
+        <location filename="../../src/videolayer.cpp" line="1167"/>
         <source>X11 Bitmap</source>
         <translation>X11 بٹ میپ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1144"/>
+        <location filename="../../src/videolayer.cpp" line="1168"/>
         <source>X11 Pixmap</source>
         <translation>X11 پکس میپ</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1376"/>
+        <location filename="../../src/videolayer.cpp" line="1402"/>
         <source>Text</source>
         <translation type="unfinished">متن</translation>
     </message>
@@ -2239,24 +2239,32 @@
     </message>
 </context>
 <context>
+    <name>VideoEffectAudioNotice</name>
+    <message>
+        <location filename="../qml/VideoEffectAudioNotice.qml" line="65"/>
+        <source>This video source is not associated to an audio input, please associate the &lt;a href=&quot;source&quot;&gt;source&lt;/a&gt; to an audio input for this effect to work.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>VideoEffectOptions</name>
     <message>
-        <location filename="../qml/VideoEffectOptions.qml" line="96"/>
+        <location filename="../qml/VideoEffectOptions.qml" line="102"/>
         <source>Remove</source>
         <translation>ہٹائیں</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectOptions.qml" line="101"/>
+        <location filename="../qml/VideoEffectOptions.qml" line="107"/>
         <source>Remove %1 video effect</source>
         <translation>%1 ویڈیو ایفیکٹ ہٹائیں</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectOptions.qml" line="115"/>
+        <location filename="../qml/VideoEffectOptions.qml" line="121"/>
         <source>Reset</source>
         <translation type="unfinished">ری سیٹ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectOptions.qml" line="120"/>
+        <location filename="../qml/VideoEffectOptions.qml" line="126"/>
         <source>Reset %1 to default values</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2269,12 +2277,12 @@
         <translation>ویڈیو ایفیکٹ شامل کریں</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="114"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="117"/>
         <source>Effect</source>
         <translation>ایفیکٹ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="178"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="185"/>
         <source>Chain effect</source>
         <extracomment>Apply the effect over the other effects.</extracomment>
         <translation>چین ایفیکٹ</translation>
@@ -2436,53 +2444,68 @@
 <context>
     <name>VideoInputOptions</name>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="89"/>
+        <location filename="../qml/VideoInputOptions.qml" line="68"/>
+        <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputOptions.qml" line="81"/>
+        <source>%1 (not available)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputOptions.qml" line="134"/>
         <source>Rename</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="90"/>
+        <location filename="../qml/VideoInputOptions.qml" line="135"/>
         <source>Edit</source>
         <translation>ترمیم</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="103"/>
+        <location filename="../qml/VideoInputOptions.qml" line="148"/>
         <source>Remove</source>
         <translation>ہٹائیں</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="118"/>
+        <location filename="../qml/VideoInputOptions.qml" line="163"/>
         <source>Manage source effects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="130"/>
+        <location filename="../qml/VideoInputOptions.qml" line="175"/>
         <source>Opacity</source>
         <translation type="unfinished">اوپیسٹی</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="148"/>
+        <location filename="../qml/VideoInputOptions.qml" line="193"/>
         <source>Source opacity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="159"/>
+        <location filename="../qml/VideoInputOptions.qml" line="204"/>
         <source>Aspect ratio mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="161"/>
+        <location filename="../qml/VideoInputOptions.qml" line="206"/>
         <source>Ignore</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="162"/>
+        <location filename="../qml/VideoInputOptions.qml" line="207"/>
         <source>Keep</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="163"/>
+        <location filename="../qml/VideoInputOptions.qml" line="208"/>
         <source>Keep by expanding</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputOptions.qml" line="252"/>
+        <source>Associated audio device</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2577,12 +2600,12 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="146"/>
+        <location filename="../../src/videolayer.cpp" line="147"/>
         <source>All Image and Video Files</source>
         <translation>تمام تصویر اور ویڈیو فائلیں</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="183"/>
+        <location filename="../../src/videolayer.cpp" line="184"/>
         <source>All Files</source>
         <translation>تمام فائلیں</translation>
     </message>
@@ -3593,28 +3616,57 @@
         <translation>ری سیٹ</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AudioMeter/share/qml/main.qml" line="52"/>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="51"/>
         <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="248"/>
         <source>Left</source>
         <translation>بائیں</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AudioMeter/share/qml/main.qml" line="56"/>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="68"/>
         <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="250"/>
         <source>Right</source>
         <translation>دائیں</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AudioMeter/share/qml/main.qml" line="48"/>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="85"/>
         <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="260"/>
         <source>Top</source>
         <translation>اوپر</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AudioMeter/share/qml/main.qml" line="37"/>
+        <source>Position</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AudioMeter/share/qml/main.qml" line="44"/>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="102"/>
         <location filename="../../../libAvKys/Plugins/TextSrc/share/qml/main.qml" line="262"/>
         <source>Bottom</source>
         <translation>نیچے</translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AudioMeter/share/qml/main.qml" line="67"/>
+        <source>Size (%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AudioMeter/share/qml/main.qml" line="86"/>
+        <source>Minimum level (dB)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AudioMeter/share/qml/main.qml" line="105"/>
+        <source>Fall time (ms)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/AudioMeter/share/qml/main.qml" line="124"/>
+        <source>Peak hold time (ms)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../../libAvKys/Plugins/Crop/share/qml/main.qml" line="118"/>

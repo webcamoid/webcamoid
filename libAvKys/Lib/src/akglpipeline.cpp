@@ -26,6 +26,7 @@
 #include <QQmlEngine>
 #include <QVector>
 
+#include "akaudiopacket.h"
 #include "akglpipeline.h"
 #include "akplugininfo.h"
 #include "akpluginmanager.h"
@@ -280,6 +281,50 @@ void AkGLPipeline::process(QOpenGLFramebufferObject *inputFbo,
                                                   GL_COLOR_BUFFER_BIT,
                                                   GL_NEAREST);
     }
+}
+
+AkAudioPacket AkGLPipeline::iAudioStream(const AkAudioPacket &audioPacket)
+{
+    // Select the effects that are applied to the video, using the same rules
+    // as process(), but over the requested effects, since this is not called
+    // from the render thread.
+    // Only the pointers are copied under the lock, the effects are called
+    // after releasing it, so the render thread, that takes this mutex in every
+    // frame, is never kept waiting by the audio processing. The shared
+    // pointers keep the effects alive even if they are removed in the middle.
+    QVector<AkVideoEffectPtr> elements;
+
+    {
+        QMutexLocker mutexLocker(&this->d->m_requestMutex);
+
+        if (this->d->m_requestChainEffects
+            || !this->d->m_requestPreview.element) {
+            int rotationIndex = this->d->m_rotationIndex.loadAcquire();
+
+            if (rotationIndex >= 0) {
+                if (rotationIndex < this->d->m_requestEffects.size()) {
+                    auto &effect = this->d->m_requestEffects.at(rotationIndex);
+
+                    if (effect.element)
+                        elements << effect.element;
+                }
+            } else {
+                for (auto &effect: this->d->m_requestEffects)
+                    if (effect.element && effect.enabled)
+                        elements << effect.element;
+            }
+        }
+
+        if (this->d->m_requestPreview.element)
+            elements << this->d->m_requestPreview.element;
+    }
+
+    auto packet = audioPacket;
+
+    for (auto &element: elements)
+        packet = element->iAudioStream(packet);
+
+    return packet;
 }
 
 void AkGLPipeline::setEffects(const QStringList &effectIds)

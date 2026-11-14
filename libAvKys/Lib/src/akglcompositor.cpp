@@ -40,6 +40,8 @@
 #include "akglcompositor.h"
 #include "ak.h"
 #include "akalgorithm.h"
+#include <atomic>
+#include "akaudiopacket.h"
 #include "akclock.h"
 #include "akfrac.h"
 #include "akglpipeline.h"
@@ -73,6 +75,10 @@ class AkGLCompositorSource
         size_t uploadPboSize {0};
         AkGLPipeline pipeline;
         bool glInitialized {false};
+
+        // A disabled source keeps its effects, but it is not processed nor
+        // composed. It is read from the audio thread, without locking.
+        std::atomic<bool> enabled {true};
 };
 
 using AkGLCompositorSourcePtr = QSharedPointer<AkGLCompositorSource>;
@@ -139,6 +145,12 @@ class AkGLCompositorPrivate
         AkVideoPacket m_outputPacket;
         QMutex m_sourcesMutex;
         QHash<qint64, AkGLCompositorSourcePtr> m_sources;
+
+        // The audio thread must not take m_sourcesMutex, that is held by the
+        // render thread while it processes the sources, so the sources that
+        // can receive audio are also kept in a map with its own mutex.
+        QMutex m_audioSourcesMutex;
+        QHash<qint64, AkGLCompositorSourcePtr> m_audioSources;
         QHash<qint64, AkGLPacketSlotPtr> m_packetsBuffer;
         QReadWriteLock m_packetsBufferMutex;
         QMutex m_pendingRemovalsMutex;
@@ -311,6 +323,11 @@ qint64 AkGLCompositor::addSource(qint64 id)
         this->d->m_sourceParamsDirty = true;
 
         {
+            QMutexLocker audioLocker(&this->d->m_audioSourcesMutex);
+            this->d->m_audioSources[id] = this->d->m_sources[id];
+        }
+
+        {
             QWriteLocker writeLocker(&this->d->m_packetsBufferMutex);
             this->d->m_packetsBuffer[id] = AkGLPacketSlotPtr::create();
         }
@@ -328,6 +345,11 @@ void AkGLCompositor::removeSource(qint64 id)
 
         if (!this->d->m_sources.contains(id))
             return;
+    }
+
+    {
+        QMutexLocker audioLocker(&this->d->m_audioSourcesMutex);
+        this->d->m_audioSources.remove(id);
     }
 
     QMutexLocker mutexLocker(&this->d->m_pendingRemovalsMutex);
@@ -397,6 +419,14 @@ qreal AkGLCompositor::sourceOpacity(qint64 id) const
     QMutexLocker sourceLocker(&source->mutex);
 
     return source->opacity;
+}
+
+bool AkGLCompositor::sourceEnabled(qint64 id) const
+{
+    QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
+    auto source = this->d->m_sources.value(id, nullptr);
+
+    return source && source->enabled;
 }
 
 qreal AkGLCompositor::sourceRotation(qint64 id) const
@@ -844,6 +874,22 @@ void AkGLCompositor::setSourceZOrder(qint64 id, int zOrder)
         emit this->sourceZOrderChanged(id, zOrder);
 }
 
+void AkGLCompositor::setSourceEnabled(qint64 id, bool enabled)
+{
+    {
+        QMutexLocker mutexLocker(&this->d->m_sourcesMutex);
+        auto source = this->d->m_sources.value(id, nullptr);
+
+        if (!source || source->enabled == enabled)
+            return;
+
+        source->enabled = enabled;
+        this->d->m_sourceParamsDirty = true;
+    }
+
+    emit this->sourceEnabledChanged(id, enabled);
+}
+
 void AkGLCompositor::setSourceOpacity(qint64 id, qreal opacity)
 {
     bool changed = false;
@@ -1187,6 +1233,29 @@ void AkGLCompositor::detachFromWindow()
 
     disconnect(this->d->m_window, nullptr, this, nullptr);
     this->d->m_window = nullptr;
+}
+
+AkPacket AkGLCompositor::iAudioStream(const AkAudioPacket &audioPacket)
+{
+    if (!audioPacket)
+        return {};
+
+    AkGLCompositorSourcePtr source;
+
+    {
+        QMutexLocker mutexLocker(&this->d->m_audioSourcesMutex);
+        source = this->d->m_audioSources.value(audioPacket.id(), nullptr);
+    }
+
+    // The audio of a source that is not in the compositor, or that is
+    // disabled, is simply ignored. Keeping the shared pointer prevents the
+    // source from being destroyed while the effects are processing the audio.
+    if (!source || !source->enabled)
+        return {};
+
+    source->pipeline.iAudioStream(audioPacket);
+
+    return {};
 }
 
 AkPacket AkGLCompositor::iVideoStream(const AkVideoPacket &videoPacket)
@@ -1546,6 +1615,9 @@ void AkGLCompositorPrivate::processTick()
         QMutexLocker mutexLocker(&this->m_sourcesMutex);
 
         for (auto &source: this->m_sources) {
+            if (!source->enabled)
+                continue;
+
             QMutexLocker sourceLocker(&source->mutex);
 
             if (!source->glInitialized) {
@@ -1740,6 +1812,9 @@ void AkGLCompositorPrivate::compositeSourcesIntoCanvas()
         this->m_orderedSources.clear();
 
         for (auto &source: this->m_sources) {
+            if (!source->enabled)
+                continue;
+
             QMutexLocker sourceLocker(&source->mutex);
             QReadLocker readLocker(&this->m_packetsBufferMutex);
             auto packetSlot =

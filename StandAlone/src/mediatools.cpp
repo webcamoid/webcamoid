@@ -155,6 +155,17 @@ class MediaToolsPrivate
         QString m_language; // Empty means the system language.
         QMap<qint64, qint64> m_videoSourceAudioIds;
         QMap<qint64, QString> m_videoSourceAudioDevices;
+
+        // Audio input associated to each video source, to feed the audio to
+        // the effects of the source. It is also read from the audio threads.
+        QMutex m_audioAssociationsMutex;
+        QMap<qint64, QString> m_audioAssociations;
+        bool m_associatedAudioRef {false};
+
+        void setAudioAssociation(qint64 id, const QString &device);
+        void updateAssociatedAudioRef();
+        void sendAudioToAssociatedSources(const QString &input,
+                                          const AkPacket &packet);
         bool m_localStreamingPacketReaderActive {false};
 
         // Show interstitial ads every 1 minute
@@ -950,19 +961,20 @@ bool MediaTools::init(const CliOptions &cliOptions)
                      &VideoLayer::sourceAdded,
                      this,
                      [this] (qint64 id, const QString &device) {
-                        if (this->d->m_videoLayer->sourceEnabled(id)){
-                            this->d->m_videoEffects->addSource(id, device);
-                            auto rect = this->d->m_videoLayer->sourceRect(id);
-                            auto zorder = this->d->m_videoLayer->sourceZOrder(id);
-                            auto opacity = this->d->m_videoLayer->sourceOpacity(id);
-                            auto rotation = this->d->m_videoLayer->sourceRotation(id);
-                            auto aspectRatioMode = this->d->m_videoLayer->sourceAspectRatioMode(id);
-                            this->d->m_videoEffects->setSourceRect(id, rect);
-                            this->d->m_videoEffects->setSourceZOrder(id, zorder);
-                            this->d->m_videoEffects->setSourceOpacity(id, opacity);
-                            this->d->m_videoEffects->setSourceRotation(id, rotation);
-                            this->d->m_videoEffects->setSourceAspectRatioMode(id, aspectRatioMode);
-                        }
+                        // The source is registered even if it is disabled, so
+                        // its effects can be edited.
+                        this->d->m_videoEffects->addSource(id, device);
+                        auto rect = this->d->m_videoLayer->sourceRect(id);
+                        auto zorder = this->d->m_videoLayer->sourceZOrder(id);
+                        auto opacity = this->d->m_videoLayer->sourceOpacity(id);
+                        auto rotation = this->d->m_videoLayer->sourceRotation(id);
+                        auto aspectRatioMode = this->d->m_videoLayer->sourceAspectRatioMode(id);
+                        this->d->m_videoEffects->setSourceRect(id, rect);
+                        this->d->m_videoEffects->setSourceZOrder(id, zorder);
+                        this->d->m_videoEffects->setSourceOpacity(id, opacity);
+                        this->d->m_videoEffects->setSourceRotation(id, rotation);
+                        this->d->m_videoEffects->setSourceAspectRatioMode(id, aspectRatioMode);
+                        this->d->m_videoEffects->setSourceEnabled(id, this->d->m_videoLayer->sourceEnabled(id));
 
                          if (this->d->m_videoLayer->deviceType(device) == VideoLayer::InputStream) {
                              auto description = this->d->m_videoLayer->description(device);
@@ -993,21 +1005,9 @@ bool MediaTools::init(const CliOptions &cliOptions)
                      &VideoLayer::sourceEnabledChanged,
                      this,
                      [this] (qint64 id, bool enabled) {
-                         if (enabled) {
-                             this->d->m_videoEffects->addSource(id);
-                             auto rect = this->d->m_videoLayer->sourceRect(id);
-                             auto zorder = this->d->m_videoLayer->sourceZOrder(id);
-                             auto opacity = this->d->m_videoLayer->sourceOpacity(id);
-                             auto rotation = this->d->m_videoLayer->sourceRotation(id);
-                             auto aspectRatioMode = this->d->m_videoLayer->sourceAspectRatioMode(id);
-                             this->d->m_videoEffects->setSourceRect(id, rect);
-                             this->d->m_videoEffects->setSourceZOrder(id, zorder);
-                             this->d->m_videoEffects->setSourceOpacity(id, opacity);
-                             this->d->m_videoEffects->setSourceRotation(id, rotation);
-                             this->d->m_videoEffects->setSourceAspectRatioMode(id, aspectRatioMode);
-                         } else {
-                             this->d->m_videoEffects->removeSource(id);
-                         }
+                         // The source stays registered, with its effects, and
+                         // it is only excluded from the composition.
+                         this->d->m_videoEffects->setSourceEnabled(id, enabled);
                      },
                      Qt::DirectConnection);
 
@@ -1095,6 +1095,46 @@ bool MediaTools::init(const CliOptions &cliOptions)
                      &VideoLayer::sourceAspectRatioModeChanged,
                      this->d->m_videoEffects.data(),
                      &VideoEffects::setSourceAspectRatioMode);
+    // Audio input associated to a video source: its audio is sent to the
+    // effects of the source, tagged with the id of the source.
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::sourceAudioDeviceChanged,
+                     this,
+                     [this] (qint64 id, const QString &device) {
+                         this->d->setAudioAssociation(id, device);
+                     },
+                     Qt::DirectConnection);
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::sourceRemoved,
+                     this,
+                     [this] (qint64 id) {
+                         this->d->setAudioAssociation(id, {});
+                     },
+                     Qt::DirectConnection);
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::sourceEnabledChanged,
+                     this,
+                     [this] (qint64 id, bool enabled) {
+                         Q_UNUSED(id)
+                         Q_UNUSED(enabled)
+                         this->d->updateAssociatedAudioRef();
+                     },
+                     Qt::DirectConnection);
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::stateChanged,
+                     this,
+                     [this] (AkElement::ElementState state) {
+                         Q_UNUSED(state)
+                         this->d->updateAssociatedAudioRef();
+                     },
+                     Qt::DirectConnection);
+    QObject::connect(this->d->m_audioInputs.data(),
+                     &AudioInputs::inputStream,
+                     this,
+                     [this] (const QString &input, const AkPacket &packet) {
+                         this->d->sendAudioToAssociatedSources(input, packet);
+                     },
+                     Qt::DirectConnection);
     QObject::connect(this->d->m_videoLayer.data(),
                      &VideoLayer::stateChanged,
                      this->d->m_videoEffects.data(),
@@ -1249,19 +1289,20 @@ bool MediaTools::init(const CliOptions &cliOptions)
         auto id = idVariant.toLongLong();
         auto device = this->d->m_videoLayer->sourceDevice(id);
 
-        if (this->d->m_videoLayer->sourceEnabled(id)) {
-            this->d->m_videoEffects->addSource(id, device);
-            auto rect = this->d->m_videoLayer->sourceRect(id);
-            auto zorder = this->d->m_videoLayer->sourceZOrder(id);
-            auto opacity = this->d->m_videoLayer->sourceOpacity(id);
-            auto rotation = this->d->m_videoLayer->sourceRotation(id);
-            auto aspectRatioMode = this->d->m_videoLayer->sourceAspectRatioMode(id);
-            this->d->m_videoEffects->setSourceRect(id, rect);
-            this->d->m_videoEffects->setSourceZOrder(id, zorder);
-            this->d->m_videoEffects->setSourceOpacity(id, opacity);
-            this->d->m_videoEffects->setSourceRotation(id, rotation);
-            this->d->m_videoEffects->setSourceAspectRatioMode(id, aspectRatioMode);
-        }
+        // Register the source even if it is disabled, so its effects can be
+        // edited.
+        this->d->m_videoEffects->addSource(id, device);
+        auto rect = this->d->m_videoLayer->sourceRect(id);
+        auto zorder = this->d->m_videoLayer->sourceZOrder(id);
+        auto opacity = this->d->m_videoLayer->sourceOpacity(id);
+        auto rotation = this->d->m_videoLayer->sourceRotation(id);
+        auto aspectRatioMode = this->d->m_videoLayer->sourceAspectRatioMode(id);
+        this->d->m_videoEffects->setSourceRect(id, rect);
+        this->d->m_videoEffects->setSourceZOrder(id, zorder);
+        this->d->m_videoEffects->setSourceOpacity(id, opacity);
+        this->d->m_videoEffects->setSourceRotation(id, rotation);
+        this->d->m_videoEffects->setSourceAspectRatioMode(id, aspectRatioMode);
+        this->d->m_videoEffects->setSourceEnabled(id, this->d->m_videoLayer->sourceEnabled(id));
 
         if (this->d->m_videoLayer->deviceType(device) == VideoLayer::InputStream) {
             auto description = this->d->m_videoLayer->description(device);
@@ -1270,6 +1311,8 @@ bool MediaTools::init(const CliOptions &cliOptions)
             this->d->m_videoSourceAudioIds[id] = streamId;
             this->d->m_videoSourceAudioDevices[id] = device;
         }
+
+        this->d->setAudioAssociation(id, this->d->m_videoLayer->sourceAudioDevice(id));
     }
 
     this->d->m_virtualCameras->setLatestVCamVersion(this->d->m_updates->latestVersion("VirtualCamera"));
@@ -2052,6 +2095,80 @@ QString MediaToolsLogger::readLog(quint64 lineStart) const
     }
 
     return QString::fromUtf8(logStr);
+}
+
+void MediaToolsPrivate::setAudioAssociation(qint64 id, const QString &device)
+{
+    {
+        QMutexLocker locker(&this->m_audioAssociationsMutex);
+
+        if (device.isEmpty())
+            this->m_audioAssociations.remove(id);
+        else
+            this->m_audioAssociations[id] = device;
+    }
+
+    this->updateAssociatedAudioRef();
+}
+
+void MediaToolsPrivate::updateAssociatedAudioRef()
+{
+    // The inputs associated to the enabled video sources are captured for
+    // their effects, whether they are in the audio mix or not.
+    QStringList devices;
+
+    {
+        QMutexLocker locker(&this->m_audioAssociationsMutex);
+
+        for (auto it = this->m_audioAssociations.cbegin();
+             it != this->m_audioAssociations.cend();
+             ++it)
+            if (this->m_videoLayer->sourceEnabled(it.key())
+                && !devices.contains(it.value()))
+                devices << it.value();
+    }
+
+    // This is done without holding the lock, because the capture threads
+    // are stopped while the inputs are rebuilt and they need it.
+    devices.sort();
+    this->m_audioInputs->setMonitoredInputs(devices);
+
+    // The audio inputs are only opened while there is a video source playing
+    // that has an audio input associated, so the microphone is not kept open
+    // for nothing. The reference is taken only once.
+    bool wanted = !devices.isEmpty()
+                  && this->m_videoLayer->state() == AkElement::ElementStatePlaying;
+
+    if (wanted == this->m_associatedAudioRef)
+        return;
+
+    this->m_associatedAudioRef = wanted;
+    this->m_audioInputs->setInputState(wanted?
+                                           AkElement::ElementStatePlaying:
+                                           AkElement::ElementStateNull);
+}
+
+// Called from the audio capture threads.
+void MediaToolsPrivate::sendAudioToAssociatedSources(const QString &input,
+                                                     const AkPacket &packet)
+{
+    QVector<qint64> ids;
+
+    {
+        QMutexLocker locker(&this->m_audioAssociationsMutex);
+
+        for (auto it = this->m_audioAssociations.cbegin();
+             it != this->m_audioAssociations.cend();
+             ++it)
+            if (it.value() == input)
+                ids << it.key();
+    }
+
+    for (auto id: ids) {
+        auto pkt = packet;
+        pkt.setId(id);
+        this->m_videoEffects->iStream(pkt);
+    }
 }
 
 #include "moc_mediatools.cpp"

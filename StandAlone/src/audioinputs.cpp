@@ -27,6 +27,8 @@
 #include <QFuture>
 #include <QElapsedTimer>
 #include <QtConcurrent>
+#include <atomic>
+#include <memory>
 #include <ak.h>
 #include <akaudiopacket.h>
 #include <akcaps.h>
@@ -39,12 +41,21 @@
 #include "akaudiomixer.h"
 #include "akclock.h"
 
-// Represents one active source slot in the mixer.
+// Represents one captured audio input. It can be an active input (mixed) or it
+// can be captured only for the effects of the video sources (monitored), or
+// both, using just one capture element.
 struct AudioSource
 {
     QString      device;
     qreal        volume {1.0};
+    bool         mixed {true};
+    bool         monitored {false};
     AkElementPtr element;
+
+    // The capture element works at full volume, the volume of the input is
+    // applied to the audio that goes to the mixer. It is read from the
+    // capture thread.
+    std::shared_ptr<std::atomic<qreal>> gain {std::make_shared<std::atomic<qreal>>(1.0)};
 };
 
 // Video sources registered via addInput().
@@ -90,6 +101,9 @@ class AudioInputsPrivate
         QMap<QString, VuState> m_vu;
         QMutex m_vuMutex;
 
+        // Devices requested by setMonitoredInputs().
+        QStringList m_monitoredRequest;
+
         QThreadPool m_pushThreadPool;
         QFuture<void> m_pushLoopResult;
         bool m_pushRun {false};
@@ -98,6 +112,7 @@ class AudioInputsPrivate
 
         void notifyLevel(const QString &device, qreal level);
         void rebuildMixer();
+        bool applyMonitored(const QStringList &available);
         void loadProperties();
         void saveProperties();
         AkAudioCaps closestCaps(const QString &device) const;
@@ -134,7 +149,8 @@ QStringList AudioInputs::activeInputs() const
     QStringList activeInputs;
 
     for (auto &src: this->d->m_audioSources)
-        activeInputs << src.device;
+        if (src.mixed)
+            activeInputs << src.device;
 
     for (auto &src: this->d->m_videoSources)
         activeInputs << src.media;
@@ -207,12 +223,10 @@ bool AudioInputs::setVolume(const QString &device, qreal volume)
     for (auto &src: this->d->m_audioSources) {
         if (src.device == device) {
             src.volume = volume;
+            *src.gain = volume;
 
-            if (src.element)
-                QMetaObject::invokeMethod(src.element.data(), "setVolume",
-                                          Q_ARG(qreal, volume));
-
-            this->d->saveProperties();
+            if (src.mixed)
+                this->d->saveProperties();
 
             return true;
         }
@@ -284,10 +298,20 @@ bool AudioInputs::addInput(const QString &device)
     if (device.isEmpty())
         return false;
 
-    // Prevent duplicates.
+    // Prevent duplicates. An input that is only captured for the effects of the
+    // video sources joins the mix using the same capture element.
     for (auto &src: this->d->m_audioSources)
-        if (src.device == device)
-            return false;
+        if (src.device == device) {
+            if (src.mixed)
+                return false;
+
+            src.mixed = true;
+            this->d->rebuildMixer();
+            this->d->saveProperties();
+            emit this->activeInputsChanged(this->activeInputs());
+
+            return true;
+        }
 
     // Only allow devices that are in the available inputs list.
     QStringList audioInputs;
@@ -317,7 +341,7 @@ qint64 AudioInputs::addInput(const QString &device, const QString &description)
         return -1;
 
     for (auto &src: this->d->m_audioSources)
-        if (src.device == device)
+        if (src.device == device && src.mixed)
             return -1;
 
     // Update caps/description if already registered.
@@ -343,8 +367,15 @@ qint64 AudioInputs::addInput(const QString &device, const QString &description)
 bool AudioInputs::removeInput(const QString &device)
 {
     for (int i = 0; i < this->d->m_audioSources.size(); ++i) {
-        if (this->d->m_audioSources[i].device == device) {
-            this->d->m_audioSources.removeAt(i);
+        if (this->d->m_audioSources[i].device == device
+            && this->d->m_audioSources[i].mixed) {
+            // If a video source still needs the audio of the input, it stays
+            // captured, but it leaves the mix.
+            if (this->d->m_audioSources[i].monitored)
+                this->d->m_audioSources[i].mixed = false;
+            else
+                this->d->m_audioSources.removeAt(i);
+
             this->d->rebuildMixer();
             this->d->saveProperties();
 
@@ -488,7 +519,12 @@ void AudioInputs::setLatency(int latency)
 
 void AudioInputs::resetActiveInputs()
 {
-    this->d->m_audioSources.clear();
+    for (int i = this->d->m_audioSources.size() - 1; i >= 0; --i)
+        if (this->d->m_audioSources[i].monitored)
+            this->d->m_audioSources[i].mixed = false;
+        else
+            this->d->m_audioSources.removeAt(i);
+
     this->d->m_videoSources.clear();
 
     this->d->rebuildMixer();
@@ -510,6 +546,17 @@ void AudioInputs::resetOutputState()
 void AudioInputs::resetLatency()
 {
     this->setLatency(25);
+}
+
+void AudioInputs::setMonitoredInputs(const QStringList &devices)
+{
+    if (this->d->m_monitoredRequest == devices)
+        return;
+
+    this->d->m_monitoredRequest = devices;
+
+    if (this->d->applyMonitored(this->inputs()))
+        this->d->rebuildMixer();
 }
 
 void AudioInputs::updateDevices()
@@ -572,19 +619,28 @@ void AudioInputs::privInputsChanged(const QStringList &inputs)
 {
     emit this->inputsChanged(inputs);
 
-    // Remove any active source that is no longer available.
-    bool changed = false;
+    // Remove any source that is no longer available.
+    bool activeChanged = false;
+    bool rebuild = false;
 
     for (int i = this->d->m_audioSources.size() - 1; i >= 0; --i)
         if (!inputs.contains(this->d->m_audioSources[i].device)) {
+            if (this->d->m_audioSources[i].mixed)
+                activeChanged = true;
+
             this->d->m_audioSources.removeAt(i);
-            changed = true;
+            rebuild = true;
         }
 
-    if (changed) {
+    // Capture the requested inputs that became available.
+    if (this->d->applyMonitored(inputs))
+        rebuild = true;
+
+    if (rebuild)
         this->d->rebuildMixer();
+
+    if (activeChanged)
         emit this->activeInputsChanged(this->activeInputs());
-    }
 }
 
 AudioInputsPrivate::AudioInputsPrivate(AudioInputs *self):
@@ -694,8 +750,53 @@ void AudioInputsPrivate::pushLoop()
     }
 }
 
-// Rebuild mixer slots from m_activeSources and restart according to the
-// current inputState / outputState.
+// Syncs the entries that capture audio only for the effects of the video
+// sources with the requested devices. Returns true if the capture elements must
+// be rebuilt, that is, if an entry was added or removed.
+bool AudioInputsPrivate::applyMonitored(const QStringList &available)
+{
+    bool rebuild = false;
+
+    for (int i = this->m_audioSources.size() - 1; i >= 0; --i) {
+        auto &src = this->m_audioSources[i];
+        src.monitored = this->m_monitoredRequest.contains(src.device);
+
+        if (!src.mixed && !src.monitored) {
+            this->m_audioSources.removeAt(i);
+            rebuild = true;
+        }
+    }
+
+    for (auto &device: this->m_monitoredRequest) {
+        if (!available.contains(device))
+            continue;
+
+        bool exists = false;
+
+        for (auto &src: this->m_audioSources)
+            if (src.device == device) {
+                exists = true;
+
+                break;
+            }
+
+        if (exists)
+            continue;
+
+        AudioSource src;
+        src.device = device;
+        src.mixed = false;
+        src.monitored = true;
+        this->m_audioSources << src;
+        rebuild = true;
+    }
+
+    return rebuild;
+}
+
+// Rebuild the capture elements and the mixer slots from m_audioSources and
+// m_videoSources, and restart according to the current inputState /
+// outputState.
 void AudioInputsPrivate::rebuildMixer()
 {
     QMutexLocker locker(&this->m_mutex);
@@ -708,8 +809,15 @@ void AudioInputsPrivate::rebuildMixer()
     bool wasPushing = this->m_pushRun;
     this->stopPushLoop();
     this->m_mixer.deallocate();
-    this->m_mixer.setInputs(this->m_audioSources.size()
-                            + this->m_videoSources.size());
+
+    // Only the mixed inputs take a slot in the mixer.
+    int mixedSources = 0;
+
+    for (auto &src: this->m_audioSources)
+        if (src.mixed)
+            mixedSources++;
+
+    this->m_mixer.setInputs(mixedSources + this->m_videoSources.size());
 
     // Rebuild streamId -> slotIndex mapping for video sources.
     this->m_streamToSlot.clear();
@@ -720,37 +828,50 @@ void AudioInputsPrivate::rebuildMixer()
         src.element =
                 akPluginManager->create<AkElement>("AudioSource/AudioDevice");
 
+        // Slot of the mixer, -1 if the input is only captured for the effects
+        // of the video sources.
+        int slot = src.mixed? streamIndex++: -1;
+
         if (src.element) {
             src.element->setProperty("device", src.device);
-            QMetaObject::invokeMethod(src.element.data(), "setVolume",
-                                      Q_ARG(qreal, src.volume));
 
             auto device = src.device;
+            auto gain = src.gain;
             QObject::connect(src.element.data(),
                              &AkElement::oStream,
                              this->self,
-                             [this, streamIndex, device](const AkPacket &pkt) {
-                                 auto p = pkt;
-                                 p.setId(streamIndex);
-                                 this->m_mixer.write(p);
+                             [this, slot, device, gain](const AkPacket &pkt) {
+                                 // The volume of the input only affects the
+                                 // audio that goes to the mixer.
+                                 if (slot >= 0) {
+                                     AkAudioPacket mixPacket(pkt);
+                                     auto volume = gain->load();
 
-                                 this->notifyLevel(device, AkAudioPacket(pkt).volume());
+                                     if (!qFuzzyCompare(volume, 1.0))
+                                         mixPacket = mixPacket.adjustVolume(volume);
+
+                                     mixPacket.setId(slot);
+                                     this->m_mixer.write(mixPacket);
+
+                                     this->notifyLevel(device, mixPacket.volume());
+                                 }
+
+                                 // The effects of the video sources receive the
+                                 // audio as it is captured.
+                                 emit this->self->inputStream(device, pkt);
                              },
                              Qt::DirectConnection);
         }
-
-        streamIndex++;
     }
 
     // Map video sources to their slots (after audio sources).
     for (auto &vs: this->m_videoSources)
         this->m_streamToSlot[vs.streamId] = streamIndex++;
 
-    if (this->m_mixer.inputs() < 1)
-        return;
-
     // Restore mixer output if it was running.
-    if (this->m_outputState == AkElement::ElementStatePlaying || wasPushing) {
+    if (this->m_mixer.inputs() > 0
+        && (this->m_outputState == AkElement::ElementStatePlaying
+            || wasPushing)) {
         this->m_mixer.setLatency(4 * this->m_latency);
         this->m_mixer.setOutputCaps(this->m_deviceCaps);
         this->m_mixer.allocate();
@@ -795,6 +916,7 @@ void AudioInputsPrivate::loadProperties()
             AudioSource src;
             src.device = device;
             src.volume = volume;
+            *src.gain = volume;
             this->m_audioSources << src;
         }
     }
@@ -816,12 +938,19 @@ void AudioInputsPrivate::saveProperties()
     config.setValue("rate",   this->m_deviceCaps.rate());
     config.setValue("latency", this->m_latency);
 
-    config.beginWriteArray("audioSources", this->m_audioSources.size());
+    // The inputs captured only for the video sources are not saved.
+    QVector<AudioSource> mixedSources;
 
-    for (int i = 0; i < this->m_audioSources.size(); ++i) {
+    for (auto &src: this->m_audioSources)
+        if (src.mixed)
+            mixedSources << src;
+
+    config.beginWriteArray("audioSources", mixedSources.size());
+
+    for (int i = 0; i < mixedSources.size(); ++i) {
         config.setArrayIndex(i);
-        config.setValue("device", this->m_audioSources[i].device);
-        config.setValue("volume", this->m_audioSources[i].volume);
+        config.setValue("device", mixedSources[i].device);
+        config.setValue("volume", mixedSources[i].volume);
     }
 
     config.endArray();

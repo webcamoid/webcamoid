@@ -49,6 +49,7 @@ struct VideoLayerSource
     qreal opacity {1.0};
     qreal rotation {0.0};
     Qt::AspectRatioMode aspectRatioMode {Qt::KeepAspectRatio};
+    QString audioDevice;
     bool enabled {true};
     VideoLayer::InputType type {VideoLayer::InputUnknown};
     AkAudioCaps audioCaps;
@@ -459,6 +460,14 @@ Qt::AspectRatioMode VideoLayer::sourceAspectRatioMode(qint64 id) const
     return this->d->m_activeSources[id].aspectRatioMode;
 }
 
+QString VideoLayer::sourceAudioDevice(qint64 id) const
+{
+    if (!this->d->m_activeSources.contains(id))
+        return {};
+
+    return this->d->m_activeSources[id].audioDevice;
+}
+
 AkAudioCaps VideoLayer::sourceAudioCaps(qint64 id) const
 {
     if (!this->d->m_activeSources.contains(id))
@@ -838,6 +847,21 @@ void VideoLayer::setSourceAspectRatioMode(qint64 id, Qt::AspectRatioMode mode)
     source.aspectRatioMode = mode;
     this->d->saveSources();
     emit this->sourceAspectRatioModeChanged(id, mode);
+}
+
+void VideoLayer::setSourceAudioDevice(qint64 id, const QString &device)
+{
+    if (!this->d->m_activeSources.contains(id))
+        return;
+
+    auto &source = this->d->m_activeSources[id];
+
+    if (source.audioDevice == device)
+        return;
+
+    source.audioDevice = device;
+    this->d->saveSources();
+    emit this->sourceAudioDeviceChanged(id, device);
 }
 
 void VideoLayer::setState(AkElement::ElementState state)
@@ -1351,6 +1375,7 @@ void VideoLayerPrivate::loadProperties()
         auto opacity = config.value("opacity", 1.0).toReal();
         auto rotation = config.value("rotation", 0.0).toReal();
         auto aspectRatioMode = config.value("aspectRatioMode", Qt::KeepAspectRatio).toInt();
+        auto audioDevice = config.value("audioDevice").toString();
         auto deviceType = self->deviceType(device);
 
         if (device.isEmpty())
@@ -1367,6 +1392,7 @@ void VideoLayerPrivate::loadProperties()
         self->setSourceOpacity(id, opacity);
         self->setSourceRotation(id, rotation);
         self->setSourceAspectRatioMode(id, static_cast<Qt::AspectRatioMode>(aspectRatioMode));
+        self->setSourceAudioDevice(id, audioDevice);
 
         if (label.isEmpty()
             && (deviceType == VideoLayer::InputImage
@@ -1451,6 +1477,7 @@ void VideoLayerPrivate::saveSources()
         config.setValue("opacity", source.opacity);
         config.setValue("rotation", source.rotation);
         config.setValue("aspectRatioMode", source.aspectRatioMode);
+        config.setValue("audioDevice", source.audioDevice);
         i++;
     }
 

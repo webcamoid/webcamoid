@@ -127,6 +127,8 @@ class VideoLayer: public QObject
         Q_INVOKABLE qreal sourceOpacity(qint64 id) const;
         Q_INVOKABLE qreal sourceRotation(qint64 id) const;
         Q_INVOKABLE Qt::AspectRatioMode sourceAspectRatioMode(qint64 id) const;
+        // Audio input associated to the source, empty if there is none.
+        Q_INVOKABLE QString sourceAudioDevice(qint64 id) const;
         Q_INVOKABLE AkAudioCaps sourceAudioCaps(qint64 id) const;
         Q_INVOKABLE AkVideoCaps sourceVideoCaps(qint64 id) const;
         Q_INVOKABLE QString sourceError(qint64 id) const;
@@ -164,6 +166,7 @@ class VideoLayer: public QObject
         void sourceOpacityChanged(qint64 id, qreal opacity);
         void sourceRotationChanged(qint64 id, qreal rotation);
         void sourceAspectRatioModeChanged(qint64 id, Qt::AspectRatioMode mode);
+        void sourceAudioDeviceChanged(qint64 id, const QString &device);
         void sourceAudioCapsChanged(qint64 id, const AkAudioCaps &audioCaps);
         void sourceVideoCapsChanged(qint64 id, const AkVideoCaps &videoCaps);
         void sourceErrorChanged(qint64 id, const QString &error);
@@ -185,6 +188,7 @@ class VideoLayer: public QObject
         void setSourceOpacity(qint64 id, qreal opacity);
         void setSourceRotation(qint64 id, qreal rotation);
         void setSourceAspectRatioMode(qint64 id, Qt::AspectRatioMode mode);
+        void setSourceAudioDevice(qint64 id, const QString &device);
         void setState(AkElement::ElementState state);
         void setTorchMode(qint64 id, TorchMode mode);
         void setPlayOnStart(bool playOnStart);

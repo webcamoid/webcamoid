@@ -37,8 +37,11 @@ Dialog {
     rightPadding: 0
 
     property int sourceId: -1
+    property bool previewNeedsAudio: false
 
     readonly property bool isSource: sourceId >= 0
+
+    signal openSourceOptions(int sourceId)
 
     function activeChainEffects() {
         if (videoEffectsDialog.isSource)
@@ -151,6 +154,10 @@ Dialog {
 
                     if (videoEffectsDialog.visible)
                         videoEffectsDialog.embedActivePreviewControls("itmEffectPreviewControls")
+
+                    videoEffectsDialog.previewNeedsAudio =
+                        videoEffectsDialog.isSource
+                        && videoEffects.sourcePreviewCanProcessAudio(videoEffectsDialog.sourceId)
                 }
 
                 Component.onCompleted: update()
@@ -180,6 +187,19 @@ Dialog {
                 Layout.fillWidth: true
 
                 onCheckedChanged: videoEffectsDialog.setActiveChainEffects(checked)
+            }
+            VideoEffectAudioNotice {
+                sourceId: videoEffectsDialog.sourceId
+                effectNeedsAudio: videoEffectsDialog.previewNeedsAudio
+                Layout.fillWidth: true
+                Layout.leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+                Layout.rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+                Layout.bottomMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+
+                onOpenSourceOptions: function (sourceId) {
+                    videoEffectsDialog.reject()
+                    videoEffectsDialog.openSourceOptions(sourceId)
+                }
             }
             ColumnLayout {
                 id: itmEffectControls

@@ -121,6 +121,11 @@ class AudioInputs: public QObject
         void oStream(const AkPacket &packet);
         void vumeter(const QString &input, qreal level);
 
+        // Audio of an active input, emitted from the capture thread, so it
+        // must be connected with Qt::DirectConnection and the receiver must
+        // be fast and thread-safe.
+        void inputStream(const QString &input, const AkPacket &packet);
+
     public slots:
         // Add / remove sources from the mixer.
         qint64 addInput(const QString &device, const QString &description);
@@ -131,6 +136,14 @@ class AudioInputs: public QObject
         void setInputState(AkElement::ElementState state);
         void setOutputState(AkElement::ElementState state);
         void setLatency(int latency);
+
+        // Inputs that must be captured to send their audio to the effects of
+        // the video sources, even if they are not in the active inputs (the
+        // audio mix). They are not mixed, they do not appear in the active
+        // inputs and they are not saved, but if one of them is also an
+        // active input it is captured only once. The audio is sent by the
+        // inputStream() signal, at full volume.
+        void setMonitoredInputs(const QStringList &devices);
         void resetActiveInputs();
         void resetInputState();
         void resetOutputState();

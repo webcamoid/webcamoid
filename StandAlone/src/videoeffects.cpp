@@ -402,6 +402,20 @@ qint64 VideoEffects::addSource(qint64 id, const QString &device)
     return id;
 }
 
+void VideoEffects::setSourceEnabled(qint64 id, bool enabled)
+{
+    QMutexLocker locker(&this->d->m_mutex);
+    this->d->m_glCompositor.setSourceEnabled(id, enabled);
+
+    // Keep the settings of the effects of the source when it is disabled.
+    if (!enabled) {
+        auto device = this->d->m_sourceDevices.value(id);
+
+        if (!device.isEmpty())
+            this->d->saveSourceEffectsProperties(id, device);
+    }
+}
+
 void VideoEffects::removeSource(qint64 id)
 {
     QMutexLocker locker(&this->d->m_mutex);
@@ -429,6 +443,11 @@ QRectF VideoEffects::sourceRect(qint64 id) const
 int VideoEffects::sourceZOrder(qint64 id) const
 {
     return this->d->m_glCompositor.sourceZOrder(id);
+}
+
+bool VideoEffects::sourceEnabled(qint64 id) const
+{
+    return this->d->m_glCompositor.sourceEnabled(id);
 }
 
 qreal VideoEffects::sourceOpacity(qint64 id) const
@@ -464,6 +483,20 @@ AkVideoEffectPtr VideoEffects::sourceElementAt(qint64 id, int index) const
 AkVideoEffectPtr VideoEffects::sourcePreviewElement(qint64 id) const
 {
     return this->d->m_glCompositor.sourcePreviewElement(id);
+}
+
+bool VideoEffects::sourceEffectCanProcessAudio(qint64 id, int index) const
+{
+    auto effect = this->d->m_glCompositor.sourceElementAt(id, index);
+
+    return effect && effect->canProcessAudio();
+}
+
+bool VideoEffects::sourcePreviewCanProcessAudio(qint64 id) const
+{
+    auto effect = this->d->m_glCompositor.sourcePreviewElement(id);
+
+    return effect && effect->canProcessAudio();
 }
 
 AkPluginInfo VideoEffects::sourceEffectInfo(qint64 id, int index) const
@@ -1203,6 +1236,16 @@ void VideoEffects::setQmlEngine(QQmlApplicationEngine *engine)
 
 AkPacket VideoEffects::iStream(const AkPacket &packet)
 {
+    if (packet.type() == AkPacket::PacketAudio) {
+        // The audio of a source is only delivered to the effects of that
+        // source, it is not part of the video output. The video mutex is not
+        // taken here: the audio comes from a different thread and the
+        // compositor protects its own data.
+        this->d->m_glCompositor.iStream(packet);
+
+        return {};
+    }
+
     if (packet.type() != AkPacket::PacketVideo)
         return {};
 

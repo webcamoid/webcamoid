@@ -170,6 +170,7 @@ class VideoEffects: public QObject
         Q_INVOKABLE QRectF sourceRect(qint64 id) const;
         Q_INVOKABLE int sourceZOrder(qint64 id) const;
         Q_INVOKABLE qreal sourceOpacity(qint64 id) const;
+        Q_INVOKABLE bool sourceEnabled(qint64 id) const;
         Q_INVOKABLE qreal sourceRotation(qint64 id) const;
         Q_INVOKABLE Qt::AspectRatioMode sourceAspectRatioMode(qint64 id) const;
 
@@ -178,6 +179,8 @@ class VideoEffects: public QObject
         Q_INVOKABLE QString sourcePreview(qint64 id) const;
         Q_INVOKABLE AkVideoEffectPtr sourceElementAt(qint64 id, int index) const;
         Q_INVOKABLE AkVideoEffectPtr sourcePreviewElement(qint64 id) const;
+        Q_INVOKABLE bool sourceEffectCanProcessAudio(qint64 id, int index) const;
+        Q_INVOKABLE bool sourcePreviewCanProcessAudio(qint64 id) const;
         Q_INVOKABLE AkPluginInfo sourceEffectInfo(qint64 id, int index) const;
         Q_INVOKABLE bool sourceEffectEnabled(qint64 id, int index) const;
         Q_INVOKABLE bool sourceChainEffects(qint64 id) const;
@@ -291,6 +294,10 @@ class VideoEffects: public QObject
         void setSourceRect(qint64 id, const QRectF &rect);
         void setSourceZOrder(qint64 id, int zOrder);
         void setSourceOpacity(qint64 id, qreal opacity);
+
+        // A disabled source is not composed, but it stays registered, so its
+        // effects can still be edited and are kept when it is enabled again.
+        void setSourceEnabled(qint64 id, bool enabled);
         void setSourceRotation(qint64 id, qreal rotation);
         void setSourceAspectRatioMode(qint64 id, Qt::AspectRatioMode mode);
 

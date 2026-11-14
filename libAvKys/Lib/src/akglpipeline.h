@@ -22,6 +22,7 @@
 
 #include "iak/akvideoeffect.h"
 
+class AkAudioPacket;
 class AkGLPipelinePrivate;
 class AkPluginInfo;
 class QOpenGLBuffer;
@@ -80,6 +81,11 @@ class AKCOMMONS_EXPORT AkGLPipeline: public QObject
                                  QOpenGLFramebufferObject *&outputFbo,
                                  qint64 streamId,
                                  qreal pts);
+
+        // Sends the audio through the effects that are being applied to the
+        // video, in order, and returns the audio returned by the last one.
+        // It is safe to call it from any thread.
+        AkAudioPacket iAudioStream(const AkAudioPacket &audioPacket);
 
     private:
         AkGLPipelinePrivate *d;

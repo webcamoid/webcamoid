@@ -67,6 +67,7 @@
         <file>share/qml/VideoCodecOptions.qml</file>
         <file>share/qml/VideoDeviceItem.qml</file>
         <file>share/qml/VideoEffectItem.qml</file>
+        <file>share/qml/VideoEffectAudioNotice.qml</file>
         <file>share/qml/VideoEffectOptions.qml</file>
         <file>share/qml/VideoEffectsDialog.qml</file>
         <file>share/qml/VideoEffectsList.qml</file>

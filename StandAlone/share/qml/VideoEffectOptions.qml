@@ -28,6 +28,7 @@ ScrollView {
 
     property int sourceId: -1
     property int effectIndex: -1
+    property bool effectNeedsAudio: false
 
     readonly property bool rtl: Qt.application.layoutDirection === Qt.RightToLeft
     readonly property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
@@ -36,6 +37,7 @@ ScrollView {
     readonly property string effectDescription: description(effectIndex)
 
     signal effectRemoved()
+    signal openSourceOptions(int sourceId)
 
     function description(effectIndex)
     {
@@ -67,6 +69,10 @@ ScrollView {
                                         view.effectIndex)
         else
             videoEffects.embedControls("itmEffectControls", view.effectIndex)
+
+        view.effectNeedsAudio = view.isSource
+                                && videoEffects.sourceEffectCanProcessAudio(view.sourceId,
+                                                                            view.effectIndex)
     }
 
     ColumnLayout {
@@ -124,6 +130,18 @@ ScrollView {
                     videoEffects.resetSourceEffect(view.sourceId, view.effectIndex)
                 else
                     videoEffects.resetEffect(view.effectIndex)
+            }
+        }
+        VideoEffectAudioNotice {
+            sourceId: view.sourceId
+            effectNeedsAudio: view.effectNeedsAudio
+            Layout.fillWidth: true
+            Layout.leftMargin: view.leftMargin
+            Layout.rightMargin: view.rightMargin
+            Layout.bottomMargin: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+
+            onOpenSourceOptions: function (sourceId) {
+                view.openSourceOptions(sourceId)
             }
         }
         ColumnLayout {

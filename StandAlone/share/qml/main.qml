@@ -955,6 +955,10 @@ ApplicationWindow {
         id: videoEffectsDialog
         width: parent.width
         height: parent.height
+
+        onOpenSourceOptions: function (sourceId) {
+            mainPanel.openSourceOptions(sourceId)
+        }
     }
     SettingsDialog {
         id: settingsDialog

@@ -58,6 +58,13 @@ OptionsPanel {
             close()
     }
 
+    function openSourceOptions(sourceId)
+    {
+        closeAndOpen()
+        layout.currentIndex = 3
+        videoInputOptions.setInput(sourceId)
+    }
+
     function openAudioSettings()
     {
         let co = layout.currentIndex != 0
@@ -246,6 +253,9 @@ OptionsPanel {
             }
 
             onEffectRemoved: closeOption()
+            onOpenSourceOptions: function (sourceId) {
+                panel.openSourceOptions(sourceId)
+            }
         }
     }
 

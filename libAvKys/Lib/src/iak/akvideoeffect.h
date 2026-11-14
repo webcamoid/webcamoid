@@ -32,6 +32,7 @@ class QOpenGLBuffer;
 class QOpenGLFramebufferObject;
 class QQmlEngine;
 class QQmlContext;
+class AkAudioPacket;
 
 class AKCOMMONS_EXPORT AkVideoEffect: public QObject
 {
@@ -41,6 +42,10 @@ class AKCOMMONS_EXPORT AkVideoEffect: public QObject
         explicit AkVideoEffect(QObject *parent=nullptr);
         virtual ~AkVideoEffect();
 
+        // The effect can receive and process audio, through iAudioStream().
+        // The application uses it to warn the user when the audio source of
+        // the effect is not set. It is false by default.
+        Q_INVOKABLE virtual bool canProcessAudio() const;
         Q_INVOKABLE virtual QObject *controlInterface(QQmlEngine *engine,
                                                       const QString &controlId) const;
         Q_INVOKABLE virtual bool init(QOpenGLBuffer *vbo,
@@ -60,6 +65,15 @@ class AKCOMMONS_EXPORT AkVideoEffect: public QObject
 
     public Q_SLOTS:
         void setGLFunctions(QOpenGLFunctions *gl);
+        // Receives the audio from the source the effect is applied to, or the
+        // audio returned by the previous effect in the chain. The effect can
+        // process it and return the result to be sent to the next effect.
+        // By default the audio is passed through unchanged.
+        //
+        // It is called from the audio thread, not from the OpenGL thread, so
+        // the implementation must be fast, thread-safe and must not use any
+        // OpenGL function.
+        virtual AkAudioPacket iAudioStream(const AkAudioPacket &audioPacket);
         virtual void reset() = 0;
 };
 

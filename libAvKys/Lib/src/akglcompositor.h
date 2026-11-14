@@ -126,6 +126,8 @@ class AKCOMMONS_EXPORT AkGLCompositor:
         Q_INVOKABLE QRectF sourceRect(qint64 id) const;
         Q_INVOKABLE int sourceZOrder(qint64 id) const;
         Q_INVOKABLE qreal sourceOpacity(qint64 id) const;
+        // A disabled source keeps its effects, but it is not composed.
+        Q_INVOKABLE bool sourceEnabled(qint64 id) const;
         Q_INVOKABLE qreal sourceRotation(qint64 id) const;
         Q_INVOKABLE Qt::AspectRatioMode sourceAspectRatioMode(qint64 id) const;
 
@@ -167,6 +169,7 @@ class AKCOMMONS_EXPORT AkGLCompositor:
         void sourceRectChanged(qint64 id, const QRectF &rect);
         void sourceZOrderChanged(qint64 id, int zOrder);
         void sourceOpacityChanged(qint64 id, qreal opacity);
+        void sourceEnabledChanged(qint64 id, bool enabled);
         void sourceRotationChanged(qint64 id, qreal rotation);
         void sourceAspectRatioModeChanged(qint64 id, Qt::AspectRatioMode mode);
 
@@ -215,6 +218,7 @@ class AKCOMMONS_EXPORT AkGLCompositor:
         void setSourceRect(qint64 id, const QRectF &rect);
         void setSourceZOrder(qint64 id, int zOrder);
         void setSourceOpacity(qint64 id, qreal opacity);
+        void setSourceEnabled(qint64 id, bool enabled);
         void setSourceRotation(qint64 id, qreal rotation);
         void setSourceAspectRatioMode(qint64 id, Qt::AspectRatioMode mode);
 
@@ -242,6 +246,11 @@ class AKCOMMONS_EXPORT AkGLCompositor:
         void detachFromWindow();
 
         AkPacket iVideoStream(const AkVideoPacket &videoPacket) override;
+
+        // The audio packets must be tagged with the id of the source they
+        // belong to, and are sent to the effects of that source. The audio
+        // returned by the effects is discarded.
+        AkPacket iAudioStream(const AkAudioPacket &audioPacket) override;
 
         void updateAvailableEffects();
         static void registerTypes();
