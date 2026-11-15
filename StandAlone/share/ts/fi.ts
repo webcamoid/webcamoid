@@ -5776,5 +5776,65 @@
         <source>Gain (dB)</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/DiscoBall/share/qml/main.qml" line="29"/>
+        <source>Horizontal position (%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/DiscoBall/share/qml/main.qml" line="48"/>
+        <source>Vertical position (%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/DiscoBall/share/qml/main.qml" line="67"/>
+        <source>Ball size (%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/DiscoBall/share/qml/main.qml" line="86"/>
+        <source>Mirror rows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/DiscoBall/share/qml/main.qml" line="105"/>
+        <source>Spin speed (°/s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/DiscoBall/share/qml/main.qml" line="124"/>
+        <source>Lights</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/DiscoBall/share/qml/main.qml" line="143"/>
+        <source>Light intensity (%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/DiscoBall/share/qml/main.qml" line="162"/>
+        <source>Light spot size (%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/DiscoBall/share/qml/main.qml" line="181"/>
+        <source>Strobe (%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/DiscoBall/share/qml/main.qml" line="200"/>
+        <source>Room darkness (%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/DiscoBall/share/qml/main.qml" line="219"/>
+        <source>Video in the mirrors (%)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/ExtraPlugins/DiscoBall/share/qml/main.qml" line="238"/>
+        <source>Sensitivity (dB)</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 </TS>
