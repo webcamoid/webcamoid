@@ -35,6 +35,7 @@
 #include <akcompressedvideocaps.h>
 #include <akcompressedvideopacket.h>
 #include <linux/videodev2.h>
+#include <sys/stat.h>
 
 #include "capturev4l2.h"
 #include "ioctldefs.h"
@@ -2066,14 +2067,33 @@ QStringList CaptureV4L2Private::v4l2Devices() const
 {
     QDir devicesDir("/dev");
 
-    return devicesDir.entryList(QStringList() << "video*",
-                                QDir::System
-                                | QDir::Readable
-                                | QDir::Writable
-                                | QDir::NoSymLinks
-                                | QDir::NoDotAndDotDot
-                                | QDir::CaseSensitive,
-                                QDir::Name);
+    // Do not rely on the type reported by the directory listing: in sandboxes
+    // (bubblewrap, Flatpak) the device nodes are bind mounted over regular
+    // files, so the listing reports them as such, while stat() reports the
+    // real character device. List files too, and check the type with stat().
+    auto entries =
+            devicesDir.entryList(QStringList() << "video*",
+                                 QDir::Files
+                                 | QDir::System
+                                 | QDir::Readable
+                                 | QDir::Writable
+                                 | QDir::NoSymLinks
+                                 | QDir::NoDotAndDotDot
+                                 | QDir::CaseSensitive,
+                                 QDir::Name);
+    QStringList devices;
+
+    for (auto &entry: entries) {
+        struct stat st;
+
+        if (stat(devicesDir.absoluteFilePath(entry).toLocal8Bit().constData(),
+                 &st) == 0
+            && S_ISCHR(st.st_mode)) {
+            devices << entry;
+        }
+    }
+
+    return devices;
 }
 
 void CaptureV4L2Private::updateDevices()
