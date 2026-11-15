@@ -5559,17 +5559,17 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="33"/>
         <source>Radar color</source>
-        <translation type="unfinished"></translation>
+        <translation>Radarfarbe</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="35"/>
         <source>Choose the radar color</source>
-        <translation type="unfinished"></translation>
+        <translation>Radarfarbe auswählen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="54"/>
         <source>Glow intensity</source>
-        <translation type="unfinished"></translation>
+        <translation>Glühintensität</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="72"/>
@@ -5589,7 +5589,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="126"/>
         <source>Keep color</source>
-        <translation type="unfinished"></translation>
+        <translation>Farbe beibehalten</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="134"/>
@@ -5604,7 +5604,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="150"/>
         <source>Enable grid</source>
-        <translation type="unfinished"></translation>
+        <translation>Raster aktivieren</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Radar/share/qml/main.qml" line="158"/>
@@ -5654,22 +5654,22 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="62"/>
         <source>Fill time (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Füllzeit (s)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="80"/>
         <source>Fall time (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Fallzeit (s)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="98"/>
         <source>Hold time (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Haltezeit (s)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="116"/>
         <source>Explosion time (s)</source>
-        <translation type="unfinished"></translation>
+        <translation>Explosionszeit (s)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Tetromino/share/qml/main.qml" line="134"/>
@@ -5694,7 +5694,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="34"/>
         <source>Window frame</source>
-        <translation type="unfinished"></translation>
+        <translation>Fensterrahmen</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="42"/>
@@ -5704,17 +5704,17 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="50"/>
         <source>Realistic elephant</source>
-        <translation type="unfinished"></translation>
+        <translation>Realistischer Elefant</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="58"/>
         <source>Camera window size</source>
-        <translation type="unfinished"></translation>
+        <translation>Kamerafenstergröße</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="76"/>
         <source>Elephants</source>
-        <translation type="unfinished"></translation>
+        <translation>Elefanten</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/Temple/share/qml/main.qml" line="94"/>
@@ -5739,37 +5739,37 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/AudioWarp/share/qml/main.qml" line="37"/>
         <source>Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Graph</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/AudioWarp/share/qml/main.qml" line="44"/>
         <source>Waveform</source>
-        <translation type="unfinished"></translation>
+        <translation>Wellenform</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/AudioWarp/share/qml/main.qml" line="48"/>
         <source>Spectrum</source>
-        <translation type="unfinished"></translation>
+        <translation>Spektrum</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/AudioWarp/share/qml/main.qml" line="59"/>
         <source>Radius (%)</source>
-        <translation type="unfinished"></translation>
+        <translation>Radius (%)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/AudioWarp/share/qml/main.qml" line="78"/>
         <source>Amplitude (%)</source>
-        <translation type="unfinished"></translation>
+        <translation>Amplitude (%)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/AudioWarp/share/qml/main.qml" line="97"/>
         <source>Rotation (°)</source>
-        <translation type="unfinished"></translation>
+        <translation>Drehung (°)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/AudioWarp/share/qml/main.qml" line="116"/>
         <source>Symmetric</source>
-        <translation type="unfinished"></translation>
+        <translation>Symmetrisch</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/AudioWarp/share/qml/main.qml" line="127"/>
@@ -5779,17 +5779,17 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/DiscoBall/share/qml/main.qml" line="29"/>
         <source>Horizontal position (%)</source>
-        <translation type="unfinished"></translation>
+        <translation>Horizontale Position (%)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/DiscoBall/share/qml/main.qml" line="48"/>
         <source>Vertical position (%)</source>
-        <translation type="unfinished"></translation>
+        <translation>Vertikale Position (%)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/DiscoBall/share/qml/main.qml" line="67"/>
         <source>Ball size (%)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ballgröße (%)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/DiscoBall/share/qml/main.qml" line="86"/>
@@ -5804,12 +5804,12 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/DiscoBall/share/qml/main.qml" line="124"/>
         <source>Lights</source>
-        <translation type="unfinished"></translation>
+        <translation>Lichter</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/DiscoBall/share/qml/main.qml" line="143"/>
         <source>Light intensity (%)</source>
-        <translation type="unfinished"></translation>
+        <translation>Lichtintensität (%)</translation>
     </message>
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/DiscoBall/share/qml/main.qml" line="162"/>
@@ -5834,7 +5834,7 @@
     <message>
         <location filename="../../../libAvKys/ExtraPlugins/DiscoBall/share/qml/main.qml" line="238"/>
         <source>Sensitivity (dB)</source>
-        <translation type="unfinished"></translation>
+        <translation>Empfindlichkeit (dB)</translation>
     </message>
 </context>
 </TS>
