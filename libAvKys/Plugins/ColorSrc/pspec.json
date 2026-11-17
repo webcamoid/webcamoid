@@ -1,0 +1,12 @@
+{
+    "type": "WebcamoidPluginsCollection",
+    "plugins": [
+        {
+            "name": "ColorSrc",
+            "description": "Use a solid color as a source",
+            "id": "VideoSource/ColorSrc",
+            "implements": ["Element"],
+            "type": "qtplugin"
+        }
+    ]
+}

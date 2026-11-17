@@ -1652,170 +1652,170 @@
         <translation>Llista de camins separats per punt i coma per evitar carregar.</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1134"/>
+        <location filename="../../src/videolayer.cpp" line="1135"/>
         <source>3GP Video</source>
         <translation>Vídeo 3GP</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1135"/>
+        <location filename="../../src/videolayer.cpp" line="1136"/>
         <source>AVI Video</source>
         <translation>Vídeo AVI</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1136"/>
+        <location filename="../../src/videolayer.cpp" line="1137"/>
         <source>Windows Bitmap</source>
         <translation>Mapa de bits de Windows</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1137"/>
+        <location filename="../../src/videolayer.cpp" line="1138"/>
         <source>Microsoft Windows Cursor</source>
         <translation>Punter de Microsoft Windows</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1139"/>
+        <location filename="../../src/videolayer.cpp" line="1140"/>
         <source>Flash Video</source>
         <extracomment>Adobe FLV Flash video</extracomment>
         <translation>Vídeo Flash</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1140"/>
+        <location filename="../../src/videolayer.cpp" line="1141"/>
         <source>Animated GIF</source>
         <translation>GIF animat</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1141"/>
+        <location filename="../../src/videolayer.cpp" line="1142"/>
         <source>Graphic Interchange Format</source>
         <translation>Format d’intercanvi gràfic</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1142"/>
+        <location filename="../../src/videolayer.cpp" line="1143"/>
         <source>Apple Icon Image</source>
         <translation>Imatge d’icona d’Apple</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1143"/>
+        <location filename="../../src/videolayer.cpp" line="1144"/>
         <source>Microsoft Windows Icon</source>
         <translation>Icona de Microsoft Windows</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1144"/>
+        <location filename="../../src/videolayer.cpp" line="1145"/>
         <source>Joint Photographic Experts Group</source>
         <translation>Grup d’experts conjunt en fotografia</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1145"/>
+        <location filename="../../src/videolayer.cpp" line="1146"/>
         <source>MKV Video</source>
         <translation>Vídeo MKV</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1146"/>
+        <location filename="../../src/videolayer.cpp" line="1147"/>
         <source>Animated PNG</source>
         <translation>PNG animat</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1147"/>
+        <location filename="../../src/videolayer.cpp" line="1148"/>
         <source>Multiple-image Network Graphics</source>
         <translation>Gràfics de xarxa d’imatges múltiples</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1148"/>
+        <location filename="../../src/videolayer.cpp" line="1149"/>
         <source>QuickTime Video</source>
         <translation>Vídeo QuickTime</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1149"/>
+        <location filename="../../src/videolayer.cpp" line="1150"/>
         <source>MP4 Video</source>
         <translation>Vídeo MP4</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1150"/>
+        <location filename="../../src/videolayer.cpp" line="1151"/>
         <source>MPEG Video</source>
         <translation>Vídeo MPEG</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1151"/>
+        <location filename="../../src/videolayer.cpp" line="1152"/>
         <source>Ogg Video</source>
         <translation>Vídeo Ogg</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1152"/>
+        <location filename="../../src/videolayer.cpp" line="1153"/>
         <source>Portable Bitmap</source>
         <translation>Mapa de bits portàtil</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1153"/>
+        <location filename="../../src/videolayer.cpp" line="1154"/>
         <source>Portable Graymap</source>
         <translation>Graficació en gris portàtil</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1154"/>
+        <location filename="../../src/videolayer.cpp" line="1155"/>
         <source>Portable Network Graphics</source>
         <translation>Gràfics de xarxa portàtils</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1155"/>
+        <location filename="../../src/videolayer.cpp" line="1156"/>
         <source>Portable Pixmap</source>
         <translation>Píxels portàtils</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1157"/>
+        <location filename="../../src/videolayer.cpp" line="1158"/>
         <source>RealMedia Video</source>
         <extracomment>Don&apos;t translate &quot;RealMedia&quot;, leave it as is.</extracomment>
         <translation>Vídeo RealMedia</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1158"/>
+        <location filename="../../src/videolayer.cpp" line="1159"/>
         <source>Scalable Vector Graphics</source>
         <translation>Gràfics vectorials escalables</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1159"/>
+        <location filename="../../src/videolayer.cpp" line="1160"/>
         <source>Truevision TGA</source>
         <translation>TGA Truevision</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1160"/>
+        <location filename="../../src/videolayer.cpp" line="1161"/>
         <source>Tagged Image File Format</source>
         <translation>Format de fitxer d’imatge etiquetat</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1161"/>
+        <location filename="../../src/videolayer.cpp" line="1162"/>
         <source>DVD Video</source>
         <translation>Vídeo DVD</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1162"/>
+        <location filename="../../src/videolayer.cpp" line="1163"/>
         <source>Wireless Bitmap</source>
         <translation>Mapa de bits sense fils</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1163"/>
+        <location filename="../../src/videolayer.cpp" line="1164"/>
         <source>WebM Video</source>
         <translation>Vídeo WebM</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1164"/>
+        <location filename="../../src/videolayer.cpp" line="1165"/>
         <source>WebP</source>
         <translation>WebP</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1166"/>
+        <location filename="../../src/videolayer.cpp" line="1167"/>
         <source>Windows Media Video</source>
         <extracomment>Also known as WMV, is a video file format.</extracomment>
         <translation>Vídeo Windows Media</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1167"/>
+        <location filename="../../src/videolayer.cpp" line="1168"/>
         <source>X11 Bitmap</source>
         <translation>Mapa de bits X11</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1168"/>
+        <location filename="../../src/videolayer.cpp" line="1169"/>
         <source>X11 Pixmap</source>
         <translation>Píxels X11</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="1402"/>
+        <location filename="../../src/videolayer.cpp" line="1403"/>
         <source>Text</source>
         <translation type="unfinished">Text</translation>
     </message>
@@ -2347,70 +2347,81 @@
 <context>
     <name>VideoInputAddEdit</name>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="95"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="97"/>
         <source>Rename text source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="99"/>
-        <source>Edit media file source</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="103"/>
-        <source>Edit media URL source</source>
+        <source>Leave empty to use the color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="107"/>
-        <source>Add media file source</source>
+        <location filename="../qml/VideoInputAddEdit.qml" line="104"/>
+        <source>Rename color source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../qml/VideoInputAddEdit.qml" line="108"/>
+        <source>Edit media file source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="112"/>
+        <source>Edit media URL source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="116"/>
+        <source>Add media file source</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputAddEdit.qml" line="117"/>
         <source>Add media URL source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="142"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="189"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="234"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="151"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="198"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="243"/>
         <source>Description</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="148"/>
-        <location filename="../qml/VideoInputAddEdit.qml" line="195"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="157"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="204"/>
         <source>Source title</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="158"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="167"/>
         <source>Path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="168"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="177"/>
         <source>File path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="169"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="178"/>
         <source>Search file to use as source</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="205"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="214"/>
         <source>URL</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="240"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="96"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="249"/>
         <source>Leave empty to use the text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputAddEdit.qml" line="300"/>
+        <location filename="../qml/VideoInputAddEdit.qml" line="309"/>
         <source>Choose the file to add as source</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2444,67 +2455,67 @@
 <context>
     <name>VideoInputOptions</name>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="68"/>
+        <location filename="../qml/VideoInputOptions.qml" line="69"/>
         <source>None</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="81"/>
+        <location filename="../qml/VideoInputOptions.qml" line="82"/>
         <source>%1 (not available)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="134"/>
+        <location filename="../qml/VideoInputOptions.qml" line="136"/>
         <source>Rename</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="135"/>
+        <location filename="../qml/VideoInputOptions.qml" line="137"/>
         <source>Edit</source>
         <translation>Edita</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="148"/>
+        <location filename="../qml/VideoInputOptions.qml" line="151"/>
         <source>Remove</source>
         <translation>Suprimeix</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="163"/>
+        <location filename="../qml/VideoInputOptions.qml" line="166"/>
         <source>Manage source effects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="175"/>
+        <location filename="../qml/VideoInputOptions.qml" line="178"/>
         <source>Opacity</source>
         <translation type="unfinished">Opacitat</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="193"/>
+        <location filename="../qml/VideoInputOptions.qml" line="196"/>
         <source>Source opacity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="204"/>
+        <location filename="../qml/VideoInputOptions.qml" line="207"/>
         <source>Aspect ratio mode</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="206"/>
+        <location filename="../qml/VideoInputOptions.qml" line="209"/>
         <source>Ignore</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="207"/>
+        <location filename="../qml/VideoInputOptions.qml" line="210"/>
         <source>Keep</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="208"/>
+        <location filename="../qml/VideoInputOptions.qml" line="211"/>
         <source>Keep by expanding</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputOptions.qml" line="252"/>
+        <location filename="../qml/VideoInputOptions.qml" line="255"/>
         <source>Associated audio device</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2512,87 +2523,97 @@
 <context>
     <name>VideoInputs</name>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="100"/>
+        <location filename="../qml/VideoInputs.qml" line="103"/>
         <source>Camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="102"/>
+        <location filename="../qml/VideoInputs.qml" line="105"/>
         <source>Screen</source>
         <translation type="unfinished">Pantalla</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="104"/>
+        <location filename="../qml/VideoInputs.qml" line="107"/>
         <source>Image</source>
         <translation type="unfinished">Imatge</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="106"/>
+        <location filename="../qml/VideoInputs.qml" line="109"/>
         <source>Video</source>
         <translation type="unfinished">Vídeo</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="108"/>
+        <location filename="../qml/VideoInputs.qml" line="111"/>
         <source>Text</source>
         <translation type="unfinished">Text</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="110"/>
+        <location filename="../qml/VideoInputs.qml" line="113"/>
+        <source>Color</source>
+        <translation type="unfinished">Color</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="115"/>
         <source>Unknown</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="129"/>
+        <location filename="../qml/VideoInputs.qml" line="134"/>
         <source>Add source</source>
         <translation>Afegeix font</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="141"/>
+        <location filename="../qml/VideoInputs.qml" line="146"/>
         <source>Add camera</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="149"/>
+        <location filename="../qml/VideoInputs.qml" line="154"/>
         <source>Add screen</source>
         <translation>Afegeix una pantalla</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="150"/>
+        <location filename="../qml/VideoInputs.qml" line="155"/>
         <source>Add screen source</source>
         <translation>Afegeix una font de pantalla</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="157"/>
+        <location filename="../qml/VideoInputs.qml" line="162"/>
         <source>Add window</source>
         <translation>Afegeix una finestra</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="166"/>
+        <location filename="../qml/VideoInputs.qml" line="171"/>
         <source>Add media file</source>
         <translation>Afegeix un fitxer multimèdia</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="172"/>
+        <location filename="../qml/VideoInputs.qml" line="177"/>
         <source>Add media URL</source>
         <translation>Afegeix un URL multimèdia</translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="178"/>
+        <location filename="../qml/VideoInputs.qml" line="183"/>
         <source>Add text</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="194"/>
+        <location filename="../qml/VideoInputs.qml" line="189"/>
+        <source>Add color</source>
+        <translation type="unfinished">Afegeix color</translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoInputs.qml" line="205"/>
         <source>Manage canvas effects</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="186"/>
+        <location filename="../qml/VideoInputs.qml" line="197"/>
         <source>Edit layout</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/VideoInputs.qml" line="390"/>
+        <location filename="../qml/VideoInputs.qml" line="401"/>
         <source>Source %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2600,12 +2621,12 @@
 <context>
     <name>VideoLayer</name>
     <message>
-        <location filename="../../src/videolayer.cpp" line="147"/>
+        <location filename="../../src/videolayer.cpp" line="148"/>
         <source>All Image and Video Files</source>
         <translation>Tots els fitxers d’imatge i vídeo</translation>
     </message>
     <message>
-        <location filename="../../src/videolayer.cpp" line="184"/>
+        <location filename="../../src/videolayer.cpp" line="185"/>
         <source>All Files</source>
         <translation>Tots els fitxers</translation>
     </message>
@@ -2613,12 +2634,12 @@
 <context>
     <name>VideoOptions</name>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="49"/>
+        <location filename="../qml/VideoOptions.qml" line="50"/>
         <source>Sources</source>
         <translation>Fonts</translation>
     </message>
     <message>
-        <location filename="../qml/VideoOptions.qml" line="52"/>
+        <location filename="../qml/VideoOptions.qml" line="53"/>
         <source>Outputs</source>
         <translation>Sortides</translation>
     </message>
@@ -3305,6 +3326,7 @@
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="59"/>
         <location filename="../../../libAvKys/ExtraPlugins/ColorKey/share/qml/main.qml" line="125"/>
         <location filename="../../../libAvKys/ExtraPlugins/Life/share/qml/main.qml" line="33"/>
+        <location filename="../../../libAvKys/Plugins/ColorSrc/share/qml/main.qml" line="51"/>
         <location filename="../../../libAvKys/Plugins/Vignette/share/qml/main.qml" line="33"/>
         <source>Color</source>
         <translation>Color</translation>
@@ -3476,6 +3498,12 @@
         <translation>Sigma</translation>
     </message>
     <message>
+        <location filename="../../../libAvKys/Plugins/ColorSrc/share/qml/main.qml" line="53"/>
+        <source>Choose the color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../../libAvKys/Plugins/ColorSrc/share/qml/main.qml" line="63"/>
         <location filename="../../../libAvKys/Plugins/DesktopCapture/src/share/qml/main.qml" line="49"/>
         <location filename="../../../libAvKys/Plugins/ImageSrc/share/qml/main.qml" line="56"/>
         <source>Frame rate</source>

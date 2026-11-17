@@ -135,6 +135,15 @@ OptionsPanel {
                     videoInputOptions.setInput(id)
                 }
             }
+            onOpenVideoInputAddColorDialog: {
+                let id = videoLayer.addColorSource("")
+
+                if (id >= 0) {
+                    closeAndOpen()
+                    layout.currentIndex = 3
+                    videoInputOptions.setInput(id)
+                }
+            }
             onOpenVideoOutputAddEditDialog: videoOutput =>
                 videoOutputAddEdit.openOptions(videoOutput)
             onOpenVideoInputOptions: function (videoInput) {

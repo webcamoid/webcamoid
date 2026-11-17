@@ -47,7 +47,8 @@ ScrollView {
 
         deviceInfo.text =
                 "<b>" + videoLayer.sourceLabel(view.sourceId) + "</b>"
-                + (videoLayer.sourceType(view.sourceId) == VideoLayer.InputText?
+                + (videoLayer.sourceType(view.sourceId) == VideoLayer.InputText
+                   || videoLayer.sourceType(view.sourceId) == VideoLayer.InputColor?
                        "":
                        "<br/><i>" + videoLayer.sourceDevice(view.sourceId) + "</i>")
     }
@@ -130,7 +131,8 @@ ScrollView {
         }
 
         Button {
-            text: view.inputType == VideoLayer.InputText?
+            text: view.inputType == VideoLayer.InputText
+                  || view.inputType == VideoLayer.InputColor?
                       qsTr("Rename"):
                       qsTr("Edit")
             icon.source: "image://icons/edit"
@@ -140,6 +142,7 @@ ScrollView {
             visible: view.inputType == VideoLayer.InputStream
                      || view.inputType == VideoLayer.InputImage
                      || view.inputType == VideoLayer.InputText
+                     || view.inputType == VideoLayer.InputColor
 
             onClicked: view.openVideoInputAddEditDialog(view.sourceId)
         }

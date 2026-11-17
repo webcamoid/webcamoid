@@ -35,6 +35,7 @@ ScrollView {
     signal openVideoInputAddFileDialog()
     signal openVideoInputAddUrlDialog()
     signal openVideoInputAddTextDialog()
+    signal openVideoInputAddColorDialog()
     signal openVideoInputOptions(int sourceId)
     signal openCanvasVideoEffectsDialog()
     signal enterEditLayoutMode()
@@ -89,6 +90,8 @@ ScrollView {
                 return "picture"
             case VideoLayer.InputText:
                 return "fonts"
+            case VideoLayer.InputColor:
+                return "colors"
             default:
                 return "video"
         }
@@ -106,6 +109,8 @@ ScrollView {
                 return qsTr("Video")
             case VideoLayer.InputText:
                 return qsTr("Text")
+            case VideoLayer.InputColor:
+                return qsTr("Color")
             default:
                 return qsTr("Unknown")
         }
@@ -179,6 +184,12 @@ ScrollView {
                     icon.source: "image://icons/fonts"
 
                     onClicked: view.openVideoInputAddTextDialog()
+                }
+                MenuItem {
+                    text: qsTr("Add color")
+                    icon.source: "image://icons/colors"
+
+                    onClicked: view.openVideoInputAddColorDialog()
                 }
             }
         }

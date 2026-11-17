@@ -92,7 +92,16 @@ Dialog {
                 addEdit.mediaType = VideoInputAddEdit.MediaType.TextMedia
                 textDescription.text =
                         videoLayer.sourceCustomLabel(addEdit.sourceId)
+                textDescription.placeholderText =
+                        qsTr("Leave empty to use the text")
                 title = qsTr("Rename text source")
+            } else if (device.indexOf(videoLayer.colorDevicePrefix()) === 0) {
+                addEdit.mediaType = VideoInputAddEdit.MediaType.TextMedia
+                textDescription.text =
+                        videoLayer.sourceCustomLabel(addEdit.sourceId)
+                textDescription.placeholderText =
+                        qsTr("Leave empty to use the color")
+                title = qsTr("Rename color source")
             } else if (addEdit.isFile(device)) {
                 addEdit.mediaType = VideoInputAddEdit.MediaType.FileMedia
                 filePath.labelText = device

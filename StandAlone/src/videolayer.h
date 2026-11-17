@@ -75,7 +75,8 @@ class VideoLayer: public QObject
             InputScreen,
             InputImage,
             InputStream,
-            InputText
+            InputText,
+            InputColor
         };
         Q_ENUM(InputType)
 
@@ -108,6 +109,7 @@ class VideoLayer: public QObject
         Q_INVOKABLE QStringList devicesByType(InputType type) const;
         Q_INVOKABLE QString description(const QString &device) const;
         Q_INVOKABLE static QString textDevicePrefix();
+        Q_INVOKABLE static QString colorDevicePrefix();
 
         // Global state -- the "instant play/stop everything" master switch.
         Q_INVOKABLE AkElement::ElementState state() const;
@@ -180,6 +182,7 @@ class VideoLayer: public QObject
     public slots:
         qint64 addSource(const QString &device);
         qint64 addTextSource(const QString &label={});
+        qint64 addColorSource(const QString &label={});
         void removeSource(qint64 id);
         void setSourceEnabled(qint64 id, bool enabled);
         void setSourceLabel(qint64 id, const QString &label);
