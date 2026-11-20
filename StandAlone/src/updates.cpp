@@ -526,9 +526,9 @@ void UpdatesPrivate::loadProperties()
     this->m_lastUpdate = config.value("lastUpdate").toDateTime();
     this->m_notifyNewVersion = config.value("notify", true).toBool();
 #ifdef DISABLE_UPDATES_CHECK
-    this->m_checkInterval = config.value("checkInterval", 1).toInt();
-#else
     this->m_checkInterval = 0;
+#else
+    this->m_checkInterval = config.value("checkInterval", 1).toInt();
 #endif
     int size = config.beginReadArray("updateInfo");
 

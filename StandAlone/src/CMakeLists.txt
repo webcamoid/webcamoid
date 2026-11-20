@@ -71,10 +71,20 @@ set(PROJECT_SOURCES
     audiooutputs.h
     clioptions.cpp
     clioptions.h
+    dailybuildinstaller.cpp
+    dailybuildinstaller.h
+    dailybuilds.cpp
+    dailybuilds.h
     downloadmanager.cpp
     downloadmanager.h
     encoding.cpp
     encoding.h
+    githubassetdownloader.cpp
+    githubassetdownloader.h
+    githubauth.cpp
+    githubauth.h
+    githubdailybuilds.cpp
+    githubdailybuilds.h
     iconsprovider.cpp
     iconsprovider.h
     localstreaming.cpp

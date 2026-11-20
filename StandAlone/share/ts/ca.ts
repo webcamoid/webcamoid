@@ -825,6 +825,15 @@
     </message>
 </context>
 <context>
+    <name>DailyBuilds</name>
+    <message>
+        <location filename="../../src/dailybuilds.cpp" line="323"/>
+        <location filename="../../src/dailybuilds.cpp" line="443"/>
+        <source>Your GitHub session expired, please sign in again</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>DebugLog</name>
     <message>
         <location filename="../qml/DebugLog.qml" line="30"/>
@@ -1105,6 +1114,45 @@
         <location filename="../qml/GeneralConfig.qml" line="228"/>
         <source>Audio capture/playback</source>
         <translation>Captura/reproducció d’àudio</translation>
+    </message>
+</context>
+<context>
+    <name>GitHubAssetDownloader</name>
+    <message>
+        <location filename="../../src/githubassetdownloader.cpp" line="107"/>
+        <source>Cannot write %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/githubassetdownloader.cpp" line="137"/>
+        <source>Download canceled</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>GitHubAuth</name>
+    <message>
+        <location filename="../../src/githubauth.cpp" line="153"/>
+        <source>Missing GitHub client ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/githubauth.cpp" line="185"/>
+        <source>No valid refresh token</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>GitHubDailyBuilds</name>
+    <message>
+        <location filename="../../src/githubdailybuilds.cpp" line="256"/>
+        <source>Daily builds are not available for this platform</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/githubdailybuilds.cpp" line="266"/>
+        <source>You are not signed in</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1486,7 +1534,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1597"/>
+        <location filename="../../src/mediatools.cpp" line="1603"/>
         <source>%1/log %2.txt</source>
         <translation>%1/registre %2.txt</translation>
     </message>
@@ -1824,6 +1872,106 @@
         <source>%1/Video %2.%3</source>
         <translation>%1/Vídeo %2.%3</translation>
     </message>
+    <message>
+        <location filename="../../src/dailybuildinstaller.cpp" line="57"/>
+        <source>Cannot make %1 executable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/dailybuildinstaller.cpp" line="73"/>
+        <source>Cannot start the installer %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/githubassetdownloader.cpp" line="169"/>
+        <source>Invalid download address</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/githubassetdownloader.cpp" line="176"/>
+        <source>You are not signed in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/githubassetdownloader.cpp" line="235"/>
+        <source>Cannot write the downloaded file: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/githubassetdownloader.cpp" line="242"/>
+        <source>The file is too large</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/githubassetdownloader.cpp" line="268"/>
+        <source>Invalid redirection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/githubassetdownloader.cpp" line="275"/>
+        <source>Refusing an insecure redirection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/githubassetdownloader.cpp" line="288"/>
+        <source>Your account has no access to this build</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/githubassetdownloader.cpp" line="301"/>
+        <source>The downloaded file has an unexpected size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/githubassetdownloader.cpp" line="311"/>
+        <source>The downloaded file is corrupt (checksum mismatch)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/githubassetdownloader.cpp" line="323"/>
+        <source>Cannot save the file as %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/githubauth.cpp" line="280"/>
+        <location filename="../../src/githubauth.cpp" line="335"/>
+        <source>The code expired, please try again</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/githubauth.cpp" line="315"/>
+        <location filename="../../src/githubauth.cpp" line="361"/>
+        <location filename="../../src/githubdailybuilds.cpp" line="338"/>
+        <source>Invalid response from GitHub</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/githubauth.cpp" line="338"/>
+        <source>Authorization was denied</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/githubdailybuilds.cpp" line="345"/>
+        <source>The daily build for this platform is not available right now</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/githubdailybuilds.cpp" line="374"/>
+        <location filename="../../src/githubdailybuilds.cpp" line="450"/>
+        <source>Your GitHub session expired, please sign in again</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/githubdailybuilds.cpp" line="383"/>
+        <source>GitHub rate limit reached, try again later</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/githubdailybuilds.cpp" line="386"/>
+        <location filename="../../src/githubdailybuilds.cpp" line="394"/>
+        <source>Your account has no access to the daily builds</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>RecordingNotice</name>
@@ -2148,45 +2296,264 @@
         <translation>Mai</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="153"/>
+        <location filename="../qml/UpdatesConfig.qml" line="159"/>
         <source>&lt;b&gt;Last updated&lt;/b&gt;: %1</source>
         <translation>&lt;b&gt;Darrera actualització&lt;/b&gt;: %1</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="172"/>
+        <location filename="../qml/UpdatesConfig.qml" line="178"/>
         <source>Your version of %1 is outdated. Latest version is &lt;b&gt;%2&lt;/b&gt;.</source>
         <translation>La vostra versió del %1 està desfasada. La darrera versió és &lt;b&gt;%2&lt;/b&gt;.</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="180"/>
+        <location filename="../qml/UpdatesConfig.qml" line="186"/>
         <source>Upgrade Now!</source>
         <translation>Actualitza ara!</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="196"/>
+        <location filename="../qml/UpdatesConfig.qml" line="202"/>
         <source>Thanks for using a &lt;b&gt;development version&lt;/b&gt;!&lt;br /&gt;It will be very helpful if you can report any bug and suggestions you have.</source>
         <translation>Gràcies per utilitzar una &lt;b&gt;versió de desenvolupament&lt;/b&gt;!&lt;br /&gt;Serà molt útil si podeu informar-nos de qualsevol problema o suggeriment que tingueu.</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesConfig.qml" line="203"/>
+        <location filename="../qml/UpdatesConfig.qml" line="209"/>
         <source>Report a Bug</source>
         <translation>Informa d’un problema</translation>
     </message>
 </context>
 <context>
+    <name>UpdatesDailyBuilds</name>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="65"/>
+        <source>%1 MB</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="70"/>
+        <source>Built on %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="74"/>
+        <source>commit %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="84"/>
+        <source>Downloading...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="89"/>
+        <source>Update ready to install</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="90"/>
+        <source>Download ready</source>
+        <translation type="unfinished">Descarrega a punt</translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="94"/>
+        <source>A newer daily build was skipped</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="95"/>
+        <source>New daily build available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="98"/>
+        <source>You have the latest daily build</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="100"/>
+        <source>Latest daily build</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="107"/>
+        <source>Never</source>
+        <translation type="unfinished">Mai</translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="148"/>
+        <source>Update channel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="152"/>
+        <source>Stable releases</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="161"/>
+        <source>Recommended for most people. Available to everyone.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="173"/>
+        <source>Daily builds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="203"/>
+        <source>Sponsors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="212"/>
+        <source>Latest development builds, updated every day. Not a sponsor yet? &lt;a href=&quot;sponsor&quot;&gt;Become a sponsor&lt;/a&gt; to unlock them.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="225"/>
+        <source>GitHub account</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="234"/>
+        <source>Sign in with the GitHub account you sponsor with to download the daily builds.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="238"/>
+        <source>Sign in with GitHub</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="252"/>
+        <source>Contacting GitHub...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="253"/>
+        <source>Open GitHub and enter this code to sign in:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="277"/>
+        <source>Copy code</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="286"/>
+        <source>Open GitHub</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="305"/>
+        <source>Waiting for authorization... the code expires in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="311"/>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="412"/>
+        <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="324"/>
+        <source>Signed in with GitHub</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="328"/>
+        <source>Sign out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="348"/>
+        <source>Make sure you are sponsoring the project and that you accepted the invitation to the private repository. &lt;a href=&quot;sponsor&quot;&gt;Become a sponsor&lt;/a&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="360"/>
+        <source>Daily build</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="375"/>
+        <source>Checking for the latest daily build...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="420"/>
+        <source>Download complete and verified. Webcamoid will close to run the installer.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="421"/>
+        <source>Download complete and verified. It was saved in your downloads folder.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="431"/>
+        <source>Install</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="432"/>
+        <source>Run</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="439"/>
+        <source>Show in folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="450"/>
+        <source>Download</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="458"/>
+        <source>Open downloads page</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="465"/>
+        <source>Skip this build</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="481"/>
+        <source>&lt;b&gt;Last checked&lt;/b&gt;: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDailyBuilds.qml" line="487"/>
+        <source>Check now</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>UpdatesDialog</name>
     <message>
-        <location filename="../qml/UpdatesDialog.qml" line="30"/>
+        <location filename="../qml/UpdatesDialog.qml" line="31"/>
+        <source>New daily build available!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDialog.qml" line="32"/>
         <source>New version available!</source>
         <translation>Hi ha una versió nova disponible.</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesDialog.qml" line="74"/>
+        <location filename="../qml/UpdatesDialog.qml" line="96"/>
+        <source>A new daily build is available (commit %1). Download it now?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/UpdatesDialog.qml" line="98"/>
         <source>Download %1 %2 NOW!</source>
         <translation>Baixa %1 %2 ara</translation>
     </message>
     <message>
-        <location filename="../qml/UpdatesDialog.qml" line="81"/>
+        <location filename="../qml/UpdatesDialog.qml" line="106"/>
         <source>Show this dialog next time</source>
         <translation>Mostra aquest diàleg la pròxima vegada</translation>
     </message>

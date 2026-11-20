@@ -149,6 +149,12 @@ AK.MenuOption {
                     if (currentIndex >= 0)
                         updates.checkInterval = model.get(currentIndex).interval
             }
+            UpdatesDailyBuilds {
+                leftMargin: root.leftMargin
+                rightMargin: root.rightMargin
+                sectionSpacing: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+                Layout.fillWidth: true
+            }
             Label {
                 text: qsTr("<b>Last updated</b>: %1").arg(updates.lastUpdate.toLocaleString())
                 wrapMode: Text.WordWrap

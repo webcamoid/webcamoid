@@ -44,6 +44,7 @@ set(ENABLE_ANDROID_DEBUGGING OFF CACHE BOOL "Enable debugging logs in Android")
 set(ENABLE_ANDROID_LOG_FILE OFF CACHE BOOL "Enable debugging logs in Android")
 set(ENABLE_IPO OFF CACHE BOOL "Enable interprocedural optimization")
 set(NOCHECKUPDATES OFF CACHE BOOL "Disable updates check")
+set(GITHUB_APP_CLIENT_ID "Iv23li60Hi0pA2zgoeer" CACHE STRING "Client ID of the GitHub App used to sign in and download the sponsors daily builds")
 set(NOOPENMP OFF CACHE BOOL "Disable OpenMP support")
 set(NOALSA OFF CACHE BOOL "Disable ALSA support")
 set(NODSHOW OFF CACHE BOOL "Disable DirectShow support")
@@ -183,6 +184,10 @@ add_definitions(-DQT_DEPRECATED_WARNINGS)
 
 if (DAILY_BUILD)
     add_definitions(-DDAILY_BUILD)
+endif ()
+
+if (NOT "${GITHUB_APP_CLIENT_ID}" STREQUAL "")
+    add_definitions(-DGITHUB_APP_CLIENT_ID="${GITHUB_APP_CLIENT_ID}")
 endif ()
 
 # Enable the virtual camera support in Flatpak.

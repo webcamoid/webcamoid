@@ -61,6 +61,7 @@
 #include "audioinputs.h"
 #include "audiooutputs.h"
 #include "clioptions.h"
+#include "dailybuilds.h"
 #include "downloadmanager.h"
 #include "encoding.h"
 #include "iconsprovider.h"
@@ -140,6 +141,7 @@ class MediaToolsPrivate
         StreamingPtr m_streaming;
         LocalStreamingPtr m_localStreaming;
         UpdatesPtr m_updates;
+        DailyBuildsPtr m_dailyBuilds;
         VideoEffectsPtr m_videoEffects;
         VideoLayerPtr m_videoLayer;
         VirtualCamerasPtr m_virtualCameras;
@@ -912,6 +914,9 @@ bool MediaTools::init(const CliOptions &cliOptions)
     this->d->m_localStreaming = LocalStreamingPtr(new LocalStreaming(this->d->m_encoding, this->d->m_engine));
     this->d->m_virtualCameras = VirtualCamerasPtr(new VirtualCameras(this->d->m_engine));
     this->d->m_updates = UpdatesPtr(new Updates(this->d->m_engine));
+    this->d->m_dailyBuilds =
+            DailyBuildsPtr(new DailyBuilds(this->d->m_updates.data(),
+                                           this->d->m_engine));
     this->d->m_downloadManager =
             DownloadManagerPtr(new DownloadManager(this->d->m_engine));
 
@@ -1317,6 +1322,7 @@ bool MediaTools::init(const CliOptions &cliOptions)
 
     this->d->m_virtualCameras->setLatestVCamVersion(this->d->m_updates->latestVersion("VirtualCamera"));
     this->d->m_updates->start();
+    this->d->m_dailyBuilds->start();
 
     return true;
 }

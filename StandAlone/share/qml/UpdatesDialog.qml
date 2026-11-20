@@ -27,12 +27,16 @@ import Webcamoid
 
 Dialog {
     id: updatesDialog
-    title: qsTr("New version available!")
+    title: dailyMode?
+               qsTr("New daily build available!"):
+               qsTr("New version available!")
     standardButtons: Dialog.Yes | Dialog.No
     width: AkUnit.create(420 * AkTheme.controlScale, "dp").pixels
     height: AkUnit.create(240 * AkTheme.controlScale, "dp").pixels
     modal: true
 
+    property bool dailyMode: false
+    property string dailyCommit: ""
     property int webcamoidStatus: updates.status("Webcamoid")
     property string webcamoidLatestVersion: updates.latestVersion("Webcamoid")
 
@@ -42,6 +46,7 @@ Dialog {
             && updates.notifyNewVersion
             && showNextTime.checked
             && webcamoidStatus == Updates.ComponentOutdated) {
+            dailyMode = false
             open()
         }
     }
@@ -62,6 +67,22 @@ Dialog {
         }
     }
 
+    Connections {
+        target: dailyBuilds
+
+        function onNewBuildAvailable(commit)
+        {
+            if (updates.isEnabled
+                && updates.notifyNewVersion
+                && showNextTime.checked
+                && dailyBuilds.channel == DailyBuilds.Daily) {
+                updatesDialog.dailyMode = true
+                updatesDialog.dailyCommit = commit
+                updatesDialog.open()
+            }
+        }
+    }
+
     ScrollView {
         id: view
         anchors.fill: parent
@@ -71,9 +92,13 @@ Dialog {
             clip: true
 
             Label {
-                text: qsTr("Download %1 %2 NOW!")
-                        .arg(mediaTools.applicationName)
-                        .arg(updatesDialog.webcamoidLatestVersion)
+                text: updatesDialog.dailyMode?
+                          qsTr("A new daily build is available (commit %1). Download it now?")
+                            .arg(updatesDialog.dailyCommit):
+                          qsTr("Download %1 %2 NOW!")
+                            .arg(mediaTools.applicationName)
+                            .arg(updatesDialog.webcamoidLatestVersion)
+                wrapMode: Text.WordWrap
                 Layout.fillWidth: true
             }
             CheckBox {
@@ -85,7 +110,12 @@ Dialog {
         }
     }
 
-    onAccepted: Qt.openUrlExternally(mediaTools.projectDownloadsUrl)
+    onAccepted: {
+        if (dailyMode)
+            dailyBuilds.download()
+        else
+            Qt.openUrlExternally(mediaTools.projectDownloadsUrl)
+    }
 
     Settings {
         category: "Updates"
