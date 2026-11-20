@@ -176,7 +176,7 @@ if (LRELEASE_TOOL_BIN)
                           VERBATIM)
         if (UPDATE_TRANSLATIONS AND LUPDATE_TOOL_BIN)
             add_dependencies(translation_${LANG}_qm translation_${LANG}_ts)
-        endif
+        endif ()
         add_dependencies(translations_qm translation_${LANG}_qm)
 
         install(FILES "${CMAKE_BINARY_DIR}/${BUILDDIR}/${TRANSLATIONSDIR}/${LANG}.qm"
