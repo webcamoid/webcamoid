@@ -35,7 +35,22 @@
 #endif
 
 #include "clioptions.h"
+#include "dailybuildinstaller.h"
 #include "mediatools.h"
+
+namespace {
+    // Starts the file scheduled by the daily builds updater. It must outlive
+    // MediaTools, so it is declared before it: MediaTools releases the single
+    // instance lock and the devices when it is destroyed.
+    class ScheduledLaunch
+    {
+        public:
+            ~ScheduledLaunch()
+            {
+                DailyBuildInstaller::startScheduled();
+            }
+    };
+}
 
 int main(int argc, char *argv[])
 {
@@ -86,6 +101,7 @@ int main(int argc, char *argv[])
 #endif
 
     qInfo() << "Starting " COMMONS_APPNAME;
+    ScheduledLaunch scheduledLaunch;
     MediaTools mediaTools;
 
     if (!mediaTools.init(cliOptions))

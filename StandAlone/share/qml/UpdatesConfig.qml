@@ -153,6 +153,7 @@ AK.MenuOption {
                 leftMargin: root.leftMargin
                 rightMargin: root.rightMargin
                 sectionSpacing: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+                Layout.bottomMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
                 Layout.fillWidth: true
             }
             Label {

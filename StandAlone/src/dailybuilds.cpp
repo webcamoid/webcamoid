@@ -62,6 +62,12 @@ class DailyBuildsPrivate
         qreal m_progress {0.0};
         QString m_downloadedFile;
         bool m_downloadAfterRefresh {false};
+        bool m_installerLaunched {false};
+        // Waiting to know which one of the commits is newer.
+        bool m_comparing {false};
+        QString m_orderBase;
+        QString m_orderHead;
+        GitHubDailyBuilds::CommitOrder m_order {GitHubDailyBuilds::OrderFailed};
 
         DailyBuildsPrivate(DailyBuilds *self, Updates *updates);
         static QString appClientId();
@@ -81,6 +87,11 @@ class DailyBuildsPrivate
         void autoCheck();
         void startDownload();
         void onBuildAvailable(const GitHubDailyBuilds::BuildInfo &build);
+        void onCommitsCompared(const QString &base,
+                               const QString &head,
+                               GitHubDailyBuilds::CommitOrder order);
+        void finishBuild(DailyBuilds::BuildStatus status);
+        static DailyBuilds::BuildStatus statusFromOrder(GitHubDailyBuilds::CommitOrder order);
         void onCheckFailed(GitHubDailyBuilds::Error error,
                            const QString &message);
         void onDownloadFailed(GitHubAssetDownloader::Error error,
@@ -114,6 +125,16 @@ DailyBuilds::Channel DailyBuilds::channel() const
 DailyBuilds::State DailyBuilds::state() const
 {
     return this->d->m_state;
+}
+
+QString DailyBuilds::userName() const
+{
+    return this->d->m_auth.userName();
+}
+
+bool DailyBuilds::sessionSaved() const
+{
+    return this->d->m_auth.sessionSaved();
 }
 
 QString DailyBuilds::userCode() const
@@ -185,6 +206,17 @@ QUrl DailyBuilds::downloadFolder() const
     return QUrl::fromLocalFile(DailyBuildInstaller::downloadDir());
 }
 
+QString DailyBuilds::downloadPath() const
+{
+    if (this->d->m_build.name.isEmpty())
+        return {};
+
+    auto path = QDir(DailyBuildInstaller::downloadDir())
+                .filePath(this->d->m_build.name);
+
+    return QDir::toNativeSeparators(path);
+}
+
 DailyBuilds::InstallKind DailyBuilds::installKind() const
 {
     switch (DailyBuildInstaller::kindForOs(GitHubDailyBuilds::currentOs())) {
@@ -192,6 +224,10 @@ DailyBuilds::InstallKind DailyBuilds::installKind() const
         return InstallRunsInstaller;
     case DailyBuildInstaller::StandaloneExecutable:
         return InstallStandalone;
+    case DailyBuildInstaller::AndroidPackage:
+        return InstallPackage;
+    case DailyBuildInstaller::BuildsFromSource:
+        return InstallBuildsFromSource;
     default:
         return InstallUnsupported;
     }
@@ -294,7 +330,16 @@ void DailyBuilds::signOut()
 
 void DailyBuilds::checkNow()
 {
-    if (!this->d->available() || this->d->m_state != SignedIn)
+    if (!this->d->available())
+        return;
+
+    if (this->d->m_state == SignedOut) {
+        this->signIn();
+
+        return;
+    }
+
+    if (this->d->m_state != SignedIn)
         return;
 
     this->d->clearError();
@@ -310,6 +355,12 @@ void DailyBuilds::download()
     this->d->clearError();
     this->d->m_progress = 0.0;
     emit this->progressChanged(0.0);
+
+    if (this->d->m_installerLaunched) {
+        this->d->m_installerLaunched = false;
+        emit this->installerLaunchedChanged();
+    }
+
     this->d->setState(Downloading);
 
     if (this->d->m_auth.accessTokenValid()) {
@@ -345,6 +396,11 @@ void DailyBuilds::skipBuild()
     emit this->buildChanged();
 }
 
+bool DailyBuilds::installerLaunched() const
+{
+    return this->d->m_installerLaunched;
+}
+
 bool DailyBuilds::install()
 {
     if (this->d->m_state != Downloaded || this->d->m_downloadedFile.isEmpty())
@@ -352,14 +408,52 @@ bool DailyBuilds::install()
 
     QString error;
 
-    if (!DailyBuildInstaller::startInstaller(this->d->m_downloadedFile,
-                                             &error)) {
+    if (this->installKind() == InstallPackage) {
+        // The user must allow the app to install packages first.
+        if (!DailyBuildInstaller::canInstallPackages()) {
+            DailyBuildInstaller::openInstallPermissionSettings();
+            this->d->setError(InstallNotAllowed,
+                              QObject::tr("Allow Webcamoid to install apps in the Android settings that just opened, then try again."));
+
+            return false;
+        }
+
+        // Android asks the user to confirm the installation, and replaces the
+        // app when it is accepted, so the app does not need to close.
+        if (!DailyBuildInstaller::startInstaller(this->d->m_downloadedFile,
+                                                 &error)) {
+            this->d->setError(DownloadFailed, error);
+
+            return false;
+        }
+
+        return true;
+    }
+
+    if (this->installKind() == InstallBuildsFromSource) {
+        // Compiling takes a long time, so Webcamoid stays open meanwhile. The
+        // installer waits for it to be closed before replacing it.
+        if (!DailyBuildInstaller::startInstaller(this->d->m_downloadedFile,
+                                                 &error)) {
+            this->d->setError(DownloadFailed, error);
+
+            return false;
+        }
+
+        this->d->m_installerLaunched = true;
+        emit this->installerLaunchedChanged();
+
+        return true;
+    }
+
+    if (!DailyBuildInstaller::schedule(this->d->m_downloadedFile,
+                                       &error)) {
         this->d->setError(DownloadFailed, error);
 
         return false;
     }
 
-    emit this->installerStarted();
+    emit this->installerScheduled();
 
     return true;
 }
@@ -383,6 +477,12 @@ DailyBuildsPrivate::DailyBuildsPrivate(DailyBuilds *self, Updates *updates):
                      [this] () { this->autoCheck(); });
 
     // Sign in
+    QObject::connect(&this->m_auth,
+                     &GitHubAuth::userNameChanged,
+                     this->self,
+                     [this] () {
+        emit this->self->userNameChanged();
+    });
     QObject::connect(&this->m_auth,
                      &GitHubAuth::deviceCodeReady,
                      this->self,
@@ -451,6 +551,14 @@ DailyBuildsPrivate::DailyBuildsPrivate(DailyBuilds *self, Updates *updates):
                      this->self,
                      [this] (const GitHubDailyBuilds::BuildInfo &build) {
         this->onBuildAvailable(build);
+    });
+    QObject::connect(&this->m_builds,
+                     &GitHubDailyBuilds::commitsCompared,
+                     this->self,
+                     [this] (const QString &base,
+                             const QString &head,
+                             GitHubDailyBuilds::CommitOrder order) {
+        this->onCommitsCompared(base, head, order);
     });
     QObject::connect(&this->m_builds,
                      &GitHubDailyBuilds::failed,
@@ -529,8 +637,12 @@ bool DailyBuildsPrivate::runningIsDailyBuild()
 
 bool DailyBuildsPrivate::available() const
 {
+#ifdef DISABLE_UPDATES_CHECK
+    return false;
+#else
     return !appClientId().isEmpty()
            && !this->m_builds.assetName().isEmpty();
+#endif
 }
 
 bool DailyBuildsPrivate::notifyEnabled() const
@@ -647,10 +759,75 @@ void DailyBuildsPrivate::startDownload()
 void DailyBuildsPrivate::onBuildAvailable(const GitHubDailyBuilds::BuildInfo &build)
 {
     this->m_build = build;
-    this->m_status =
-        DailyBuilds::BuildStatus(GitHubDailyBuilds::updateStatus(build,
-                                                                 runningCommit(),
-                                                                 runningIsDailyBuild()));
+    this->m_comparing = false;
+    auto status =
+        GitHubDailyBuilds::updateStatus(build,
+                                        runningCommit(),
+                                        runningIsDailyBuild());
+
+    // The commits are different, but that does not tell which one is newer: a
+    // user can be running a build that is newer than the daily build.
+    if (status == GitHubDailyBuilds::UpdateAvailable) {
+        auto base = runningCommit().toLower();
+
+        if (this->m_orderBase == base && this->m_orderHead == build.commit) {
+            this->finishBuild(statusFromOrder(this->m_order));
+        } else {
+            this->m_comparing = true;
+            this->m_builds.compareCommits(base, build.commit);
+        }
+
+        return;
+    }
+
+    this->finishBuild(DailyBuilds::BuildStatus(status));
+}
+
+DailyBuilds::BuildStatus
+DailyBuildsPrivate::statusFromOrder(GitHubDailyBuilds::CommitOrder order)
+{
+    switch (order) {
+    case GitHubDailyBuilds::Identical:
+        return DailyBuilds::UpToDate;
+    case GitHubDailyBuilds::HeadBehind:
+        return DailyBuilds::RunningNewer;
+    case GitHubDailyBuilds::OrderUnknown:
+        // GitHub does not know the running commit, for example a local build.
+        return DailyBuilds::Unknown;
+    case GitHubDailyBuilds::HeadAhead:
+    case GitHubDailyBuilds::Diverged:
+    case GitHubDailyBuilds::OrderFailed:
+    default:
+        // When the comparison fails it is better to offer the build than to
+        // hide a real update.
+        return DailyBuilds::UpdateAvailable;
+    }
+}
+
+void DailyBuildsPrivate::onCommitsCompared(const QString &base,
+                                           const QString &head,
+                                           GitHubDailyBuilds::CommitOrder order)
+{
+    // The check was replaced, or the user signed out.
+    if (!this->m_comparing || head != this->m_build.commit)
+        return;
+
+    this->m_comparing = false;
+
+    // A failed request says nothing about the commits: try again next time.
+    if (order != GitHubDailyBuilds::OrderFailed) {
+        this->m_orderBase = base;
+        this->m_orderHead = head;
+        this->m_order = order;
+    }
+
+    this->finishBuild(statusFromOrder(order));
+}
+
+void DailyBuildsPrivate::finishBuild(DailyBuilds::BuildStatus status)
+{
+    auto build = this->m_build;
+    this->m_status = status;
     this->m_lastCheck = QDateTime::currentDateTime();
     this->saveLastCheck();
 

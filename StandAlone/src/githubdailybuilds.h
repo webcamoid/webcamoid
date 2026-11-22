@@ -58,9 +58,22 @@ class GitHubDailyBuilds: public QObject
         enum UpdateStatus {
             Unknown,          // cannot be compared: can only offer to download
             UpToDate,
-            UpdateAvailable
+            UpdateAvailable,
+            RunningNewer      // the running build is newer than the daily build
         };
         Q_ENUM(UpdateStatus)
+
+        // How the commit of the available build (head) is related to the
+        // commit of the running build (base).
+        enum CommitOrder {
+            OrderUnknown,     // GitHub does not know one of the commits
+            OrderFailed,      // the request failed
+            Identical,
+            HeadAhead,        // the available build is newer
+            HeadBehind,       // the running build is newer
+            Diverged
+        };
+        Q_ENUM(CommitOrder)
 
         struct BuildInfo
         {
@@ -103,9 +116,15 @@ class GitHubDailyBuilds: public QObject
     signals:
         void buildAvailable(const GitHubDailyBuilds::BuildInfo &build);
         void failed(GitHubDailyBuilds::Error error, const QString &message);
+        void commitsCompared(const QString &base,
+                             const QString &head,
+                             GitHubDailyBuilds::CommitOrder order);
 
     public slots:
         void check();
+        // Asks GitHub which of the two commits is newer. The commits are not
+        // ordered by their hashes.
+        void compareCommits(const QString &base, const QString &head);
 };
 
 #endif // GITHUBDAILYBUILDS_H

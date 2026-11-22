@@ -50,6 +50,15 @@ class DailyBuilds: public QObject
     Q_PROPERTY(State state
                READ state
                NOTIFY stateChanged)
+    Q_PROPERTY(bool installerLaunched
+               READ installerLaunched
+               NOTIFY installerLaunchedChanged)
+    Q_PROPERTY(QString userName
+               READ userName
+               NOTIFY userNameChanged)
+    Q_PROPERTY(bool sessionSaved
+               READ sessionSaved
+               NOTIFY stateChanged)
     Q_PROPERTY(QString userCode
                READ userCode
                NOTIFY userCodeChanged)
@@ -89,6 +98,9 @@ class DailyBuilds: public QObject
     Q_PROPERTY(QUrl downloadFolder
                READ downloadFolder
                CONSTANT)
+    Q_PROPERTY(QString downloadPath
+               READ downloadPath
+               NOTIFY buildChanged)
     Q_PROPERTY(InstallKind installKind
                READ installKind
                CONSTANT)
@@ -123,14 +135,17 @@ class DailyBuilds: public QObject
         enum BuildStatus {
             Unknown,          // can only offer to download
             UpToDate,
-            UpdateAvailable
+            UpdateAvailable,
+            RunningNewer      // the running build is newer than the daily build
         };
         Q_ENUM(BuildStatus)
 
         enum InstallKind {
             InstallUnsupported,
-            InstallRunsInstaller,     // Windows and macOS
-            InstallStandalone         // Linux: the AppImage is not installed
+            InstallRunsInstaller,     // Windows
+            InstallStandalone,        // Linux: the AppImage is not installed
+            InstallPackage,           // Android: the system installer is asked
+            InstallBuildsFromSource   // macOS: it is compiled and installed in a terminal
         };
         Q_ENUM(InstallKind)
 
@@ -144,7 +159,8 @@ class DailyBuilds: public QObject
             UnsupportedPlatform,
             BuildNotAvailable,
             DownloadCorrupt,
-            DownloadFailed
+            DownloadFailed,
+            InstallNotAllowed         // Android: the install permission is missing
         };
         Q_ENUM(Error)
 
@@ -156,6 +172,11 @@ class DailyBuilds: public QObject
         Q_INVOKABLE bool isAvailable() const;
         Q_INVOKABLE Channel channel() const;
         Q_INVOKABLE State state() const;
+        // macOS: the installer is running in a terminal, the application does
+        // not close while it is compiled.
+        Q_INVOKABLE bool installerLaunched() const;
+        Q_INVOKABLE QString userName() const;
+        Q_INVOKABLE bool sessionSaved() const;
         Q_INVOKABLE QString userCode() const;
         Q_INVOKABLE QUrl verificationUri() const;
         Q_INVOKABLE QDateTime codeExpiresAt() const;
@@ -169,6 +190,7 @@ class DailyBuilds: public QObject
         Q_INVOKABLE qreal progress() const;
         Q_INVOKABLE QString downloadedFile() const;
         Q_INVOKABLE QUrl downloadFolder() const;
+        Q_INVOKABLE QString downloadPath() const;
         Q_INVOKABLE InstallKind installKind() const;
         Q_INVOKABLE Error error() const;
         Q_INVOKABLE QString errorMessage() const;
@@ -181,6 +203,8 @@ class DailyBuilds: public QObject
         void channelChanged(Channel channel);
         void stateChanged(State state);
         void userCodeChanged();
+        void userNameChanged();
+        void installerLaunchedChanged();
         void buildChanged();
         void progressChanged(qreal progress);
         void downloadedFileChanged(const QString &downloadedFile);
@@ -188,8 +212,9 @@ class DailyBuilds: public QObject
         void lastCheckChanged();
         // A new build that the user did not skip is available.
         void newBuildAvailable(const QString &commit);
-        // The installer was started: the application should close.
-        void installerStarted();
+        // The file will be started when the application finishes: the
+        // application should close.
+        void installerScheduled();
 
     public slots:
         void setChannel(Channel channel);
@@ -198,11 +223,17 @@ class DailyBuilds: public QObject
         void signIn();
         void cancelSignIn();
         void signOut();
+        // Without a session it asks the user to sign in first, and the check
+        // starts when the sign in finishes.
         void checkNow();
         void download();
         void cancelDownload();
         void skipBuild();
-        bool install();      // Windows/macOS: runs the installer; Linux: runs the AppImage
+        // Windows: runs the installer; Linux: runs the AppImage. Both are
+        // started after the application closes. macOS: the installer is run in
+        // a terminal and the application stays open. Android: the system
+        // installer is asked to install the APK.
+        bool install();
         void resetError();
 
     friend class DailyBuildsPrivate;

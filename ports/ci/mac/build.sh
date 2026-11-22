@@ -102,6 +102,26 @@ cmake \
     -DNOLIBUSB=ON \
     -DNOPULSEAUDIO=ON
 cmake --build "\${BUILD_PATH}" --parallel \$(sysctl -n hw.ncpu)
+
+# The installed Webcamoid can be running, for example when the installer was
+# started from its updater so it can be used while it is compiled. Replacing
+# the files of a running application can crash it, so wait until it is closed.
+APP_BIN="\${INSTALL_PATH}/Webcamoid.app/Contents/MacOS/Webcamoid"
+
+if [ -t 0 ] && pgrep -f "\${APP_BIN}" >/dev/null 2>&1; then
+    echo
+    echo "Webcamoid was compiled. Close Webcamoid to finish the installation,"
+    echo "it will continue as soon as it is closed. Press Ctrl+C to cancel."
+    osascript -e 'display notification "Close Webcamoid to finish the installation." with title "Webcamoid installer"' >/dev/null 2>&1 || true
+
+    while pgrep -f "\${APP_BIN}" >/dev/null 2>&1; do
+        sleep 2
+    done
+
+    echo
+    echo "Webcamoid was closed, installing"
+fi
+
 cmake --install "\${BUILD_PATH}"
 
 echo

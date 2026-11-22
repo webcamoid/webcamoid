@@ -30,7 +30,10 @@
 #include "githubdailybuilds.h"
 #include "githubauth.h"
 
+#define API_BASE     "https://api.github.com"
 #define RELEASE_PATH "/repos/webcamoid/WebcamoidPrivate/releases/tags/daily-build"
+// The commits of the builds are from the public repository.
+#define COMPARE_PATH "/repos/webcamoid/webcamoid/compare/"
 
 class GitHubDailyBuildsPrivate
 {
@@ -39,13 +42,13 @@ class GitHubDailyBuildsPrivate
         GitHubAuth *m_auth;
         QNetworkAccessManager *m_manager;
         QNetworkReply *m_reply {nullptr};
+        QNetworkReply *m_compareReply {nullptr};
         QString m_os;
         QString m_arch;
         QByteArray m_etag;
         GitHubDailyBuilds::BuildInfo m_last;
         GitHubAssetDownloaderPtr m_sidecar;
         GitHubDailyBuilds::BuildInfo m_pending;
-        QString m_apiBase {"https://api.github.com"};
         bool m_waitingSidecar {false};
         bool m_waitingRefresh {false};
         bool m_retried {false};
@@ -54,6 +57,9 @@ class GitHubDailyBuildsPrivate
         void failLater(GitHubDailyBuilds::Error error, const QString &message);
         void requestRelease();
         void onReply(QNetworkReply *reply);
+        void onCompare(QNetworkReply *reply,
+                       const QString &base,
+                       const QString &head);
         void finishCheck(const GitHubDailyBuilds::BuildInfo &build);
         void onSidecarData(const QByteArray &data);
         void onSidecarFailed();
@@ -224,7 +230,8 @@ GitHubDailyBuilds::updateStatus(const BuildInfo &build,
 {
     // It can only tell "up to date" or "another build" if the running binary is
     // a daily build with a known commit and the asset has its commit. The commits
-    // are not ordered: different means "a build is available".
+    // are not ordered here: different means "a build is available", and
+    // GitHubDailyBuilds::compareCommits() tells which one is newer.
     if (!runningIsDailyBuild
         || runningCommit.size() < 7
         || build.commit.size() < 7)
@@ -292,7 +299,7 @@ void GitHubDailyBuildsPrivate::failLater(GitHubDailyBuilds::Error error,
 
 void GitHubDailyBuildsPrivate::requestRelease()
 {
-    QNetworkRequest request {QUrl(this->m_apiBase + RELEASE_PATH)};
+    QNetworkRequest request {QUrl(QStringLiteral(API_BASE RELEASE_PATH))};
     request.setRawHeader("Accept", "application/vnd.github+json");
     request.setRawHeader("Authorization",
                          "Bearer " + this->m_auth->accessToken().toUtf8());
@@ -310,6 +317,81 @@ void GitHubDailyBuildsPrivate::requestRelease()
                      &QNetworkReply::finished,
                      self,
                      [this, reply] () { this->onReply(reply); });
+}
+
+void GitHubDailyBuilds::compareCommits(const QString &base,
+                                       const QString &head)
+{
+    // Only the newest comparison matters.
+    if (this->d->m_compareReply) {
+        auto previous = this->d->m_compareReply;
+        this->d->m_compareReply = nullptr;
+        previous->abort();
+    }
+
+    // per_page limits the commits and files listed, only the status is needed.
+    QNetworkRequest request {
+        QUrl(QStringLiteral(API_BASE COMPARE_PATH)
+             + QUrl::toPercentEncoding(base)
+             + "..."
+             + QUrl::toPercentEncoding(head)
+             + "?per_page=1")
+    };
+    request.setRawHeader("Accept", "application/vnd.github+json");
+    request.setRawHeader("X-GitHub-Api-Version", "2022-11-28");
+    request.setRawHeader("User-Agent", "Webcamoid");
+
+    // The repository is public, the token only raises the rate limit.
+    auto token = this->d->m_auth->accessToken();
+
+    if (!token.isEmpty())
+        request.setRawHeader("Authorization", "Bearer " + token.toUtf8());
+
+    auto reply = this->d->m_manager->get(request);
+    this->d->m_compareReply = reply;
+    QObject::connect(reply,
+                     &QNetworkReply::finished,
+                     this,
+                     [this, reply, base, head] () {
+                         this->d->onCompare(reply, base, head);
+                     });
+}
+
+void GitHubDailyBuildsPrivate::onCompare(QNetworkReply *reply,
+                                         const QString &base,
+                                         const QString &head)
+{
+    reply->deleteLater();
+
+    // It was replaced by a newer comparison.
+    if (reply != this->m_compareReply)
+        return;
+
+    this->m_compareReply = nullptr;
+    auto status =
+        reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
+    auto order = GitHubDailyBuilds::OrderFailed;
+
+    if (status == 404 || status == 422) {
+        // For example the running build is from a local commit.
+        order = GitHubDailyBuilds::OrderUnknown;
+    } else if (status == 200) {
+        auto result = QJsonDocument::fromJson(reply->readAll())
+                      .object()
+                      .value("status")
+                      .toString();
+
+        if (result == "identical")
+            order = GitHubDailyBuilds::Identical;
+        else if (result == "ahead")
+            order = GitHubDailyBuilds::HeadAhead;
+        else if (result == "behind")
+            order = GitHubDailyBuilds::HeadBehind;
+        else if (result == "diverged")
+            order = GitHubDailyBuilds::Diverged;
+    }
+
+    emit self->commitsCompared(base, head, order);
 }
 
 void GitHubDailyBuildsPrivate::onReply(QNetworkReply *reply)

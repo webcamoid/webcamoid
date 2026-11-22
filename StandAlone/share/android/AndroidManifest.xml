@@ -116,6 +116,7 @@
          Remove the comment if you do not require these default permissions. -->
     <!-- Permissions -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- @ANDROID_APK_UPDATES_PERMISSION@ -->
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.FLASHLIGHT"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />

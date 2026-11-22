@@ -89,6 +89,7 @@ set(PULSEAUDIO_DYNLOAD OFF CACHE BOOL "Load PulseAudio libraries on runtime inst
 # Ads configurations
 
 set(ENABLE_ANDROID_ADS OFF CACHE BOOL "Enable Android AdMob")
+set(ENABLE_ANDROID_APK_UPDATES OFF CACHE BOOL "Enable downloading and installing APK updates in Android. Not allowed in the builds distributed in Google Play")
 
 # Set testing ads units as defaults
 

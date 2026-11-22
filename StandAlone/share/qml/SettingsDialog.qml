@@ -55,7 +55,7 @@ Dialog {
         ColorSchemes { }
         GeneralConfig { }
         PluginConfig { }
-        UpdatesConfig { }
+        UpdatesConfig { optionVisible: updates.isEnabled }
         DebugLog { }
     }
 }

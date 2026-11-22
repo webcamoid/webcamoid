@@ -45,6 +45,14 @@ find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
              ${QT_COMPONENTS}
              REQUIRED)
 
+# The Secret Service (D-Bus) is used to keep the GitHub tokens in the keyring.
+# Without Qt D-Bus they are saved in the settings.
+if (UNIX AND NOT APPLE AND NOT ANDROID)
+    find_package(Qt${QT_VERSION_MAJOR} ${QT_MINIMUM_VERSION} COMPONENTS
+                 DBus
+                 QUIET)
+endif ()
+
 include(CheckCXXSourceCompiles)
 set(CMAKE_REQUIRED_LIBRARIES Qt${QT_VERSION_MAJOR}::Core)
 check_cxx_source_compiles("
@@ -63,6 +71,26 @@ endif()
 if (QJNIOBJECT_FOUND)
     add_definitions(-DUSE_JNI)
 endif()
+
+# Installing APKs requires a permission that Google Play does not allow for
+# updating the app itself, so it must never be enabled in the Play builds.
+set(ANDROID_APK_UPDATES_PERMISSION "")
+
+if (ANDROID AND ENABLE_ANDROID_APK_UPDATES)
+    if (ENABLE_ANDROID_ADS)
+        message(FATAL_ERROR "ENABLE_ANDROID_APK_UPDATES cannot be used with ENABLE_ANDROID_ADS: the builds distributed in Google Play cannot update themselves.")
+    endif ()
+
+    if (QJNIOBJECT_FOUND)
+        add_definitions(-DENABLE_ANDROID_APK_UPDATES)
+
+        # The placeholder in the manifest is inside a comment, so this closes
+        # it, adds the permission, and opens another comment.
+        set(ANDROID_APK_UPDATES_PERMISSION "--><uses-permission android:name=\"android.permission.REQUEST_INSTALL_PACKAGES\"/><!--")
+    else ()
+        message(WARNING "ENABLE_ANDROID_APK_UPDATES requires QJniObject, which is not available: disabling the installation of APK updates.")
+    endif ()
+endif ()
 
 set(PROJECT_SOURCES
     audioinputs.cpp
@@ -102,6 +130,8 @@ set(PROJECT_SOURCES
     thumbnailresponse.h
     thumbnailsprovider.cpp
     thumbnailsprovider.h
+    tokenstore.cpp
+    tokenstore.h
     updates.cpp
     updates.h
     videodisplay.cpp
@@ -192,7 +222,23 @@ target_link_libraries(StandAlone
 if (WIN32)
     target_link_libraries(StandAlone
                           PUBLIC
-                          ole32)
+                          ole32
+                          advapi32)
+elseif (APPLE)
+    find_library(COREFOUNDATION_FRAMEWORK CoreFoundation REQUIRED)
+    find_library(SECURITY_FRAMEWORK Security REQUIRED)
+    target_link_libraries(StandAlone
+                          PUBLIC
+                          ${COREFOUNDATION_FRAMEWORK}
+                          ${SECURITY_FRAMEWORK})
+endif ()
+
+if (Qt${QT_VERSION_MAJOR}DBus_FOUND)
+    target_compile_definitions(StandAlone
+                               PRIVATE HAVE_QTDBUS)
+    target_link_libraries(StandAlone
+                          PUBLIC
+                          Qt${QT_VERSION_MAJOR}::DBus)
 endif ()
 
 if (ANDROID AND QJNIOBJECT_FOUND)
@@ -271,6 +317,11 @@ if (ANDROID AND QJNIOBJECT_FOUND)
 
     foreach (FILE IN LISTS ANDROID_PACKAGE_TEMPLATES)
         file(RELATIVE_PATH FILE_DST ${CMAKE_CURRENT_SOURCE_DIR}/../share/android ${FILE})
-        configure_file(${FILE} "${CMAKE_BINARY_DIR}/${BUILDDIR}/${FILE_DST}" COPYONLY)
+
+        if (FILE_DST STREQUAL "AndroidManifest.xml")
+            configure_file(${FILE} "${CMAKE_BINARY_DIR}/${BUILDDIR}/${FILE_DST}" @ONLY)
+        else ()
+            configure_file(${FILE} "${CMAKE_BINARY_DIR}/${BUILDDIR}/${FILE_DST}" COPYONLY)
+        endif ()
     endforeach ()
 endif()

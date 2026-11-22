@@ -46,7 +46,12 @@ class GitHubAuth: public QObject
         Q_INVOKABLE bool accessTokenValid() const;   // exists and is not about to expire
         Q_INVOKABLE bool canRefresh() const;         // there is a refresh token that has not expired
         Q_INVOKABLE bool loginInProgress() const;
-        Q_INVOKABLE void setOAuthBase(const QString &oauthBase); // for tests only
+        // Login of the GitHub account, empty if it is not known yet.
+        Q_INVOKABLE QString userName() const;
+        // The tokens are saved in the system keyring. If it is not available,
+        // they are only kept in memory and the user must sign in again the
+        // next time the application starts.
+        Q_INVOKABLE bool sessionSaved() const;
 
     private:
         GitHubAuthPrivate *d;
@@ -57,6 +62,7 @@ class GitHubAuth: public QObject
                              const QUrl &verificationUri,
                              int expiresInSecs);
         void loggedIn();
+        void userNameChanged();
         void loginFailed(const QString &error);
         void tokenRefreshed();
         void refreshFailed(const QString &error);
@@ -67,6 +73,7 @@ class GitHubAuth: public QObject
         void cancelLogin();
         void refresh();                  // renews using the refresh token
         void logout();                   // removes the stored tokens
+        void fetchUserName();            // asks GitHub for the login of the account
 };
 
 #endif // GITHUBAUTH_H

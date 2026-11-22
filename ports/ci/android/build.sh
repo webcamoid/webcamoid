@@ -40,6 +40,9 @@ EXTRA_PARAMS="${EXTRA_PARAMS} -DNOSCREENCAPTURE=OFF"
 if [ "${ENABLE_ADS}" == 1 ]; then
     EXTRA_PARAMS="${EXTRA_PARAMS} -DENABLE_ANDROID_ADS=ON"
 
+    # The builds distributed in Google Play are updated by Google Play.
+    EXTRA_PARAMS="${EXTRA_PARAMS} -DNOCHECKUPDATES=ON"
+
     if [ "${DAILY_BUILD}" != 1 ]; then
         echo "Setting real ads"
         EXTRA_PARAMS="${EXTRA_PARAMS} -DANDROID_AD_APPID='${ANDROID_AD_APPID}'"
@@ -52,6 +55,9 @@ if [ "${ENABLE_ADS}" == 1 ]; then
     fi
 
     rm -rf libAvKys/ExtraPlugins/*
+else
+    # Not distributed in Google Play: it can download and install APK updates.
+    EXTRA_PARAMS="${EXTRA_PARAMS} -DENABLE_ANDROID_APK_UPDATES=ON"
 fi
 
 export JAVA_HOME=$(readlink -f /usr/bin/java | sed 's:bin/java::')

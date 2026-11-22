@@ -56,6 +56,7 @@ finish-args:
   - --filesystem=xdg-videos
   - --device=all
   - --talk-name=org.freedesktop.Flatpak
+  - --talk-name=org.freedesktop.secrets
 modules:
   - name: webcamoid
     buildsystem: cmake-ninja

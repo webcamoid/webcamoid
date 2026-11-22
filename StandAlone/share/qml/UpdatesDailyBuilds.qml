@@ -27,11 +27,12 @@ import Webcamoid
 // Everything is driven by the "dailyBuilds" controller.
 ColumnLayout {
     id: root
+    visible: dailyBuilds.available
 
     // Set by the parent.
-    property int leftMargin: 16
-    property int rightMargin: 16
-    property int sectionSpacing: 16
+    property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    property int rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+    property int sectionSpacing: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     property int remainingSecs: 0
 
     readonly property bool daily: dailyBuilds.channel == DailyBuilds.Daily
@@ -41,8 +42,18 @@ ColumnLayout {
                                      || dailyBuilds.state == DailyBuilds.Downloaded
     readonly property bool installs:
         dailyBuilds.installKind != DailyBuilds.InstallUnsupported
-
-    visible: dailyBuilds.available
+    // An installer is run, instead of just running the new version.
+    readonly property bool usesInstaller:
+        dailyBuilds.installKind == DailyBuilds.InstallRunsInstaller
+        || dailyBuilds.installKind == DailyBuilds.InstallPackage
+        || dailyBuilds.installKind == DailyBuilds.InstallBuildsFromSource
+    readonly property color activeWindow: AkTheme.palette.active.window
+    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property int cardRadius:
+        AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
+    readonly property int cardPadding:
+        AkUnit.create(12 * AkTheme.controlScale, "dp").pixels
+    readonly property url sponsorUrl: "https://github.com/sponsors/hipersayanX"
 
     component SectionTitle: Label {
         font: AkTheme.fontSettings.h6
@@ -55,6 +66,51 @@ ColumnLayout {
         wrapMode: Text.WordWrap
         Layout.rightMargin: root.rightMargin
         Layout.fillWidth: true
+
+        // Show the pointing hand over the links.
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.NoButton
+            cursorShape: parent.hoveredLink != ""?
+                             Qt.PointingHandCursor:
+                             Qt.ArrowCursor
+        }
+    }
+    component ChannelCard: Rectangle {
+        id: card
+
+        property bool selected: false
+        // Set it to true while the pointer is over a link in the card, so
+        // that clicking the link does not select the channel.
+        property bool linkHovered: false
+        default property alias content: cardLayout.data
+
+        signal activated()
+
+        radius: root.cardRadius
+        color: "transparent"
+        border.width: selected?
+                          AkUnit.create(2 * AkTheme.controlScale, "dp").pixels:
+                          AkUnit.create(1 * AkTheme.controlScale, "dp").pixels
+        border.color: selected?
+                          root.activeHighlight:
+                          AkTheme.shade(root.activeWindow, -0.25)
+        implicitHeight: cardLayout.implicitHeight + 2 * root.cardPadding
+        Layout.leftMargin: root.leftMargin
+        Layout.rightMargin: root.rightMargin
+        Layout.fillWidth: true
+
+        ColumnLayout {
+            id: cardLayout
+            anchors.fill: parent
+            anchors.margins: root.cardPadding
+        }
+        TapHandler {
+            onTapped: {
+                if (!card.linkHovered)
+                    card.activated()
+            }
+        }
     }
 
     function sizeText()
@@ -75,14 +131,20 @@ ColumnLayout {
         return parts.join(" - ")
     }
 
+    function escapeHtml(text)
+    {
+        return text.replace(/&/g, "&amp;")
+                   .replace(/</g, "&lt;")
+                   .replace(/>/g, "&gt;")
+    }
+
     function buildTitle()
     {
         if (dailyBuilds.state == DailyBuilds.Downloading)
             return qsTr("Downloading...")
 
         if (dailyBuilds.state == DailyBuilds.Downloaded)
-            return installs
-                    && dailyBuilds.installKind == DailyBuilds.InstallRunsInstaller?
+            return installs && usesInstaller?
                         qsTr("Update ready to install"):
                         qsTr("Download ready")
 
@@ -93,6 +155,9 @@ ColumnLayout {
 
         if (dailyBuilds.buildStatus == DailyBuilds.UpToDate)
             return qsTr("You have the latest daily build")
+
+        if (dailyBuilds.buildStatus == DailyBuilds.RunningNewer)
+            return qsTr("You are using a build newer than the daily build")
 
         return qsTr("Latest daily build")
     }
@@ -112,15 +177,12 @@ ColumnLayout {
         return m + ":" + (s < 10? "0": "") + s
     }
 
-    Connections {
-        target: dailyBuilds
+    DailyBuildInstallDialog {
+        id: installDialog
+    }
 
-        function onInstallerStarted()
-        {
-            // The installer needs Webcamoid closed to replace its files.
-            if (dailyBuilds.installKind == DailyBuilds.InstallRunsInstaller)
-                Qt.quit()
-        }
+    ButtonGroup {
+        id: channelGroup
     }
 
     Timer {
@@ -144,76 +206,90 @@ ColumnLayout {
     SectionTitle {
         text: qsTr("Update channel")
     }
-    RadioButton {
-        id: stableChannel
-        text: qsTr("Stable releases")
-        checked: !root.daily
-        Layout.leftMargin: root.leftMargin
-        Layout.rightMargin: root.rightMargin
-        Layout.fillWidth: true
+    ChannelCard {
+        selected: !root.daily
 
-        onClicked: dailyBuilds.channel = DailyBuilds.Stable
-    }
-    Description {
-        text: qsTr("Recommended for most people. Available to everyone.")
-        Layout.leftMargin: root.leftMargin
-                           + stableChannel.implicitIndicatorWidth
-                           + stableChannel.spacing
-    }
-    RowLayout {
-        Layout.leftMargin: root.leftMargin
-        Layout.rightMargin: root.rightMargin
-        Layout.fillWidth: true
+        onActivated: dailyBuilds.channel = DailyBuilds.Stable
 
         RadioButton {
-            id: dailyChannel
-            text: qsTr("Daily builds")
-            checked: root.daily
-
-            onClicked: dailyBuilds.channel = DailyBuilds.Daily
-        }
-        Rectangle {
-            radius: height / 2
-            color: Qt.rgba(AkTheme.palette.active.windowText.r,
-                           AkTheme.palette.active.windowText.g,
-                           AkTheme.palette.active.windowText.b,
-                           0.12)
-            implicitWidth: sponsorsContent.implicitWidth + 16
-            implicitHeight: sponsorsContent.implicitHeight + 4
-
-            RowLayout {
-                id: sponsorsContent
-                anchors.centerIn: parent
-                spacing: 4
-
-                AkColorizedImage {
-                    color: AkTheme.palette.active.windowText
-                    source: "image://icons/heart"
-                    sourceSize: Qt.size(width, height)
-                    implicitWidth: sponsorsLabel.implicitHeight
-                    implicitHeight: implicitWidth
-                    asynchronous: true
-                    mipmap: true
-                }
-                Label {
-                    id: sponsorsLabel
-                    text: qsTr("Sponsors")
-                }
-            }
-        }
-        Item {
+            id: stableChannel
+            text: qsTr("Stable releases")
+            checked: !root.daily
+            ButtonGroup.group: channelGroup
             Layout.fillWidth: true
+
+            onClicked: dailyBuilds.channel = DailyBuilds.Stable
+        }
+        Description {
+            text: qsTr("Recommended for most people. Available to everyone.")
+            Layout.leftMargin: stableChannel.implicitIndicatorWidth
+                               + stableChannel.spacing
+            Layout.rightMargin: 0
         }
     }
-    Description {
-        text: qsTr("Latest development builds, updated every day. Not a sponsor yet? <a href=\"sponsor\">Become a sponsor</a> to unlock them.")
-        textFormat: Text.StyledText
-        linkColor: palette.link
-        Layout.leftMargin: root.leftMargin
-                           + dailyChannel.implicitIndicatorWidth
-                           + dailyChannel.spacing
+    ChannelCard {
+        selected: root.daily
+        linkHovered: sponsorsDescription.hoveredLink != ""
 
-        onLinkActivated: Qt.openUrlExternally(mediaTools.projectDonationsUrl)
+        onActivated: dailyBuilds.channel = DailyBuilds.Daily
+
+        RowLayout {
+            Layout.fillWidth: true
+
+            RadioButton {
+                id: dailyChannel
+                text: qsTr("Daily builds")
+                checked: root.daily
+                ButtonGroup.group: channelGroup
+
+                onClicked: dailyBuilds.channel = DailyBuilds.Daily
+            }
+            Rectangle {
+                radius: height / 2
+                color: Qt.rgba(AkTheme.palette.active.windowText.r,
+                               AkTheme.palette.active.windowText.g,
+                               AkTheme.palette.active.windowText.b,
+                               0.12)
+                implicitWidth: sponsorsContent.implicitWidth
+                               + AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
+                implicitHeight: sponsorsContent.implicitHeight
+                                + AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
+
+                RowLayout {
+                    id: sponsorsContent
+                    anchors.centerIn: parent
+                    spacing: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
+
+                    AkColorizedImage {
+                        color: AkTheme.palette.active.windowText
+                        source: "image://icons/heart"
+                        sourceSize: Qt.size(width, height)
+                        implicitWidth: sponsorsLabel.implicitHeight
+                        implicitHeight: implicitWidth
+                        asynchronous: true
+                        mipmap: true
+                    }
+                    Label {
+                        id: sponsorsLabel
+                        text: qsTr("Sponsors")
+                    }
+                }
+            }
+            Item {
+                Layout.fillWidth: true
+            }
+        }
+        Description {
+            id: sponsorsDescription
+            text: qsTr("Latest development builds, updated every day. Not a sponsor yet? <a href=\"sponsor\">Become a sponsor</a> to unlock them.")
+            textFormat: Text.StyledText
+            linkColor: palette.link
+            Layout.leftMargin: dailyChannel.implicitIndicatorWidth
+                               + dailyChannel.spacing
+            Layout.rightMargin: 0
+
+            onLinkActivated: Qt.openUrlExternally(root.sponsorUrl)
+        }
     }
 
     // GitHub account
@@ -258,8 +334,8 @@ ColumnLayout {
             text: dailyBuilds.userCode
             font.family: "monospace"
             font.bold: true
-            font.pixelSize: 28
-            font.letterSpacing: 4
+            font.pixelSize: AkUnit.create(28 * AkTheme.controlScale, "dp").pixels
+            font.letterSpacing: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
             horizontalAlignment: Text.AlignHCenter
             Layout.leftMargin: root.leftMargin
             Layout.rightMargin: root.rightMargin
@@ -295,8 +371,8 @@ ColumnLayout {
 
             BusyIndicator {
                 running: parent.visible
-                implicitWidth: 24
-                implicitHeight: 24
+                implicitWidth: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
+                implicitHeight: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
             }
             Description {
                 text: qsTr("Waiting for authorization... the code expires in %1")
@@ -318,7 +394,12 @@ ColumnLayout {
         Layout.fillWidth: true
 
         Label {
-            text: qsTr("Signed in with GitHub")
+            text: dailyBuilds.userName == ""?
+                      qsTr("Signed in with GitHub"):
+                      qsTr("Signed in as <b>%1</b>")
+                        .arg(root.escapeHtml(dailyBuilds.userName))
+            textFormat: Text.StyledText
+            wrapMode: Text.WordWrap
             Layout.fillWidth: true
         }
         Button {
@@ -326,6 +407,11 @@ ColumnLayout {
 
             onClicked: dailyBuilds.signOut()
         }
+    }
+    Description {
+        visible: root.daily && root.signedIn && !dailyBuilds.sessionSaved
+        text: qsTr("This system has no secure storage for credentials, so your session will not be saved. You will have to sign in again the next time you check for updates after restarting Webcamoid.")
+        Layout.leftMargin: root.leftMargin
     }
     ColumnLayout {
         visible: root.daily && dailyBuilds.error != DailyBuilds.NoError
@@ -347,7 +433,7 @@ ColumnLayout {
             linkColor: palette.link
             Layout.leftMargin: root.leftMargin
 
-            onLinkActivated: Qt.openUrlExternally(mediaTools.projectDonationsUrl)
+            onLinkActivated: Qt.openUrlExternally(root.sponsorUrl)
         }
     }
 
@@ -365,8 +451,8 @@ ColumnLayout {
 
         BusyIndicator {
             running: parent.visible
-            implicitWidth: 24
-            implicitHeight: 24
+            implicitWidth: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
+            implicitHeight: AkUnit.create(24 * AkTheme.controlScale, "dp").pixels
         }
         Label {
             text: qsTr("Checking for the latest daily build...")
@@ -391,8 +477,11 @@ ColumnLayout {
             Layout.fillWidth: true
         }
         Description {
-            text: root.buildDetails() + "<br />" + dailyBuilds.buildName
+            text: root.buildDetails()
+                  + "<br />"
+                  + root.escapeHtml(dailyBuilds.downloadPath)
             textFormat: Text.StyledText
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             Layout.leftMargin: root.leftMargin
         }
         RowLayout {
@@ -413,9 +502,24 @@ ColumnLayout {
         }
         Description {
             visible: dailyBuilds.state == DailyBuilds.Downloaded
-            text: dailyBuilds.installKind == DailyBuilds.InstallRunsInstaller?
-                      qsTr("Download complete and verified. Webcamoid will close to run the installer."):
-                      qsTr("Download complete and verified. It was saved in your downloads folder.")
+            text: {
+                switch (dailyBuilds.installKind) {
+                case DailyBuilds.InstallPackage:
+                    return qsTr("Download complete and verified. Android will ask you to confirm the installation.")
+                case DailyBuilds.InstallRunsInstaller:
+                    return qsTr("Download complete and verified. Webcamoid will close to run the installer.")
+                case DailyBuilds.InstallBuildsFromSource:
+                    return qsTr("Download complete and verified. The new version will be compiled and installed from a Terminal window, you can keep using Webcamoid meanwhile.")
+                default:
+                    return qsTr("Download complete and verified. Webcamoid will close to run the new version.")
+                }
+            }
+            Layout.leftMargin: root.leftMargin
+        }
+        Description {
+            visible: dailyBuilds.state == DailyBuilds.Downloaded
+                     && dailyBuilds.installerLaunched
+            text: qsTr("The installer is running in Terminal. When the compilation ends, it will ask you to close Webcamoid to finish the installation.")
             Layout.leftMargin: root.leftMargin
         }
         RowLayout {
@@ -424,16 +528,20 @@ ColumnLayout {
             Layout.rightMargin: root.rightMargin
 
             Button {
-                text: dailyBuilds.installKind == DailyBuilds.InstallRunsInstaller?
-                          qsTr("Install"):
-                          qsTr("Run")
+                text: dailyBuilds.installerLaunched?
+                          qsTr("Run again"):
+                          root.usesInstaller?
+                              qsTr("Install"):
+                              qsTr("Run")
                 highlighted: true
                 visible: root.installs
 
-                onClicked: dailyBuilds.install()
+                onClicked: installDialog.open()
             }
             Button {
                 text: qsTr("Show in folder")
+                // The downloads are in a private folder of the app.
+                visible: dailyBuilds.installKind != DailyBuilds.InstallPackage
 
                 onClicked: Qt.openUrlExternally(dailyBuilds.downloadFolder)
             }
@@ -448,6 +556,7 @@ ColumnLayout {
                 highlighted: dailyBuilds.buildStatus == DailyBuilds.UpdateAvailable
                 visible: root.installs
                          && dailyBuilds.buildStatus != DailyBuilds.UpToDate
+                         && dailyBuilds.buildStatus != DailyBuilds.RunningNewer
 
                 onClicked: dailyBuilds.download()
             }
@@ -469,7 +578,10 @@ ColumnLayout {
         }
     }
     RowLayout {
-        visible: root.daily && dailyBuilds.state == DailyBuilds.SignedIn
+        // Without a session, checking asks for signing in first.
+        visible: root.daily
+                 && (dailyBuilds.state == DailyBuilds.SignedIn
+                     || dailyBuilds.state == DailyBuilds.SignedOut)
         Layout.leftMargin: root.leftMargin
         Layout.rightMargin: root.rightMargin
         Layout.fillWidth: true
