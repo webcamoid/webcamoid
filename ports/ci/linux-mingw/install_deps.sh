@@ -59,7 +59,7 @@ pacman-key --init
 pacman-key --populate archlinux
 pacman -Syu \
     --noconfirm \
-    --ignore linux,linux-api-headers,linux-docs,linux-firmware,linux-headers,pacman
+    --ignore linux,linux-api-headers,linux-docs,linux-firmware,linux-headers
 pacman --noconfirm --needed -S \
     ccache \
     clang \

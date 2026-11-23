@@ -190,6 +190,7 @@ OptionsPanel {
                 layout.currentIndex = 7
                 effectOptions.sourceId = sourceId
                 effectOptions.effectIndex = effectIndex
+                effectOptions.updateControls()
             }
         }
         VideoInputOptions {
