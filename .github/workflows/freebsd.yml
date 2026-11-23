@@ -10,8 +10,8 @@ jobs:
       fail-fast: false
       matrix:
         freebsd_version:
-          - "15.0"
-          - "14.4"
+          - "15.1"
+          - "14.5"
     steps:
       - uses: actions/checkout@v6
         with:

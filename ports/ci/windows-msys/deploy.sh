@@ -34,11 +34,7 @@ if [ -z "${GIT_BRANCH_NAME}" ]; then
     fi
 fi
 
-if [ "${TARGET_ARCH}" = i686 ]; then
-    export PATH=/mingw32/bin:${PATH}
-else
-    export PATH=/mingw64/bin:${PATH}
-fi
+export PATH=${MSYSTEM_PREFIX:-/clang64}/bin:${PATH}
 
 git clone "https://github.com/webcamoid/DeployTools.git"
 

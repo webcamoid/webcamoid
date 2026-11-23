@@ -43,17 +43,11 @@ fi
 # librav1e makes Webcamoid crash in Windows
 EXTRA_PARAMS="${EXTRA_PARAMS} -DFFMPEG_DISABLED_VIDEO_ENCODERS=librav1e"
 
-if [ "${TARGET_ARCH}" = i686 ]; then
-    export PATH=/mingw32/bin:$PATH
-    export QT_QMAKE_EXECUTABLE=/mingw32/bin/qmake6
-    export LRELEASE_TOOL=/mingw32/bin/lrelease
-    export LUPDATE_TOOL=/mingw32/bin/lupdate
-else
-    export PATH=/mingw64/bin:$PATH
-    export QT_QMAKE_EXECUTABLE=/mingw64/bin/qmake6
-    export LRELEASE_TOOL=/mingw64/bin/lrelease
-    export LUPDATE_TOOL=/mingw64/bin/lupdate
-fi
+MSYS_ROOT=${MSYSTEM_PREFIX:-/clang64}
+export PATH=${MSYS_ROOT}/bin:$PATH
+export QT_QMAKE_EXECUTABLE=${MSYS_ROOT}/bin/qmake6
+export LRELEASE_TOOL=${MSYS_ROOT}/bin/lrelease
+export LUPDATE_TOOL=${MSYS_ROOT}/bin/lupdate
 
 INSTALL_PREFIX=${PWD}/webcamoid-data-${COMPILER}-${TARGET_ARCH}
 buildDir=build-${COMPILER}-${TARGET_ARCH}
