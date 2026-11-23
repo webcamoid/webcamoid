@@ -32,7 +32,6 @@ using DownloadManagerPtr = QSharedPointer<DownloadManager>;
 class DownloadManager: public QObject
 {
     Q_OBJECT
-    Q_ENUMS(DownloadStatus)
     Q_PROPERTY(QStringList downloads
                READ downloads
                NOTIFY downloadsChanged)
@@ -45,6 +44,7 @@ class DownloadManager: public QObject
             DownloadStatusCanceled,
             DownloadStatusFailed
         };
+        Q_ENUM(DownloadStatus)
 
         DownloadManager(QQmlApplicationEngine *engine=nullptr,
                         QObject *parent=nullptr);

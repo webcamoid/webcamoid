@@ -1703,8 +1703,11 @@ void VideoEncoderFFmpegElementPrivate::encodeFrame(const AkVideoPacket &src)
 
 #ifdef HAVE_LIBJPEG_TURBO
     if (this->m_useTurboJpeg && self->codec() == "mjpeg") {
-        AVPacket avPacket;
-        av_init_packet(&avPacket);
+        AVPacket avPacket = {};
+        avPacket.pts = AV_NOPTS_VALUE;
+        avPacket.dts = AV_NOPTS_VALUE;
+        avPacket.pos = -1;
+        avPacket.time_base = av_make_q(0, 1);
         avPacket.data = nullptr;
         avPacket.size = 0;
 

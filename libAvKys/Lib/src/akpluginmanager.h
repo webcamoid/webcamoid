@@ -36,7 +36,6 @@ using AkPluginLinks = QMap<QString, QString>;
 class AKCOMMONS_EXPORT AkPluginManager: public QObject
 {
     Q_OBJECT
-    Q_FLAGS(PluginsFilter)
     Q_PROPERTY(bool recursiveSearch
                READ recursiveSearch
                WRITE setRecursiveSearch

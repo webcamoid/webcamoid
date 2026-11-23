@@ -31,7 +31,6 @@ using UpdatesPtr = QSharedPointer<Updates>;
 class Updates: public QObject
 {
     Q_OBJECT
-    Q_ENUMS(ComponentStatus)
     Q_PROPERTY(bool isEnabled
                READ isEnabled
                CONSTANT)
@@ -62,6 +61,7 @@ class Updates: public QObject
             ComponentOutdated,
             ComponentNewer
         };
+        Q_ENUM(ComponentStatus)
 
         Updates(QQmlApplicationEngine *engine=nullptr,
                 QObject *parent=nullptr);

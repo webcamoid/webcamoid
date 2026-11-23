@@ -32,7 +32,6 @@ using AkSimdPtr = QSharedPointer<AkSimd>;
 class AKCOMMONS_EXPORT AkSimd: public QObject
 {
     Q_OBJECT
-    Q_FLAGS(SimdInstructionSet)
 
     public:
         enum SimdInstructionSet

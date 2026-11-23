@@ -82,7 +82,7 @@ export PATH="\${QT_PATH}/bin:\${PATH}"
 export LDFLAGS="\${LDFLAGS} -L\${QT_PATH}/lib"
 export CPPFLAGS="\${CPPFLAGS} -I\${QT_PATH}/include"
 export PKG_CONFIG_PATH="\${QT_PATH}/lib/pkgconfig:\${PKG_CONFIG_PATH}"
-export MACOSX_DEPLOYMENT_TARGET="10.\$(sw_vers -productVersion | cut -d. -f1)"
+export MACOSX_DEPLOYMENT_TARGET="\$(sw_vers -productVersion | cut -d. -f1).0"
 
 INSTALL_PATH=/Applications/Webcamoid
 BUILD_PATH=/tmp/build-Webcamoid-Release
@@ -92,6 +92,7 @@ cmake \
     -B "\${BUILD_PATH}" \
     -G "Ninja" \
     -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_OSX_DEPLOYMENT_TARGET="\${MACOSX_DEPLOYMENT_TARGET}" \
     -DCMAKE_INSTALL_PREFIX="\${INSTALL_PATH}" \
     -DGIT_COMMIT_HASH="${GIT_COMMIT_HASH}" \
     -DCMAKE_C_COMPILER_LAUNCHER=ccache \

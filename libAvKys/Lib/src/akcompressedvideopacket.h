@@ -33,7 +33,6 @@ using AkCompressedVideoPackets = QVector<AkCompressedVideoPacket>;
 class AKCOMMONS_EXPORT AkCompressedVideoPacket: public AkPacketBase
 {
     Q_OBJECT
-    Q_FLAGS(VideoPacketTypeFlag)
     Q_PROPERTY(AkCompressedVideoCaps caps
                READ caps
                CONSTANT)

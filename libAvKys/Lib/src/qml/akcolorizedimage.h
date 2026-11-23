@@ -30,10 +30,6 @@ class AKCOMMONS_EXPORT AkColorizedImage: public QQuickItem
 {
     Q_OBJECT
     Q_DISABLE_COPY(AkColorizedImage)
-    Q_ENUMS(FillMode)
-    Q_ENUMS(HorizontalAlignment)
-    Q_ENUMS(VerticalAlignment)
-    Q_ENUMS(Status)
     Q_PROPERTY(QString source
                READ source
                WRITE setSource
@@ -109,18 +105,21 @@ class AKCOMMONS_EXPORT AkColorizedImage: public QQuickItem
             PreserveAspectCrop,
             Pad
         };
+        Q_ENUM(FillMode)
 
         enum HorizontalAlignment {
             AlignLeft = Qt::AlignLeft,
             AlignRight = Qt::AlignRight,
             AlignHCenter = Qt::AlignHCenter
         };
+        Q_ENUM(HorizontalAlignment)
 
         enum VerticalAlignment {
             AlignTop = Qt::AlignTop,
             AlignBottom = Qt::AlignBottom,
             AlignVCenter = Qt::AlignVCenter
         };
+        Q_ENUM(VerticalAlignment)
 
         enum Status {
             Null,
@@ -128,6 +127,7 @@ class AKCOMMONS_EXPORT AkColorizedImage: public QQuickItem
             Loading,
             Error
         };
+        Q_ENUM(Status)
 
         explicit AkColorizedImage(QQuickItem *parent=nullptr);
         ~AkColorizedImage();

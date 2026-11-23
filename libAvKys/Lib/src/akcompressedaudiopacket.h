@@ -33,7 +33,6 @@ using AkCompressedAudioPackets = QVector<AkCompressedAudioPacket>;
 class AKCOMMONS_EXPORT AkCompressedAudioPacket: public AkPacketBase
 {
     Q_OBJECT
-    Q_FLAGS(AudioPacketTypeFlag)
     Q_PROPERTY(AkCompressedAudioCaps caps
                READ caps
                CONSTANT)
