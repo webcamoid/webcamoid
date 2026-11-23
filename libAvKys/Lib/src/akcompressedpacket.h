@@ -30,6 +30,8 @@ class AkCompressedVideoPacket;
 
 using AkCompressedPackets = QVector<AkCompressedPacket>;
 
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkCompressedPacket &packet);
+
 class AKCOMMONS_EXPORT AkCompressedPacket: public AkPacketBase
 {
     Q_OBJECT
@@ -83,8 +85,6 @@ class AKCOMMONS_EXPORT AkCompressedPacket: public AkPacketBase
     friend class AkCompressedAudioPacket;
     friend class AkCompressedVideoPacket;
 };
-
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkCompressedPacket &packet);
 
 Q_DECLARE_METATYPE(AkCompressedPacket)
 Q_DECLARE_METATYPE(AkCompressedPacket::PacketType)

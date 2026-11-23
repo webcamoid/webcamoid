@@ -35,6 +35,10 @@ class QDataStream;
 
 using AkCapsList = QList<AkCaps>;
 
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkCaps &caps);
+AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkCaps &caps);
+AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkCaps &caps);
+
 class AKCOMMONS_EXPORT AkCaps: public QObject
 {
     Q_OBJECT
@@ -92,10 +96,6 @@ class AKCOMMONS_EXPORT AkCaps: public QObject
     friend class AkSubtitleCaps;
     friend class AkVideoCaps;
 };
-
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkCaps &caps);
-AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkCaps &caps);
-AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkCaps &caps);
 
 Q_DECLARE_METATYPE(AkCaps)
 Q_DECLARE_METATYPE(AkCapsList)

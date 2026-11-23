@@ -24,12 +24,17 @@
 
 #include "akcommons.h"
 
+class AkCompressedCaps;
 class AkCompressedCapsPrivate;
 class AkCompressedAudioCaps;
 class AkCompressedVideoCaps;
 class QDataStream;
 
 using AkCodecID = quint32;
+
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkCompressedCaps &caps);
+AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkCompressedCaps &caps);
+AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkCompressedCaps &caps);
 
 class AKCOMMONS_EXPORT AkCompressedCaps: public QObject
 {
@@ -87,10 +92,6 @@ class AKCOMMONS_EXPORT AkCompressedCaps: public QObject
     friend class AkCompressedAudioCaps;
     friend class AkCompressedVideoCaps;
 };
-
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkCompressedCaps &caps);
-AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkCompressedCaps &caps);
-AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkCompressedCaps &caps);
 
 Q_DECLARE_METATYPE(AkCompressedCaps)
 Q_DECLARE_METATYPE(AkCompressedCaps::CapsType)

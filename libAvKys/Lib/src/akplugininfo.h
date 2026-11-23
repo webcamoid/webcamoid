@@ -24,8 +24,11 @@
 
 #include "akcommons.h"
 
+class AkPluginInfo;
 class AkPluginInfoPrivate;
 class AkPluginManager;
+
+AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkPluginInfo &info);
 
 class AKCOMMONS_EXPORT AkPluginInfo: public QObject
 {
@@ -87,7 +90,6 @@ class AKCOMMONS_EXPORT AkPluginInfo: public QObject
 };
 
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkPluginInfo &info);
-AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkPluginInfo &info);
 AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkPluginInfo &infp);
 
 Q_DECLARE_METATYPE(AkPluginInfo)

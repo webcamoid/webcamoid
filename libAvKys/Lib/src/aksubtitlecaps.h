@@ -24,8 +24,12 @@
 
 #include "akcommons.h"
 
+class AkSubtitleCaps;
 class AkSubtitleCapsPrivate;
 class AkCaps;
+
+AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkSubtitleCaps &caps);
+AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkSubtitleCaps &caps);
 
 class AKCOMMONS_EXPORT AkSubtitleCaps: public QObject
 {
@@ -97,8 +101,6 @@ class AKCOMMONS_EXPORT AkSubtitleCaps: public QObject
 
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkSubtitleCaps &caps);
 AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, AkSubtitleCaps::SubtitleFormat format);
-AKCOMMONS_EXPORT QDataStream &operator >>(QDataStream &istream, AkSubtitleCaps &caps);
-AKCOMMONS_EXPORT QDataStream &operator <<(QDataStream &ostream, const AkSubtitleCaps &caps);
 
 Q_DECLARE_METATYPE(AkSubtitleCaps)
 Q_DECLARE_METATYPE(AkSubtitleCaps::SubtitleFormat)

@@ -113,5 +113,4 @@ dnf -y install \
     qtquickcontrols25 \
     qttools6 \
     qtwayland6 \
-    x11-server-xvfb \
     xauth

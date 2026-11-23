@@ -617,6 +617,9 @@ function(enable_openmp TARGET)
     message(STATUS "Enabling OpenMP support for ${TARGET}")
     target_link_libraries(${TARGET} PRIVATE OpenMP::OpenMP_CXX)
     target_compile_definitions(${TARGET} PRIVATE OPENMP_ENABLED)
+    target_compile_options(${TARGET}
+                           PRIVATE
+                           $<$<CXX_COMPILER_ID:Clang,AppleClang>:-Wno-pass-failed>)
 endfunction()
 
 # Try detecting Qmake executable.

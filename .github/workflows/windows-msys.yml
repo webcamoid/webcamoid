@@ -96,7 +96,7 @@ jobs:
         DAILY_BUILD: 1
       run: ./ports/ci/windows-msys/deploy.sh
     - name: VirusTotal Scan
-      uses: crazy-max/ghaction-virustotal@v4
+      uses: crazy-max/ghaction-virustotal@v5
       if: ${{ matrix.upload }}
       with:
         vt_api_key: ${{ secrets.VT_API_KEY }}
@@ -214,7 +214,7 @@ jobs:
 #        DAILY_BUILD: 1
 #      run: ./ports/ci/windows-msys/deploy.sh
 #    - name: VirusTotal Scan
-#      uses: crazy-max/ghaction-virustotal@v4
+#      uses: crazy-max/ghaction-virustotal@v5
 #      if: ${{ matrix.upload }}
 #      with:
 #        vt_api_key: ${{ secrets.VT_API_KEY }}

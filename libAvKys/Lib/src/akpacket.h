@@ -22,6 +22,7 @@
 
 #include "akpacketbase.h"
 
+class AkPacket;
 class AkPacketPrivate;
 class AkAudioPacket;
 class AkCaps;
@@ -29,6 +30,8 @@ class AkCompressedAudioPacket;
 class AkCompressedVideoPacket;
 class AkSubtitlePacket;
 class AkVideoPacket;
+
+AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkPacket &packet);
 
 class AKCOMMONS_EXPORT AkPacket: public AkPacketBase
 {
@@ -89,8 +92,6 @@ class AKCOMMONS_EXPORT AkPacket: public AkPacketBase
     friend class AkSubtitlePacket;
     friend class AkVideoPacket;
 };
-
-AKCOMMONS_EXPORT QDebug operator <<(QDebug debug, const AkPacket &packet);
 
 Q_DECLARE_METATYPE(AkPacket)
 Q_DECLARE_METATYPE(AkPacket::PacketType)
