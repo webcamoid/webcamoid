@@ -64,8 +64,8 @@ class GitHubAuthPrivate
         using Param = QPair<QString, QString>;
 
         explicit GitHubAuthPrivate(GitHubAuth *self);
-        QByteArray legacyTokens();
-        void clearLegacyTokens();
+        static QByteArray legacyTokens();
+        static void clearLegacyTokens();
         QNetworkReply *postForm(const QString &url,
                                 const QList<Param> &params);
         static QJsonObject parseReply(QNetworkReply *reply);
@@ -151,7 +151,7 @@ void GitHubAuth::loadStoredTokens()
 
     if (result != TokenStore::Ok) {
         // A previous version saved the tokens in plain text.
-        data = legacyTokens();
+        data = GitHubAuthPrivate::legacyTokens();
 
         if (!data.isEmpty()) {
             // Move them to the keyring, and if it is not available do not
@@ -160,7 +160,7 @@ void GitHubAuth::loadStoredTokens()
             this->d->m_sessionSaved =
                 result == TokenStore::NotFound
                 && TokenStore::write(TOKEN_STORE_NAME, data) == TokenStore::Ok;
-            clearLegacyTokens();
+            GitHubAuthPrivate::clearLegacyTokens();
         }
     }
 

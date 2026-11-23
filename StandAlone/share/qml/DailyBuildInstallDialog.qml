@@ -31,7 +31,7 @@ Dialog {
                qsTr("Run the new version?")
     standardButtons: Dialog.Yes | Dialog.No
     width: AkUnit.create(400 * AkTheme.controlScale, "dp").pixels
-    width: AkUnit.create(300 * AkTheme.controlScale, "dp").pixels
+    height: AkUnit.create(300 * AkTheme.controlScale, "dp").pixels
     modal: true
     parent: Overlay.overlay
     anchors.centerIn: Overlay.overlay
