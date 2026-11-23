@@ -3,7 +3,6 @@ name: Debian
 on: [push, pull_request]
 
 env:
-  QTIFWVER: 4.8.1
   APPIMAGEVER: continuous
 
 jobs:
@@ -47,7 +46,6 @@ jobs:
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
           -e COMPILER=${{ matrix.compiler }}
           -e DOCKERIMG=${{ matrix.dockerimg }}
-          -e QTIFWVER=${{ env.QTIFWVER }}
         run: |
           cd /sources
           echo
@@ -84,7 +82,6 @@ jobs:
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
           -e COMPILER=${{ matrix.compiler }}
           -e DOCKERIMG=${{ matrix.dockerimg }}
-          -e QTIFWVER=${{ env.QTIFWVER }}
           -e DAILY_BUILD=1
         run: |
           cd /sources

@@ -3,7 +3,6 @@ name: Linux Homebrew
 on: [push, pull_request]
 
 env:
-  QTIFWVER: 4.8.1
   APPIMAGEVER: continuous
 
 jobs:

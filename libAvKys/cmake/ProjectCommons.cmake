@@ -370,12 +370,6 @@ if (WIN32)
         return 0;
     }" IS_WIN32_ARM_TARGET)
 
-    if (IS_WIN64_TARGET OR IS_WIN64_ARM_TARGET)
-        set(QTIFW_TARGET_DIR "\@ApplicationsDirX64\@/Webcamoid")
-    else ()
-        set(QTIFW_TARGET_DIR "\@ApplicationsDirX86\@/Webcamoid")
-    endif()
-
     if (IS_WIN64_TARGET)
         set(TARGET_ARCH win64)
         set(BUILD_PROCESSOR_X86 TRUE CACHE INTERNAL "")

@@ -20,8 +20,6 @@
 
 set -e
 
-#qtIinstallerVerbose=--verbose
-
 if [ ! -z "${USE_WGET}" ]; then
     export DOWNLOAD_CMD="wget -nv -c"
 else
@@ -46,29 +44,6 @@ dnf -y install \
     wget
 
 mkdir -p .local/bin
-
-# Install Qt Installer Framework
-
-qtIFW=QtInstallerFramework-linux-x64-${QTIFWVER}.run
-${DOWNLOAD_CMD} "http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW}" || true
-
-if [ -e "${qtIFW}" ]; then
-    chmod +x "${qtIFW}"
-    QT_QPA_PLATFORM=minimal \
-    ./"${qtIFW}" \
-        --verbose \
-        --root ~/QtIFW \
-        --accept-licenses \
-        --accept-messages \
-        --confirm-command \
-        install || true
-
-    if [ -d ~/QtIFW ]; then
-        cd .local
-        cp -rvf ~/QtIFW/* .
-        cd ..
-    fi
-fi
 
 # Install AppImageTool
 

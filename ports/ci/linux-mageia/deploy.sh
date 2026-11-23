@@ -42,7 +42,7 @@ export PACKAGES_DIR=${PWD}/webcamoid-packages/linux-${COMPILER}
 export BUILD_PATH=${PWD}/build-${COMPILER}
 export PYTHONPATH="${PWD}/DeployTools"
 
-xvfb-run --auto-servernum python3 DeployTools/deploy.py \
+python3 DeployTools/deploy.py \
     -d "${INSTALL_PREFIX}" \
     -c "${BUILD_PATH}/package_info.conf" \
     -o "${PACKAGES_DIR}"

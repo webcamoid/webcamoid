@@ -85,45 +85,6 @@ fi
 
 mkdir -p .local/bin
 
-if [[ ( "${architecture}" = amd64 || "${architecture}" = arm64v8 ) && -n "${QTIFWVER}" ]]; then
-    # Install Qt Installer Framework
-
-    case "${architecture}" in
-        arm64v8)
-            qtArch=arm64
-            ;;
-        *)
-            qtArch=x64
-            ;;
-    esac
-
-    qtIFW=QtInstallerFramework-linux-${qtArch}-${QTIFWVER}.run
-    ${DOWNLOAD_CMD} "http://download.qt.io/official_releases/qt-installer-framework/${QTIFWVER}/${qtIFW}" || true
-
-    if [ -e "${qtIFW}" ]; then
-        if [ "${architecture}" = arm64v8 ]; then
-            ln -svf libtiff.so.6 /usr/lib/aarch64-linux-gnu/libtiff.so.5 || true
-            ln -svf libwebp.so.7 /usr/lib/aarch64-linux-gnu/libwebp.so.6 || true
-        fi
-
-        chmod +x "${qtIFW}"
-        QT_QPA_PLATFORM=minimal \
-        ./"${qtIFW}" \
-            --verbose \
-            --root ~/QtIFW \
-            --accept-licenses \
-            --accept-messages \
-            --confirm-command \
-            install || true
-
-        if [ -d ~/QtIFW ]; then
-            cd .local
-            cp -rvf ~/QtIFW/* .
-            cd ..
-        fi
-    fi
-fi
-
 # Install AppImageTool
 
 case "${architecture}" in

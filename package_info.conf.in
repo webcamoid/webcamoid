@@ -81,20 +81,3 @@ runProgram = @RUN_PROGRAM@
 license = COPYING
 requiresAdminRights = false
 multiUserInstall = true
-
-[QtIFW]
-name = webcamoid-installer
-organization = io.github.webcamoid
-appName = Webcamoid
-title = Webcamoid, The ultimate camera suite!
-description = Install Webcamoid
-icon = @INSTALLER_ICON@
-url = https://webcamoid.github.io/
-targetDir = @QTIFW_TARGET_DIR@
-runProgram = @RUN_PROGRAM@
-runProgramDescription = Launch Webcamoid now!
-license = COPYING
-licenseName = GNU General Public License v3.0
-script = ports/deploy/installscript.@TARGET_PLATFORM@.qs
-changeLog = ChangeLog
-pkgTargetPlatform = @PKG_TARGET_PLATFORM@

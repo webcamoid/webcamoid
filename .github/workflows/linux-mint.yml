@@ -3,7 +3,6 @@ name: Linux Mint
 on: [push, pull_request]
 
 env:
-  QTIFWVER: 4.8.1
   APPIMAGEVER: continuous
 
 jobs:
@@ -51,7 +50,6 @@ jobs:
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
           -e COMPILER=${{ matrix.compiler }}
           -e DOCKERIMG=${{ matrix.dockerimg }}
-          -e QTIFWVER=${{ env.QTIFWVER }}
           -e UPLOAD=${{ matrix.upload }}
         run: |
           cd /sources
@@ -89,7 +87,6 @@ jobs:
           -e APPIMAGEVER=${{ env.APPIMAGEVER }}
           -e COMPILER=${{ matrix.compiler }}
           -e DOCKERIMG=${{ matrix.dockerimg }}
-          -e QTIFWVER=${{ env.QTIFWVER }}
           -e UPLOAD=${{ matrix.upload }}
           -e DAILY_BUILD=1
         run: |
