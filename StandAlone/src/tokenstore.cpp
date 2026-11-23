@@ -100,6 +100,25 @@ namespace {
             CfRef(const CfRef &) = delete;
             CfRef &operator =(const CfRef &) = delete;
 
+            CfRef(CfRef &&other) noexcept:
+                m_ref(other.m_ref)
+            {
+                other.m_ref = nullptr;
+            }
+
+            CfRef &operator =(CfRef &&other) noexcept
+            {
+                if (this != &other) {
+                    if (this->m_ref)
+                        CFRelease(this->m_ref);
+
+                    this->m_ref = other.m_ref;
+                    other.m_ref = nullptr;
+                }
+
+                return *this;
+            }
+
             ~CfRef()
             {
                 if (this->m_ref)
