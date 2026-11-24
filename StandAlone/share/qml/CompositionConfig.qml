@@ -36,18 +36,14 @@ AK.MenuOption {
 
     // Canvas presets (landscape). Portrait simply swaps w/h.
     readonly property var canvasPresets: [
-        { width: 256,  height: 144,  fps: 30},
-        { width: 426,  height: 240,  fps: 30},
-        { width: 640,  height: 360,  fps: 30},
-        { width: 854,  height: 480,  fps: 30},
-        { width: 1280, height: 720,  fps: 30},
-        { width: 1280, height: 720,  fps: 60},
-        { width: 1920, height: 1080, fps: 30},
-        { width: 1920, height: 1080, fps: 60},
-        { width: 2560, height: 1440, fps: 30},
-        { width: 2560, height: 1440, fps: 60},
-        { width: 3840, height: 2160, fps: 30},
-        { width: 3840, height: 2160, fps: 60},
+        { width: 256,  height: 144},
+        { width: 426,  height: 240},
+        { width: 640,  height: 360},
+        { width: 854,  height: 480},
+        { width: 1280, height: 720},
+        { width: 1920, height: 1080},
+        { width: 2560, height: 1440},
+        { width: 3840, height: 2160},
     ]
 
     // Standard output resolutions, expressed as the short side of the frame
@@ -66,16 +62,14 @@ AK.MenuOption {
     readonly property int effectiveWidth: isPortrait? currentCaps.height: currentCaps.width
     readonly property int effectiveHeight: isPortrait? currentCaps.width: currentCaps.height
 
-    // Find the preset index that matches current effective dimensions + FPS, or -1.
+    // Find the preset index that matches current effective dimensions, or -1.
     readonly property int matchedPresetIndex: {
         for (let i = 0; i < canvasPresets.length; i++) {
             let p = canvasPresets[i]
             let pw = isPortrait? p.height: p.width
             let ph = isPortrait? p.width: p.height
 
-            if (effectiveWidth === pw
-                && effectiveHeight === ph
-                && currentFps === p.fps)
+            if (effectiveWidth === pw && effectiveHeight === ph)
                 return i
         }
 
@@ -192,7 +186,6 @@ AK.MenuOption {
                     let newCaps = AkVideoCaps.create(videoEffects.canvasCaps)
                     newCaps.width = root.isPortrait? p.height: p.width
                     newCaps.height = root.isPortrait? p.width: p.height
-                    newCaps.fps = AkFrac.create(p.fps, 1).toVariant()
                     videoEffects.canvasCaps = newCaps.toVariant()
 
                     root.updatingFromPreset = false
@@ -208,7 +201,7 @@ AK.MenuOption {
                 }
             }
 
-            // Summary label showing current resolution + FPS
+            // Summary label showing the current canvas resolution
             Label {
                 id: qualitySummary
                 Layout.leftMargin: root.leftMargin
@@ -223,10 +216,9 @@ AK.MenuOption {
                                     ""
 
                     return header
-                        + qsTr("%1×%2 @ %3 FPS")
+                        + qsTr("%1×%2")
                           .arg(root.effectiveWidth)
                           .arg(root.effectiveHeight)
-                          .arg(root.currentFps)
                 }
             }
 

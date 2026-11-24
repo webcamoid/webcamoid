@@ -712,95 +712,99 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="136"/>
+        <location filename="../qml/CompositionConfig.qml" line="130"/>
         <source>Orientation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="137"/>
+        <location filename="../qml/CompositionConfig.qml" line="131"/>
         <source>Landscape</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="137"/>
+        <location filename="../qml/CompositionConfig.qml" line="131"/>
         <source>Portrait</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="164"/>
-        <location filename="../qml/CompositionConfig.qml" line="183"/>
+        <location filename="../qml/CompositionConfig.qml" line="158"/>
+        <location filename="../qml/CompositionConfig.qml" line="177"/>
         <source>Canvas resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="222"/>
+        <location filename="../qml/CompositionConfig.qml" line="215"/>
         <source>Custom</source>
         <translation type="unfinished">අභිමත</translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="226"/>
-        <location filename="../qml/CompositionConfig.qml" line="272"/>
+        <location filename="../qml/CompositionConfig.qml" line="264"/>
         <source>%1×%2 @ %3 FPS</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="239"/>
-        <location filename="../qml/CompositionConfig.qml" line="258"/>
+        <location filename="../qml/CompositionConfig.qml" line="231"/>
+        <location filename="../qml/CompositionConfig.qml" line="250"/>
         <source>Output resolution</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="278"/>
+        <location filename="../qml/CompositionConfig.qml" line="219"/>
+        <source>%1×%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/CompositionConfig.qml" line="270"/>
         <source>same as the canvas</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="285"/>
+        <location filename="../qml/CompositionConfig.qml" line="277"/>
         <source>Canvas color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="287"/>
+        <location filename="../qml/CompositionConfig.qml" line="279"/>
         <source>Choose the canvas color</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="301"/>
+        <location filename="../qml/CompositionConfig.qml" line="293"/>
         <source>Advanced settings</source>
         <translation type="unfinished">උසස් සැකසුම්</translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="314"/>
+        <location filename="../qml/CompositionConfig.qml" line="306"/>
         <source>Canvas size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="332"/>
+        <location filename="../qml/CompositionConfig.qml" line="324"/>
         <source>Width</source>
         <translation type="unfinished">පළල</translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="361"/>
+        <location filename="../qml/CompositionConfig.qml" line="353"/>
         <source>Height</source>
         <translation type="unfinished">උස</translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="390"/>
+        <location filename="../qml/CompositionConfig.qml" line="382"/>
         <source>Frame rate</source>
         <translation type="unfinished">පද්ධති අනුපාතය</translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="414"/>
+        <location filename="../qml/CompositionConfig.qml" line="406"/>
         <source>Canvas output buffers</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="425"/>
+        <location filename="../qml/CompositionConfig.qml" line="417"/>
         <source>Enable asynchronous read</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/CompositionConfig.qml" line="441"/>
+        <location filename="../qml/CompositionConfig.qml" line="433"/>
         <source>Output buffers</source>
         <translation type="unfinished"></translation>
     </message>
