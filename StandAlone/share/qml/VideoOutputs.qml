@@ -136,7 +136,7 @@ ScrollView {
                 }
                 MenuItem {
                     text: qsTr("Add network camera")
-                    icon.source: "image://icons/broadcast"
+                    icon.source: "image://icons/netcam"
                     height: localStreaming.isLocalStreamingSupported
                             && localStreaming.location.length < 1? undefined: 0
                     visible: localStreaming.isLocalStreamingSupported

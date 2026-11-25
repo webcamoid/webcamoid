@@ -28,7 +28,7 @@ AK.MenuOption {
     id: root
     title: qsTr("Encoding")
     subtitle: qsTr("Configure the video and audio encoding shared by recording and streaming.")
-    icon: "image://icons/settings"
+    icon: "image://icons/encoding"
 
     property int leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
     property int rightMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels
