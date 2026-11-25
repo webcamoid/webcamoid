@@ -50,6 +50,18 @@ struct Palette
     QColor toolTipBase;
     QColor link;
     QColor linkVisited;
+    QColor ok;
+    QColor warning;
+    QColor error;
+};
+
+// QPalette has no roles for the status colors, so they are stored apart from
+// it, in the same color group sections of the colors file.
+struct StatusColors
+{
+    QColor ok;
+    QColor warning;
+    QColor error;
 };
 
 struct Palettes
@@ -103,6 +115,9 @@ class AkPaletteGroupPrivate
         QColor m_toolTipBase;
         QColor m_link;
         QColor m_linkVisited;
+        QColor m_ok;
+        QColor m_warning;
+        QColor m_error;
         bool m_fixed {false};
         bool m_isDark {false};
 
@@ -110,6 +125,11 @@ class AkPaletteGroupPrivate
         static QString configFileForPalette(const QString &paletteName);
         static QPalette readPalette(const QString &paletteName);
         static QPalette readPaletteFromFileName(const QString &fileName);
+        static StatusColors defaultStatusColors(const QPalette &palette,
+                                                QPalette::ColorGroup colorGroup);
+        static StatusColors readStatusColors(const QPalette &palette,
+                                             const QString &fileName,
+                                             QPalette::ColorGroup colorGroup);
         void loadDefaults();
         void updatePalette();
         void copyPalette(const AkPaletteGroup &paletteGroup);
@@ -199,6 +219,9 @@ AkPaletteGroup::AkPaletteGroup(const AkPaletteGroup &other):
     this->d->m_toolTipBase = other.d->m_toolTipBase;
     this->d->m_link = other.d->m_link;
     this->d->m_linkVisited = other.d->m_linkVisited;
+    this->d->m_ok = other.d->m_ok;
+    this->d->m_warning = other.d->m_warning;
+    this->d->m_error = other.d->m_error;
 
     QObject::connect(akPaletteGroupGlobalPrivate,
                      &AkPaletteGroupGlobalPrivate::paletteSyncRequested,
@@ -249,6 +272,9 @@ AkPaletteGroup &AkPaletteGroup::operator =(const AkPaletteGroup &other)
         this->d->m_toolTipBase = other.d->m_toolTipBase;
         this->d->m_link = other.d->m_link;
         this->d->m_linkVisited = other.d->m_linkVisited;
+        this->d->m_ok = other.d->m_ok;
+        this->d->m_warning = other.d->m_warning;
+        this->d->m_error = other.d->m_error;
     }
 
     return *this;
@@ -277,7 +303,10 @@ bool AkPaletteGroup::operator ==(const AkPaletteGroup &other) const
            && this->d->m_toolTipText == other.d->m_toolTipText
            && this->d->m_toolTipBase == other.d->m_toolTipBase
            && this->d->m_link == other.d->m_link
-           && this->d->m_linkVisited == other.d->m_linkVisited;
+           && this->d->m_linkVisited == other.d->m_linkVisited
+           && this->d->m_ok == other.d->m_ok
+           && this->d->m_warning == other.d->m_warning
+           && this->d->m_error == other.d->m_error;
 }
 
 bool AkPaletteGroup::fixed() const
@@ -383,6 +412,21 @@ QColor AkPaletteGroup::link() const
 QColor AkPaletteGroup::linkVisited() const
 {
     return this->d->m_linkVisited;
+}
+
+QColor AkPaletteGroup::ok() const
+{
+    return this->d->m_ok;
+}
+
+QColor AkPaletteGroup::warning() const
+{
+    return this->d->m_warning;
+}
+
+QColor AkPaletteGroup::error() const
+{
+    return this->d->m_error;
 }
 
 bool AkPaletteGroup::canWrite(const QString &paletteName)
@@ -615,6 +659,33 @@ void AkPaletteGroup::setLinkVisited(const QColor &linkVisited)
     emit this->linkVisitedChanged(this->d->m_linkVisited);
 }
 
+void AkPaletteGroup::setOk(const QColor &ok)
+{
+    if (this->d->m_ok == ok)
+        return;
+
+    this->d->m_ok = ok;
+    emit this->okChanged(this->d->m_ok);
+}
+
+void AkPaletteGroup::setWarning(const QColor &warning)
+{
+    if (this->d->m_warning == warning)
+        return;
+
+    this->d->m_warning = warning;
+    emit this->warningChanged(this->d->m_warning);
+}
+
+void AkPaletteGroup::setError(const QColor &error)
+{
+    if (this->d->m_error == error)
+        return;
+
+    this->d->m_error = error;
+    emit this->errorChanged(this->d->m_error);
+}
+
 void AkPaletteGroup::resetFixed()
 {
     this->setFixed(false);
@@ -734,13 +805,36 @@ void AkPaletteGroup::resetLinkVisited()
     this->setLinkVisited(palRef->linkVisited);
 }
 
+void AkPaletteGroup::resetOk()
+{
+    auto palRef = akPaletteGroupGlobalPrivate->m_groupToPaletteMap.value(this->d->m_colorGroup);
+    this->setOk(palRef->ok);
+}
+
+void AkPaletteGroup::resetWarning()
+{
+    auto palRef = akPaletteGroupGlobalPrivate->m_groupToPaletteMap.value(this->d->m_colorGroup);
+    this->setWarning(palRef->warning);
+}
+
+void AkPaletteGroup::resetError()
+{
+    auto palRef = akPaletteGroupGlobalPrivate->m_groupToPaletteMap.value(this->d->m_colorGroup);
+    this->setError(palRef->error);
+}
+
 bool AkPaletteGroup::load(const QString &paletteName)
 {
     if (this->d->m_fixed)
         return false;
 
-    auto palette = AkPaletteGroupPrivate::readPalette(paletteName);
+    auto fileName = AkPaletteGroupPrivate::configFileForPalette(paletteName);
+    auto palette = AkPaletteGroupPrivate::readPaletteFromFileName(fileName);
     palette.setCurrentColorGroup(this->d->m_colorGroup);
+    auto status =
+            AkPaletteGroupPrivate::readStatusColors(palette,
+                                                    fileName,
+                                                    this->d->m_colorGroup);
     this->setHighlightedText(palette.highlightedText().color());
     this->setHighlight(palette.highlight().color());
     this->setText(palette.text().color());
@@ -760,6 +854,9 @@ bool AkPaletteGroup::load(const QString &paletteName)
     this->setToolTipBase(palette.toolTipBase().color());
     this->setLink(palette.link().color());
     this->setLinkVisited(palette.linkVisited().color());
+    this->setOk(status.ok);
+    this->setWarning(status.warning);
+    this->setError(status.error);
 
     return true;
 }
@@ -771,6 +868,10 @@ QString AkPaletteGroup::loadFromFileName(const QString &fileName)
 
     auto palette = AkPaletteGroupPrivate::readPaletteFromFileName(fileName);
     palette.setCurrentColorGroup(this->d->m_colorGroup);
+    auto status =
+            AkPaletteGroupPrivate::readStatusColors(palette,
+                                                    fileName,
+                                                    this->d->m_colorGroup);
     this->setHighlightedText(palette.highlightedText().color());
     this->setHighlight(palette.highlight().color());
     this->setText(palette.text().color());
@@ -790,6 +891,9 @@ QString AkPaletteGroup::loadFromFileName(const QString &fileName)
     this->setToolTipBase(palette.toolTipBase().color());
     this->setLink(palette.link().color());
     this->setLinkVisited(palette.linkVisited().color());
+    this->setOk(status.ok);
+    this->setWarning(status.warning);
+    this->setError(status.error);
 
     if (fileName.isEmpty() || !QFileInfo::exists(fileName))
         return {};
@@ -842,6 +946,9 @@ bool AkPaletteGroup::saveToFileName(const QString &fileName,
     WRITE_VALUE(toolTipBase);
     WRITE_VALUE(link);
     WRITE_VALUE(linkVisited);
+    WRITE_VALUE(ok);
+    WRITE_VALUE(warning);
+    WRITE_VALUE(error);
 
     config.endGroup();
 
@@ -1103,6 +1210,75 @@ QPalette AkPaletteGroupPrivate::readPaletteFromFileName(const QString &fileName)
     return palette;
 }
 
+StatusColors AkPaletteGroupPrivate::defaultStatusColors(const QPalette &palette,
+                                                        QPalette::ColorGroup colorGroup)
+{
+    auto window = palette.color(colorGroup, QPalette::Window);
+    auto windowText = palette.color(colorGroup, QPalette::WindowText);
+    bool isDark = window.lightness() < windowText.lightness();
+
+    // Bright colors for dark backgrounds, deep colors for light backgrounds,
+    // so the status colors keep enough contrast against the window color.
+    StatusColors colors {
+        isDark? QColor(102, 187, 106): QColor( 46, 125,  50),
+        isDark? QColor(255, 213,  79): QColor(166, 124,   0),
+        isDark? QColor(239,  83,  80): QColor(198,  40,  40),
+    };
+
+    if (colorGroup != QPalette::Disabled)
+        return colors;
+
+    // Same look as the other disabled colors: fade towards the window color.
+    auto fade = [&window] (const QColor &color) {
+        return QColor::fromRgbF(0.5 * color.redF() + 0.5 * window.redF(),
+                                0.5 * color.greenF() + 0.5 * window.greenF(),
+                                0.5 * color.blueF() + 0.5 * window.blueF());
+    };
+
+    return {fade(colors.ok), fade(colors.warning), fade(colors.error)};
+}
+
+StatusColors AkPaletteGroupPrivate::readStatusColors(const QPalette &palette,
+                                                     const QString &fileName,
+                                                     QPalette::ColorGroup colorGroup)
+{
+    auto colors = defaultStatusColors(palette, colorGroup);
+
+    // Palettes created before the status colors existed don't have them, so
+    // the defaults above are used for any missing or invalid value.
+    if (fileName.isEmpty() || !QFileInfo::exists(fileName))
+        return colors;
+
+    QMap<QPalette::ColorGroup, QString> cgToStr {
+        {QPalette::Active  , "Active"  },
+        {QPalette::Disabled, "Disabled"},
+        {QPalette::Inactive, "Inactive"},
+    };
+
+    QSettings configs(fileName, QSettings::IniFormat);
+    configs.beginGroup(cgToStr.value(colorGroup));
+
+    bool ok = false;
+    auto color = colorFromString(configs.value("ok").toString(), &ok);
+
+    if (ok)
+        colors.ok = QColor::fromRgb(color);
+
+    color = colorFromString(configs.value("warning").toString(), &ok);
+
+    if (ok)
+        colors.warning = QColor::fromRgb(color);
+
+    color = colorFromString(configs.value("error").toString(), &ok);
+
+    if (ok)
+        colors.error = QColor::fromRgb(color);
+
+    configs.endGroup();
+
+    return colors;
+}
+
 void AkPaletteGroupPrivate::loadDefaults()
 {
     auto palette = akPaletteGroupGlobalPrivate->m_groupToPaletteMap.value(this->m_colorGroup);
@@ -1125,6 +1301,9 @@ void AkPaletteGroupPrivate::loadDefaults()
     this->m_toolTipBase = palette->toolTipBase;
     this->m_link = palette->link;
     this->m_linkVisited = palette->linkVisited;
+    this->m_ok = palette->ok;
+    this->m_warning = palette->warning;
+    this->m_error = palette->error;
     this->m_isDark = this->m_window.lightness() < this->m_windowText.lightness();
 }
 
@@ -1162,6 +1341,9 @@ void AkPaletteGroupPrivate::copyPalette(const AkPaletteGroup &paletteGroup)
     self->setToolTipBase(paletteGroup.toolTipBase());
     self->setLink(paletteGroup.link());
     self->setLinkVisited(paletteGroup.linkVisited());
+    self->setOk(paletteGroup.ok());
+    self->setWarning(paletteGroup.warning());
+    self->setError(paletteGroup.error());
 }
 
 AkPaletteGroupGlobalPrivate::AkPaletteGroupGlobalPrivate(QObject *parent):
@@ -1190,7 +1372,9 @@ void AkPaletteGroupGlobalPrivate::loadDefaults()
     QSettings config;
 
     config.beginGroup("ThemeConfigs");
-    auto palette = AkPaletteGroupPrivate::readPalette(config.value("paletteName").toString());
+    auto fileName =
+            AkPaletteGroupPrivate::configFileForPalette(config.value("paletteName").toString());
+    auto palette = AkPaletteGroupPrivate::readPaletteFromFileName(fileName);
     config.endGroup();
 
     QVector<QPalette::ColorGroup> colorGroups {
@@ -1221,6 +1405,12 @@ void AkPaletteGroupGlobalPrivate::loadDefaults()
         palRef->toolTipBase = palette.toolTipBase().color();
         palRef->link = palette.link().color();
         palRef->linkVisited = palette.linkVisited().color();
+
+        auto status =
+                AkPaletteGroupPrivate::readStatusColors(palette, fileName, group);
+        palRef->ok = status.ok;
+        palRef->warning = status.warning;
+        palRef->error = status.error;
     }
 }
 

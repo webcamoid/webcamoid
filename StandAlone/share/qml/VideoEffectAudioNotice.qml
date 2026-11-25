@@ -43,7 +43,7 @@ Label {
     // The source provides its own audio, instead of using an associated input.
     property bool sourceHasOwnAudio: false
 
-    readonly property color activeHighlight: AkTheme.palette.active.highlight
+    readonly property color activeWarning: AkTheme.palette.active.warning
     readonly property color activeWindow: AkTheme.palette.active.window
 
     signal openSourceOptions(int sourceId)
@@ -68,10 +68,14 @@ Label {
     padding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
     background: Rectangle {
         // The colors follow the palette set by the user: the border uses the
-        // highlight color and the fill is a shade of the window color, which
-        // is adjusted for light and dark themes.
-        color: AkTheme.shade(notice.activeWindow, -0.1)
-        border.color: notice.activeHighlight
+        // warning color and the fill is the window color lightly tinted with
+        // it, so the text keeps the contrast of the window colors.
+        color: Qt.tint(notice.activeWindow,
+                       Qt.rgba(notice.activeWarning.r,
+                               notice.activeWarning.g,
+                               notice.activeWarning.b,
+                               0.15))
+        border.color: notice.activeWarning
         radius: AkUnit.create(4 * AkTheme.controlScale, "dp").pixels
     }
 

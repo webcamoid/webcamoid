@@ -58,6 +58,9 @@ Dialog {
         btnToolTipBase.currentColor = pal.active.toolTipBase
         btnLink.currentColor = pal.active.link
         btnLinkVisited.currentColor = pal.active.linkVisited
+        btnOk.currentColor = pal.active.ok
+        btnWarning.currentColor = pal.active.warning
+        btnError.currentColor = pal.active.error
     }
 
     function openOptions(edit, basePalName)
@@ -629,6 +632,34 @@ Dialog {
                             AkTheme.palette.disabled.link: disabledColors.link
                             AkTheme.palette.disabled.linkVisited: disabledColors.linkVisited
                         }
+                        RowLayout {
+                            Layout.fillWidth: true
+
+                            Label {
+                                text: qsTr("Ok")
+                                color: glyControls.controlEnabled?
+                                           btnOk.currentColor:
+                                           disabledColors.ok
+                                horizontalAlignment: Text.AlignHCenter
+                                Layout.fillWidth: true
+                            }
+                            Label {
+                                text: qsTr("Warning")
+                                color: glyControls.controlEnabled?
+                                           btnWarning.currentColor:
+                                           disabledColors.warning
+                                horizontalAlignment: Text.AlignHCenter
+                                Layout.fillWidth: true
+                            }
+                            Label {
+                                text: qsTr("Error")
+                                color: glyControls.controlEnabled?
+                                           btnError.currentColor:
+                                           disabledColors.error
+                                horizontalAlignment: Text.AlignHCenter
+                                Layout.fillWidth: true
+                            }
+                        }
                     }
                 }
             }
@@ -653,7 +684,8 @@ Dialog {
                                     qsTr("Control accents"),
                                     qsTr("Highlight"),
                                     qsTr("Tooltips"),
-                                    qsTr("Hyperlinks")]
+                                    qsTr("Hyperlinks"),
+                                    qsTr("Status")]
                             Layout.fillWidth: true
                         }
                         StackLayout {
@@ -875,6 +907,39 @@ Dialog {
                                     }
                                 }
                             }
+                            Page {
+                                width: parent.width
+
+                                ColumnLayout {
+                                    width: parent.width
+                                    layoutDirection: addEdit.rtl? Qt.RightToLeft: Qt.LeftToRight
+
+                                    AK.ColorButton {
+                                        id: btnOk
+                                        text: qsTr("Ok")
+                                        currentColor: AkTheme.palette.active.ok
+                                        title: qsTr("Choose the color for %1").arg(text)
+                                        horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                                        Layout.fillWidth: true
+                                    }
+                                    AK.ColorButton {
+                                        id: btnWarning
+                                        text: qsTr("Warning")
+                                        currentColor: AkTheme.palette.active.warning
+                                        title: qsTr("Choose the color for %1").arg(text)
+                                        horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                                        Layout.fillWidth: true
+                                    }
+                                    AK.ColorButton {
+                                        id: btnError
+                                        text: qsTr("Error")
+                                        currentColor: AkTheme.palette.active.error
+                                        title: qsTr("Choose the color for %1").arg(text)
+                                        horizontalAlignment: addEdit.rtl? Text.AlignRight: Text.AlignLeft
+                                        Layout.fillWidth: true
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -901,6 +966,9 @@ Dialog {
                     property color toolTipBase: applyEffect(btnToolTipBase.currentColor)
                     property color link: applyEffect(btnLink.currentColor)
                     property color linkVisited: applyEffect(btnLinkVisited.currentColor)
+                    property color ok: applyEffect(btnOk.currentColor)
+                    property color warning: applyEffect(btnWarning.currentColor)
+                    property color error: applyEffect(btnError.currentColor)
 
                     function brightness(c)
                     {
@@ -1040,6 +1108,9 @@ Dialog {
         pal.active.toolTipBase = btnToolTipBase.currentColor
         pal.active.link = btnLink.currentColor
         pal.active.linkVisited = btnLinkVisited.currentColor
+        pal.active.ok = btnOk.currentColor
+        pal.active.warning = btnWarning.currentColor
+        pal.active.error = btnError.currentColor
 
         pal.disabled.highlightedText = disabledColors.highlightedText
         pal.disabled.highlight = disabledColors.highlight
@@ -1060,6 +1131,9 @@ Dialog {
         pal.disabled.toolTipBase = disabledColors.toolTipBase
         pal.disabled.link = disabledColors.link
         pal.disabled.linkVisited = disabledColors.linkVisited
+        pal.disabled.ok = disabledColors.ok
+        pal.disabled.warning = disabledColors.warning
+        pal.disabled.error = disabledColors.error
 
         pal.save(paletteName.text);
         addEdit.paletteUpdated(paletteName.text)

@@ -132,6 +132,21 @@ class AKCOMMONS_EXPORT AkPaletteGroup: public QObject
                WRITE setLinkVisited
                RESET resetLinkVisited
                NOTIFY linkVisitedChanged)
+    Q_PROPERTY(QColor ok
+               READ ok
+               WRITE setOk
+               RESET resetOk
+               NOTIFY okChanged)
+    Q_PROPERTY(QColor warning
+               READ warning
+               WRITE setWarning
+               RESET resetWarning
+               NOTIFY warningChanged)
+    Q_PROPERTY(QColor error
+               READ error
+               WRITE setError
+               RESET resetError
+               NOTIFY errorChanged)
 
     public:
         explicit AkPaletteGroup(QObject *parent=nullptr);
@@ -162,6 +177,9 @@ class AKCOMMONS_EXPORT AkPaletteGroup: public QObject
         Q_INVOKABLE QColor toolTipBase() const;
         Q_INVOKABLE QColor link() const;
         Q_INVOKABLE QColor linkVisited() const;
+        Q_INVOKABLE QColor ok() const;
+        Q_INVOKABLE QColor warning() const;
+        Q_INVOKABLE QColor error() const;
         Q_INVOKABLE static bool canWrite(const QString &paletteName);
 
     private:
@@ -189,6 +207,9 @@ class AKCOMMONS_EXPORT AkPaletteGroup: public QObject
         void toolTipBaseChanged(const QColor &toolTipBase);
         void linkChanged(const QColor &link);
         void linkVisitedChanged(const QColor &linkVisited);
+        void okChanged(const QColor &ok);
+        void warningChanged(const QColor &warning);
+        void errorChanged(const QColor &error);
 
     public slots:
         void setFixed(bool fixed);
@@ -211,6 +232,9 @@ class AKCOMMONS_EXPORT AkPaletteGroup: public QObject
         void setToolTipBase(const QColor &toolTipBase);
         void setLink(const QColor &link);
         void setLinkVisited(const QColor &linkVisited);
+        void setOk(const QColor &ok);
+        void setWarning(const QColor &warning);
+        void setError(const QColor &error);
         void resetFixed();
         void resetHighlightedText();
         void resetHighlight();
@@ -231,6 +255,9 @@ class AKCOMMONS_EXPORT AkPaletteGroup: public QObject
         void resetToolTipBase();
         void resetLink();
         void resetLinkVisited();
+        void resetOk();
+        void resetWarning();
+        void resetError();
         bool load(const QString &paletteName={});
         QString loadFromFileName(const QString &fileName);
         bool saveToFileName(const QString &fileName,

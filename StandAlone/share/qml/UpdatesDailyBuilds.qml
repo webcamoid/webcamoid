@@ -420,7 +420,7 @@ ColumnLayout {
 
         Label {
             text: dailyBuilds.errorMessage
-            color: "#d9534f"
+            color: AkTheme.palette.active.error
             wrapMode: Text.WordWrap
             Layout.leftMargin: root.leftMargin
             Layout.rightMargin: root.rightMargin

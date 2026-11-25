@@ -333,226 +333,252 @@
 <context>
     <name>ColorSchemeAddEdit</name>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="66"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="69"/>
         <source>Edit color scheme</source>
         <translation>Uredi shemu boja</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="67"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="70"/>
         <source>Create a new color scheme</source>
         <translation>Kreiraj novu shemu boja</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="71"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="74"/>
         <source>Color Palette %1</source>
         <translation>Paleta boja %1</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="94"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="97"/>
         <source>Palette name</source>
         <translation>Naziv palete</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="103"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="106"/>
         <source>Enabled</source>
         <translation>Omogućeno</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="106"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="109"/>
         <source>Disabled</source>
         <translation>Onemogućeno</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="110"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="113"/>
         <source>Preview</source>
         <translation>Pregled</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="169"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="172"/>
         <source>Window text &lt;a href=&quot;#&quot;&gt;link&lt;/a&gt;</source>
         <translation>Tekst prozora &lt;a href=&quot;#&quot;&gt;poveznica&lt;/a&gt;</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="215"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="697"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="218"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="729"/>
         <source>Button text</source>
         <translation>Tekst gumba</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="260"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="837"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="263"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="869"/>
         <source>Tooltip text</source>
         <translation>Tekst savjeta</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="349"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="730"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="352"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="762"/>
         <source>Placeholder text</source>
         <translation>Zamjenski tekst</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="350"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="722"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="353"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="754"/>
         <source>Text</source>
         <translation>Tekst</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="541"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="544"/>
         <source>Progress %1%</source>
         <translation>Napredak %1%</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="649"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="639"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="919"/>
+        <source>Ok</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="647"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="927"/>
+        <source>Warning</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="655"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="935"/>
+        <source>Error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="680"/>
         <source>Color group</source>
         <translation>Grupa boja</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="650"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="680"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="681"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="712"/>
         <source>Window</source>
         <translation>Prozor</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="651"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="682"/>
         <source>Buttons</source>
         <translation>Gumbi</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="652"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="683"/>
         <source>Input Controls</source>
         <translation>Kontrole unosa</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="653"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="684"/>
         <source>Control accents</source>
         <translation>Naglasci kontrola</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="654"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="820"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="685"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="852"/>
         <source>Highlight</source>
         <translation>Istaknuto</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="655"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="686"/>
         <source>Tooltips</source>
         <translation>Savjeti</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="656"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="687"/>
         <source>Hyperlinks</source>
         <translation>Hiperveze</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="672"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="688"/>
+        <source>Status</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="704"/>
         <source>Window text</source>
         <translation>Tekst prozora</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="674"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="682"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="699"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="707"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="724"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="732"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="740"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="748"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="765"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="773"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="781"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="789"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="706"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="714"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="731"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="739"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="756"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="764"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="772"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="780"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="797"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="814"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="822"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="839"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="847"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="864"/>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="872"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="805"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="813"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="821"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="829"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="846"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="854"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="871"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="879"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="896"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="904"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="921"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="929"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="937"/>
         <source>Choose the color for %1</source>
         <translation>Odaberi boju za %1</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="705"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="737"/>
         <source>Button</source>
         <translation>Gumb</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="738"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="770"/>
         <source>Base</source>
         <translation>Baza</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="746"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="778"/>
         <source>Alternate base</source>
         <translation>Alternativna baza</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="763"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="795"/>
         <source>Light</source>
         <translation>Svijetla</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="771"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="803"/>
         <source>Mid light</source>
         <translation>Srednje svijetla</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="779"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="811"/>
         <source>Mid</source>
         <translation>Srednja</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="787"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="819"/>
         <source>Dark</source>
         <translation>Tamna</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="795"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="827"/>
         <source>Shadow</source>
         <translation>Sjena</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="812"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="844"/>
         <source>Highlighted text</source>
         <translation>Istaknuti tekst</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="845"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="877"/>
         <source>ToolTip base</source>
         <translation>Baza savjeta</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="862"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="894"/>
         <source>Link</source>
         <translation>Veza</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="870"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="902"/>
         <source>Visited link</source>
         <translation>Posjećena veza</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="961"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="1029"/>
         <source>Brightness</source>
         <translation>Svjetlina</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="977"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="1045"/>
         <source>Contrast</source>
         <translation>Kontrast</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="994"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="1062"/>
         <source>Contrast color</source>
         <translation>Kontrastna boja</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="996"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="1064"/>
         <source>Choose the contrast color</source>
         <translation>Odaberi kontrastnu boju</translation>
     </message>
     <message>
-        <location filename="../qml/ColorSchemeAddEdit.qml" line="1001"/>
+        <location filename="../qml/ColorSchemeAddEdit.qml" line="1069"/>
         <source>Saturation</source>
         <translation>Zasićenost</translation>
     </message>
