@@ -179,6 +179,8 @@ class VideoEffects: public QObject
         Q_INVOKABLE QString sourcePreview(qint64 id) const;
         Q_INVOKABLE AkVideoEffectPtr sourceElementAt(qint64 id, int index) const;
         Q_INVOKABLE AkVideoEffectPtr sourcePreviewElement(qint64 id) const;
+        Q_INVOKABLE bool effectCanProcessAudio(int index) const;
+        Q_INVOKABLE bool previewCanProcessAudio() const;
         Q_INVOKABLE bool sourceEffectCanProcessAudio(qint64 id, int index) const;
         Q_INVOKABLE bool sourcePreviewCanProcessAudio(qint64 id) const;
         Q_INVOKABLE AkPluginInfo sourceEffectInfo(qint64 id, int index) const;

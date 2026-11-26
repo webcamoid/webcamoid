@@ -156,8 +156,9 @@ Dialog {
                         videoEffectsDialog.embedActivePreviewControls("itmEffectPreviewControls")
 
                     videoEffectsDialog.previewNeedsAudio =
-                        videoEffectsDialog.isSource
-                        && videoEffects.sourcePreviewCanProcessAudio(videoEffectsDialog.sourceId)
+                        videoEffectsDialog.isSource?
+                            videoEffects.sourcePreviewCanProcessAudio(videoEffectsDialog.sourceId):
+                            videoEffects.previewCanProcessAudio()
                 }
 
                 Component.onCompleted: update()
@@ -190,6 +191,7 @@ Dialog {
             }
             VideoEffectAudioNotice {
                 sourceId: videoEffectsDialog.sourceId
+                canvas: !videoEffectsDialog.isSource
                 effectNeedsAudio: videoEffectsDialog.previewNeedsAudio
                 Layout.fillWidth: true
                 Layout.leftMargin: AkUnit.create(16 * AkTheme.controlScale, "dp").pixels

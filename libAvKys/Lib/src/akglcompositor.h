@@ -88,6 +88,10 @@ class AKCOMMONS_EXPORT AkGLCompositor:
                NOTIFY isEmptyChanged)
 
     public:
+        // Id of the audio packets that belong to the canvas instead of a
+        // source.
+        static constexpr qint64 CanvasAudioId = -1;
+
         explicit AkGLCompositor(QObject *parent=nullptr);
         AkGLCompositor(const AkGLCompositor &other) = delete;
         AkGLCompositor &operator =(const AkGLCompositor &other) = delete;
@@ -249,7 +253,8 @@ class AKCOMMONS_EXPORT AkGLCompositor:
 
         // The audio packets must be tagged with the id of the source they
         // belong to, and are sent to the effects of that source. The audio
-        // returned by the effects is discarded.
+        // packets tagged with CanvasAudioId are sent to the effects applied to
+        // the canvas. The audio returned by the effects is discarded.
         AkPacket iAudioStream(const AkAudioPacket &audioPacket) override;
 
         void updateAvailableEffects();

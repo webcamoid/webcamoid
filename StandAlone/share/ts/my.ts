@@ -1596,7 +1596,7 @@
 <context>
     <name>MediaTools</name>
     <message>
-        <location filename="../../src/mediatools.cpp" line="1603"/>
+        <location filename="../../src/mediatools.cpp" line="1642"/>
         <source>%1/log %2.txt</source>
         <translation>%1/log %2.txt</translation>
     </message>
@@ -2833,7 +2833,17 @@
 <context>
     <name>VideoEffectAudioNotice</name>
     <message>
-        <location filename="../qml/VideoEffectAudioNotice.qml" line="65"/>
+        <location filename="../qml/VideoEffectAudioNotice.qml" line="98"/>
+        <source>There is no active video source, this effect needs a video source playing to receive audio.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoEffectAudioNotice.qml" line="100"/>
+        <source>There are no audio inputs, please add an audio input for this effect to work.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/VideoEffectAudioNotice.qml" line="103"/>
         <source>This video source is not associated to an audio input, please associate the &lt;a href=&quot;source&quot;&gt;source&lt;/a&gt; to an audio input for this effect to work.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2841,22 +2851,22 @@
 <context>
     <name>VideoEffectOptions</name>
     <message>
-        <location filename="../qml/VideoEffectOptions.qml" line="102"/>
+        <location filename="../qml/VideoEffectOptions.qml" line="103"/>
         <source>Remove</source>
         <translation>ဖယ်ရှား</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectOptions.qml" line="107"/>
+        <location filename="../qml/VideoEffectOptions.qml" line="108"/>
         <source>Remove %1 video effect</source>
         <translation>%1 ဗီဒီယိုအကျိုးသက်ရောက်မှုကိုဖယ်ရှားပါ</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectOptions.qml" line="121"/>
+        <location filename="../qml/VideoEffectOptions.qml" line="122"/>
         <source>Reset</source>
         <translation type="unfinished">ပြန်လည်သတ်မှတ်</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectOptions.qml" line="126"/>
+        <location filename="../qml/VideoEffectOptions.qml" line="127"/>
         <source>Reset %1 to default values</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2874,7 +2884,7 @@
         <translation>အကျိုးသက်ရောက်မှု</translation>
     </message>
     <message>
-        <location filename="../qml/VideoEffectsDialog.qml" line="185"/>
+        <location filename="../qml/VideoEffectsDialog.qml" line="186"/>
         <source>Chain effect</source>
         <extracomment>Apply the effect over the other effects.</extracomment>
         <translation>ကွင်းဆက်အကျိုးသက်ရောက်မှု</translation>

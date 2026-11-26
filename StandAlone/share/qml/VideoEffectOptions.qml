@@ -70,9 +70,10 @@ ScrollView {
         else
             videoEffects.embedControls("itmEffectControls", view.effectIndex)
 
-        view.effectNeedsAudio = view.isSource
-                                && videoEffects.sourceEffectCanProcessAudio(view.sourceId,
-                                                                            view.effectIndex)
+        view.effectNeedsAudio = view.isSource?
+                                    videoEffects.sourceEffectCanProcessAudio(view.sourceId,
+                                                                             view.effectIndex):
+                                    videoEffects.effectCanProcessAudio(view.effectIndex)
     }
 
     ColumnLayout {
@@ -134,6 +135,7 @@ ScrollView {
         }
         VideoEffectAudioNotice {
             sourceId: view.sourceId
+            canvas: !view.isSource
             effectNeedsAudio: view.effectNeedsAudio
             Layout.fillWidth: true
             Layout.leftMargin: view.leftMargin

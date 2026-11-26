@@ -485,6 +485,20 @@ AkVideoEffectPtr VideoEffects::sourcePreviewElement(qint64 id) const
     return this->d->m_glCompositor.sourcePreviewElement(id);
 }
 
+bool VideoEffects::effectCanProcessAudio(int index) const
+{
+    auto effect = this->d->m_glCompositor.elementAt(index);
+
+    return effect && effect->canProcessAudio();
+}
+
+bool VideoEffects::previewCanProcessAudio() const
+{
+    auto effect = this->d->m_glCompositor.previewElement();
+
+    return effect && effect->canProcessAudio();
+}
+
 bool VideoEffects::sourceEffectCanProcessAudio(qint64 id, int index) const
 {
     auto effect = this->d->m_glCompositor.sourceElementAt(id, index);
@@ -1238,9 +1252,10 @@ AkPacket VideoEffects::iStream(const AkPacket &packet)
 {
     if (packet.type() == AkPacket::PacketAudio) {
         // The audio of a source is only delivered to the effects of that
-        // source, it is not part of the video output. The video mutex is not
-        // taken here: the audio comes from a different thread and the
-        // compositor protects its own data.
+        // source, and the audio of the canvas (AkGLCompositor::CanvasAudioId)
+        // to the effects of the canvas, it is not part of the video output.
+        // The video mutex is not taken here: the audio comes from a different
+        // thread and the compositor protects its own data.
         this->d->m_glCompositor.iStream(packet);
 
         return {};

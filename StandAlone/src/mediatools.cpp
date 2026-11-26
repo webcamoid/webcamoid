@@ -41,6 +41,7 @@
 #include <akaudiocaps.h>
 #include <akcaps.h>
 #include <akfrac.h>
+#include <akglcompositor.h>
 #include <akpacket.h>
 #include <akpluginmanager.h>
 #include <akvideocaps.h>
@@ -164,8 +165,14 @@ class MediaToolsPrivate
         QMap<qint64, QString> m_audioAssociations;
         bool m_associatedAudioRef {false};
 
+        // The audio mix of all the audio inputs is captured and sent to the
+        // effects applied to the canvas, only while any of them can process
+        // audio and there is a video source playing.
+        bool m_canvasAudioRef {false};
+
         void setAudioAssociation(qint64 id, const QString &device);
         void updateAssociatedAudioRef();
+        void updateCanvasAudioRef();
         void sendAudioToAssociatedSources(const QString &input,
                                           const AkPacket &packet);
         bool m_localStreamingPacketReaderActive {false};
@@ -1080,6 +1087,38 @@ bool MediaTools::init(const CliOptions &cliOptions)
     AkElement::link(this->d->m_audioInputs.data(),
                     this->d->m_localStreaming.data(),
                     Qt::DirectConnection);
+
+    // The effects applied to the canvas receive the audio mix of all the
+    // audio inputs, called from the audio thread.
+    QObject::connect(this->d->m_audioInputs.data(),
+                     &AudioInputs::oStream,
+                     this->d->m_videoEffects.data(),
+                     [this] (const AkPacket &packet) {
+                         if (packet.type() != AkPacket::PacketAudio)
+                             return;
+
+                         auto pkt = packet;
+                         pkt.setId(AkGLCompositor::CanvasAudioId);
+                         this->d->m_videoEffects->iStream(pkt);
+                     },
+                     Qt::DirectConnection);
+
+    auto updateCanvasAudio = [this] () {
+        this->d->updateCanvasAudioRef();
+    };
+    QObject::connect(this->d->m_videoEffects.data(),
+                     &VideoEffects::effectsChanged,
+                     this,
+                     updateCanvasAudio);
+    QObject::connect(this->d->m_videoEffects.data(),
+                     &VideoEffects::previewChanged,
+                     this,
+                     updateCanvasAudio);
+    QObject::connect(this->d->m_videoLayer.data(),
+                     &VideoLayer::stateChanged,
+                     this,
+                     updateCanvasAudio);
+    updateCanvasAudio();
     QObject::connect(this->d->m_videoLayer.data(),
                      &VideoLayer::sourceRectChanged,
                      this->d->m_videoEffects.data(),
@@ -2152,6 +2191,33 @@ void MediaToolsPrivate::updateAssociatedAudioRef()
     this->m_audioInputs->setInputState(wanted?
                                            AkElement::ElementStatePlaying:
                                            AkElement::ElementStateNull);
+}
+
+void MediaToolsPrivate::updateCanvasAudioRef()
+{
+    // The audio inputs are only opened while there is a video source playing
+    // and at least one effect applied to the canvas can process audio, so the
+    // microphone is not kept open for nothing. Both the capture and the mixer
+    // output are needed, since the mixer only produces audio while its output
+    // is running. The references are taken only once.
+    bool wanted = false;
+
+    if (this->m_videoLayer->state() == AkElement::ElementStatePlaying) {
+        wanted = this->m_videoEffects->previewCanProcessAudio();
+
+        for (int i = 0; !wanted && i < this->m_videoEffects->effects().size(); i++)
+            wanted = this->m_videoEffects->effectCanProcessAudio(i);
+    }
+
+    if (wanted == this->m_canvasAudioRef)
+        return;
+
+    this->m_canvasAudioRef = wanted;
+    auto state = wanted?
+                     AkElement::ElementStatePlaying:
+                     AkElement::ElementStateNull;
+    this->m_audioInputs->setInputState(state);
+    this->m_audioInputs->setOutputState(state);
 }
 
 // Called from the audio capture threads.

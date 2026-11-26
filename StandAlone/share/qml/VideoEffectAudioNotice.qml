@@ -29,14 +29,26 @@ import Webcamoid
 //
 // Sources of type stream (MultiSrc) carry their own audio, so they can not be
 // associated to an audio input and the warning does not apply to them.
+//
+// The effects applied to the canvas (canvas set, sourceId is -1) receive the
+// audio mix of all the audio inputs. They are warned when there is no audio
+// input, or when there is no active video source, since the audio inputs are
+// only captured while a video source is playing.
 Label {
     id: notice
 
     // Source the effect is applied to, -1 if it is not applied to a source.
     property int sourceId: -1
 
+    // The effect is applied to the canvas instead of a source.
+    property bool canvas: false
+
     // The effect can process audio.
     property bool effectNeedsAudio: false
+
+    // Canvas only.
+    property bool canvasHasVideo: false
+    property bool canvasHasAudio: false
 
     property string audioDevice: ""
 
@@ -56,13 +68,40 @@ Label {
         notice.audioDevice = notice.sourceId >= 0?
                                  videoLayer.sourceAudioDevice(notice.sourceId):
                                  ""
+
+        let hasVideo = false
+
+        if (videoLayer.state === AkElement.ElementStatePlaying) {
+            let ids = videoLayer.sourceIds()
+
+            for (let i in ids)
+                if (videoLayer.sourceEnabled(ids[i])) {
+                    hasVideo = true
+
+                    break
+                }
+        }
+
+        notice.canvasHasVideo = hasVideo
+        notice.canvasHasAudio = audioInputs.activeInputs.length > 0
     }
 
     visible: notice.effectNeedsAudio
-             && notice.sourceId >= 0
-             && !notice.sourceHasOwnAudio
-             && notice.audioDevice === ""
-    text: qsTr("This video source is not associated to an audio input, please associate the <a href=\"source\">source</a> to an audio input for this effect to work.")
+             && (notice.canvas?
+                     (!notice.canvasHasVideo || !notice.canvasHasAudio):
+                     (notice.sourceId >= 0
+                      && !notice.sourceHasOwnAudio
+                      && notice.audioDevice === ""))
+    text: {
+        if (notice.canvas) {
+            if (!notice.canvasHasVideo)
+                return qsTr("There is no active video source, this effect needs a video source playing to receive audio.")
+
+            return qsTr("There are no audio inputs, please add an audio input for this effect to work.")
+        }
+
+        return qsTr("This video source is not associated to an audio input, please associate the <a href=\"source\">source</a> to an audio input for this effect to work.")
+    }
     textFormat: Text.StyledText
     wrapMode: Text.WordWrap
     padding: AkUnit.create(8 * AkTheme.controlScale, "dp").pixels
@@ -80,6 +119,7 @@ Label {
     }
 
     onSourceIdChanged: notice.update()
+    onCanvasChanged: notice.update()
     onLinkActivated: notice.openSourceOptions(notice.sourceId)
     Component.onCompleted: notice.update()
 
@@ -90,6 +130,35 @@ Label {
         {
             if (id === notice.sourceId)
                 notice.update()
+        }
+
+        function onStateChanged(state)
+        {
+            notice.update()
+        }
+
+        function onSourceAdded(id, device)
+        {
+            notice.update()
+        }
+
+        function onSourceRemoved(id)
+        {
+            notice.update()
+        }
+
+        function onSourceEnabledChanged(id, enabled)
+        {
+            notice.update()
+        }
+    }
+
+    Connections {
+        target: audioInputs
+
+        function onActiveInputsChanged(activeInputs)
+        {
+            notice.update()
         }
     }
 }

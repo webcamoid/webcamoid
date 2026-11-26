@@ -1240,6 +1240,14 @@ AkPacket AkGLCompositor::iAudioStream(const AkAudioPacket &audioPacket)
     if (!audioPacket)
         return {};
 
+    // The audio of the canvas is the mix of all the audio inputs, it does not
+    // belong to any source.
+    if (audioPacket.id() == CanvasAudioId) {
+        this->d->m_pipeline.iAudioStream(audioPacket);
+
+        return {};
+    }
+
     AkGLCompositorSourcePtr source;
 
     {
