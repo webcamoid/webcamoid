@@ -405,19 +405,19 @@
         <location filename="../qml/ColorSchemeAddEdit.qml" line="639"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="919"/>
         <source>Ok</source>
-        <translation type="unfinished"></translation>
+        <translation>Ok</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="647"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="927"/>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>Warnung</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="655"/>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="935"/>
         <source>Error</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="680"/>
@@ -464,7 +464,7 @@
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="688"/>
         <source>Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status</translation>
     </message>
     <message>
         <location filename="../qml/ColorSchemeAddEdit.qml" line="704"/>
@@ -777,7 +777,7 @@
     <message>
         <location filename="../qml/CompositionConfig.qml" line="219"/>
         <source>%1×%2</source>
-        <translation type="unfinished"></translation>
+        <translation>%1×%2</translation>
     </message>
     <message>
         <location filename="../qml/CompositionConfig.qml" line="270"/>
@@ -859,12 +859,12 @@
     <message>
         <location filename="../qml/DailyBuildInstallDialog.qml" line="30"/>
         <source>Install the new version?</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue Version installieren?</translation>
     </message>
     <message>
         <location filename="../qml/DailyBuildInstallDialog.qml" line="31"/>
         <source>Run the new version?</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue Version ausführen?</translation>
     </message>
     <message>
         <location filename="../qml/DailyBuildInstallDialog.qml" line="54"/>
@@ -1189,7 +1189,7 @@
     <message>
         <location filename="../../src/githubassetdownloader.cpp" line="137"/>
         <source>Download canceled</source>
-        <translation type="unfinished"></translation>
+        <translation>Herunterladen abgebrochen</translation>
     </message>
 </context>
 <context>
