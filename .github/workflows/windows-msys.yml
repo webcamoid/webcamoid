@@ -45,6 +45,7 @@ jobs:
           ${{ matrix.pkg_prefix }}-clang
           ${{ matrix.pkg_prefix }}-cmake
           ${{ matrix.pkg_prefix }}-ffmpeg
+          ${{ matrix.pkg_prefix }}-mesa
           ${{ matrix.pkg_prefix }}-ninja
           ${{ matrix.pkg_prefix }}-pkgconf
           ${{ matrix.pkg_prefix }}-qt6-declarative
@@ -70,6 +71,7 @@ jobs:
           ${{ matrix.pkg_prefix }}-clang
           ${{ matrix.pkg_prefix }}-cmake
           ${{ matrix.pkg_prefix }}-ffmpeg
+          ${{ matrix.pkg_prefix }}-mesa
           ${{ matrix.pkg_prefix }}-ninja
           ${{ matrix.pkg_prefix }}-pkgconf
           ${{ matrix.pkg_prefix }}-portaudio
@@ -164,6 +166,7 @@ jobs:
 #          mingw-w64-${{ matrix.target_arch }}-clang
 #          mingw-w64-${{ matrix.target_arch }}-cmake
 #          mingw-w64-${{ matrix.target_arch }}-ffmpeg
+#          mingw-w64-${{ matrix.target_arch }}-mesa
 #          mingw-w64-${{ matrix.target_arch }}-ninja
 #          mingw-w64-${{ matrix.target_arch }}-pkgconf
 #          mingw-w64-${{ matrix.target_arch }}-qt6-declarative
@@ -190,6 +193,7 @@ jobs:
 #          mingw-w64-${{ matrix.target_arch }}-clang
 #          mingw-w64-${{ matrix.target_arch }}-cmake
 #          mingw-w64-${{ matrix.target_arch }}-ffmpeg
+#          mingw-w64-${{ matrix.target_arch }}-mesa
 #          mingw-w64-${{ matrix.target_arch }}-ninja
 #          mingw-w64-${{ matrix.target_arch }}-pkgconf
 #          mingw-w64-${{ matrix.target_arch }}-portaudio
