@@ -18,6 +18,8 @@
  */
 
 #include <QApplication>
+#include <QAtomicInt>
+#include <QElapsedTimer>
 #include <QIcon>
 #include <QMediaCaptureSession>
 #include <QMutex>
@@ -26,6 +28,7 @@
 #include <QScreenCapture>
 #include <QSettings>
 #include <QTime>
+#include <QTimer>
 #include <QVideoFrame>
 #include <QVideoSink>
 
@@ -72,6 +75,11 @@ class QtScreenDevPrivate
         QMap<QString, QCapturableWindow> m_capturableWindows;
 #endif
 
+        QTimer m_grabTimer;
+        QTimer m_watchdogTimer;
+        QElapsedTimer m_grabClock;
+        QAtomicInt m_framesReceived {0};
+        bool m_useGrabFallback {false};
         QVideoSink m_videoSink;
         QVideoFrame m_curFrame;
         QSize m_currentFrameSize;
@@ -91,6 +99,9 @@ class QtScreenDevPrivate
         qreal screenRotation() const;
         void frameReady(const QVideoFrame &frame);
         void sendFrame(const QVideoFrame &frame);
+        void sendImage(QImage frameImage, qint64 pts, qint64 duration);
+        void startGrabFallback();
+        void grabFrame();
         void updateDevices();
         bool isWindowDevice(const QString &device) const;
 };
@@ -345,18 +356,37 @@ bool QtScreenDev::init()
     }
 
     this->d->m_curScreen = screen;
+    this->d->m_useGrabFallback = false;
+    this->d->m_framesReceived.storeRelaxed(0);
     this->d->m_screenCapture = ScreenCapturePtr::create(screen);
     this->d->m_captureSession->setScreenCapture(this->d->m_screenCapture.data());
+
+    // Connect before start(), so errors emitted while starting are not lost.
+    // The connection is queued so the capture object is never touched from
+    // inside its own signal.
+    auto screenCapture = this->d->m_screenCapture.data();
+    QObject::connect(screenCapture,
+                     &QScreenCapture::errorOccurred,
+                     this,
+                     [this, screenCapture] (QScreenCapture::Error error,
+                                            const QString &errorString) {
+        Q_UNUSED(error)
+        qCritical() << "Error in screen capture:"
+                    << errorString;
+
+#ifdef Q_OS_WIN
+        // Ignore stale errors from a previous capture session.
+        if (this->d->m_screenCapture.data() == screenCapture)
+            this->d->startGrabFallback();
+#endif
+    },
+                     Qt::QueuedConnection);
+
     this->d->m_screenCapture->start();
 
-    QObject::connect(this->d->m_screenCapture.data(),
-                     &QScreenCapture::errorOccurred,
-                     [=] (QScreenCapture::Error error,
-                          const QString &errorString) {
-        Q_UNUSED(error)
-        qCritical() << "Error starting screen capture:"
-                    << errorString;
-    });
+#ifdef Q_OS_WIN
+    this->d->m_watchdogTimer.start(3000);
+#endif
 
     qInfo() << "Screen capture started";
 
@@ -365,6 +395,10 @@ bool QtScreenDev::init()
 
 bool QtScreenDev::uninit()
 {
+    this->d->m_watchdogTimer.stop();
+    this->d->m_grabTimer.stop();
+    this->d->m_useGrabFallback = false;
+
     if (this->d->m_screenCapture) {
         this->d->m_screenCapture->stop();
         this->d->m_screenCapture = {};
@@ -395,6 +429,24 @@ void QtScreenDev::updateDevices()
 QtScreenDevPrivate::QtScreenDevPrivate(QtScreenDev *self):
     self(self)
 {
+    this->m_grabTimer.setTimerType(Qt::PreciseTimer);
+    QObject::connect(&this->m_grabTimer,
+                     &QTimer::timeout,
+                     [this] () {
+                         this->grabFrame();
+                     });
+
+    // Safety net: if the native capture backend never delivers a frame
+    // (and never reports an error), switch to the grabWindow() fallback.
+    this->m_watchdogTimer.setSingleShot(true);
+    QObject::connect(&this->m_watchdogTimer,
+                     &QTimer::timeout,
+                     [this] () {
+                         if (this->m_framesReceived.loadRelaxed() < 1) {
+                             qWarning() << "The screen capture backend did not deliver any frames";
+                             this->startGrabFallback();
+                         }
+                     });
 }
 
 QList<QSize> QtScreenDevPrivate::availableSizes(const QString &iconsPath,
@@ -509,6 +561,8 @@ qreal QtScreenDevPrivate::screenRotation() const
 
 void QtScreenDevPrivate::frameReady(const QVideoFrame &frame)
 {
+    this->m_framesReceived.fetchAndAddRelaxed(1);
+
     if (!this->m_threadStatus.isRunning()) {
         this->m_curFrame = frame;
 
@@ -527,8 +581,20 @@ void QtScreenDevPrivate::sendFrame(const QVideoFrame &frame)
     if (!frameCopy.map(QVideoFrame::ReadOnly))
         return;
 
-    auto frameImage = frameCopy.toImage()
-                               .convertToFormat(QImage::Format_ARGB32);
+    // The image can reference the mapped frame memory, so don't unmap
+    // until sendImage() has copied it.
+    this->sendImage(frameCopy.toImage(),
+                    frame.startTime(),
+                    frame.endTime() - frame.startTime());
+
+    frameCopy.unmap();
+}
+
+void QtScreenDevPrivate::sendImage(QImage frameImage,
+                                   qint64 pts,
+                                   qint64 duration)
+{
+    frameImage = frameImage.convertToFormat(QImage::Format_ARGB32);
 
     // Update the streams caps if the frame size changed
     if (this->m_currentFrameSize.width() != frameImage.width()
@@ -569,8 +635,8 @@ void QtScreenDevPrivate::sendFrame(const QVideoFrame &frame)
                           this->m_fps);
     AkVideoPacket videoPacket(videoCaps);
     videoPacket.setRotation(this->screenRotation());
-    videoPacket.setPts(frame.startTime());
-    videoPacket.setDuration(frame.endTime() - frame.startTime());
+    videoPacket.setPts(pts);
+    videoPacket.setDuration(duration);
     videoPacket.setTimeBase({1, 1000000});
     videoPacket.setIndex(0);
     videoPacket.setId(this->m_id);
@@ -593,9 +659,58 @@ void QtScreenDevPrivate::sendFrame(const QVideoFrame &frame)
         }
     }
 
-    frameCopy.unmap();
-
     emit self->oStream(videoPacket);
+}
+
+void QtScreenDevPrivate::startGrabFallback()
+{
+    if (this->m_useGrabFallback || !this->m_curScreen)
+        return;
+
+    qWarning() << "Falling back to QScreen::grabWindow() for screen capture";
+
+    this->m_useGrabFallback = true;
+    this->m_watchdogTimer.stop();
+
+    if (this->m_screenCapture)
+        this->m_screenCapture->stop();
+
+    AkFrac fps;
+
+    {
+        QMutexLocker locker(&this->m_mutex);
+        fps = this->m_fps;
+    }
+
+    int interval = fps.num() > 0 && fps.den() > 0?
+                       qMax(1, qRound(1000.0 * fps.den() / fps.num())):
+                       33;
+
+    this->m_grabClock.start();
+    this->m_grabTimer.start(interval);
+}
+
+void QtScreenDevPrivate::grabFrame()
+{
+    // Drop the frame if the previous one is still being processed.
+    if (!this->m_curScreen || this->m_threadStatus.isRunning())
+        return;
+
+    auto image = this->m_curScreen->grabWindow(0).toImage();
+
+    if (image.isNull())
+        return;
+
+    qint64 pts = this->m_grabClock.nsecsElapsed() / 1000; // Time base is 1/1000000.
+    qint64 duration = qint64(this->m_grabTimer.interval()) * 1000;
+
+    this->m_threadStatus =
+        QtConcurrent::run(&this->m_threadPool,
+                          &QtScreenDevPrivate::sendImage,
+                          this,
+                          image,
+                          pts,
+                          duration);
 }
 
 void QtScreenDevPrivate::updateDevices()
