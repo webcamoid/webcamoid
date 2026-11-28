@@ -126,6 +126,7 @@ class AkGLCompositorPrivate
         int m_blitPosAttr {-1};
         int m_blitTexAttr {-1};
         int m_blitTexUniform {-1};
+        int m_blitTransformUniform {-1};
 
         // Composite shader (entryFbo -> canvasFbo, transform per source).
         QOpenGLShaderProgram *m_compositeShader {nullptr};
@@ -188,7 +189,10 @@ class AkGLCompositorPrivate
                           const AkVideoPacket &packet);
         void compositeSourcesIntoCanvas();
         void readAndEmit(qint64 pts);
-        void blitTexture(GLuint tex, int width, int height);
+        void blitTexture(GLuint tex,
+                         int width,
+                         int height,
+                         const QMatrix4x4 &transform = QMatrix4x4());
         void ensureFboSize(QOpenGLFramebufferObject *&fbo,
                            int width,
                            int height);
@@ -1792,11 +1796,33 @@ void AkGLCompositorPrivate::uploadSource(AkGLCompositorSourcePtr source,
 
     source->uploadTex->release();
 
-    this->ensureFboSize(source->entryFbo, width, height);
+    // Apply the rotation of the packet here, so the entry FBO (and therefore
+    // the effects of the source) always sees the frame upright. If this is
+    // done at composition time the effects are applied in the wrong
+    // orientation.
+    float packetRotation = std::fmod(float(source->packetRotation), 360.0f);
+
+    if (packetRotation < 0.0f)
+        packetRotation += 360.0f;
+
+    bool swapDims =
+        qFuzzyCompare(packetRotation, 90.0f)
+        || qFuzzyCompare(packetRotation, 270.0f);
+    int fboWidth = swapDims? height: width;
+    int fboHeight = swapDims? width: height;
+
+    QMatrix4x4 blitTransform;
+    blitTransform.setToIdentity();
+    blitTransform.rotate(-packetRotation, 0.0f, 0.0f, 1.0f);
+
+    this->ensureFboSize(source->entryFbo, fboWidth, fboHeight);
     source->entryFbo->bind();
     self->glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     self->glClear(GL_COLOR_BUFFER_BIT);
-    this->blitTexture(source->uploadTex->textureId(), width, height);
+    this->blitTexture(source->uploadTex->textureId(),
+                      fboWidth,
+                      fboHeight,
+                      blitTransform);
     source->entryFbo->release();
 }
 
@@ -1853,7 +1879,19 @@ void AkGLCompositorPrivate::compositeSourcesIntoCanvas()
     this->m_compositeShader->bind();
     this->bindCompositeAttribs();
 
-    for (const auto &snap: std::as_const(this->m_orderedSources)) {
+    for (const auto &cachedSnap: std::as_const(this->m_orderedSources)) {
+        // The size of the entry FBO changes whenever the source changes its
+        // resolution or rotation (for example when the device is rotated),
+        // without touching any of the cached parameters, so it must be read
+        // on every frame, otherwise the source is drawn stretched until the
+        // snapshot is rebuilt.
+        auto snap = cachedSnap;
+
+        if (snap.source->entryFbo) {
+            snap.texW = snap.source->entryFbo->width();
+            snap.texH = snap.source->entryFbo->height();
+        }
+
         auto transform = this->computeSourceTransform(snap);
         self->glUniformMatrix4fv(this->m_compTransformUniform,
                                  1,
@@ -1886,25 +1924,10 @@ QMatrix4x4 AkGLCompositorPrivate::computeSourceTransform(const SourceSnapshot &s
     float rw = float(snap.rect.width());
     float rh = float(snap.rect.height());
 
-    qreal packetRotation = 0.0;
-    {
-        QMutexLocker locker(&snap.source->mutex);
-        packetRotation = snap.source->packetRotation;
-    }
-
-    // Normalize to [0, 360) and check whether the frame comes in
-    // "sideways" (90/270), in which case width and height swap for the
-    // purposes of aspect-ratio fitting.
-    float normalizedPacketRotation = std::fmod(float(packetRotation), 360.0f);
-
-    if (normalizedPacketRotation < 0.0f)
-        normalizedPacketRotation += 360.0f;
-
-    bool swapTexDims =
-        qFuzzyCompare(normalizedPacketRotation, 90.0f)
-        || qFuzzyCompare(normalizedPacketRotation, 270.0f);
-    int realTexW = swapTexDims ? snap.texH : snap.texW;
-    int realTexH = swapTexDims ? snap.texW : snap.texH;
+    // The packet rotation was already applied when the frame was uploaded
+    // to the entry FBO, so the texture is upright here.
+    int realTexW = snap.texW;
+    int realTexH = snap.texH;
 
     float pixelW = rw * canvasW;
     float pixelH = rh * canvasH;
@@ -1934,9 +1957,7 @@ QMatrix4x4 AkGLCompositorPrivate::computeSourceTransform(const SourceSnapshot &s
     float boxScaleW = rw > 0.0f ? fittedW / rw : 1.0f;
     float boxScaleH = rh > 0.0f ? fittedH / rh : 1.0f;
 
-    this->m_lastBoxScale = swapTexDims?
-        QVector2D(boxScaleH, boxScaleW):
-        QVector2D(boxScaleW, boxScaleH);
+    this->m_lastBoxScale = QVector2D(boxScaleW, boxScaleH);
 
     float cx = rx + rw / 2.0f;
     float cy = ry + rh / 2.0f;
@@ -1947,10 +1968,8 @@ QMatrix4x4 AkGLCompositorPrivate::computeSourceTransform(const SourceSnapshot &s
     transform.setToIdentity();
     transform.translate(ndcCx, ndcCy, 0.0f);
     transform.scale(1.0f / canvasW, 1.0f / canvasH, 1.0f);
-    transform.rotate(float(snap.rotation) - normalizedPacketRotation, 0.0f, 0.0f, 1.0f);
-    transform.scale(swapTexDims ? pixelH : pixelW,
-                    swapTexDims ? pixelW : pixelH,
-                    1.0f);
+    transform.rotate(float(snap.rotation), 0.0f, 0.0f, 1.0f);
+    transform.scale(pixelW, pixelH, 1.0f);
 
     return transform;
 }
@@ -2073,7 +2092,10 @@ void AkGLCompositorPrivate::readAndEmit(qint64 pts)
     }
 }
 
-void AkGLCompositorPrivate::blitTexture(GLuint tex, int width, int height)
+void AkGLCompositorPrivate::blitTexture(GLuint tex,
+                                        int width,
+                                        int height,
+                                        const QMatrix4x4 &transform)
 {
     self->glViewport(0, 0, width, height);
 
@@ -2083,6 +2105,10 @@ void AkGLCompositorPrivate::blitTexture(GLuint tex, int width, int height)
     self->glActiveTexture(GL_TEXTURE0);
     self->glBindTexture(GL_TEXTURE_2D, tex);
     self->glUniform1i(this->m_blitTexUniform, 0);
+    self->glUniformMatrix4fv(this->m_blitTransformUniform,
+                             1,
+                             GL_FALSE,
+                             transform.constData());
 
     self->glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
 
@@ -2172,6 +2198,7 @@ void AkGLCompositorPrivate::initGL()
     this->m_blitPosAttr = this->m_blitShader->attributeLocation("aPos");
     this->m_blitTexAttr = this->m_blitShader->attributeLocation("aTexCoord");
     this->m_blitTexUniform = this->m_blitShader->uniformLocation("uTex");
+    this->m_blitTransformUniform = this->m_blitShader->uniformLocation("uTransform");
 
     // Composite shader
     this->m_compositeShader = new QOpenGLShaderProgram;

@@ -17,12 +17,13 @@
  * Web-Site: http://webcamoid.github.io/
  */
 
+uniform highp mat4 uTransform;
 attribute highp vec4 aPos;
 attribute mediump vec2 aTexCoord;
 varying mediump vec2 vTexCoord;
 
 void main()
 {
-    gl_Position = aPos;
+    gl_Position = uTransform * aPos;
     vTexCoord = aTexCoord;
 }
